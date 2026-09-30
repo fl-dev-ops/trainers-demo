@@ -90,7 +90,7 @@ function LiveEntry() {
     <section>
       <div className="room">
         <div className="room-bar">
-          <Link href="/" className="back"><ChevronLeft />Back</Link>
+          <Link href="/trainers/olga" className="back"><ChevronLeft />Back</Link>
           <span className="rl idle"><i />{error ?? 'Connecting…'}</span>
         </div>
       </div>
@@ -143,7 +143,7 @@ function RolePlay({ connection, scenario: SCENARIO }: { connection: ConnectionDe
     const room = session.room
     const handleDisconnected = () => {
       sessionStorage.removeItem(CONNECTION_STORAGE_KEY)
-      router.replace('/')
+      router.replace('/trainers/olga')
     }
     room.on(RoomEvent.Disconnected, handleDisconnected)
     return () => {
@@ -220,7 +220,7 @@ function RolePlay({ connection, scenario: SCENARIO }: { connection: ConnectionDe
   async function leaveToHome() {
     sessionStorage.removeItem(CONNECTION_STORAGE_KEY)
     await session.end()
-    router.push('/')
+    router.push('/trainers/olga')
   }
 
   return (
@@ -229,7 +229,7 @@ function RolePlay({ connection, scenario: SCENARIO }: { connection: ConnectionDe
       <section>
         <div className="room">
           <div className="room-bar">
-            <Link href="/" className="back"><ChevronLeft />Back</Link>
+            <Link href="/trainers/olga" className="back"><ChevronLeft />Back</Link>
             <span className={status.className}><i />{status.label}</span>
             <span className="rclock">{clock}</span>
           </div>

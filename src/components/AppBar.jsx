@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Lock, Logo, Moon, Sun } from './Icons.jsx'
 
 function readTheme() {
@@ -13,6 +14,8 @@ function readTheme() {
 }
 
 export default function AppBar({ children }) {
+  const pathname = usePathname()
+  const trainerHome = pathname.match(/^\/trainers\/[^/]+/)?.[0] ?? '/'
   const [theme, setTheme] = useState(readTheme)
   const headRef = useRef(null)
 
@@ -37,7 +40,7 @@ export default function AppBar({ children }) {
     <>
       <header className="app-head" ref={headRef}>
         <div className="in">
-          <Link href="/" className="lockup"><Logo />TrainerTwin</Link>
+          <Link href={trainerHome} className="lockup"><Logo />TrainerTwin</Link>
           <div className="head-r">
             <span className="badge hide-sm"><Lock />Private preview</span>
             <button

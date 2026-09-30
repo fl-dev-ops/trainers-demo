@@ -1,13 +1,13 @@
-# Olga's Twin
+# Trainer demos
 
-A Next.js prototype of the Olga twin. No authentication.
+A Next.js app for trainer twins, with each trainer under their own `/trainers/<slug>` route. Olga is the first trainer. No authentication.
 
 | Route   | Page                                                                |
 | ------- | ------------------------------------------------------------------- |
-| `/`     | Overview: what the twin is, the two paths, and the sources drawer   |
-| `/meet` | Preview video of Olga's twin (`public/media/olga-intro.mp4`)       |
-| `/live` | Real-time role play against the LiveKit agent. Asks for your name first; `/live?s=<id>` picks a scenario |
-| `/removed` | Shown after confirming "Remove my twin" on the overview (UI only, nothing is deleted yet) |
+| `/trainers/olga` | Overview: what the twin is, the two paths, and the sources drawer |
+| `/trainers/olga/meet` | Preview video of Olga's twin (`public/media/olga-intro.mp4`) |
+| `/trainers/olga/live` | Real-time role play against the LiveKit agent; `?s=<id>` picks a scenario |
+| `/trainers/olga/removed` | Shown after confirming "Remove my twin" on the overview (UI only, nothing is deleted yet) |
 | `POST /api/connection-details` | Mints the LiveKit join token, creates the room and dispatches the agent |
 
 ## Run locally
@@ -18,7 +18,7 @@ cp .env.example .env.local   # fill in the LiveKit credentials
 npm run dev
 ```
 
-The LiveKit agent worker must also be running for `/live` to connect. Credentials are read from
+The LiveKit agent worker must also be running for `/trainers/olga/live` to connect. Credentials are read from
 `.env.local` on the server only — the browser never sees the API secret.
 
 ## Deploy to Vercel
@@ -29,8 +29,7 @@ are needed.
 
 ## How `/live` is wired
 
-- `src/app/live/page.tsx` — a pre-join gate asks for the user's name (which the agent uses as
-  `user_name`), trades it for connection details via `POST /api/connection-details`, then mounts the
+- `src/app/trainers/olga/live/page.tsx` — obtains connection details via `POST /api/connection-details`, then mounts the
   room with `useSession` + `SessionProvider`. The status pill, the mm:ss clock, the camera/mic
   toggles and the hang-up button are all driven by the room.
 - `src/app/api/connection-details/route.ts` — creates the room, dispatches the agent and mints a
@@ -41,5 +40,5 @@ are needed.
   `.rtile-slot` (`#twin-avatar`).
 - `src/live/TranscriptPanel.jsx` — renders the room's messages as `lines` (`{ id, who, text }`) and
   sends the typed message back to the room.
-- Scenario copy lives in `SCENARIOS` in `src/data.js`; `/live?s=<id>` picks one (defaults to the
+- Scenario copy lives in `SCENARIOS` in `src/data.js`; `/trainers/olga/live?s=<id>` picks one (defaults to the
   first).

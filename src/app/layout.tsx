@@ -4,8 +4,8 @@ import '../styles.css'
 import AppBar from '../components/AppBar.jsx'
 
 export const metadata: Metadata = {
-  title: "Olga's Twin · TrainerTwin",
-  description: 'Meet the AI twin of Olga Sinenko, built from her public teaching content.',
+  title: 'TrainerTwin',
+  description: 'Meet AI twins of trainers, built from their public teaching content.',
   icons: { icon: '/favicon.svg' },
 }
 
