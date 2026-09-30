@@ -4,6 +4,8 @@ A Next.js app for trainer twins, with each trainer under their own `/trainers/<s
 
 Repository: [fl-dev-ops/trainers-demo](https://github.com/fl-dev-ops/trainers-demo).
 
+Production: [Olga's trainer demo](https://trainers-demo.vercel.app/trainers/olga).
+
 | Route   | Page                                                                |
 | ------- | ------------------------------------------------------------------- |
 | `/trainers/olga` | Overview: what the twin is, the two paths, and the sources drawer |
@@ -44,19 +46,19 @@ Add these server-side environment variables from your local configuration:
 
 Keep credentials out of Git. The LiveKit agent worker must run separately; deploying this app does not deploy the worker.
 
-Deployment is pending: the current Vercel CLI account was denied permission to create the project. Authenticate with an account that can create projects in the selected team before deploying.
+Deployed as `trainers-demo` under **Forever Learning's projects** at [trainers-demo.vercel.app](https://trainers-demo.vercel.app), connected to `fl-dev-ops/trainers-demo` with production branch `main`. The four LiveKit variables are configured securely. The production pages, legacy redirects, and LiveKit room/token API were verified. The separate worker's audio/video session was not verified.
 
 ## Redirecting from trainertwin.com
 
-The existing app continues to serve `trainertwin.com`. Configure redirects in that existing website's Vercel project so only `/trainers` and `/trainers/*` send visitors to this app's production URL.
+The existing Vercel project `trainer-twin-website` serves `trainertwin.com` and `www.trainertwin.com`, connected to `fl-dev-ops/trainer-twin-website` on `main`. Configure redirects in that website's `next.config.ts` so only `/trainers` and `/trainers/*` send visitors to `https://trainers-demo.vercel.app`.
 
-Expected behavior once configured:
+Expected behavior once published:
 
 - `trainertwin.com/trainers` → this app's `/trainers/olga` page.
 - `trainertwin.com/trainers/olga` → this app's `/trainers/olga` page.
 - Trainer subpaths and query parameters are preserved.
 
-This is a redirect: the browser address changes to the demo app's hostname. The rule belongs in the existing website project, because that project receives requests for `trainertwin.com`. The redirect is pending until the new app has a verified production URL.
+This is a redirect: the browser address changes to the demo app's hostname. The rule belongs in the existing website project, because that project receives requests for `trainertwin.com`. The two 307 redirect rules passed typecheck, lint, build, and local route checks, including query preservation and unaffected home, privacy, and careers routes. Publishing is pending: GitHub denied the website push with HTTP 403 for `hasan007-sudo`. The prepared website change is local commit `0845b74`; use an account with write access to publish it. The live domain redirects have not been configured or verified yet.
 
 ## How `/trainers/olga/live` is wired
 
