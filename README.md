@@ -4,21 +4,24 @@ A Next.js app for trainer twins, with each trainer under their own `/trainers/<s
 
 Repository: [fl-dev-ops/trainers-demo](https://github.com/fl-dev-ops/trainers-demo).
 
-Production: [Olga's trainer demo](https://trainers-demo.vercel.app/trainers/olga).
+Production: [Trainer directory](https://trainers-demo.vercel.app). Olga's demo is at [/trainers/olga](https://trainers-demo.vercel.app/trainers/olga).
+
+Planned permanent hostname: `trainers.trainertwin.com` (domain configuration pending).
 
 | Route   | Page                                                                |
 | ------- | ------------------------------------------------------------------- |
+| `/` | Trainer directory, currently listing Olga |
 | `/trainers/olga` | Overview: what the twin is, the two paths, and the sources drawer |
 | `/trainers/olga/meet` | Preview video of Olga's twin (`public/media/olga-intro.mp4`) |
 | `/trainers/olga/live` | Real-time role play against the LiveKit agent; `?s=<id>` picks a scenario |
 | `/trainers/olga/removed` | Shown after confirming "Remove my twin" on the overview (UI only, nothing is deleted yet) |
 | `POST /api/connection-details` | Mints the LiveKit join token, creates the room and dispatches the agent |
 
-`/` redirects to `/trainers/olga`. The previous `/meet`, `/live`, and `/removed` URLs redirect to their Olga routes, preserving query parameters.
+`/` displays the trainer directory. The previous `/meet`, `/live`, and `/removed` URLs redirect to their Olga routes, preserving query parameters.
 
 ## Adding trainers
 
-Add each trainer's pages under `src/app/trainers/<slug>/`, for example `/trainers/vasanth`. Olga's pages and metadata live in `src/app/trainers/olga/`.
+Add each trainer's pages under `src/app/trainers/<slug>/`, for example `/trainers/vasanth`. Olga's pages and metadata live in `src/app/trainers/olga/`. Once a trainer's demo is ready, add their card and link to the directory in `src/app/page.tsx`.
 
 Trainer data in `src/data.js` and the LiveKit API currently support Olga only. Adding another trainer also requires their content, media, and agent configuration; adding a route alone does not switch the agent.
 
@@ -48,17 +51,21 @@ Keep credentials out of Git. The LiveKit agent worker must run separately; deplo
 
 Deployed as `trainers-demo` under **Forever Learning's projects** at [trainers-demo.vercel.app](https://trainers-demo.vercel.app), connected to `fl-dev-ops/trainers-demo` with production branch `main`. The four LiveKit variables are configured securely. The production pages, legacy redirects, and LiveKit room/token API were verified. The separate worker's audio/video session was not verified.
 
-## Redirecting from trainertwin.com
+## Custom trainer domain
 
-The existing Vercel project `trainer-twin-website` serves `trainertwin.com` and `www.trainertwin.com`, connected to `fl-dev-ops/trainer-twin-website` on `main`. Configure redirects in that website's `next.config.ts` so only `/trainers` and `/trainers/*` send visitors to `https://trainers-demo.vercel.app`.
+Trainer demos will use `trainers.trainertwin.com`, with the directory at `/` and each trainer at `/trainers/<slug>`. The marketing website requires no changes.
 
-Expected behavior once published:
+Status: the directory is deployed at [trainers-demo.vercel.app](https://trainers-demo.vercel.app). Its homepage and Olga's overview, meet, live, and removed pages were checked over HTTPS and returned HTTP 200. The header and favicon use the docs project's logo. The custom domain is not attached yet; HTTPS on that hostname remains unverified.
 
-- `trainertwin.com/trainers` → this app's `/trainers/olga` page.
-- `trainertwin.com/trainers/olga` → this app's `/trainers/olga` page.
-- Trainer subpaths and query parameters are preserved.
+To finish domain setup:
 
-This is a redirect: the browser address changes to the demo app's hostname. The rule belongs in the existing website project, because that project receives requests for `trainertwin.com`. The two 307 redirect rules passed typecheck, lint, build, and local route checks, including query preservation and unaffected home, privacy, and careers routes. Publishing is pending: GitHub denied the website push with HTTP 403 for `hasan007-sudo`. The prepared website change is local commit `0845b74`; use an account with write access to publish it. The live domain redirects have not been configured or verified yet.
+1. Open the `trainers-demo` project's [Vercel domain settings](https://vercel.com/forever-learnings-projects/trainers-demo/settings/domains).
+2. Add `trainers.trainertwin.com` to the production environment.
+3. If Vercel requests DNS configuration, create the `trainers` CNAME at the current DNS provider using the exact target Vercel displays.
+4. Wait for Vercel to confirm the domain and HTTPS certificate, then check the directory and Olga's routes on the new hostname.
+5. Update the production links and this status after successful verification.
+
+The connected Vercel tools do not expose domain or DNS mutations, and the local shell could not start, so that configuration could not be completed from this session.
 
 ## How `/trainers/olga/live` is wired
 
