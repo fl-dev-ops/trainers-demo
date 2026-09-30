@@ -4,9 +4,9 @@ A Next.js app for trainer twins, with each trainer under their own `/trainers/<s
 
 Repository: [fl-dev-ops/trainers-demo](https://github.com/fl-dev-ops/trainers-demo).
 
-Production: [Trainer directory](https://trainers-demo.vercel.app). Olga's demo is at [/trainers/olga](https://trainers-demo.vercel.app/trainers/olga).
+Production: [Trainer directory](https://trainers.trainertwin.com). Olga's demo is at [/trainers/olga](https://trainers.trainertwin.com/trainers/olga).
 
-Planned permanent hostname: `trainers.trainertwin.com` (domain configuration pending).
+Permanent hostname: `trainers.trainertwin.com` (verified and live).
 
 | Route   | Page                                                                |
 | ------- | ------------------------------------------------------------------- |
@@ -49,23 +49,15 @@ Add these server-side environment variables from your local configuration:
 
 Keep credentials out of Git. The LiveKit agent worker must run separately; deploying this app does not deploy the worker.
 
-Deployed as `trainers-demo` under **Forever Learning's projects** at [trainers-demo.vercel.app](https://trainers-demo.vercel.app), connected to `fl-dev-ops/trainers-demo` with production branch `main`. The four LiveKit variables are configured securely. The production pages, legacy redirects, and LiveKit room/token API were verified. The separate worker's audio/video session was not verified.
+Deployed as `trainers-demo` under **Forever Learning's projects** at [trainers.trainertwin.com](https://trainers.trainertwin.com), connected to `fl-dev-ops/trainers-demo` with production branch `main`. The four LiveKit variables are configured securely. The production pages, legacy redirects, and LiveKit room/token API were verified. The separate worker's audio/video session was not verified.
 
 ## Custom trainer domain
 
-Trainer demos will use `trainers.trainertwin.com`, with the directory at `/` and each trainer at `/trainers/<slug>`. The marketing website requires no changes.
+Trainer demos use [trainers.trainertwin.com](https://trainers.trainertwin.com), with the directory at `/` and each trainer at `/trainers/<slug>`. The marketing website is unchanged.
 
-Status: the directory is deployed at [trainers-demo.vercel.app](https://trainers-demo.vercel.app). Its homepage and Olga's overview, meet, live, and removed pages were checked over HTTPS and returned HTTP 200. The header and favicon use the docs project's logo. The custom domain is not attached yet; HTTPS on that hostname remains unverified.
+Status: complete. Vercel reports `trainers.trainertwin.com` attached to and verified for the `trainers-demo` project, with DNS configured correctly. The directory, Olga's overview, meet, live (including `?s=prices`), and removed pages, and the favicon returned HTTP 200 over HTTPS with valid certificate verification. The directory includes a working link to Olga's demo. The header and favicon use the docs project's logo. The live page's audio/video session was not verified in this domain check.
 
-To finish domain setup:
-
-1. Open the `trainers-demo` project's [Vercel domain settings](https://vercel.com/forever-learnings-projects/trainers-demo/settings/domains).
-2. Add `trainers.trainertwin.com` to the production environment.
-3. If Vercel requests DNS configuration, create the `trainers` CNAME at the current DNS provider using the exact target Vercel displays.
-4. Wait for Vercel to confirm the domain and HTTPS certificate, then check the directory and Olga's routes on the new hostname.
-5. Update the production links and this status after successful verification.
-
-The connected Vercel tools do not expose domain or DNS mutations, and the local shell could not start, so that configuration could not be completed from this session.
+DNS is managed through Cloudflare. For future domain changes, use the `trainers-demo` project's [Vercel domain settings](https://vercel.com/forever-learnings-projects/trainers-demo/settings/domains) and the exact DNS values Vercel provides.
 
 ## How `/trainers/olga/live` is wired
 
