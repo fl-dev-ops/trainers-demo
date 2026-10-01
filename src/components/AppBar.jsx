@@ -15,7 +15,7 @@ function readTheme() {
 
 export default function AppBar({ children }) {
   const pathname = usePathname()
-  const trainerHome = pathname.match(/^\/trainers\/[^/]+/)?.[0] ?? '/'
+  const trainerHome = pathname.match(/^\/[^/]+/)?.[0] ?? '/'
   const [theme, setTheme] = useState(readTheme)
   const headRef = useRef(null)
 

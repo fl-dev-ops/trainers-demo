@@ -42,7 +42,7 @@ export default function Welcome() {
               <h2>Meet your video twin</h2>
               <p>Use your twin to share content with your agents.</p>
               <div className="row">
-                <Link href="/trainers/olga/meet" className="btn btn--strong">Meet your twin</Link>
+                <Link href="/olga/meet" className="btn btn--strong">Meet your twin</Link>
                 <span className="meta">1 min</span>
               </div>
             </div>
@@ -53,7 +53,7 @@ export default function Welcome() {
               <span className="peek-k">{SCENARIOS.length} role plays from your videos</span>
               <div className="rprows">
                 {SCENARIOS.map((s) => (
-                  <Link key={s.id} href={`/trainers/olga/live?s=${s.id}`} className="rprow" aria-label={'Start the role play: ' + s.title}>
+                  <Link key={s.id} href={`/olga/live?s=${s.id}`} className="rprow" aria-label={'Start the role play: ' + s.title}>
                     <span className="cl" aria-hidden="true">{s.initials}</span>
                     <span className="q">{s.quote}</span>
                     <img className="tw" src={TWIN.face} alt="" />
@@ -66,7 +66,7 @@ export default function Welcome() {
               <h2>Meet your interactive twin</h2>
               <p>Where your agents practise with you. Customise, tweak and personalise it anytime.</p>
               <div className="row">
-                <Link href={`/trainers/olga/live?s=${SCENARIOS[0].id}`} className="btn btn--strong">Start a role play</Link>
+                <Link href={`/olga/live?s=${SCENARIOS[0].id}`} className="btn btn--strong">Start a role play</Link>
                 <span className="meta">{SCENARIOS.length} scenarios · about 2 min each</span>
               </div>
             </div>
@@ -99,7 +99,7 @@ export default function Welcome() {
         </div>
       </div>
       {showSources && <SourcesDrawer onClose={closeSources} />}
-      {showRemove && <RemoveDialog onCancel={closeRemove} onConfirm={() => router.push('/trainers/olga/removed')} />}
+      {showRemove && <RemoveDialog onCancel={closeRemove} onConfirm={() => router.push('/olga/removed')} />}
     </section>
   )
 }

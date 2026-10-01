@@ -33,7 +33,7 @@ export default function Meet() {
         </div>
         <div className="m3r">
           <div className="m3h">
-            <Link href="/trainers/olga" className="back"><ChevronLeft />Back</Link>
+            <Link href="/olga" className="back"><ChevronLeft />Back</Link>
             <span className="kind"><VideoCam />Video · made by your twin</span>
             <h1>Hi {TWIN.firstName}. I'm your twin.</h1>
             <p>I learned how you teach from your YouTube, LinkedIn and Instagram. Press play to meet me.</p>

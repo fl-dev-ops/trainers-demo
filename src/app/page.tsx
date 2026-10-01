@@ -29,7 +29,7 @@ export default function Home() {
               <h2>{TWIN.name}</h2>
               <p>Meet Olga’s video twin and practise with her interactive twin.</p>
               <div className="row">
-                <Link href="/trainers/olga" className="btn btn--strong">
+                <Link href="/olga" className="btn btn--strong">
                   Explore Olga’s demo
                 </Link>
               </div>

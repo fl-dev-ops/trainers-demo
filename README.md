@@ -1,27 +1,27 @@
 # Trainer demos
 
-A Next.js app for trainer twins, with each trainer under their own `/trainers/<slug>` route. Olga is the first trainer. No authentication.
+A Next.js app for trainer twins, with each trainer under their own `/<slug>` route. Olga is the first trainer. No authentication.
 
 Repository: [fl-dev-ops/trainers-demo](https://github.com/fl-dev-ops/trainers-demo).
 
-Production: [Trainer directory](https://trainers.trainertwin.com). Olga's demo is at [/trainers/olga](https://trainers.trainertwin.com/trainers/olga).
+Production: [Trainer directory](https://trainers.trainertwin.com). Olga's demo is at [/olga](https://trainers.trainertwin.com/olga).
 
 Permanent hostname: `trainers.trainertwin.com` (verified and live).
 
 | Route   | Page                                                                |
 | ------- | ------------------------------------------------------------------- |
 | `/` | Trainer directory, currently listing Olga |
-| `/trainers/olga` | Overview: what the twin is, the two paths, and the sources drawer |
-| `/trainers/olga/meet` | Preview video of Olga's twin (`public/media/olga-intro.mp4`) |
-| `/trainers/olga/live` | Real-time role play against the LiveKit agent; `?s=<id>` picks a scenario |
-| `/trainers/olga/removed` | Shown after confirming "Remove my twin" on the overview (UI only, nothing is deleted yet) |
+| `/olga` | Overview: what the twin is, the two paths, and the sources drawer |
+| `/olga/meet` | Preview video of Olga's twin (`public/media/olga-intro.mp4`) |
+| `/olga/live` | Real-time role play against the LiveKit agent; `?s=<id>` picks a scenario |
+| `/olga/removed` | Shown after confirming "Remove my twin" on the overview (UI only, nothing is deleted yet) |
 | `POST /api/connection-details` | Mints the LiveKit join token, creates the room and dispatches the agent |
 
-`/` displays the trainer directory. The previous `/meet`, `/live`, and `/removed` URLs redirect to their Olga routes, preserving query parameters.
+`/` displays the trainer directory. Trainer pages use folder-based routing without legacy redirects.
 
 ## Adding trainers
 
-Add each trainer's pages under `src/app/trainers/<slug>/`, for example `/trainers/vasanth`. Olga's pages and metadata live in `src/app/trainers/olga/`. Once a trainer's demo is ready, add their card and link to the directory in `src/app/page.tsx`.
+Add each trainer's pages under `src/app/<slug>/`, for example `/vasanth`. Olga's pages and metadata live in `src/app/olga/`. Once a trainer's demo is ready, add their card and link to the directory in `src/app/page.tsx`.
 
 Trainer data in `src/data.js` and the LiveKit API currently support Olga only. Adding another trainer also requires their content, media, and agent configuration; adding a route alone does not switch the agent.
 
@@ -33,7 +33,7 @@ cp .env.example .env.local   # fill in the LiveKit credentials
 npm run dev
 ```
 
-The LiveKit agent worker must also be running for `/trainers/olga/live` to connect. Credentials are read from
+The LiveKit agent worker must also be running for `/olga/live` to connect. Credentials are read from
 `.env.local` on the server only — the browser never sees the API secret.
 
 ## Deploy to Vercel
@@ -53,15 +53,15 @@ Deployed as `trainers-demo` under **Forever Learning's projects** at [trainers.t
 
 ## Custom trainer domain
 
-Trainer demos use [trainers.trainertwin.com](https://trainers.trainertwin.com), with the directory at `/` and each trainer at `/trainers/<slug>`. The marketing website is unchanged.
+Trainer demos use [trainers.trainertwin.com](https://trainers.trainertwin.com), with the directory at `/` and each trainer at `/<slug>`. The marketing website is unchanged.
 
 Status: complete. Vercel reports `trainers.trainertwin.com` attached to and verified for the `trainers-demo` project, with DNS configured correctly. The directory, Olga's overview, meet, live (including `?s=prices`), and removed pages, and the favicon returned HTTP 200 over HTTPS with valid certificate verification. The directory includes a working link to Olga's demo. The header and favicon use the docs project's logo. The live page's audio/video session was not verified in this domain check.
 
 DNS is managed through Cloudflare. For future domain changes, use the `trainers-demo` project's [Vercel domain settings](https://vercel.com/forever-learnings-projects/trainers-demo/settings/domains) and the exact DNS values Vercel provides.
 
-## How `/trainers/olga/live` is wired
+## How `/olga/live` is wired
 
-- `src/app/trainers/olga/live/page.tsx` — obtains connection details via `POST /api/connection-details`, then mounts the
+- `src/app/olga/live/page.tsx` — obtains connection details via `POST /api/connection-details`, then mounts the
   room with `useSession` + `SessionProvider`. The status pill, the mm:ss clock, the camera/mic
   toggles and the hang-up button are all driven by the room.
 - `src/app/api/connection-details/route.ts` — creates the room, dispatches the agent and mints a
@@ -72,5 +72,5 @@ DNS is managed through Cloudflare. For future domain changes, use the `trainers-
   `.rtile-slot` (`#twin-avatar`).
 - `src/live/TranscriptPanel.jsx` — renders the room's messages as `lines` (`{ id, who, text }`) and
   sends the typed message back to the room.
-- Scenario copy lives in `SCENARIOS` in `src/data.js`; `/trainers/olga/live?s=<id>` picks one (defaults to the
+- Scenario copy lives in `SCENARIOS` in `src/data.js`; `/olga/live?s=<id>` picks one (defaults to the
   first).
