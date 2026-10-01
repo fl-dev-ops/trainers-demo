@@ -3,6 +3,7 @@ export const TWIN = {
   firstName: 'Olga',
   initials: 'OS',
   video: '/media/olga-intro.mp4',
+  demo: 'https://www.loom.com/share/5d5335a668de4abebec06d4c2271f7d0',
   poster: '/media/olga-intro-poster.jpg',
   face: '/media/olga-face.jpg',
 }

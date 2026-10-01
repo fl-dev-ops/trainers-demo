@@ -73,17 +73,6 @@ export default function Welcome() {
           </article>
         </div>
 
-        <section className="conversation" aria-labelledby="conversation-title">
-          <h2 id="conversation-title">Watch a conversation with Olga’s twin</h2>
-          <iframe
-            src="https://www.loom.com/embed/5d5335a668de4abebec06d4c2271f7d0"
-            title="A user’s conversation with Olga’s twin"
-            loading="lazy"
-            allow="fullscreen"
-            allowFullScreen
-          />
-        </section>
-
         <div className="trust">
           <div className="tr">
             <PlayBox />

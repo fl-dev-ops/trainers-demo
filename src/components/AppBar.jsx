@@ -3,7 +3,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Lock, Logo, Moon, Sun } from './Icons.jsx'
+import { TWIN } from '../data.js'
+import { Lock, Logo, Moon, Play, Sun } from './Icons.jsx'
 
 function readTheme() {
   try {
@@ -42,6 +43,11 @@ export default function AppBar({ children }) {
         <div className="in">
           <Link href={trainerHome} className="lockup"><Logo />TrainerTwin</Link>
           <div className="head-r">
+            {TWIN.demo && (
+              <a className="btn btn--secondary" href={TWIN.demo} target="_blank" rel="noopener noreferrer">
+                <Play />Watch demo of Olga
+              </a>
+            )}
             <span className="badge hide-sm"><Lock />Private preview</span>
             <button
               type="button"
