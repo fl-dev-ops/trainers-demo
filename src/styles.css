@@ -115,6 +115,9 @@ svg{flex:none}
 .path-b p{font-size:15px;color:var(--text-2)}
 .path-b .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
 .path-b .meta{font-size:13px;color:var(--text-3)}
+.conversation{display:flex;flex-direction:column;gap:16px;width:100%}
+.conversation h2{font-size:20px;line-height:26px;font-weight:600}
+.conversation iframe{display:block;width:100%;aspect-ratio:16/9;border:1px solid var(--card-border);border-radius:16px;background:var(--sunken);box-shadow:var(--e1)}
 .trust{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;width:100%;padding-top:24px;border-top:1px solid var(--border)}
 @media (max-width:760px){.trust{grid-template-columns:minmax(0,1fr);gap:16px}}
 .tr{display:flex;gap:12px;align-items:flex-start;min-width:0}
