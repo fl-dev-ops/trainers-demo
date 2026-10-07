@@ -5,7 +5,10 @@ export type ConnectionDetails = {
   participantToken: string;
 };
 
-export const CONNECTION_STORAGE_KEY = "olga-twin-connection";
+/** Keeps each trainer's room credentials in a separate cache entry. */
+export function getConnectionStorageKey(profile: string): string {
+  return `${profile}-twin-connection`;
+}
 
 /**
  * Parses the cached connection details, returning null when they are missing or

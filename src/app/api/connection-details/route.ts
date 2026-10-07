@@ -8,7 +8,7 @@ import {
 export const dynamic = "force-dynamic";
 
 const LIVEKIT_LOG_PREFIX = "[EXT-API:livekit]";
-const AGENT_ID = "olga";
+const AGENT_IDS = ["olga", "jameel"];
 
 /** Times a slow LiveKit server call and logs its outcome under one prefix. */
 async function logLiveKitCall<T>(
@@ -40,9 +40,16 @@ function getErrorType(error: unknown): string {
 
 export async function POST(request: Request) {
   let name = "";
+  let agentId = "olga";
   try {
     const body = (await request.json()) as Record<string, unknown>;
     name = typeof body?.name === "string" ? body.name.trim() : "";
+    if (body.profile !== undefined) {
+      if (typeof body.profile !== "string" || !AGENT_IDS.includes(body.profile)) {
+        return Response.json({ error: "Unsupported trainer profile" }, { status: 400 });
+      }
+      agentId = body.profile;
+    }
   } catch {
     return Response.json({ error: "Invalid JSON body" }, { status: 400 });
   }
@@ -51,8 +58,8 @@ export async function POST(request: Request) {
   }
 
   const metadata = JSON.stringify({
-    agent_id: AGENT_ID,
-    avatar: true,
+    agent_id: agentId,
+    avatar: agentId === "jameel" ? "anam" : true,
     user_name: name,
     interaction_mode: "auto",
   });

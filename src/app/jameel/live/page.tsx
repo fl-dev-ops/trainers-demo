@@ -1,6 +1,6 @@
-import { TWIN } from '@/data.js'
+import { JAMEEL } from '@/data.js'
 import LiveRoom from '@/live/LiveRoom'
 
 export default function LivePage() {
-  return <LiveRoom trainer={TWIN} />
+  return <LiveRoom trainer={JAMEEL} />
 }

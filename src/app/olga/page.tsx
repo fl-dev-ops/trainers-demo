@@ -4,9 +4,10 @@ import { useCallback, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { SCENARIOS, TWIN } from '@/data.js'
+import MadeFrom from '@/components/MadeFrom.jsx'
 import SourcesDrawer from '@/components/SourcesDrawer.jsx'
 import RemoveDialog from '@/components/RemoveDialog.jsx'
-import { Eye, Instagram, LinkedIn, Play, PlayBox, Shield, Sparkle, Trash, XLogo, YouTube } from '@/components/Icons.jsx'
+import { Eye, Play, PlayBox, Shield, Sparkle, Trash, XLogo } from '@/components/Icons.jsx'
 
 export default function Welcome() {
   const router = useRouter()
@@ -22,13 +23,7 @@ export default function Welcome() {
           <div className="mono" aria-hidden="true"><span>{TWIN.initials}</span></div>
           <span className="badge"><Sparkle />AI twin of {TWIN.name} · Draft</span>
           <h1>Your twin is ready, {TWIN.firstName}.</h1>
-          <div className="made">
-            <span className="made-l">Made from</span>
-            <span className="srcpill"><YouTube />YouTube</span>
-            <span className="srcpill"><LinkedIn />LinkedIn</span>
-            <span className="srcpill"><Instagram />Instagram</span>
-            <span className="srcpill">X (Twitter)</span>
-          </div>
+          <MadeFrom />
         </div>
 
         <div className="paths">

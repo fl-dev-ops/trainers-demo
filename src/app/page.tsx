@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { TWIN } from '../data.js'
+import { JAMEEL, TWIN } from '../data.js'
 
 export const metadata: Metadata = {
   title: 'Trainer demos · TrainerTwin',
@@ -31,6 +31,24 @@ export default function Home() {
               <div className="row">
                 <Link href="/olga" className="btn btn--strong">
                   Explore Olga’s demo
+                </Link>
+              </div>
+            </div>
+          </article>
+          <article className="path">
+            <div className="path-b">
+              <Image
+                src={JAMEEL.face}
+                alt={JAMEEL.name}
+                width={76}
+                height={76}
+                style={{ borderRadius: '50%', objectFit: 'cover' }}
+              />
+              <h2>{JAMEEL.name}</h2>
+              <p>Practise client conversations with Jameel’s interactive video twin.</p>
+              <div className="row">
+                <Link href="/jameel" className="btn btn--strong">
+                  Explore Jameel’s demo
                 </Link>
               </div>
             </div>
