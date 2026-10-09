@@ -104,6 +104,7 @@ function LiveEntry({ trainer }: { trainer: Trainer }) {
 /** The live room: owns the LiveKit session and renders the role play UI. */
 function RolePlay({ connection, scenario: SCENARIO, trainer }: { connection: ConnectionDetails; scenario: Scenario; trainer: Trainer }) {
   const trainerHome = `/${trainer.id}`
+  const isJameel = trainer.id === 'jameel'
   const storageKey = getConnectionStorageKey(trainer.id)
   const router = useRouter()
   const [chat, setChat] = useState(true)
@@ -241,11 +242,13 @@ function RolePlay({ connection, scenario: SCENARIO, trainer }: { connection: Con
 
           <div className={'room-grid' + (chat ? '' : ' chat-off')}>
             <section className="rpanel scen" aria-labelledby="rpTitle">
-              <span className="kind"><Chat />Live role play</span>
-              <h1 id="rpTitle">{SCENARIO.title}</h1>
-              <span className="rchip">{SCENARIO.tag}</span>
-              <p className="sc">{SCENARIO.scenario}</p>
-              <div className="cues">
+              <span className="kind"><Chat />{isJameel ? 'Interview practice · Demo' : 'Live role play'}</span>
+              <h1 id="rpTitle">{isJameel ? 'Demand Planner Job' : SCENARIO.title}</h1>
+              {!isJameel && <span className="rchip">{SCENARIO.tag}</span>}
+              <p className="sc">{isJameel
+                ? 'Jameel’s AI twin is ready to help you prepare for a Demand Planner Job based on top 10 frequently asked questions. During the interaction, the twin will also share tips on how to answer these questions effectively to impress your potential employer.'
+                : SCENARIO.scenario}</p>
+              {!isJameel && <div className="cues">
                 <p className="rk">Cues</p>
                 <ol>
                   {SCENARIO.cues.map((c, i) => (
@@ -254,18 +257,18 @@ function RolePlay({ connection, scenario: SCENARIO, trainer }: { connection: Con
                     </li>
                   ))}
                 </ol>
-              </div>
-              <button type="button" className="rbtn">Customise my twin</button>
+              </div>}
+              {!isJameel && <button type="button" className="rbtn">Customise my twin</button>}
             </section>
 
             <div className="rtiles">
               <AvatarStage name={`${trainer.firstName}'s twin`} image={trainer.face} />
-              <div className="rtile" aria-label={SCENARIO.participant + ' video'}>
+              <div className="rtile" aria-label={(isJameel ? PARTICIPANT_NAME : SCENARIO.participant) + ' video'}>
                 <div className="rtile-slot" id="participant-video">
                   {session.local.cameraTrack && <VideoTrack trackRef={session.local.cameraTrack} />}
                 </div>
-                <span className="cav">{SCENARIO.initials}</span>
-                <span className="rname">{SCENARIO.participant}</span>
+                <span className="cav">{isJameel ? PARTICIPANT_NAME[0] : SCENARIO.initials}</span>
+                <span className="rname">{isJameel ? PARTICIPANT_NAME : SCENARIO.participant}</span>
               </div>
             </div>
 
