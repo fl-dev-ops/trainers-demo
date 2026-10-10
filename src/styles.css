@@ -97,6 +97,9 @@ svg{flex:none}
 .peek-k{font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:500;color:var(--text-3)}
 .peek--fig{position:relative;padding:0;overflow:hidden;background:var(--coach)}
 .peek--fig img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 22%;filter:blur(5px);transform:scale(1.06)}
+.jameel-avatar{position:relative;display:block;width:76px;height:76px;flex:none;border-radius:50%;overflow:hidden}
+.jameel-avatar img{object-fit:cover;transform:translate(8px,8px) scale(1.2);transform-origin:center bottom}
+.peek--fig img.jameel-portrait,.rtile-slot img.jameel-portrait{object-position:50% 45%;transform:translateX(8%) scale(1.35)}
 .peek--fig .peek-k{position:absolute;top:16px;left:18px;z-index:2;background:var(--surface);padding:4px 10px;border-radius:999px}
 .peek--fig .tag{position:absolute;right:16px;bottom:16px;z-index:2;display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:4px 12px;font-weight:500}
 .peek--fig .tag svg{width:12px;height:12px}
@@ -229,6 +232,7 @@ svg{flex:none}
 .rtile{position:relative;border-radius:16px;overflow:hidden;background:var(--r-panel);border:1px solid var(--r-line);display:flex;align-items:center;justify-content:center}
 .rtile video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 20%}
 .rtile-slot{position:absolute;inset:0}
+.rtile-slot img{object-fit:cover;object-position:50% 22%}
 .rname{position:absolute;left:12px;bottom:12px;display:inline-flex;gap:6px;align-items:center;padding:4px 10px;border-radius:8px;background:rgba(0,0,0,.6);font-size:13px;font-weight:600;color:#fff;z-index:1}
 .rname i{width:7px;height:7px;border-radius:999px;background:#8FB6F5}
 .cav{width:96px;height:96px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:600;background:radial-gradient(circle at 50% 35%,#4a4d57,#2b2c31);color:#fff;box-shadow:0 0 0 26px rgba(255,255,255,.03),0 0 0 58px rgba(255,255,255,.02)}

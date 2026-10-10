@@ -5,7 +5,7 @@ import { useState } from 'react'
 /*
  * The twin's tile shows the trainer photo until the avatar video's first frame.
  */
-export default function AvatarStage({ name = "Olga's twin", image = "" }) {
+export default function AvatarStage({ name = "Olga's twin", image = "", imageClassName = "" }) {
   const agent = useAgent()
   const [readyTrackSid, setReadyTrackSid] = useState(null)
   const avatarTrack = agent.cameraTrack
@@ -16,11 +16,11 @@ export default function AvatarStage({ name = "Olga's twin", image = "" }) {
       <div className="rtile-slot" id="twin-avatar">
         {image && (!avatarTrackSid || readyTrackSid !== avatarTrackSid) && (
           <Image
+            className={imageClassName}
             src={image}
             alt={name}
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            style={{ objectFit: 'cover', objectPosition: '50% 22%' }}
           />
         )}
         {avatarTrack && (

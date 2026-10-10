@@ -262,7 +262,7 @@ function RolePlay({ connection, scenario: SCENARIO, trainer }: { connection: Con
             </section>
 
             <div className="rtiles">
-              <AvatarStage name={`${trainer.firstName}'s twin`} image={trainer.face} />
+              <AvatarStage name={`${trainer.firstName}'s twin`} image={trainer.face} imageClassName={isJameel ? 'jameel-portrait' : ''} />
               <div className="rtile" aria-label={(isJameel ? PARTICIPANT_NAME : SCENARIO.participant) + ' video'}>
                 <div className="rtile-slot" id="participant-video">
                   {session.local.cameraTrack && <VideoTrack trackRef={session.local.cameraTrack} />}

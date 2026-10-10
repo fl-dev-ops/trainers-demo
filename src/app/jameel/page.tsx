@@ -9,13 +9,9 @@ export default function Welcome() {
     <section className="wrap">
       <div className="welcome">
         <div className="hero">
-          <Image
-                src={JAMEEL.face}
-                alt={JAMEEL.name}
-                width={76}
-                height={76}
-                style={{ borderRadius: '50%', objectFit: 'cover' }}
-              />
+          <span className="jameel-avatar">
+            <Image src={JAMEEL.face} alt={JAMEEL.name} fill sizes="76px" />
+          </span>
           <span className="badge"><Sparkle />AI twin of {JAMEEL.name} · Demo</span>
           <h1>Meet {JAMEEL.firstName}’s AI Twin</h1>
           <p>Practise for your Demand Planner Job today!</p>
@@ -24,7 +20,7 @@ export default function Welcome() {
         <div className="paths" style={{ gridTemplateColumns: 'minmax(0, 1fr)', maxWidth: 460 }}>
           <article className="path">
             <div className="peek peek--fig" aria-hidden="true">
-              <Image src={JAMEEL.face} alt="" fill sizes="(max-width: 680px) 100vw, 460px" />
+              <Image className="jameel-portrait" src={JAMEEL.face} alt="" fill sizes="(max-width: 680px) 100vw, 460px" />
             </div>
             <div className="path-b">
               <div className="row">

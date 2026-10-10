@@ -37,13 +37,9 @@ export default function Home() {
           </article>
           <article className="path">
             <div className="path-b">
-              <Image
-                src={JAMEEL.face}
-                alt={JAMEEL.name}
-                width={76}
-                height={76}
-                style={{ borderRadius: '50%', objectFit: 'cover' }}
-              />
+              <span className="jameel-avatar">
+                <Image src={JAMEEL.face} alt={JAMEEL.name} fill sizes="76px" />
+              </span>
               <h2>{JAMEEL.name}</h2>
               <p>Practise client conversations with Jameel’s interactive video twin.</p>
               <div className="row">
