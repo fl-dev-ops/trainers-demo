@@ -106,15 +106,15 @@ JAMEEL.sources = [
 
 PRATHOSH.sourceSummary = '105 videos · 272 LinkedIn posts'
 PRATHOSH.sources = [
-  ['YouTube', '105 videos', [
+  ['YouTube', '89 videos', [
     ['Pedagogy with AI', '295K views'],
     ['Survival with AI', '95K views'],
     ['Lec 1 - Deep Generative Models: Intro to Probability Theory', '12K views'],
     ['Lec 12 - Deep Generative Models: Diffusion Models part 2', '10K views'],
   ]],
-  ['LinkedIn', '272 posts · 2016 to 2026', [
-    ['A 15-year-old dream has come true: open-sourcing Sanskrit shloka chanting', 'June 2026'],
-    ['Announcing “Mathematical Foundations of Generative AI”', 'May 2025'],
-    ['I just completed teaching another NPTEL course', 'Oct 2026'],
-  ]],
+  // ['LinkedIn', '272 posts · 2016 to 2026', [
+  //   ['A 15-year-old dream has come true: open-sourcing Sanskrit shloka chanting', 'June 2026'],
+  //   ['Announcing “Mathematical Foundations of Generative AI”', 'May 2025'],
+  //   ['I just completed teaching another NPTEL course', 'Oct 2026'],
+  // ]],
 ]
