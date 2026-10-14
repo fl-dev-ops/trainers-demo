@@ -20,7 +20,7 @@ import TranscriptPanel from '@/live/TranscriptPanel.jsx'
 
 type Scenario = (typeof SCENARIOS)[number]
 type TrainerRoom = { kind: string; title: string; scenario: string }
-type Trainer = { id: string; firstName: string; face: string; portraitClass?: string; room?: TrainerRoom }
+type Trainer = { id: string; firstName: string; face: string; portrait?: string; portraitClass?: string; room?: TrainerRoom }
 
 // Stand-in identity until the app has a signed-in profile to read a real name from.
 const PARTICIPANT_NAME = 'Candidate'
@@ -262,7 +262,7 @@ function RolePlay({ connection, scenario: SCENARIO, trainer }: { connection: Con
             </section>
 
             <div className="rtiles">
-              <AvatarStage name={`${trainer.firstName}'s twin`} image={trainer.face} imageClassName={trainer.portraitClass ?? ''} />
+              <AvatarStage name={`${trainer.firstName}'s twin`} image={trainer.portrait ?? trainer.face} imageClassName={trainer.portraitClass ?? ''} />
               <div className="rtile" aria-label={(fixedRoom ? PARTICIPANT_NAME : SCENARIO.participant) + ' video'}>
                 <div className="rtile-slot" id="participant-video">
                   {session.local.cameraTrack && <VideoTrack trackRef={session.local.cameraTrack} />}

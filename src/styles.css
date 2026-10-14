@@ -102,6 +102,7 @@ svg{flex:none}
 .peek--fig img.jameel-portrait,.rtile-slot img.jameel-portrait{object-position:50% 45%;transform:translateX(8%) scale(1.35)}
 .prathosh-avatar{position:relative;display:block;width:76px;height:76px;flex:none;border-radius:50%;overflow:hidden}
 .prathosh-avatar img{object-fit:cover}
+.peek--fig img.prathosh-portrait,.rtile-slot img.prathosh-portrait{object-position:50% 10%}
 .peek--fig .peek-k{position:absolute;top:16px;left:18px;z-index:2;background:var(--surface);padding:4px 10px;border-radius:999px}
 .peek--fig .tag{position:absolute;right:16px;bottom:16px;z-index:2;display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:4px 12px;font-weight:500}
 .peek--fig .tag svg{width:12px;height:12px}

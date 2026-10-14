@@ -20,7 +20,7 @@ export default function Welcome() {
         <div className="paths" style={{ gridTemplateColumns: 'minmax(0, 1fr)', maxWidth: 460 }}>
           <article className="path">
             <div className="peek peek--fig" aria-hidden="true">
-              <Image src={PRATHOSH.face} alt="" fill sizes="(max-width: 680px) 100vw, 460px" />
+              <Image className={PRATHOSH.portraitClass} src={PRATHOSH.portrait} alt="" fill sizes="(max-width: 680px) 100vw, 460px" />
             </div>
             <div className="path-b">
               <div className="row">

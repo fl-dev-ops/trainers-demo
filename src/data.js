@@ -29,7 +29,9 @@ export const PRATHOSH = {
   firstName: 'Prathosh',
   initials: 'PA',
   face: '/media/prathosh-face.jpg',
-  portraitClass: '',
+  // Wide crop for short, wide containers (welcome card, live tile) so his whole face stays visible.
+  portrait: '/media/prathosh-portrait.jpg',
+  portraitClass: 'prathosh-portrait',
   room: {
     kind: 'Course Q&A · Demo',
     title: 'Mathematical Foundations of ML',
