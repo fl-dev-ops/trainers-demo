@@ -8,7 +8,8 @@ import {
 export const dynamic = "force-dynamic";
 
 const LIVEKIT_LOG_PREFIX = "[EXT-API:livekit]";
-const AGENT_IDS = ["olga", "jameel"];
+const AGENT_IDS = ["olga", "jameel", "prathosh"];
+const ANAM_AGENT_IDS = ["jameel", "prathosh"];
 
 /** Times a slow LiveKit server call and logs its outcome under one prefix. */
 async function logLiveKitCall<T>(
@@ -59,7 +60,7 @@ export async function POST(request: Request) {
 
   const metadata = JSON.stringify({
     agent_id: agentId,
-    avatar: agentId === "jameel" ? "anam" : true,
+    avatar: ANAM_AGENT_IDS.includes(agentId) ? "anam" : true,
     user_name: name,
     interaction_mode: "auto",
   });

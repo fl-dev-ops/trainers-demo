@@ -15,6 +15,26 @@ export const JAMEEL = {
   firstName: 'Jameel',
   initials: 'J',
   face: '/media/jameel-face.png',
+  portraitClass: 'jameel-portrait',
+  room: {
+    kind: 'Interview practice · Demo',
+    title: 'Demand Planner Job',
+    scenario: 'Jameel’s AI twin is ready to help you prepare for a Demand Planner Job based on top 10 frequently asked questions. During the interaction, the twin will also share tips on how to answer these questions effectively to impress your potential employer.',
+  },
+}
+
+export const PRATHOSH = {
+  id: 'prathosh',
+  name: 'Prathosh A P',
+  firstName: 'Prathosh',
+  initials: 'PA',
+  face: '/media/prathosh-face.jpg',
+  portraitClass: '',
+  room: {
+    kind: 'Course Q&A · Demo',
+    title: 'Mathematical Foundations of ML',
+    scenario: 'Prathosh’s AI twin answers your doubts on his NPTEL course, Mathematical Foundations of Machine Learning (IISc Bengaluru), and points you to the lecture where each topic is covered. It is a pedagogical aid, not a replacement for Prathosh.',
+  },
 }
 
 export const SOURCES = [

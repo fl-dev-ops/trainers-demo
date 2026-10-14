@@ -19,7 +19,8 @@ import AvatarStage from '@/live/AvatarStage.jsx'
 import TranscriptPanel from '@/live/TranscriptPanel.jsx'
 
 type Scenario = (typeof SCENARIOS)[number]
-type Trainer = { id: string; firstName: string; face: string }
+type TrainerRoom = { kind: string; title: string; scenario: string }
+type Trainer = { id: string; firstName: string; face: string; portraitClass?: string; room?: TrainerRoom }
 
 // Stand-in identity until the app has a signed-in profile to read a real name from.
 const PARTICIPANT_NAME = 'Candidate'
@@ -104,7 +105,8 @@ function LiveEntry({ trainer }: { trainer: Trainer }) {
 /** The live room: owns the LiveKit session and renders the role play UI. */
 function RolePlay({ connection, scenario: SCENARIO, trainer }: { connection: ConnectionDetails; scenario: Scenario; trainer: Trainer }) {
   const trainerHome = `/${trainer.id}`
-  const isJameel = trainer.id === 'jameel'
+  // Trainers with a fixed room (e.g. Jameel, Prathosh) skip the role-play scenario and cues.
+  const fixedRoom = trainer.room
   const storageKey = getConnectionStorageKey(trainer.id)
   const router = useRouter()
   const [chat, setChat] = useState(true)
@@ -242,13 +244,11 @@ function RolePlay({ connection, scenario: SCENARIO, trainer }: { connection: Con
 
           <div className={'room-grid' + (chat ? '' : ' chat-off')}>
             <section className="rpanel scen" aria-labelledby="rpTitle">
-              <span className="kind"><Chat />{isJameel ? 'Interview practice · Demo' : 'Live role play'}</span>
-              <h1 id="rpTitle">{isJameel ? 'Demand Planner Job' : SCENARIO.title}</h1>
-              {!isJameel && <span className="rchip">{SCENARIO.tag}</span>}
-              <p className="sc">{isJameel
-                ? 'Jameel’s AI twin is ready to help you prepare for a Demand Planner Job based on top 10 frequently asked questions. During the interaction, the twin will also share tips on how to answer these questions effectively to impress your potential employer.'
-                : SCENARIO.scenario}</p>
-              {!isJameel && <div className="cues">
+              <span className="kind"><Chat />{fixedRoom ? fixedRoom.kind : 'Live role play'}</span>
+              <h1 id="rpTitle">{fixedRoom ? fixedRoom.title : SCENARIO.title}</h1>
+              {!fixedRoom && <span className="rchip">{SCENARIO.tag}</span>}
+              <p className="sc">{fixedRoom ? fixedRoom.scenario : SCENARIO.scenario}</p>
+              {!fixedRoom && <div className="cues">
                 <p className="rk">Cues</p>
                 <ol>
                   {SCENARIO.cues.map((c, i) => (
@@ -258,17 +258,17 @@ function RolePlay({ connection, scenario: SCENARIO, trainer }: { connection: Con
                   ))}
                 </ol>
               </div>}
-              {!isJameel && <button type="button" className="rbtn">Customise my twin</button>}
+              {!fixedRoom && <button type="button" className="rbtn">Customise my twin</button>}
             </section>
 
             <div className="rtiles">
-              <AvatarStage name={`${trainer.firstName}'s twin`} image={trainer.face} imageClassName={isJameel ? 'jameel-portrait' : ''} />
-              <div className="rtile" aria-label={(isJameel ? PARTICIPANT_NAME : SCENARIO.participant) + ' video'}>
+              <AvatarStage name={`${trainer.firstName}'s twin`} image={trainer.face} imageClassName={trainer.portraitClass ?? ''} />
+              <div className="rtile" aria-label={(fixedRoom ? PARTICIPANT_NAME : SCENARIO.participant) + ' video'}>
                 <div className="rtile-slot" id="participant-video">
                   {session.local.cameraTrack && <VideoTrack trackRef={session.local.cameraTrack} />}
                 </div>
-                <span className="cav">{isJameel ? PARTICIPANT_NAME[0] : SCENARIO.initials}</span>
-                <span className="rname">{isJameel ? PARTICIPANT_NAME : SCENARIO.participant}</span>
+                <span className="cav">{fixedRoom ? PARTICIPANT_NAME[0] : SCENARIO.initials}</span>
+                <span className="rname">{fixedRoom ? PARTICIPANT_NAME : SCENARIO.participant}</span>
               </div>
             </div>
 
