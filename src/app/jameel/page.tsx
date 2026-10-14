@@ -2,7 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { JAMEEL } from '@/data.js'
 import MadeFrom from '@/components/MadeFrom.jsx'
-import { Chat, PlayBox, Sparkle } from '@/components/Icons.jsx'
+import TrustFooter from '@/components/TrustFooter.jsx'
+import { Sparkle } from '@/components/Icons.jsx'
 
 export default function Welcome() {
   return (
@@ -15,7 +16,7 @@ export default function Welcome() {
           <span className="badge"><Sparkle />AI twin of {JAMEEL.name} · Demo</span>
           <h1>Meet {JAMEEL.firstName}’s AI Twin</h1>
           <p>Practise for your Demand Planner Job today!</p>
-          <MadeFrom youtubeOnly />
+          <MadeFrom youtubeOnly linkedin />
         </div>
         <div className="paths" style={{ gridTemplateColumns: 'minmax(0, 1fr)', maxWidth: 460 }}>
           <article className="path">
@@ -29,29 +30,7 @@ export default function Welcome() {
             </div>
           </article>
         </div>
-        <footer className="trust" aria-label="About Jameel’s demo">
-          <div className="tr">
-            <PlayBox />
-            <div>
-              <h3>Demo experience</h3>
-              <p>Try Jameel’s AI twin for Demand Planner interview preparation.</p>
-            </div>
-          </div>
-          <div className="tr">
-            <Chat />
-            <div>
-              <h3>Interview practice</h3>
-              <p>Prepare for the top 10 frequently asked Demand Planner interview questions.</p>
-            </div>
-          </div>
-          <div className="tr">
-            <Sparkle />
-            <div>
-              <h3>Answer guidance</h3>
-              <p>Get tips on answering effectively and impressing your potential employer.</p>
-            </div>
-          </div>
-        </footer>
+        <TrustFooter twin={JAMEEL} />
       </div>
     </section>
   )

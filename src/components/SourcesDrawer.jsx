@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { SOURCES } from '../data.js'
 import { Close } from './Icons.jsx'
 
-export default function SourcesDrawer({ onClose }) {
-  const [on, setOn] = useState(() => SOURCES.map(() => true))
+export default function SourcesDrawer({ onClose, sources = SOURCES }) {
+  const [on, setOn] = useState(() => sources.map(() => true))
   const closeRef = useRef(null)
 
   useEffect(() => {
@@ -31,7 +31,7 @@ export default function SourcesDrawer({ onClose }) {
           <button type="button" className="btn btn--ghost btn--icon" aria-label="Close" onClick={onClose} ref={closeRef}><Close /></button>
         </header>
         <div className="list">
-          {SOURCES.map(([group, count, items], gi) => (
+          {sources.map(([group, count, items], gi) => (
             <div key={group}>
               <div className={'srow grp' + (on[gi] ? '' : ' off')}>
                 <div className="m"><b>{group}</b><span>{count}</span></div>

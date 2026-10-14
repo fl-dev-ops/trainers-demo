@@ -86,3 +86,33 @@ export const SCENARIOS = [
     ],
   },
 ]
+
+/* Sources for Jameel and Prathosh, from fl-dev-ops/trainertwin-lore (users/<id>/data). */
+JAMEEL.sourceSummary = '184 videos · 235 Shorts · 825 LinkedIn posts'
+JAMEEL.sources = [
+  ['YouTube', '184 videos · 235 Shorts', [
+    ['TOP 5 FREE Supply Chain Courses for Beginners', '87K views'],
+    ['Top 5 FREE Logistics Courses You MUST Take!', '51K views'],
+    ['TOP 5 Supply Chain CERTIFICATIONS', '45K views'],
+    ['Top 5 Supply Chain Interview Questions (and How to Get Hired!)', '33K views'],
+  ]],
+  ['LinkedIn', '825 posts · 2015 to 2026', [
+    ['Celebrating 15 incredible years at Mars Inc.', 'Aug 2025'],
+    ['25,000 subscribers — thank you!', 'Sept 2026'],
+  ]],
+]
+
+PRATHOSH.sourceSummary = '105 videos · 272 LinkedIn posts'
+PRATHOSH.sources = [
+  ['YouTube', '105 videos', [
+    ['Pedagogy with AI', '295K views'],
+    ['Survival with AI', '95K views'],
+    ['Lec 1 - Deep Generative Models: Intro to Probability Theory', '12K views'],
+    ['Lec 12 - Deep Generative Models: Diffusion Models part 2', '10K views'],
+  ]],
+  ['LinkedIn', '272 posts · 2016 to 2026', [
+    ['A 15-year-old dream has come true: open-sourcing Sanskrit shloka chanting', 'June 2026'],
+    ['Announcing “Mathematical Foundations of Generative AI”', 'May 2025'],
+    ['I just completed teaching another NPTEL course', 'Oct 2026'],
+  ]],
+]
