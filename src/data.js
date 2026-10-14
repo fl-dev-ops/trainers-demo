@@ -104,7 +104,7 @@ JAMEEL.sources = [
   ]],
 ]
 
-PRATHOSH.sourceSummary = '105 videos · 272 LinkedIn posts'
+PRATHOSH.sourceSummary = '89 videos'
 PRATHOSH.sources = [
   ['YouTube', '89 videos', [
     ['Pedagogy with AI', '295K views'],
