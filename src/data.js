@@ -41,6 +41,19 @@ export const PRATHOSH = {
   },
 }
 
+export const DANIELE = {
+  id: 'daniele',
+  name: 'Daniele Ponzo',
+  firstName: 'Daniele',
+  initials: 'DP',
+  face: '/media/daniele-face.png',
+  room: {
+    kind: 'Conversation · Demo',
+    title: 'Talk to Daniele’s twin',
+    scenario: 'Daniele’s AI twin is ready for a live conversation. It is a demo and not a replacement for Daniele.',
+  },
+}
+
 export const SOURCES = [
   ['YouTube', '108 videos · 211 Shorts', [
     ['Dubai 2008 vs 2026: Is 2008 Happening Again?', '134K views'],
