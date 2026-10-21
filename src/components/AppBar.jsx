@@ -43,7 +43,7 @@ export default function AppBar({ children }) {
         <div className="in">
           <Link href={trainerHome} className="lockup"><Logo />TrainerTwin</Link>
           <div className="head-r">
-            {!['/jameel', '/prathosh', '/daniele'].includes(trainerHome) && TWIN.demo && (
+            {!['/jameel', '/prathosh', '/daniele', '/antoni'].includes(trainerHome) && TWIN.demo && (
               <a className="btn btn--secondary" href={TWIN.demo} target="_blank" rel="noopener noreferrer">
                 <Play />Watch demo of Olga
               </a>

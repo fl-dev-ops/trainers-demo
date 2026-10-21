@@ -54,6 +54,19 @@ export const DANIELE = {
   },
 }
 
+export const ANTONI = {
+  id: 'antoni',
+  name: 'Antoni Lacinai',
+  firstName: 'Antoni',
+  initials: 'AL',
+  face: '/media/antoni-face.png',
+  room: {
+    kind: 'Conversation · Demo',
+    title: 'Talk to Antoni’s twin',
+    scenario: 'Antoni’s AI twin is ready to talk about anything. It is a demo and not a replacement for Antoni.',
+  },
+}
+
 export const SOURCES = [
   ['YouTube', '108 videos · 211 Shorts', [
     ['Dubai 2008 vs 2026: Is 2008 Happening Again?', '134K views'],
