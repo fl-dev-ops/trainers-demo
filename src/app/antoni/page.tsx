@@ -29,7 +29,7 @@ export default function Welcome() {
               <span className="peek-k">Ask {ANTONI.firstName}’s twin anything</span>
               <div className="rprows">
                 {QUESTIONS.map((q) => (
-                  <Link key={q} href="/antoni/live" className="rprow" aria-label={'Ask the twin: ' + q}>
+                  <Link key={q} href={{ pathname: '/antoni/live', query: { q } }} className="rprow" aria-label={'Ask the twin: ' + q}>
                     <span className="cl" aria-hidden="true">Y</span>
                     <span className="q">“{q}”</span>
                     <img className="tw" src={ANTONI.face} alt="" />
