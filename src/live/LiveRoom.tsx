@@ -43,6 +43,8 @@ function LiveEntry({ trainer }: { trainer: Trainer }) {
   const storageKey = getConnectionStorageKey(trainer.id)
   const searchParams = useSearchParams()
   const SCENARIO = SCENARIOS.find((s) => s.id === searchParams.get('s')) ?? SCENARIOS[0]
+  // A conversation starter picked on the welcome page (?q=...), asked once the twin has greeted the user.
+  const starter = searchParams.get('q')?.trim() || null
   const [error, setError] = useState<string | null>(null)
   const [connection, setConnection] = useState<ConnectionDetails | null>(null)
   const hasStartedRef = useRef(false)
@@ -88,7 +90,7 @@ function LiveEntry({ trainer }: { trainer: Trainer }) {
       })
   }, [storageKey, trainer.id])
 
-  if (connection) return <RolePlay connection={connection} scenario={SCENARIO} trainer={trainer} />
+  if (connection) return <RolePlay connection={connection} scenario={SCENARIO} trainer={trainer} starter={starter} />
 
   return (
     <section>
@@ -103,7 +105,7 @@ function LiveEntry({ trainer }: { trainer: Trainer }) {
 }
 
 /** The live room: owns the LiveKit session and renders the role play UI. */
-function RolePlay({ connection, scenario: SCENARIO, trainer }: { connection: ConnectionDetails; scenario: Scenario; trainer: Trainer }) {
+function RolePlay({ connection, scenario: SCENARIO, trainer, starter = null }: { connection: ConnectionDetails; scenario: Scenario; trainer: Trainer; starter?: string | null }) {
   const trainerHome = `/${trainer.id}`
   // Trainers with a fixed room (e.g. Jameel, Prathosh) skip the role-play scenario and cues.
   const fixedRoom = trainer.room
@@ -181,6 +183,20 @@ function RolePlay({ connection, scenario: SCENARIO, trainer }: { connection: Con
       room.off(RoomEvent.TrackUnmuted, syncTracks)
     }
   }, [session.room])
+
+  // Sends the conversation starter once, after the twin's greeting has finished, then drops it
+  // from the URL so a refresh doesn't ask it again.
+  const starterSentRef = useRef(false)
+  useEffect(() => {
+    if (!starter || starterSentRef.current) return
+    const greeted = messages.some((message) => !message.from?.isLocal)
+    if (!greeted || agent.state !== 'listening') return
+    starterSentRef.current = true
+    send(starter).catch((error) => {
+      console.error('Failed to send conversation starter:', error)
+    })
+    router.replace(`${trainerHome}/live`)
+  }, [agent.state, messages, router, send, starter, trainerHome])
 
   // Counts up from the moment the room connects, formatted mm:ss in the top bar.
   useEffect(() => {

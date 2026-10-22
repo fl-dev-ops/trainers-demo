@@ -41,6 +41,32 @@ export const PRATHOSH = {
   },
 }
 
+export const DANIELE = {
+  id: 'daniele',
+  name: 'Daniele Ponzo',
+  firstName: 'Daniele',
+  initials: 'DP',
+  face: '/media/daniele-face.png',
+  room: {
+    kind: 'Conversation · Demo',
+    title: 'Talk to Daniele’s twin',
+    scenario: 'Daniele’s AI twin is ready for a live conversation. It is a demo and not a replacement for Daniele.',
+  },
+}
+
+export const ANTONI = {
+  id: 'antoni',
+  name: 'Antoni Lacinai',
+  firstName: 'Antoni',
+  initials: 'AL',
+  face: '/media/antoni-face.png',
+  room: {
+    kind: 'Pitch practice · Demo',
+    title: 'Practise your pitch',
+    scenario: 'Antoni’s AI twin will get to know you, listen to your pitch and give you feedback the way he does. It is a demo and not a replacement for Antoni.',
+  },
+}
+
 export const SOURCES = [
   ['YouTube', '108 videos · 211 Shorts', [
     ['Dubai 2008 vs 2026: Is 2008 Happening Again?', '134K views'],
@@ -117,4 +143,20 @@ PRATHOSH.sources = [
   //   ['Announcing “Mathematical Foundations of Generative AI”', 'May 2025'],
   //   ['I just completed teaching another NPTEL course', 'Oct 2026'],
   // ]],
+]
+
+/* Sources for Antoni, from fl-dev-ops/trainertwin-lore (users/antoni-lacinai/data). */
+ANTONI.sourceSummary = '97 videos · 110 Shorts · 1,314 LinkedIn posts · 343 Instagram posts'
+ANTONI.sources = [
+  ['YouTube', '97 videos · 110 Shorts', [
+    ['3 Ways to Manipulate You', '2.2K views'],
+    ['PowerPoint for dummies', '1.1K views'],
+    ['How to Handle People Who Talk Too Much – Communication Hack', '1.1K views'],
+    ['The Difference Between an Optimist and a Pessimist', '1.1K views'],
+  ]],
+  ['LinkedIn', '1,314 posts · 2020 to 2026', [
+    ['The management team is dead! Ledningsgruppen är död!', 'Oct 2023'],
+    ['Vill du ha 21 tips på att få människor att minnas vad du säger?', 'Feb 2020'],
+  ]],
+  ['Instagram', '343 posts', [['@antonilacinai', 'Reels and carousels']]],
 ]
