@@ -91,7 +91,7 @@ export default function Home() {
                 style={{ borderRadius: '50%', objectFit: 'cover' }}
               />
               <h2>{ANTONI.name}</h2>
-              <p>Talk to Antoni’s AI twin about communication, leadership, or anything else.</p>
+              <p>Practise your pitch with Antoni’s AI twin and get his style of feedback.</p>
               <div className="row">
                 <Link href="/antoni" className="btn btn--strong">
                   Explore Antoni’s demo

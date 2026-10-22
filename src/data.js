@@ -61,9 +61,9 @@ export const ANTONI = {
   initials: 'AL',
   face: '/media/antoni-face.png',
   room: {
-    kind: 'Conversation · Demo',
-    title: 'Talk to Antoni’s twin',
-    scenario: 'Antoni’s AI twin is ready to talk about anything. It is a demo and not a replacement for Antoni.',
+    kind: 'Pitch practice · Demo',
+    title: 'Practise your pitch',
+    scenario: 'Antoni’s AI twin will get to know you, listen to your pitch and give you feedback the way he does. It is a demo and not a replacement for Antoni.',
   },
 }
 
