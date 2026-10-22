@@ -144,3 +144,19 @@ PRATHOSH.sources = [
   //   ['I just completed teaching another NPTEL course', 'Oct 2026'],
   // ]],
 ]
+
+/* Sources for Antoni, from fl-dev-ops/trainertwin-lore (users/antoni-lacinai/data). */
+ANTONI.sourceSummary = '97 videos · 110 Shorts · 1,314 LinkedIn posts · 343 Instagram posts'
+ANTONI.sources = [
+  ['YouTube', '97 videos · 110 Shorts', [
+    ['3 Ways to Manipulate You', '2.2K views'],
+    ['PowerPoint for dummies', '1.1K views'],
+    ['How to Handle People Who Talk Too Much – Communication Hack', '1.1K views'],
+    ['The Difference Between an Optimist and a Pessimist', '1.1K views'],
+  ]],
+  ['LinkedIn', '1,314 posts · 2020 to 2026', [
+    ['The management team is dead! Ledningsgruppen är död!', 'Oct 2023'],
+    ['Vill du ha 21 tips på att få människor att minnas vad du säger?', 'Feb 2020'],
+  ]],
+  ['Instagram', '343 posts', [['@antonilacinai', 'Reels and carousels']]],
+]
