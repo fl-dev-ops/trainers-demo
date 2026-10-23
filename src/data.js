@@ -41,19 +41,6 @@ export const PRATHOSH = {
   },
 }
 
-export const DANIELE = {
-  id: 'daniele',
-  name: 'Daniele Ponzo',
-  firstName: 'Daniele',
-  initials: 'DP',
-  face: '/media/daniele-face.png',
-  room: {
-    kind: 'Conversation · Demo',
-    title: 'Talk to Daniele’s twin',
-    scenario: 'Daniele’s AI twin is ready for a live conversation. It is a demo and not a replacement for Daniele.',
-  },
-}
-
 export const ANTONI = {
   id: 'antoni',
   name: 'Antoni Lacinai',
