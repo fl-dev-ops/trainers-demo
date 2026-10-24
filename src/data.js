@@ -54,6 +54,19 @@ export const ANTONI = {
   },
 }
 
+export const JOHNNY_DANIELE = {
+  id: 'johnny-daniele',
+  name: 'Johnny',
+  firstName: 'Johnny',
+  initials: 'J',
+  face: '/media/johnny-daniele-face.png',
+  room: {
+    kind: 'English for IT professionals · Demo',
+    title: 'Practise a real tech work situation',
+    scenario: 'Johnny, Daniele Ponzo’s practice assistant for IT and tech professionals who work in English, will set up the situation, play the people in the room and give you feedback at the end. He is an AI assistant, not Daniele.',
+  },
+}
+
 export const SOURCES = [
   ['YouTube', '108 videos · 211 Shorts', [
     ['Dubai 2008 vs 2026: Is 2008 Happening Again?', '134K views'],
