@@ -62,7 +62,7 @@ export const JOHNNY_DANIELE = {
   face: '/media/johnny-daniele-face.png',
   room: {
     kind: 'English for IT professionals · Demo',
-    title: 'Practise a real tech work situation',
+    title: 'Practise speaking English at work',
     scenario: 'Johnny, Daniele Ponzo’s practice assistant for IT and tech professionals who work in English, will set up the situation, play the people in the room and give you feedback at the end. He is an AI assistant, not Daniele.',
   },
 }
