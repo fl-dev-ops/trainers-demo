@@ -20,7 +20,7 @@ export default function Welcome() {
             <div className="path-b">
               <h2>Who is Johnny?</h2>
               <p>Johnny is Daniele Ponzo’s AI practice assistant. Between coaching sessions, he helps you practise speaking English at work: he plays your colleagues in a real situation, then gives you short, honest feedback.</p>
-              <p>He is trained on Daniele’s method, taken from his talks, YouTube videos and LinkedIn posts, including his HACK framework and his core rule: lead with the point, one sentence, one idea.</p>
+              <p>He is trained on Daniele’s method, from 500+ of his YouTube videos and 1,000+ LinkedIn posts, including his HACK framework and his core rule: lead with the point, one sentence, one idea.</p>
               <p>Johnny is an AI assistant, not Daniele.</p>
               <div className="row">
                 <Link href="/johnny-daniele/live" className="btn btn--strong">Start practising</Link>
