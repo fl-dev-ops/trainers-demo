@@ -67,6 +67,19 @@ export const JOHNNY_DANIELE = {
   },
 }
 
+export const TONY_LATIMER = {
+  id: 'tony-latimer',
+  name: 'Tony Latimer',
+  firstName: 'Tony',
+  initials: 'TL',
+  face: '/media/tony-latimer-headshot.jpg',
+  room: {
+    kind: 'Ask me anything · Demo',
+    title: 'Ask about your transition',
+    scenario: 'Tony’s AI twin will answer your questions about stepping into a CEO or senior leadership role, building a leadership team and coaching. It is a demo and not a replacement for Tony.',
+  },
+}
+
 export const SOURCES = [
   ['YouTube', '108 videos · 211 Shorts', [
     ['Dubai 2008 vs 2026: Is 2008 Happening Again?', '134K views'],
@@ -159,4 +172,20 @@ ANTONI.sources = [
     ['Vill du ha 21 tips på att få människor att minnas vad du säger?', 'Feb 2020'],
   ]],
   ['Instagram', '343 posts', [['@antonilacinai', 'Reels and carousels']]],
+]
+
+/* Sources for Tony, from fl-dev-ops/trainertwin-lore (users/tony-latimer/data). */
+TONY_LATIMER.sourceSummary = '10 videos · 4 Shorts · 500 LinkedIn posts · 49 Instagram posts'
+TONY_LATIMER.sources = [
+  ['YouTube', '10 videos · 4 Shorts', [
+    ['The power of energy in coaching. Coaching Gary to a life changing breakthrough.', 'Coaching demo'],
+    ['ICF Coaching Competency 6: The Dilemma for MCC Master Coach', 'Masterclass'],
+    ['Competency 7. Evokes Awareness; How do you do it?', 'Masterclass'],
+    ['ICF Armenia - Coaching at the Speed of Thought', 'Talk'],
+  ]],
+  ['LinkedIn', '500 posts · 2023 to 2026', [
+    ['Honoured to deliver the opening keynote at the India Coaching Conclave', 'June 2026'],
+    ['“ICF has ruined coaching!” Really?', 'Oct 2025'],
+  ]],
+  ['Instagram', '49 posts', [['@tonylatimermcc', 'Posts and reels']]],
 ]
