@@ -1,45 +1,33 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { TWIN } from '../data.js'
-import { Lock, Logo, Moon, Play, Sun } from './Icons.jsx'
-
-function readTheme() {
-  try {
-    return localStorage.getItem('theme') === 'dark' ? 'dark' : 'light'
-  } catch {
-    return 'light'
-  }
-}
+import { Lock, Logo, Play } from './Icons.jsx'
+import ThemeToggle from './ThemeToggle.jsx'
 
 export default function AppBar({ children }) {
   const pathname = usePathname()
   const trainerHome = pathname.match(/^\/[^/]+/)?.[0] ?? '/'
-  const [theme, setTheme] = useState(readTheme)
+  // The live room has its own session header.
+  const live = pathname.endsWith('/live')
   const headRef = useRef(null)
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme
-    try { localStorage.setItem('theme', theme) } catch { /* storage unavailable */ }
-  }, [theme])
 
   // One-fold sizing: screens fill exactly the space under the header.
   useLayoutEffect(() => {
     const fit = () => {
-      const height = headRef.current?.getBoundingClientRect().height ?? 61
+      const height = headRef.current?.getBoundingClientRect().height ?? 0
       document.documentElement.style.setProperty('--fold', Math.max(0, window.innerHeight - height) + 'px')
     }
     fit()
     window.addEventListener('resize', fit)
     return () => window.removeEventListener('resize', fit)
-  }, [])
+  }, [live])
 
-  const dark = theme === 'dark'
   return (
     <>
-      <header className="app-head" ref={headRef}>
+      {!live && <header className="app-head" ref={headRef}>
         <div className="in">
           <Link href={trainerHome} className="lockup"><Logo />TrainerTwin</Link>
           <div className="head-r">
@@ -49,17 +37,10 @@ export default function AppBar({ children }) {
               </a>
             )}
             <span className="badge hide-sm"><Lock />Private preview</span>
-            <button
-              type="button"
-              className="btn btn--ghost btn--icon"
-              aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-              onClick={() => setTheme(dark ? 'light' : 'dark')}
-            >
-              {dark ? <Sun /> : <Moon />}
-            </button>
+            <ThemeToggle />
           </div>
         </div>
-      </header>
+      </header>}
       <main>{children}</main>
     </>
   )

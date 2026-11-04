@@ -11,8 +11,10 @@ import {
 import { RoomEvent, TokenSource, Track } from 'livekit-client'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Chat, Check, ChevronLeft, HangUp, Mic, VideoCam } from '@/components/Icons.jsx'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import Image from 'next/image'
+import { Brief, Chat, Check, ChevronLeft, Close, HangUp, Logo, Mic, MicOff, Pip, VideoCam, VideoOff } from '@/components/Icons.jsx'
+import ThemeToggle from '@/components/ThemeToggle.jsx'
 import { SCENARIOS } from '@/data.js'
 import { getConnectionStorageKey, parseConnectionDetails, type ConnectionDetails } from '@/lib/connection'
 import AvatarStage from '@/live/AvatarStage.jsx'
@@ -31,6 +33,19 @@ export default function LiveRoom({ trainer }: { trainer: Trainer }) {
     <Suspense fallback={null}>
       <LiveEntry key={trainer.id} trainer={trainer} />
     </Suspense>
+  )
+}
+
+function SessionHeader({ home, title, children }: { home: string; title: string; children: ReactNode }) {
+  return (
+    <header className="room-bar">
+      <div className="room-brand">
+        <Link href={home} className="btn btn--ghost session-back" aria-label="Back to trainer" title="Back to trainer"><ChevronLeft /></Link>
+        <Link href={home} className="lockup" aria-label="TrainerTwin — trainer home"><Logo /><span>TrainerTwin</span></Link>
+      </div>
+      <h1 className="room-title" title={title}>{title}</h1>
+      <div className="room-actions">{children}<ThemeToggle /></div>
+    </header>
   )
 }
 
@@ -92,12 +107,24 @@ function LiveEntry({ trainer }: { trainer: Trainer }) {
 
   if (connection) return <RolePlay connection={connection} scenario={SCENARIO} trainer={trainer} starter={starter} />
 
+  // Same shell as the room, so the page doesn't jump when the call mounts.
   return (
     <section>
       <div className="room">
-        <div className="room-bar">
-          <Link href={trainerHome} className="back"><ChevronLeft />Back</Link>
-          <span className="rl idle"><i />{error ?? 'Connecting…'}</span>
+        <SessionHeader home={trainerHome} title={trainer.room ? trainer.room.title : SCENARIO.title}>
+          <span className="rl idle"><i />{error ? 'Not connected' : 'Connecting…'}</span>
+        </SessionHeader>
+        <div className="room-main">
+          <div className="stage">
+            <div className="stage-wait" role={error ? 'alert' : 'status'}>
+              <span className={'wait-face' + (error ? '' : ' pulse')}>
+                <Image src={trainer.face} alt="" fill sizes="96px" />
+              </span>
+              <b>{error ? 'Couldn’t start the session' : `Getting ${trainer.firstName}’s twin ready…`}</b>
+              <span>{error ?? 'Allow camera and microphone when your browser asks.'}</span>
+              {error && <button type="button" className="btn btn--strong" onClick={() => window.location.reload()}>Try again</button>}
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -111,7 +138,12 @@ function RolePlay({ connection, scenario: SCENARIO, trainer, starter = null }: {
   const fixedRoom = trainer.room
   const storageKey = getConnectionStorageKey(trainer.id)
   const router = useRouter()
-  const [chat, setChat] = useState(true)
+  // One side panel with two tabs; opens on the brief, or on chat when a starter question was picked.
+  const [panel, setPanel] = useState<'brief' | 'chat' | null>(starter ? 'chat' : 'brief')
+  const [confirmEnd, setConfirmEnd] = useState(false)
+  // shortcut: layout toggle is for comparing split vs picture-in-picture; drop the loser once decided.
+  const [layout, setLayout] = useState<'split' | 'pip'>('split')
+  const [seenCount, setSeenCount] = useState(0)
   // Index of the cue in progress; earlier cues render as done. Advance it from agent events once LiveKit is wired.
   const [activeCue] = useState(0)
   const [elapsed, setElapsed] = useState(0)
@@ -216,16 +248,29 @@ function RolePlay({ connection, scenario: SCENARIO, trainer, starter = null }: {
         id: message.id,
         who: message.from?.isLocal ? 'You' : trainer.firstName,
         text: message.message,
+        mine: !!message.from?.isLocal,
       })),
     [messages, trainer.firstName],
   )
 
-  const status =
-    session.isConnected
-      ? { className: 'rl', label: 'Live' }
-      : agent.state === 'disconnected' || agent.state === 'failed'
-        ? { className: 'rl idle', label: 'Not connected' }
-        : { className: 'rl idle', label: 'Connecting…' }
+  // Caption on the stage: the twin's latest line, tail-trimmed to about two lines.
+  const caption = useMemo(() => {
+    const last = [...lines].reverse().find((line) => !line.mine)?.text.trim() ?? ''
+    if (last.length <= 160) return last
+    const tail = last.slice(-160)
+    return '…' + tail.slice(tail.indexOf(' ') + 1)
+  }, [lines])
+
+  // Messages that arrived while the chat tab wasn't visible light a dot on the chat button.
+  useEffect(() => {
+    if (panel === 'chat') setSeenCount(lines.length)
+  }, [panel, lines.length])
+  const unread = panel !== 'chat' && lines.length > seenCount
+
+  const failed = agent.state === 'failed'
+  const status = session.isConnected && !failed
+    ? { className: 'rl', label: 'Live' }
+    : { className: 'rl idle', label: failed ? 'Twin unavailable' : 'Connecting…' }
   const clock = `${String(Math.floor(elapsed / 60)).padStart(2, '0')}:${String(elapsed % 60).padStart(2, '0')}`
 
   const toggleCamera = useCallback(() => {
@@ -240,6 +285,16 @@ function RolePlay({ connection, scenario: SCENARIO, trainer, starter = null }: {
     })
   }, [micOn, session.room])
 
+  const togglePanel = (tab: 'brief' | 'chat') => setPanel((open) => (open === tab ? null : tab))
+
+  // Escape closes the end-session dialog.
+  useEffect(() => {
+    if (!confirmEnd) return
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') setConfirmEnd(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [confirmEnd])
+
   // Hanging up leaves the room, drops the cached connection and returns to the welcome screen.
   async function leaveToHome() {
     sessionStorage.removeItem(storageKey)
@@ -247,58 +302,103 @@ function RolePlay({ connection, scenario: SCENARIO, trainer, starter = null }: {
     router.push(trainerHome)
   }
 
+  const title = fixedRoom ? fixedRoom.title : SCENARIO.title
+  const youLabel = fixedRoom ? 'You' : SCENARIO.participant
+  const twinName = `${trainer.firstName}'s twin`
+
   return (
     <SessionProvider session={session}>
       <RoomAudioRenderer room={session.room} />
       <section>
         <div className="room">
-          <div className="room-bar">
-            <Link href={trainerHome} className="back"><ChevronLeft />Back</Link>
-            <span className={status.className}><i />{status.label}</span>
-            <span className="rclock">{clock}</span>
-          </div>
+          <SessionHeader home={trainerHome} title={title}>
+            <span className={status.className}>
+              <i />{status.label}
+              {session.isConnected && <span className="rclock" aria-label="Session time">{clock}</span>}
+            </span>
+          </SessionHeader>
 
-          <div className={'room-grid' + (chat ? '' : ' chat-off')}>
-            <section className="rpanel scen" aria-labelledby="rpTitle">
-              <span className="kind"><Chat />{fixedRoom ? fixedRoom.kind : 'Live role play'}</span>
-              <h1 id="rpTitle">{fixedRoom ? fixedRoom.title : SCENARIO.title}</h1>
-              {!fixedRoom && <span className="rchip">{SCENARIO.tag}</span>}
-              <p className="sc">{fixedRoom ? fixedRoom.scenario : SCENARIO.scenario}</p>
-              {!fixedRoom && <div className="cues">
-                <p className="rk">Cues</p>
-                <ol>
-                  {SCENARIO.cues.map((c, i) => (
-                    <li key={c} className={i < activeCue ? 'ok' : i === activeCue ? 'now' : undefined}>
-                      <span className="d">{i < activeCue ? <Check /> : i + 1}</span><span>{c}</span>
-                    </li>
-                  ))}
-                </ol>
-              </div>}
-              {!fixedRoom && <button type="button" className="rbtn">Customise my twin</button>}
-            </section>
-
-            <div className="rtiles">
-              <AvatarStage name={`${trainer.firstName}'s twin`} image={trainer.portrait ?? trainer.face} imageClassName={trainer.portraitClass ?? ''} />
-              <div className="rtile" aria-label={(fixedRoom ? PARTICIPANT_NAME : SCENARIO.participant) + ' video'}>
-                <div className="rtile-slot" id="participant-video">
-                  {session.local.cameraTrack && <VideoTrack trackRef={session.local.cameraTrack} />}
+          <div className="room-main">
+            <div className="stage">
+              <div className={'stage-tiles' + (layout === 'pip' ? ' pip' : '')}>
+                <AvatarStage name={twinName} />
+                <div className="rtile rtile--you" aria-label={youLabel + ' video'}>
+                  <div className="rtile-slot" id="participant-video">
+                    {camOn && session.local.cameraTrack && <VideoTrack trackRef={session.local.cameraTrack} />}
+                  </div>
+                  {!camOn && <span className="cav">{fixedRoom ? 'You' : SCENARIO.initials}</span>}
+                  <span className="rname">
+                    {youLabel}
+                    {!micOn && <span className="rmuted" aria-label="Microphone off"><MicOff /></span>}
+                  </span>
                 </div>
-                <span className="cav">{fixedRoom ? PARTICIPANT_NAME[0] : SCENARIO.initials}</span>
-                <span className="rname">{fixedRoom ? PARTICIPANT_NAME : SCENARIO.participant}</span>
               </div>
+              {panel !== 'chat' && caption && <p className="rcap"><span>{caption}</span></p>}
             </div>
 
-            <TranscriptPanel lines={lines} connected={session.isConnected} onSend={send} />
+            {panel && (
+              <aside className="rside" aria-label="Session panel">
+                <div className="rtabs" role="tablist">
+                  <button type="button" role="tab" aria-selected={panel === 'brief'} onClick={() => setPanel('brief')}>Brief</button>
+                  <button type="button" role="tab" aria-selected={panel === 'chat'} onClick={() => setPanel('chat')}>
+                    Chat{lines.length > 0 && <span className="cnt">{lines.length}</span>}
+                  </button>
+                  <button type="button" className="rx" aria-label="Close panel" onClick={() => setPanel(null)}><Close /></button>
+                </div>
+                {panel === 'brief' ? (
+                  <div className="brief" role="tabpanel">
+                    {!fixedRoom && <span className="rchip">{SCENARIO.tag}</span>}
+                    <p className="sc">{fixedRoom ? fixedRoom.scenario : SCENARIO.scenario}</p>
+                    {!fixedRoom && <div className="cues">
+                      <p className="rk">Try to</p>
+                      <ol>
+                        {SCENARIO.cues.map((c, i) => (
+                          <li key={c} className={i < activeCue ? 'ok' : i === activeCue ? 'now' : undefined}>
+                            <span className="d">{i < activeCue ? <Check /> : i + 1}</span><span>{c}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>}
+                    <p className="tip">Just talk — {trainer.firstName}&rsquo;s twin listens and answers out loud. You can also type in Chat.</p>
+                    {!fixedRoom && <button type="button" className="rbtn">Customise my twin</button>}
+                  </div>
+                ) : (
+                  <TranscriptPanel lines={lines} connected={session.isConnected} twinName={trainer.firstName} onSend={send} />
+                )}
+              </aside>
+            )}
           </div>
 
-          <div className="ctrl" role="toolbar" aria-label="Role play controls">
-            <button type="button" className="cb" aria-pressed={camOn} aria-label={camOn ? 'Turn camera off' : 'Turn camera on'} onClick={toggleCamera}><VideoCam width={1.8} /></button>
-            <button type="button" className="cb" aria-pressed={micOn} aria-label={micOn ? 'Mute microphone' : 'Unmute microphone'} onClick={toggleMic}><Mic /></button>
-            <button type="button" className="cb chat" aria-pressed={chat} aria-label={chat ? 'Hide chat' : 'Show chat'} onClick={() => setChat(!chat)}><Chat width={1.8} /></button>
-            <button type="button" className="cb end" aria-label="End role play" onClick={() => { void leaveToHome() }}><HangUp /></button>
+          <div className="ctrl-row">
+            <div className="ctrl" role="toolbar" aria-label="Session controls">
+              <button type="button" className={'cb' + (camOn ? '' : ' off')} aria-pressed={camOn} aria-label={camOn ? 'Turn camera off' : 'Turn camera on'} title={camOn ? 'Turn camera off' : 'Turn camera on'} onClick={toggleCamera}>{camOn ? <VideoCam width={1.8} /> : <VideoOff />}</button>
+              <button type="button" className={'cb' + (micOn ? '' : ' off')} aria-pressed={micOn} aria-label={micOn ? 'Mute microphone' : 'Unmute microphone'} title={micOn ? 'Mute microphone' : 'Unmute microphone'} onClick={toggleMic}>{micOn ? <Mic /> : <MicOff />}</button>
+              <span className="ctrl-sep" aria-hidden="true" />
+              <button type="button" className="cb pnl" aria-pressed={layout === 'pip'} aria-label="Picture-in-picture layout" title={layout === 'pip' ? 'Switch to side-by-side' : 'Switch to picture-in-picture'} onClick={() => setLayout(layout === 'pip' ? 'split' : 'pip')}><Pip /></button>
+              <button type="button" className="cb pnl" aria-pressed={panel === 'brief'} aria-label={panel === 'brief' ? 'Hide brief' : 'Show brief'} title="Brief" onClick={() => togglePanel('brief')}><Brief /></button>
+              <button type="button" className="cb pnl" aria-pressed={panel === 'chat'} aria-label={(panel === 'chat' ? 'Hide chat' : 'Show chat') + (unread ? ', new messages' : '')} title="Chat" onClick={() => togglePanel('chat')}>
+                <Chat width={1.8} />{unread && <i className="dot" aria-hidden="true" />}
+              </button>
+            </div>
+            <button type="button" className="end" onClick={() => setConfirmEnd(true)}><HangUp /><span>End</span></button>
           </div>
         </div>
       </section>
+
+      {confirmEnd && (
+        <div className="scrim" onClick={() => setConfirmEnd(false)}>
+          <div className="dialog" role="alertdialog" aria-modal="true" aria-labelledby="endTitle" onClick={(event) => event.stopPropagation()}>
+            <div>
+              <h2 id="endTitle">End this session?</h2>
+              <p className="sub">You&rsquo;ll leave the call with {twinName} and go back to the start.</p>
+            </div>
+            <div className="actions">
+              <button type="button" className="btn btn--secondary" autoFocus onClick={() => setConfirmEnd(false)}>Keep talking</button>
+              <button type="button" className="btn btn--end" onClick={() => { setConfirmEnd(false); void leaveToHome() }}>End session</button>
+            </div>
+          </div>
+        </div>
+      )}
     </SessionProvider>
   )
 }

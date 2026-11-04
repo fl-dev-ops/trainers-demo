@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Send } from '../components/Icons.jsx'
 
 /**
- * The live chat / transcription feed. `lines` ({ id, who, text }) comes from the
+ * The live chat / transcription feed. `lines` ({ id, who, text, mine }) comes from the
  * session's messages; `onSend` publishes the candidate's text back to the room
  * and is only available once the room is connected.
  *
@@ -10,8 +10,9 @@ import { Send } from '../components/Icons.jsx'
  * destructured signature is mis-parsed by TypeScript and types every prop wrong.
  */
 export default function TranscriptPanel({
-  lines = /** @type {{ id: string, who: string, text: string }[]} */ ([]),
+  lines = /** @type {{ id: string, who: string, text: string, mine: boolean }[]} */ ([]),
   connected = false,
+  twinName = 'the twin',
   onSend,
 }) {
   const [draft, setDraft] = useState('')
@@ -35,24 +36,33 @@ export default function TranscriptPanel({
   }
 
   return (
-    <aside className="rpanel chatp" aria-label="Chat">
-      <div className="chat-h"><span>Chat</span><span className="cnt">{lines.length}</span></div>
+    <div className="chatp">
       <div className="feed" id="transcript" aria-live="polite" ref={feedRef}>
-        {lines.map((l) => (
-          <p key={l.id}><b>{l.who}: </b>{l.text}</p>
-        ))}
+        {lines.length === 0 ? (
+          <div className="feed-empty">
+            <b>No messages yet</b>
+            <span>What you and {twinName} say appears here. You can also type.</span>
+          </div>
+        ) : (
+          lines.map((l) => (
+            <div key={l.id} className={'msg' + (l.mine ? ' mine' : '')}>
+              <span className="who">{l.who}</span>
+              <p>{l.text}</p>
+            </div>
+          ))
+        )}
       </div>
       <form className="chat-in" onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Your twin is coaching…"
+          placeholder={connected ? `Message ${twinName}…` : 'Connecting…'}
           disabled={!connected}
-          aria-label="Ask as the agent"
+          aria-label={`Message ${twinName}`}
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
         />
         <button type="submit" className="rsend" aria-label="Send" disabled={!connected || !draft.trim()}><Send /></button>
       </form>
-    </aside>
+    </div>
   )
 }
