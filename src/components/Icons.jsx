@@ -39,18 +39,6 @@ export const Chat = ({ width = 2 }) => (
 export const Mic = () => (
   <svg {...stroke} strokeWidth="1.8"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg>
 )
-export const MicOff = () => (
-  <svg {...stroke} strokeWidth="1.8"><path d="M15 9.3V6a3 3 0 0 0-5.7-1.3M9 9v2a3 3 0 0 0 4.9 2.3M5 11a7 7 0 0 0 11.6 5.3M19 11a7 7 0 0 1-.6 2.8M12 18v3M3 3l18 18" /></svg>
-)
-export const VideoOff = () => (
-  <svg {...stroke} strokeWidth="1.8"><path d="M10 6h4a2 2 0 0 1 2 2v4l5-3v8M16 16a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2M3 3l18 18" /></svg>
-)
-export const Brief = () => (
-  <svg {...stroke} strokeWidth="1.8"><rect x="5" y="3" width="14" height="18" rx="2" /><path d="M9 8h6M9 12h6M9 16h3" /></svg>
-)
-export const Pip = () => (
-  <svg {...stroke} strokeWidth="1.8"><rect x="3" y="5" width="18" height="14" rx="2" /><rect x="12" y="12" width="6" height="4" rx="1" fill="currentColor" /></svg>
-)
 export const HangUp = () => (
   <svg {...stroke} strokeWidth="1.8"><path d="M3 14c5-5 13-5 18 0l-2 3-4-1v-3c-2-1-4-1-6 0v3l-4 1z" /></svg>
 )
