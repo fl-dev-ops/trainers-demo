@@ -67,6 +67,19 @@ export const JOHNNY_DANIELE = {
   },
 }
 
+export const DARREN_MITCHELL = {
+  id: 'darren-mitchell',
+  name: 'Darren Mitchell',
+  firstName: 'Darren',
+  initials: 'DM',
+  face: '/media/darren-mitchell-face.svg',
+  room: {
+    kind: 'Ask me anything · Demo',
+    title: 'Ask about leading your team',
+    scenario: 'Darren’s AI twin will answer your questions about leading a sales team, coaching salespeople and building a sales culture. It was made only for this demo and is not a replacement for Darren.',
+  },
+}
+
 export const TONY_LATIMER = {
   id: 'tony-latimer',
   name: 'Tony Latimer',
@@ -188,4 +201,21 @@ TONY_LATIMER.sources = [
     ['“ICF has ruined coaching!” Really?', 'Oct 2025'],
   ]],
   ['Instagram', '49 posts', [['@tonylatimermcc', 'Posts and reels']]],
+]
+
+/* Sources for Darren: his own words only, never a podcast guest's. The voice comes from one 11-second YouTube clip. */
+DARREN_MITCHELL.sourceSummary = 'Podcast episodes · LinkedIn posts · articles · 1 YouTube clip for the voice'
+DARREN_MITCHELL.sources = [
+  ['Podcast', 'Darren’s own words only', [
+    ['The Exceptional Sales Leader Podcast', 'Solo episodes and his own lines in interviews, never a guest’s view'],
+  ]],
+  ['LinkedIn', 'Darren’s posts', [
+    ['Darren Mitchell on LinkedIn', 'His own posts'],
+  ]],
+  ['Articles', 'Darren’s articles', [
+    ['Darren’s articles on sales leadership', 'His own writing'],
+  ]],
+  ['YouTube', '1 clip · voice only', [
+    ['Exceptional leaders focus on serving, not shining – Darren Mitchell', '11 seconds, 4:34 to 4:45'],
+  ]],
 ]
