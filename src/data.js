@@ -73,6 +73,7 @@ export const DARREN_MITCHELL = {
   firstName: 'Darren',
   initials: 'DM',
   face: '/media/darren-mitchell-headshot.jpg',
+  portrait: '/media/darren-mitchell-portrait.jpg',
   room: {
     kind: 'Ask me anything · Demo',
     title: 'Ask about leading your team',
