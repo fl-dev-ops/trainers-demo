@@ -30,6 +30,19 @@ export default function Welcome() {
         </div>
         <div className="paths">
           <article className="path">
+            <div className="peek peek--fig" aria-hidden="true">
+              <Image src={DARREN_MITCHELL.portrait} alt="" fill sizes="(max-width: 680px) 100vw, 460px" />
+              <span className="peek-k">Coaching methodology</span>
+            </div>
+            <div className="path-b">
+              <h2>What {DARREN_MITCHELL.firstName}’s twin learns from</h2>
+              <p>See how the twin was built from {DARREN_MITCHELL.firstName}’s coaching, layer by layer.</p>
+              <div className="row">
+                <Link href="/darren-mitchell/methodology" className="btn btn--strong">See how it learns</Link>
+              </div>
+            </div>
+          </article>
+          <article className="path">
             <div className="peek peek--rps peek--wrap">
               <span className="peek-k">Ask a question</span>
               <div className="rprows">
@@ -49,19 +62,6 @@ export default function Welcome() {
               <div className="row">
                 <Link href="/darren-mitchell/live" className="btn btn--strong">Start asking</Link>
                 <span className="meta">{DARREN_MITCHELL.room.kind}</span>
-              </div>
-            </div>
-          </article>
-          <article className="path">
-            <div className="peek peek--fig" aria-hidden="true">
-              <Image src={DARREN_MITCHELL.portrait} alt="" fill sizes="(max-width: 680px) 100vw, 460px" />
-              <span className="peek-k">Coaching methodology</span>
-            </div>
-            <div className="path-b">
-              <h2>What {DARREN_MITCHELL.firstName}’s twin learns from</h2>
-              <p>See how the twin was built from {DARREN_MITCHELL.firstName}’s coaching, layer by layer.</p>
-              <div className="row">
-                <Link href="/darren-mitchell/methodology" className="btn btn--strong">See how it learns</Link>
               </div>
             </div>
           </article>
