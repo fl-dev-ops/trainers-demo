@@ -1,0 +1,76 @@
+# Copy to configs/<slug>.yaml and fill in. configs/darren-mitchell.yaml is a complete example.
+# Build:  python build.py build <slug>
+#
+# Writing rules
+#  - Keep list entries in "double quotes" (JSON style). Unquoted text with , : ? # [ ] { } breaks YAML.
+#  - Placeholders usable in any text: {name} {full_name} {he} {him} {his} {He} {His} {other}
+#    {sources} {words} {lines} {coach_lines} {situations} {topics} {session_title} {breakdown}
+#    {youtube} {linkedin} {web} {medium} {doc} {recording} {instagram} {twitter}
+#  - Simple HTML is allowed (<em>, &ldquo; &rdquo; &middot; &hellip;).
+#  - Quotes attributed to the coach must be their real words. Numbers must come from build.py count/scout.
+
+coach:
+  slug: ""                 # folder name under users/
+  name: ""                 # first name
+  full_name: ""            # names the output file: "<full_name> - Coaching Twin.html"
+  pronouns: ["", "", ""]   # subject, object, possessive, e.g. ["she", "her", "her"]. Ask; never guess from the name.
+
+session:                   # the one real exchange the page follows (find one with: build.py scout <slug> --grep ...)
+  file: ""                 # path under users/<slug>/data/ of a transcript with speaker_N: turns
+  kind: ""                 # status-bar label, e.g. "YouTube · <Show name>" or "Loom · coaching call"
+  start: ""                # the first words of the first turn shown (see: build.py window <slug> <file> --turn N)
+  coach_speaker: ""        # speaker_1 / speaker_2 ... for the coach in this file
+  other: ""                # the other speaker's name as shown, e.g. "St John", "Client"
+  other_role: ""           # their label on the layer-2 card, e.g. "Guest", "Client", "Agent"
+  cue: 0                   # index in frames of the other person's line we follow
+  move: 1                  # index in frames of the coach's reply (normally cue + 1)
+  frames:                  # 8–12 turns from `start`, one per turn: ["kind", "what the line was doing"]
+    - ["question", ""]     # kinds: question, statement, reframe, story, acknowledgment, request
+
+thread:
+  situation: ""            # a key in workspace/taxonomy.json "situation" that names the cue's situation
+  topic: ""                # a key in workspace/taxonomy.json "topic" for the recurring pattern
+  phase: 0                 # which phase below this exchange belongs to
+  belief: 0                # which belief below it expresses
+
+default_phase: 0           # where topics that match no phase keywords go
+phases:                    # 4–6 coaching purposes; keywords sort the coach's topics into them
+  - {title: "", keywords: []}
+
+beliefs:                   # 4–6 principles; phases = which purposes feed each one
+  - {title: "", text: "", phases: [0]}
+
+steps:                     # captions (left column). collect, transcript, speakers, trace have defaults.
+  layer1: ""               # quote the cue, say the coach answers next
+  meaning: ""              # what the other person did, and what the coach did instead
+  cue: ""                  # quote the coach's reply
+  layer2: ""               # the move in plain words
+  layer3: ""               # the situation; name the taxonomy situation in <em>
+  layer4: ""               # the recurring pattern across their material
+  layer5: ""               # the purpose: from where to where
+  layer6: ""               # the principle, in <em>, then one line tying it to the reply
+
+cards:
+  layer1: {cue: "", move: "", foot: "Two exact lines &middot; two speakers &middot; consecutive turns"}
+  layer2: {cue: "", move: ""}
+  layer3: {title: "", text: "", foot: ""}
+  layer4: {title: "", text: "", foot: ""}
+  layer5: {title: "", text: "", starts: "", moves_to: ""}
+  layer6: {quote: "", text: ""}
+
+about:
+  sources:                 # [platform, handle or domain, "N items · detail"]
+    - ["", "", ""]
+  rows:                    # [label, [[option, 1 if selected else 0], ...], "where this came from"]
+    - ["Type of coach", [["", 1], ["", 0]], ""]
+    - ["Region", [["", 1], ["", 0]], ""]
+    - ["Who you coach", [["Individuals", 0], ["Corporate teams", 0], ["Both", 1]], ""]
+    - ["How you deliver", [["", 1]], ""]
+    - ["Your topics", [["", 1]], "grouped from {topics} recurring topics in your material"]
+    - ["Your style", [["", 1]], "a first read; you’ll refine it when you calibrate"]
+
+dd_lead: "{name}’s twin follows these in every answer. They start as frequent patterns in how {he} coaches, plus the rules from {his} validated scenarios."
+dos:                       # 5–6: ["text after Do", "where it was seen, with a real count"]
+  - ["", ""]
+donts:                     # 4–5: ["text after Don't", "where it was seen"]
+  - ["", ""]

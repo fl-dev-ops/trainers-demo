@@ -1,0 +1,138 @@
+# Darren Mitchell — worked example. Build with:
+#   python build.py build darren-mitchell
+#
+# Placeholders you can use in any text: {name} {full_name} {he} {him} {his} {He} {His} {other}
+# {sources} {words} {lines} {coach_lines} {situations} {topics} {session_title} {breakdown}
+# and per-kind source counts: {youtube} {linkedin} {web} {medium} {doc} {recording} {instagram} {twitter}
+# Text may contain simple HTML (<em>, &ldquo;). Quotes on the cards must be the coach's real words.
+
+coach:
+  slug: darren-mitchell              # folder under users/
+  name: Darren                       # first name, used throughout the copy
+  full_name: Darren Mitchell         # also names the output file
+  pronouns: [he, him, his]           # subject, object, possessive. Ask; never guess from the name.
+
+# The one real exchange the page follows (a 2-speaker transcript under users/<slug>/data/).
+session:
+  file: youtube/video/2026-02-20-mastering-self-leadership-with-st-john-craner-Jrm-LSmtTiI.md
+  kind: YouTube · Exceptional Sales Leader Podcast   # shown in the window's status bar
+  start: You do You do And one of the things         # how the first turn of the window begins
+  coach_speaker: speaker_1                           # which speaker_N is the coach in this file
+  other: St John                                     # name shown for the other speaker
+  other_role: Guest                                  # their label on the layer-2 card
+  cue: 3       # index (0-based) in `frames` of the other person's line we follow
+  move: 4       # index of the coach's reply
+  frames:       # one [kind, what the line was doing] per turn, starting at `start`
+    - ["question", "asking leaders directly how much time each week they spend reflecting"]
+    - ["acknowledgment", "signalling he already knows the answer leaders give"]
+    - ["statement", "reporting that most leaders say they have no time to reflect"]
+    - ["statement", "arguing that leaders on a treadmill must force reflection, and that even managers need coaches"]
+    - ["reframe", "turning “no time” into a standard: if the leader does not reflect, the team never will"]
+    - ["statement", "describing leaders who demand standards, then cancel one-on-ones and run late"]
+    - ["acknowledgment", "agreeing and letting the guest continue"]
+    - ["statement", "noting that great coaches surround themselves with mentors"]
+    - ["question", "asking how a leader keeps creating an environment that challenges them to get better"]
+    - ["statement", "saying leaders should hire people who can surpass them and leave a legacy"]
+    - ["story", "telling how his first GM asked “who is your likely successor?” on day one"]
+    - ["acknowledgment", "recognising how the first-day question framed the role"]
+
+# Where the thread lands on each upper layer.
+thread:
+  situation: cancelling-1-1-coaching-sessions   # a key from taxonomy.json "situation"
+  topic: self-leadership                        # a key from taxonomy.json "topic"
+  phase: 1                                      # index into phases
+  belief: 1                                     # index into beliefs
+
+# Layer 5: the coaching purposes. Topics are sorted into a phase by `keywords`.
+default_phase: 4
+phases:
+  - title: Diagnose the leader’s week
+    keywords: [time, productivity, busy, mindset, resilience, self, reflection, wellbeing, burnout]
+  - title: Hold up the standard
+    keywords: [leadership, standards, culture, accountability, example, servant, organizational]
+  - title: Protect the coaching rhythm
+    keywords: [coaching, one, cadence, meeting, performance, training, enablement]
+  - title: Develop, don’t rescue
+    keywords: [mentorship, development, questioning, listening, feedback, learning, socratic]
+  - title: Earn the buyer’s trust
+    keywords: [trust, buyer, consultative, relationship, ethical, selling, client, customer, psychology, ai, marketing, prospecting, negotiation, branding, networking, storytelling]
+  - title: Build leaders, leave a legacy
+    keywords: [career, hiring, talent, succession, legacy, transition, entrepreneurship, team, growth]
+
+# Layer 6: principles (hover labels on the top floor). `phases` = which purposes feed each one.
+beliefs:
+  - {title: Coaching is not optional, text: 'If you’re cancelling coaching sessions with your salespeople, you’re cancelling performance.', phases: [2, 0]}
+  - {title: Lead yourself first, text: 'Your team will not rise above the standard you model. Reflect, then hold the standard.', phases: [1, 0]}
+  - {title: Serve the team, text: A sales leader’s job is not to sell. It is to enable the team to sell., phases: [1, 3]}
+  - {title: Develop the people, not just the number, text: Great sales leaders don’t just inspect the number. They develop the people who deliver it., phases: [3, 2]}
+  - {title: Trust before the sale, text: Your reputation walks into the room before you do., phases: [4]}
+  - {title: Make yourself redundant, text: 'Your ultimate role is to make your role redundant: build the people who can take the team forward.', phases: [5, 3]}
+
+# Captions, one per step. A string replaces the body; [title, body] replaces both.
+# collect, transcript, speakers and trace have sensible defaults and may be left out.
+steps:
+  collect: "We read {youtube} podcast episodes and videos, {linkedin} LinkedIn posts and {web} blog pages: <em>{words} words across {lines} lines.</em> From this collection, we follow one episode of the Exceptional Sales Leader Podcast with Darren and his guest, rural sales coach St John Craner."
+  layer1: "St John says leaders tell him, <em>&ldquo;I don't have time to reflect.&rdquo;</em> In the very next turn, Darren responds. These exact lines are the evidence for everything that follows."
+  meaning: "The guest describes leaders who are too busy to stop and reflect. Instead of sympathising with the workload, Darren turns it into a question of the standard the leader sets."
+  cue: "Leaders say they have no time to reflect. Darren answers, <em>&ldquo;If the leader doesn't actually take the time to reflect on their own performance, there's a 100 percent guarantee that none of their team's gonna do that either.&rdquo;</em>"
+  layer2: "Darren does not accept &ldquo;no time&rdquo; as a reason. He moves the focus from the leader's calendar to the leader's example. The response remains linked to the exact exchange."
+  layer3: "A sales leader lets coaching and reflection slide because the week is busy. In Darren's material this shows up as <em>cancelling 1:1 coaching sessions</em>."
+  layer4: "Across his episodes and posts, Darren keeps coming back to <em>self-leadership</em>: a leader has to lead themselves before they can hold anyone else to a standard."
+  layer5: "The purpose is to move the leader from &ldquo;I'm too busy&rdquo; to naming the one standard they will model for the team, starting with protected time to reflect and coach."
+  layer6: "<em>Lead yourself first. Your team will not rise above the standard you model.</em> This is the principle behind Darren's response."
+
+# The card on the right for each layer. layer1 quotes must be word-for-word (build warns if not).
+cards:
+  layer1:
+    cue: I don't have time to reflect &hellip; it's really, really hard to observe yourself. So that's why you need good coaches around you.
+    move: If the leader doesn't actually take the time to reflect on their own performance, there's a 100 percent guarantee that none of their team's gonna do that either.
+    foot: Two exact lines &middot; two speakers &middot; consecutive turns
+  layer2:
+    cue: Says leaders are too busy to stop and reflect
+    move: Turns &ldquo;no time&rdquo; into the standard the leader sets for the team
+  layer3:
+    title: A busy leader lets coaching slide
+    text: When the week gets full, reflection and 1:1 coaching are the first things to go.
+    foot: Situation in {his} material &middot; &ldquo;cancelling 1:1 coaching sessions&rdquo;
+  layer4:
+    title: Lead yourself first
+    text: Darren does not start with the team's behaviour. He asks what the leader is modelling, because the team copies what the leader does.
+    foot: Recurring topic &middot; self-leadership
+  layer5:
+    title: Hold up the standard
+    text: Make the leader's own behaviour the first lever on team performance.
+    starts: '&ldquo;I don''t have time&rdquo;'
+    moves_to: '&ldquo;Here is the standard I''ll model&rdquo;'
+  layer6:
+    quote: Lead yourself first. Your team will not rise above the standard you model.
+    text: 'The same idea runs through his posts: <em>&ldquo;If you''re cancelling coaching sessions with your salespeople, you''re cancelling performance.&rdquo;</em>'
+
+# Step 05: About you. [label, [[option, selected 1/0], ...], where the evidence came from]
+about:
+  sources:
+    - ["YouTube", "@DarrenMitchellESL", "{youtube} episodes · The Exceptional Sales Leader Podcast"]
+    - ["LinkedIn", "in/sales-leadership-coach", "{linkedin} posts · 11,907 followers"]
+    - ["Website", "darrenmitchell.com.au", "{web} pages · blog and show notes"]
+  rows:
+    - ["Type of coach", [["Sales", 0], ["Sales leadership", 1], ["Leadership", 0], ["Career & interviews", 0]], "from your headline: “Sales Leadership Coach & Mentor”"]
+    - ["Region", [["Australia", 1], ["UK", 0], ["US", 0], ["Global", 0]], "New Gisborne, Victoria · guests from around the world"]
+    - ["Who you coach", [["Individuals", 0], ["Corporate teams", 0], ["Both", 1]], "sales leaders, and reps stepping up into leadership"]
+    - ["How you deliver", [["1:1 coaching", 1], ["Group coaching", 1], ["Training & workshops", 1], ["Speaking", 1], ["Podcast", 1]], "from your LinkedIn About"]
+    - ["Your topics", [["Sales leadership", 1], ["Coaching & 1:1s", 1], ["Servant leadership", 1], ["Trust & ethical selling", 1], ["Moving into leadership", 1], ["AI in sales", 0]], "grouped from {topics} recurring topics in your podcast, posts and blog"]
+    - ["Your style", [["Asks before answering", 1], ["Holds leaders to a standard", 1], ["Tells stories from your career", 1], ["Real & practical, not fluffy", 1], ["Short and direct", 1]], "a first read; you’ll refine it when you calibrate"]
+
+# Step 06: Do's & Don'ts. [text after "Do"/"Don't", where it was seen]. Get counts with: build.py count <slug> REGEX
+dd_lead: Darren's twin follows these in every answer. They start as frequent patterns in how he coaches across his podcast, posts and blog, plus the rules from his validated scenario.
+dos:
+  - ["ask one focused question back before giving advice", "Frequent pattern · his questioning runs through 171 episodes and posts"]
+  - ["treat coaching time as non-negotiable; protect 1:1s like the forecast call", "Frequent pattern · 26 episodes and posts · “Coaching Is Not Optional”"]
+  - ["start with the leader’s own example: what are you modelling?", "Frequent pattern · self-leadership and leading by example in 23 sources"]
+  - ["put serving and developing the team ahead of inspecting the number", "Frequent pattern · servant leadership in 47 sources"]
+  - ["lead with trust and integrity; your reputation walks into the room before you do", "Frequent pattern · trust comes up in 479 sources"]
+  - ["keep it short: 2–3 sentences, under 50 words, then hand the floor back", "From his validated scenario · voice and pacing rules"]
+donts:
+  - ["accept “I’m too busy” as a reason to cancel coaching or reflection", "Frequent pattern · “no time” is challenged in 43 sources"]
+  - ["hand the rep the answer; ask so they think it through and own it", "Frequent pattern · “good coaches ask, they don’t tell”"]
+  - ["push, pressure or discount to get a deal over the line", "Frequent pattern · pressure and discounting discussed in 107 sources"]
+  - ["blame the sales team for gaps in leadership", "From his validated scenario · negative boundaries"]
+  - ["lecture with leadership theory or generic productivity hacks", "From his validated scenario · negative boundaries"]
