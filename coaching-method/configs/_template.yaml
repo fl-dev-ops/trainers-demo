@@ -15,6 +15,9 @@ coach:
   full_name: ""            # names the output file: "<full_name> - Coaching Twin.html"
   pronouns: ["", "", ""]   # subject, object, possessive, e.g. ["she", "her", "her"]. Ask; never guess from the name.
 
+# Optional: wording for non-coaches, e.g. a professor. Leave out to keep "coaching".
+# words: {coaching: teaching, Coaching: Teaching, coaches: teaches}
+
 session:                   # the one real exchange the page follows (find one with: build.py scout <slug> --grep ...)
   file: ""                 # path under users/<slug>/data/ of a transcript with speaker_N: turns
   kind: ""                 # status-bar label, e.g. "YouTube · <Show name>" or "Loom · coaching call"

@@ -418,6 +418,7 @@ def resolve(cfg, story):
             'session': {'other_role': cfg['session'].get('other_role', cfg['session']['other'])},
             'steps': steps, 'cards': fmt(cfg['cards']), 'about': fmt(cfg['about']),
             'dos': fmt(cfg['dos']), 'donts': fmt(cfg['donts']),
+            'words': cfg.get('words', {}),  # optional wording, e.g. {coaching: teaching, Coaching: Teaching, coaches: teaches}
             'dd_lead': fmt(cfg.get('dd_lead', '{name}’s twin follows these in every answer. They start as frequent patterns in how {he} coaches, plus the rules from {his} validated scenarios.'))}
 
 

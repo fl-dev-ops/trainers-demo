@@ -91,6 +91,8 @@ svg{flex:none}
 .srcpill svg{width:14px;height:14px}
 .paths{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;width:100%}
 @media (max-width:680px){.paths{grid-template-columns:minmax(0,1fr)}}
+.path--wide{grid-column:1 / -1}
+.path--wide .peek--fig img.prathosh-portrait{object-position:50% 38%}
 .path{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--card-border);border-radius:16px;box-shadow:var(--e1);overflow:hidden;transition:box-shadow .2s var(--ease),transform .2s var(--ease)}
 .path:hover{box-shadow:var(--e2);transform:translateY(-2px)}
 .peek{height:240px;background:var(--sunken);border-bottom:1px solid var(--border);padding:22px 24px;display:flex;flex-direction:column}

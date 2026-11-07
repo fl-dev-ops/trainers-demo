@@ -63,6 +63,20 @@ export default function Welcome() {
               </div>
             </div>
           </article>
+
+          <article className="path path--wide">
+            <div className="peek peek--fig" aria-hidden="true">
+              <Image className={PRATHOSH.portraitClass} src={PRATHOSH.portrait} alt="" fill sizes="(max-width: 680px) 100vw, 940px" />
+              <span className="peek-k">Teaching methodology</span>
+            </div>
+            <div className="path-b">
+              <h2>What {PRATHOSH.firstName}’s twin learns from</h2>
+              <p>See how the twin was built from {PRATHOSH.firstName}’s lectures, layer by layer.</p>
+              <div className="row">
+                <Link href="/prathosh/methodology" className="btn btn--strong">See how it learns</Link>
+              </div>
+            </div>
+          </article>
         </div>
         <TrustFooter twin={PRATHOSH} />
       </div>

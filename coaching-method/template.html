@@ -332,6 +332,7 @@ const CONFIG = /*__CONFIG__*/null;
 (() => {
 const S = STORY, CF = CONFIG, T = S.totals, TH = S.thread, sess = S.session, L = sess.lines;
 const NM = CF.coach.name, [HE, HIM, HIS] = CF.coach.pronouns;
+const WD = Object.assign({coaching: 'coaching', Coaching: 'Coaching', coaches: 'coaches'}, CF.words || {});
 const $ = s => document.querySelector(s);
 const fmt = n => n.toLocaleString('en-US');
 const css = getComputedStyle(document.documentElement);
@@ -362,7 +363,7 @@ const STATES = [
   {ch: 3, ...P.layer2, stat: [T.frames, `substantive lines by ${NM}`], lvl: 2},
   {ch: 3, ...P.layer3, stat: [T.tactics, 'situations'], lvl: 3},
   {ch: 3, ...P.layer4, stat: [T.scenes, 'recurring topics'], lvl: 4},
-  {ch: 3, ...P.layer5, stat: [T.phases, 'coaching purposes'], lvl: 5},
+  {ch: 3, ...P.layer5, stat: [T.phases, WD.coaching + ' purposes'], lvl: 5},
   {ch: 3, ...P.layer6, stat: [T.beliefs, 'principles'], lvl: 6},
   {ch: 3, ...P.trace, lvl: 7},
   {ch: 4, ab: true},
@@ -373,7 +374,7 @@ const ST_FR = ST_L1 + 1, ST_CUE = ST_L1 + 2;
 
 /* ================= build the DOM ================= */
 document.title = `How ${NM}'s Twin Learns`;
-$('#hdr').innerHTML = `Twin-memory · <b>From ${esc(NM)}'s words to a coaching principle</b>`;
+$('#hdr').innerHTML = `Twin-memory · <b>From ${esc(NM)}'s words to a ${WD.coaching} principle</b>`;
 $('#hero-h').innerHTML = `How ${esc(NM)}'s twin<br><i>learns</i>`;
 $('#hero-p').textContent = `Start with what was said. Follow what ${NM} does next, the situation ${HE} recognizes, and the principle behind ${HIS} response.`;
 
@@ -419,13 +420,13 @@ $('#cards').innerHTML = `
     <div class="foot">${K.layer3.foot}</div></div>
   <div class="card" id="c4"><div class="lv" style="color:var(--l4)">Layer 4 · The recurring pattern</div><h3>${K.layer4.title}</h3><p>${K.layer4.text}</p>
     <div class="foot">${K.layer4.foot}</div></div>
-  <div class="card" id="c5"><div class="lv" style="color:var(--l5)">Layer 5 · The coaching purpose</div><h3>${K.layer5.title}</h3><p>${K.layer5.text}</p>
+  <div class="card" id="c5"><div class="lv" style="color:var(--l5)">Layer 5 · The ${WD.coaching} purpose</div><h3>${K.layer5.title}</h3><p>${K.layer5.text}</p>
     <dl class="pair" style="margin-top:14px"><dt>Starts</dt><dd>${K.layer5.starts}</dd><dt>Moves to</dt><dd>${K.layer5.moves_to}</dd></dl>
     <div class="foot">Why ${esc(NM)}’s reply matters</div></div>
-  <div class="card" id="c6"><div class="lv" style="color:var(--l6)">Layer 6 · The coaching principle</div><blockquote>“${K.layer6.quote}”</blockquote><p>${K.layer6.text}</p>
+  <div class="card" id="c6"><div class="lv" style="color:var(--l6)">Layer 6 · The ${WD.coaching} principle</div><blockquote>“${K.layer6.quote}”</blockquote><p>${K.layer6.text}</p>
     <div class="foot">Derived from the recorded pattern</div></div>`;
 
-const LG = ['What was said', `What ${NM} does`, 'The situation', 'Recurring pattern', 'Coaching purpose', 'Derived principle'];
+const LG = ['What was said', `What ${NM} does`, 'The situation', 'Recurring pattern', WD.Coaching + ' purpose', 'Derived principle'];
 $('#legend').innerHTML = `<div class="plabel">This exchange, layer by layer</div>` + [6, 5, 4, 3, 2, 1].map((l, i) =>
   `<div class="lg" style="transition-delay:${.1 + i * .08}s"><i style="background:${C[l]}"></i><span>L${l} ${esc(LG[l - 1])}</span></div>`).join('');
 
@@ -439,7 +440,7 @@ $('#ab').innerHTML = `<div class="lead">
   </div>
   <div class="page">
     <h2>Here’s who we think you are</h2>
-    <p class="what">From your LinkedIn, YouTube and website. Tap to correct anything.</p>
+    <p class="what">From your ${(n => n.length > 1 ? n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1] : n[0])(A.sources.map(s => s[0]))}. Tap to correct anything.</p>
     <div class="sheet">${A.rows.map(([label, opts, ev]) => `<div class="row"><span>${label}</span><div class="chips">${
       opts.map(([v, on]) => `<button type="button" class="chip" aria-pressed="${!!on}">${v}</button>`).join('')}<span class="ev">${ev}</span></div></div>`).join('')}</div>
   </div>`;
@@ -449,7 +450,7 @@ $('#dd-lead').innerHTML = CF.dd_lead;
 $('#dd-count').innerHTML = `<div><b>${CF.dos.length}</b><span>Do’s</span></div><div><b>${CF.donts.length}</b><span>Don’ts</span></div>`;
 const ddRow = (kind, [text, meta]) => `<div class="dd-row ${kind}"><i>${kind === 'do' ? '✓' : '✕'}</i><div><p><b>${kind === 'do' ? 'Do' : 'Don’t'}</b> ${text}</p><small>${meta}</small></div></div>`;
 $('#fdpage').innerHTML = `<article class="on">
-  <h2>How ${esc(NM)} coaches</h2>
+  <h2>How ${esc(NM)} ${WD.coaches}</h2>
   <div class="dd-cols">
     <section><div class="dd-head do"><i>✓</i> Do’s <small>how ${HIS} twin behaves</small></div>${CF.dos.map(x => ddRow('do', x)).join('')}</section>
     <section><div class="dd-head dont"><i>✕</i> Don’ts <small>lines ${HIS} twin never crosses</small></div>${CF.donts.map(x => ddRow('dont', x)).join('')}</section>
