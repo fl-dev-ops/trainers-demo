@@ -265,6 +265,10 @@ header b{color:var(--l1);font-weight:600}
 #fd .principle-count{margin-top:20px;border-top:1px solid var(--line);padding-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
 #fd .principle-count b{display:block;font:300 56px/1 var(--serif);color:var(--ink)}
 #fd .principle-count span{display:block;margin-top:10px;font:500 10px/1.5 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+#fd .ptabs{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line2);border-radius:999px;margin:2px 0 4px}
+#fd .ptab{font:500 13px/1 var(--serif);color:var(--dim);padding:9px 16px;border-radius:999px;border:0;background:transparent;cursor:pointer;transition:all .2s}
+#fd .ptab:hover{color:var(--ink)}
+#fd .ptab[aria-selected=true]{color:#1b1712;background:var(--l1);font-weight:600}
 #fd .dd-cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:18px;max-width:1080px}
 #fd .dd-head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;font-size:19px;font-weight:450}
 #fd .dd-head small{font-size:13.5px;color:var(--dim);font-weight:330}
@@ -445,17 +449,24 @@ $('#ab').innerHTML = `<div class="lead">
       opts.map(([v, on]) => `<button type="button" class="chip" aria-pressed="${!!on}">${v}</button>`).join('')}<span class="ev">${ev}</span></div></div>`).join('')}</div>
   </div>`;
 
-// do's & don'ts
-$('#dd-lead').innerHTML = CF.dd_lead;
-$('#dd-count').innerHTML = `<div><b>${CF.dos.length}</b><span>Do’s</span></div><div><b>${CF.donts.length}</b><span>Don’ts</span></div>`;
+// do's & don'ts (optionally one set per persona, e.g. a professor who also teaches Sanskrit chanting)
+const PERS = (CF.personas && CF.personas.length) ? CF.personas : [{label: '', dd_lead: CF.dd_lead, dos: CF.dos, donts: CF.donts}];
 const ddRow = (kind, [text, meta]) => `<div class="dd-row ${kind}"><i>${kind === 'do' ? '✓' : '✕'}</i><div><p><b>${kind === 'do' ? 'Do' : 'Don’t'}</b> ${text}</p><small>${meta}</small></div></div>`;
-$('#fdpage').innerHTML = `<article class="on">
-  <h2>How ${esc(NM)} ${WD.coaches}</h2>
+function showPersona(k) {
+  const P = PERS[k];
+  $('#dd-lead').innerHTML = P.dd_lead || CF.dd_lead;
+  $('#dd-count').innerHTML = `<div><b>${P.dos.length}</b><span>Do’s</span></div><div><b>${P.donts.length}</b><span>Don’ts</span></div>`;
+  const tabs = PERS.length > 1 ? `<div class="ptabs" role="tablist">${PERS.map((q, n) =>
+    `<button type="button" class="ptab" role="tab" data-p="${n}" aria-selected="${n === k}">${esc(q.label)}</button>`).join('')}</div>` : '';
+  $('#fdpage').innerHTML = `<article class="on">
+  <h2>How ${esc(NM)} ${WD.coaches}</h2>${tabs}
   <div class="dd-cols">
-    <section><div class="dd-head do"><i>✓</i> Do’s <small>how ${HIS} twin behaves</small></div>${CF.dos.map(x => ddRow('do', x)).join('')}</section>
-    <section><div class="dd-head dont"><i>✕</i> Don’ts <small>lines ${HIS} twin never crosses</small></div>${CF.donts.map(x => ddRow('dont', x)).join('')}</section>
+    <section><div class="dd-head do"><i>✓</i> Do’s <small>how ${HIS} twin behaves</small></div>${P.dos.map(x => ddRow('do', x)).join('')}</section>
+    <section><div class="dd-head dont"><i>✕</i> Don’ts <small>lines ${HIS} twin never crosses</small></div>${P.donts.map(x => ddRow('dont', x)).join('')}</section>
   </div>
 </article>`;
+}
+showPersona(0);
 
 /* ================= the layered space ================= */
 const FLOOR = {1: 1.0, 2: .84, 3: .68, 4: .52, 5: .36, 6: .2}, FY = l => -1 + (l - 1) * .4;
@@ -768,6 +779,8 @@ addEventListener('pointerup', e => {
   if (!was || moved) return;
   const dot = e.target.closest && e.target.closest('#rail i');
   if (dot) { go(+dot.dataset.i); return; }
+  const ptab = e.target.closest && e.target.closest('#fd .ptab');
+  if (ptab) { showPersona(+ptab.dataset.p); return; }
   const chip = e.target.closest && e.target.closest('#ab .chip');
   if (chip) { chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true')); return; }
   if (STATES[cur].fd) return;                  // reading the last page: clicks do not advance

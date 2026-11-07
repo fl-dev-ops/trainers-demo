@@ -417,7 +417,9 @@ def resolve(cfg, story):
     return {'coach': {'name': co['name'], 'full_name': co['full_name'], 'slug': co['slug'], 'pronouns': [he, him, his]},
             'session': {'other_role': cfg['session'].get('other_role', cfg['session']['other'])},
             'steps': steps, 'cards': fmt(cfg['cards']), 'about': fmt(cfg['about']),
-            'dos': fmt(cfg['dos']), 'donts': fmt(cfg['donts']),
+            'dos': fmt(cfg.get('dos') or cfg['personas'][0]['dos']),
+            'donts': fmt(cfg.get('donts') or cfg['personas'][0]['donts']),
+            'personas': fmt(cfg.get('personas', [])),  # optional: [{label, dd_lead, dos, donts}] shown as tabs on Do's & Don'ts
             'words': cfg.get('words', {}),  # optional wording, e.g. {coaching: teaching, Coaching: Teaching, coaches: teaches}
             'dd_lead': fmt(cfg.get('dd_lead', '{name}’s twin follows these in every answer. They start as frequent patterns in how {he} coaches, plus the rules from {his} validated scenarios.'))}
 

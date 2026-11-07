@@ -77,3 +77,8 @@ dos:                       # 5–6: ["text after Do", "where it was seen, with a
   - ["", ""]
 donts:                     # 4–5: ["text after Don't", "where it was seen"]
   - ["", ""]
+
+# Optional: Do's & Don'ts per persona, shown as tabs (e.g. a professor who also teaches Sanskrit chanting).
+# When set, the first persona's lists are the default; dos/donts above can be left out.
+# personas:
+#   - {label: "", dd_lead: "", dos: [["", ""]], donts: [["", ""]]}
