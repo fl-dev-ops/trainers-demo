@@ -60,6 +60,9 @@ beliefs:
   - {title: "Curiosity comes first", text: "Observe things around you and ask questions about why something is the way it is.", phases: [4]}
   - {title: "Science should solve real problems", text: "If real problems can be solved using science and technology, then I should definitely do this.", phases: [4, 3]}
 
+# Phones get their own portrait layout (Shyam, 8 Nov).
+mobile: true
+
 steps:
   collect: "We read {youtube} of his lecture, tutorial and talk videos and 272 LinkedIn posts: <em>{words} words across {lines} lines.</em> From this collection, we follow one moment from his Deep Generative Models lecture on VAEs, when a student asks him a question."
   layer1: "A student checks what Prathosh meant: <em>&ldquo;so basically we are trying to classify the class of the images.&rdquo;</em> In the very next turn, Prathosh responds. These exact lines are the evidence for everything that follows."

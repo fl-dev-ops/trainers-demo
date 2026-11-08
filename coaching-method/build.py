@@ -420,6 +420,7 @@ def resolve(cfg, story):
             'dos': fmt(cfg.get('dos') or cfg['personas'][0]['dos']),
             'donts': fmt(cfg.get('donts') or cfg['personas'][0]['donts']),
             'personas': fmt(cfg.get('personas', [])),  # optional: [{label, dd_lead, dos, donts}] shown as tabs on Do's & Don'ts
+            'mobile': bool(cfg.get('mobile', False)),  # optional: phone layout (portrait) instead of the scaled-down slide
             'words': cfg.get('words', {}),  # optional wording, e.g. {coaching: teaching, Coaching: Teaching, coaches: teaches}
             'dd_lead': fmt(cfg.get('dd_lead', '{name}’s twin follows these in every answer. They start as frequent patterns in how {he} coaches, plus the rules from {his} validated scenarios.'))}
 
