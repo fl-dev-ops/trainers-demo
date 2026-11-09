@@ -81,6 +81,19 @@ export const DARREN_MITCHELL = {
   },
 }
 
+export const MARCUS_CAUCHI = {
+  id: 'marcus-cauchi',
+  name: 'Marcus Cauchi',
+  firstName: 'Marcus',
+  initials: 'MC',
+  face: '/media/marcus-cauchi-headshot.jpg',
+  room: {
+    kind: 'Ask me anything · Demo',
+    title: 'Ask about prospecting and selling',
+    scenario: 'Marcus’s AI twin will answer your questions about prospecting, finding the right customers, budget conversations and selling as your buyer’s ally. It was made only for this demo and is not a replacement for Marcus.',
+  },
+}
+
 export const TONY_LATIMER = {
   id: 'tony-latimer',
   name: 'Tony Latimer',
@@ -218,5 +231,17 @@ DARREN_MITCHELL.sources = [
   ]],
   ['YouTube', '1 clip · voice only', [
     ['Exceptional leaders focus on serving, not shining – Darren Mitchell', '11 seconds, 4:34 to 4:45'],
+  ]],
+]
+
+/* Sources for Marcus: his own words only, never a host's. */
+MARCUS_CAUCHI.sourceSummary = '2 YouTube interviews · 1 podcast episode'
+MARCUS_CAUCHI.sources = [
+  ['YouTube', '2 interviews · Marcus’s own words only', [
+    ['Transforming Sales Through People-Centric Strategies (Innovation Junkies)', '2024'],
+    ['Transforming Sales Through Intelligent Systems (Systems Simplified)', '2025'],
+  ]],
+  ['Podcast', '1 episode', [
+    ['Sales Reinvented 243: Why You Must Prospect for Choice', 'Marcus’s answers only'],
   ]],
 ]
