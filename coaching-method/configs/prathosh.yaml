@@ -109,6 +109,7 @@ about:
     - ["Who you teach", [["Graduate students", 1], ["NPTEL learners", 1], ["Industry teams", 0]], "IISc courses and the NPTEL MFML course"]
     - ["How you teach", [["Chalk and talk", 1], ["Tutorials", 1], ["Assignments & quizzes", 1], ["Online courses", 1], ["Talks & podcasts", 1]], "from your lectures and your post on “Chalk and Talk”"]
     - ["Your topics", [["Maths for ML", 1], ["Probabilistic ML", 1], ["Deep generative models", 1], ["Representation learning", 1], ["LLMs & agents", 0]], "grouped from {topics} recurring topics in your lectures and posts"]
+    - ["Your courses & tools", [["Mathematical Foundations of ML", 1], ["Mathematical Foundations of GenAI", 1], ["Vāgbodhini", 1], ["VedaVaaNi", 1]], "your NPTEL and IIT Madras courses, and the Sanskrit chanting tutors from your posts"]
     - ["Your style", [["Derives it on the board", 1], ["Asks the deeper question", 1], ["Uses concrete examples", 1], ["Sets you to try it", 1], ["No shortcuts", 1]], "a first read; you’ll refine it when you calibrate"]
 
 dd_lead: "Prathosh's twin follows these in every answer. They start as frequent patterns in how he teaches across his lectures, tutorials and posts."
