@@ -235,14 +235,47 @@ DARREN_MITCHELL.sources = [
   ]],
 ]
 
-/* Sources for Marcus: his own words only, never a host's. */
-MARCUS_CAUCHI.sourceSummary = '2 YouTube interviews · 1 podcast episode'
+/* Sources for Marcus: his own words only, never a host's or guest's. */
+MARCUS_CAUCHI.sourceSummary = '32 YouTube interviews · 1 podcast episode · 1,541 LinkedIn posts'
 MARCUS_CAUCHI.sources = [
-  ['YouTube', '2 interviews · Marcus’s own words only', [
-    ['Transforming Sales Through People-Centric Strategies (Innovation Junkies)', '2024'],
-    ['Transforming Sales Through Intelligent Systems (Systems Simplified)', '2025'],
+  ['YouTube', '32 interviews · 2021 to 2026 · Marcus’s own words only', [
+    ['The Price of Pipeline: Helping Buyers or Chasing a Yes? | Marcus Cauchi | RevChat', '2026'],
+    ['Almost Everything Modern Sales Teaches is Backwards.', '2026'],
+    ['Why Your Prospecting Fails Before the First Call | Peter Cleary & Tom Stearns', '2026'],
+    ['Why Buyers Don’t Trust Salespeople — And What CEOs Can Do About It | Andy Hough & Marcus Cauchi', '2026'],
+    ['From Challenger to Framemaking: Redefining Modern B2B Sales with Karl Schmidt', '2026'],
+    ['Hot Revenue Webinar 2 (Audio) - The Ally Method with Dan Pfister, Suzanne and Marcus Cauchi', '2025'],
+    ['S01PS03 Marcus Cauchi Pitchslap', '2025'],
+    ['Mastering Human-to-Human Sales in an AI World - Trust, Debt, and Process | Marcus Cauchi (Ep. 8…', '2025'],
+    ['The SALES STRATEGY You Need: Build Trust & Grow Revenue | Marcus Cauchi’s Ally Method | Ep. 17', '2025'],
+    ['Transforming Sales Through Intelligent Systems with Marcus Cauchi', '2025'],
+    ['Decommunity Podcast Ep 20: Marcus Cauchi & Dan Pfister', '2024'],
+    ['Why You Should Never Sell Using Pain with the April Fool Marcus Cauchi - FFF EP137', '2024'],
+    ['Surviving Market Waves: Shifting Sales Approaches for winning Outcomes | Marcus Cauchi Ep-8', '2024'],
+    ['The Motivated Business Show with Marcus Cauchi', '2024'],
+    ['Enlisting Board Members to Your Ideas - Veblen Expert Series with Marcus Cauchi', '2024'],
+    ['How to Sell, with Marcus Cauchi and Benjamin Dennehy', '2024'],
+    ['5.9 Transforming Sales Through People-Centric Strategies with Marcus Cauchi', '2024'],
+    ['Principled Selling: What Questions Are You Not Asking Yourself with Marcus Cauchi #083', '2023'],
+    ['Marcus Cauchi on Balancing Values, Service, and Inner Peace in sales', '2023'],
+    ['How to be the best salesperson you can be with Marcus Cauchi', '2023'],
+    ['E1 Making mistakes is the only way to fly with Marcus Cauchi', '2022'],
+    ['Marcus Cauchi: The sales pressure is high, how to convert it to an inspirational spirit in your…', '2022'],
+    ['Buyer safety and why it’s crucial to safety and risk professionals, with Marcus Cauchi', '2022'],
+    ['How to Drive Permanent Improvement in Your Company - with Marcus Cauchi', '2021'],
+    ['Scale Your Sales #104: Marcus Cauchi – How Sales Management Reduces Customer Churn Rate', '2021'],
+    ['Delivering customer satisfaction, every time (with Marcus Cauchi)', '2021'],
+    ['What It Takes To Succeed In Channel Sales With Marcus Cauchi', '2021'],
+    ['How to successfully make channel sales work | HWS Partnerships with Marcus Cauchi', '2021'],
+    ['Making Sales a Force for Good (Ft. Marcus Cauchi) | DTRH Podcast | Ep.26', '2021'],
+    ['Making Sales A Force For Good with Marcus Cauchi', '2021'],
+    ['Talking Sales with Marcus Cauchi', '2021'],
+    ['Marcus Cauchi Full Interview', '2021'],
   ]],
   ['Podcast', '1 episode', [
     ['Sales Reinvented 243: Why You Must Prospect for Choice', 'Marcus’s answers only'],
+  ]],
+  ['LinkedIn', '1,541 posts', [
+    ['Marcus Cauchi on LinkedIn', 'His own posts, January 2025 to November 2026'],
   ]],
 ]

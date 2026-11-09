@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { MARCUS_CAUCHI } from '@/data.js'
 import TrustFooter from '@/components/TrustFooter.jsx'
-import { Play, Sparkle, YouTube } from '@/components/Icons.jsx'
+import { LinkedIn, Play, Sparkle, YouTube } from '@/components/Icons.jsx'
 
 const QUESTIONS = [
   'My pipeline is full of maybes. How do I fix my prospecting?',
@@ -24,6 +24,7 @@ export default function Welcome() {
             <span className="made-l">Made from</span>
             <span className="srcpill"><YouTube />YouTube</span>
             <span className="srcpill">Podcast</span>
+            <span className="srcpill"><LinkedIn />LinkedIn</span>
           </div>
         </div>
         <div className="paths">
