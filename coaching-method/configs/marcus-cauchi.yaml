@@ -1,6 +1,6 @@
 # Marcus Cauchi. Build with:
 #   python build.py build marcus-cauchi
-# Source: three podcast interviews (Innovation Junkies 2024, Systems Simplified 2025, Sales Reinvented 243).
+# Source: 32 YouTube interviews (2021-2026), the Sales Reinvented 243 recording and 1,541 LinkedIn posts (since Jan 2025).
 # No coaching calls exist, so the page follows the moment in Systems Simplified where the host plays a buyer.
 
 coach:
@@ -35,8 +35,8 @@ session:
     - ["reframe", "saying budget is mostly about time, and naming his CRAFTED model"]
 
 thread:
-  situation: client-says-it-is-not-in-the-budget
-  topic: budget-objections
+  situation: prospect-claims-no-budget
+  topic: objection-handling
   phase: 3
   belief: 2
 
@@ -52,8 +52,8 @@ phases:
     keywords: [objection, handling, budget, objections, crafted, readiness]
   - title: Be the buyer’s ally
     keywords: [ally, method, ethical, selling, service, trust, psychology]
-  - title: Build a go-to-market organism
-    keywords: [go, market, strategy, systems, systemic, dysfunction, leadership, enablement, lean, motivation, problem, solving]
+  - title: Build revenue you can trust
+    keywords: [forecasting, forecast, pipeline, revenue, quality, accuracy, founder, bottleneck, dependency, delegation, go, market, strategy, systems, systemic, dysfunction, leadership, management, enablement, lean, culture, metrics]
 
 beliefs:
   - {title: Ally, not accomplice, text: 'Our job is to be our customer’s ally, not their accomplice and not their adversary.', phases: [4, 2]}
@@ -61,15 +61,15 @@ beliefs:
   - {title: The buyer owns the objection, text: 'It’s not my job to overcome objections. The customer is the person best qualified to handle them.', phases: [3, 2]}
   - {title: Prospect for choice, text: 'Prospecting is the lifeblood of every business. Go after people who are a 100 percent fit.', phases: [0, 1]}
   - {title: Service, not servitude, text: 'The job of selling is service, not servitude. If the truth won’t sell it, don’t sell it.', phases: [4, 5]}
-  - {title: Go to market is an organism, text: 'It is not a bunch of silos. Everyone in it has to work as one.', phases: [5]}
+  - {title: Evidence, not confidence, text: 'The Forecast Tax appears when confidence replaces evidence. Not all revenue is good revenue.', phases: [5, 3]}
 
 steps:
-  collect: "We read {sources} long interviews with Marcus: two YouTube podcast episodes and one Sales Reinvented episode, <em>{words} words across {lines} lines.</em> We only use Marcus’s own answers, never the hosts’. From this collection, we follow one moment on the Systems Simplified podcast, where host Adi Klevit plays a buyer."
+  collect: "We read {youtube} video interviews, a Sales Reinvented podcast episode and {linkedin} of his LinkedIn posts: <em>{words} words across {lines} lines.</em> In the interviews we only use Marcus’s own answers, never the hosts’ or guests’. From this collection, we follow one moment on the Systems Simplified podcast, where host Adi Klevit plays a buyer."
   layer1: "Adi plays the buyer and says <em>&ldquo;it's not in my budget right now.&rdquo;</em> In the very next turn, Marcus responds. These exact lines are the evidence for everything that follows."
   meaning: "The buyer pushes back on budget. Marcus doesn’t argue, discount or ‘handle’ it. He hands the objection back with a question the buyer has to answer honestly."
   cue: "The buyer says it isn’t in the budget. Marcus answers, <em>&ldquo;For most people it never is. Tell me something. If you were able to see the value in this, are you telling me that you couldn't find the budget from anywhere?&rdquo;</em>"
   layer2: "Marcus treats the objection as the buyer’s to solve, not his to overcome. He asks a question that tests whether the problem is money or value. The response stays linked to the exact exchange."
-  layer3: "A buyer likes what they hear but says there’s no budget. In Marcus’s material this shows up as <em>client says it is not in the budget</em>."
+  layer3: "A buyer likes what they hear but says there’s no budget. In Marcus’s material this shows up as <em>prospect claims no budget</em>."
   layer4: "Marcus comes back to budget objections with his CRAFTED model: budget is mostly about time, and most people confuse interest with intent, intent with commitment, and commitment with readiness."
   layer5: "The purpose is to move the buyer from &ldquo;there’s no budget&rdquo; to weighing the real cost of doing nothing, so they make the decision themselves."
   layer6: "<em>It’s not my job to overcome objections. The customer is the person best qualified to handle them.</em> This is the principle behind Marcus’s response."
@@ -85,11 +85,11 @@ cards:
   layer3:
     title: The buyer says there’s no budget
     text: They like what they hear, but the money isn’t there right now.
-    foot: Situation in {his} material &middot; &ldquo;client says it is not in the budget&rdquo;
+    foot: Situation in {his} material &middot; &ldquo;prospect claims no budget&rdquo;
   layer4:
     title: Budget is about time, not just money
     text: Marcus checks commitment, access, timing and who decides before he talks money. That is his CRAFTED model.
-    foot: Recurring topic &middot; budget objections
+    foot: Recurring topic &middot; objection handling
   layer5:
     title: Hand the objection back
     text: Let the buyer weigh the cost of doing nothing and answer their own objection.
@@ -97,30 +97,33 @@ cards:
     moves_to: '&ldquo;We could find it if it’s worth it&rdquo;'
   layer6:
     quote: It’s not my job to overcome objections. The customer is the person best qualified to handle them.
-    text: 'The same idea runs through his interviews: <em>&ldquo;Our job is to be our customer''s ally, not their accomplice and not their adversary.&rdquo;</em>'
+    text: 'The same idea runs through his interviews and posts: <em>&ldquo;Our job is to be our customer''s ally, not their accomplice and not their adversary.&rdquo;</em>'
 
 about:
   sources:
-    - ["YouTube", "2 podcast interviews", "{youtube} episodes · Innovation Junkies and Systems Simplified"]
+    - ["YouTube", "{youtube} interviews", "2021 to 2026 · guest interviews and his Inquisitor podcast"]
     - ["Podcast", "Sales Reinvented 243", "{recording} episode · Why You Must Prospect for Choice"]
+    - ["LinkedIn", "in/marcuscauchi", "{linkedin} posts · January 2025 to today"]
   rows:
-    - ["Type of coach", [["Sales", 1], ["Sales leadership", 1], ["Leadership", 0], ["Career & interviews", 0]], "from his interviews: Ally Method creator and fractional CRO"]
-    - ["Region", [["UK", 1], ["US", 0], ["Europe", 0], ["Global", 0]], "UK examples in his interviews (Companies House)"]
-    - ["Who you coach", [["Individuals", 0], ["Corporate teams", 0], ["Both", 1]], "salespeople, sales leaders and technology founders"]
-    - ["How you deliver", [["1:1 coaching", 1], ["Fractional CRO", 1], ["Training & workshops", 0], ["Podcast guest", 1]], "from his interviews"]
-    - ["Your topics", [["Prospecting", 1], ["Ethical selling", 1], ["Discovery questions", 1], ["Budget & objections", 1], ["Go-to-market systems", 1], ["AI in sales", 0]], "grouped from {topics} recurring topics in his interviews"]
+    - ["Type of coach", [["Sales", 1], ["Sales leadership", 1], ["Leadership", 0], ["Career & interviews", 0]], "from your LinkedIn headline: “Helping CEOs, CFOs and CROs improve sales, profit and growth”"]
+    - ["Region", [["UK", 1], ["US", 0], ["Europe", 0], ["Global", 0]], "Sandhurst, England · from your LinkedIn profile"]
+    - ["Who you coach", [["Individuals", 0], ["Corporate teams", 0], ["Both", 1]], "CEOs, CFOs, CROs, sales leaders and their teams"]
+    - ["How you deliver", [["1:1 coaching", 1], ["Fractional CRO", 1], ["Training & workshops", 1], ["Podcast host", 1]], "from your interviews, posts and The Inquisitor Podcast"]
+    - ["Your topics", [["Forecasting & pipeline", 1], ["Prospecting", 1], ["Ethical selling", 1], ["Discovery questions", 1], ["Budget & objections", 1], ["Founder bottlenecks", 1]], "grouped from {topics} recurring topics in your interviews and posts"]
+    - ["Named frameworks", [["The Ally Method™", 1], ["Principled Selling®", 1], ["CRAFTED", 1], ["The Hidden Taxes", 1], ["Value & Money Self-Check", 1]], "your own models, named in your interviews and posts"]
     - ["Your style", [["Answers with a question", 1], ["Blunt and direct", 1], ["Tells client stories", 1], ["Uses vivid analogies", 1], ["Long and theoretical", 0]], "a first read; you’ll refine it when you calibrate"]
 
-dd_lead: Marcus's twin follows these in every answer. They come from patterns that run through all three of his interviews.
+dd_lead: Marcus's twin follows these in every answer. They come from patterns that run through his interviews and LinkedIn posts.
 dos:
-  - ["answer an objection with a question the buyer has to think about", "Frequent pattern · questions in all 3 interviews"]
-  - ["research the buyer before you call; arrive with insight, not a script", "Frequent pattern · research and preparation in all 3 interviews"]
-  - ["prospect for choice: go after people who are a 100 percent fit", "Frequent pattern · prospecting in all 3 interviews"]
+  - ["answer an objection with a question the buyer has to think about", "Frequent pattern · objections discussed in 51 sources"]
+  - ["research the buyer before you call; arrive with insight, not a script", "Frequent pattern · research and preparation in 114 sources"]
+  - ["judge a deal on buyer evidence, not the seller’s confidence", "Frequent pattern · forecasting discussed in 323 sources"]
   - ["ask questions to empower and to understand, not to extract", "Systems Simplified · “most people are asking questions to extract”"]
-  - ["check commitment, timing and who decides before talking money", "Discussed in 2 interviews · budget and his CRAFTED model"]
-  - ["be the buyer’s ally, not their accomplice or adversary", "Frequent pattern · the Ally Method in all 3 interviews"]
+  - ["check commitment, timing and who decides before talking money", "Budget discussed in 60 sources · his CRAFTED model"]
+  - ["be the buyer’s ally, not their accomplice or adversary", "Frequent pattern · the Ally Method named in 39 sources"]
 donts:
   - ["try to overcome an objection; ask whose objection it is", "Systems Simplified · “It's not my job to overcome objections”"]
-  - ["convince, pressure or coerce a buyer", "Discussed in 2 interviews"]
-  - ["make bad cold calls to people who can only say no or maybe", "Frequent pattern · cold calling in all 3 interviews"]
+  - ["convince, pressure or coerce a buyer", "Frequent pattern · pressure and convincing discussed in 319 sources"]
+  - ["discount to pull a deal forward; it’s the Discount Tax", "Discounting discussed in 91 sources · The Hidden Taxes series"]
   - ["confuse interest with intent, or intent with commitment", "Systems Simplified · his CRAFTED model"]
+  - ["make bad cold calls to people who can only say no or maybe", "Cold calling discussed in 32 sources"]
