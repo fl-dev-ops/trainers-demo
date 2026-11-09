@@ -64,7 +64,7 @@ beliefs:
   - {title: Evidence, not confidence, text: 'The Forecast Tax appears when confidence replaces evidence. Not all revenue is good revenue.', phases: [5, 3]}
 
 steps:
-  collect: "We read {youtube} video interviews, a Sales Reinvented podcast episode and {linkedin} of his LinkedIn posts: <em>{words} words across {lines} lines.</em> In the interviews we only use Marcus’s own answers, never the hosts’ or guests’. From this collection, we follow one moment on the Systems Simplified podcast, where host Adi Klevit plays a buyer."
+  collect: "We read {youtube} video interviews, a Sales Reinvented podcast episode and 1,541 of his LinkedIn posts: <em>{words} words across {lines} lines.</em> In the interviews we only use Marcus’s own answers, never the hosts’ or guests’. From this collection, we follow one moment on the Systems Simplified podcast, where host Adi Klevit plays a buyer."
   layer1: "Adi plays the buyer and says <em>&ldquo;it's not in my budget right now.&rdquo;</em> In the very next turn, Marcus responds. These exact lines are the evidence for everything that follows."
   meaning: "The buyer pushes back on budget. Marcus doesn’t argue, discount or ‘handle’ it. He hands the objection back with a question the buyer has to answer honestly."
   cue: "The buyer says it isn’t in the budget. Marcus answers, <em>&ldquo;For most people it never is. Tell me something. If you were able to see the value in this, are you telling me that you couldn't find the budget from anywhere?&rdquo;</em>"
@@ -103,7 +103,7 @@ about:
   sources:
     - ["YouTube", "{youtube} interviews", "2021 to 2026 · guest interviews and his Inquisitor podcast"]
     - ["Podcast", "Sales Reinvented 243", "{recording} episode · Why You Must Prospect for Choice"]
-    - ["LinkedIn", "in/marcuscauchi", "{linkedin} posts · January 2025 to today"]
+    - ["LinkedIn", "in/marcuscauchi", "1,541 posts · January 2025 to today"]
   rows:
     - ["Type of coach", [["Sales", 1], ["Sales leadership", 1], ["Leadership", 0], ["Career & interviews", 0]], "from your LinkedIn headline: “Helping CEOs, CFOs and CROs improve sales, profit and growth”"]
     - ["Region", [["UK", 1], ["US", 0], ["Europe", 0], ["Global", 0]], "Sandhurst, England · from your LinkedIn profile"]
