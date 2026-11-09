@@ -26,7 +26,20 @@ export default function Welcome() {
             <span className="srcpill">Podcast</span>
           </div>
         </div>
-        <div className="paths" style={{ gridTemplateColumns: 'minmax(0, 1fr)', maxWidth: 460 }}>
+        <div className="paths">
+          <article className="path">
+            <div className="peek peek--fig" aria-hidden="true">
+              <Image src={MARCUS_CAUCHI.portrait} alt="" fill sizes="(max-width: 680px) 100vw, 460px" />
+              <span className="peek-k">Coaching methodology</span>
+            </div>
+            <div className="path-b">
+              <h2>What {MARCUS_CAUCHI.firstName}’s twin learns from</h2>
+              <p>See how the twin was built from {MARCUS_CAUCHI.firstName}’s coaching, layer by layer.</p>
+              <div className="row">
+                <Link href="/marcus-cauchi/methodology" className="btn btn--strong">See how it learns</Link>
+              </div>
+            </div>
+          </article>
           <article className="path">
             <div className="peek peek--rps peek--wrap">
               <span className="peek-k">Ask a question</span>
