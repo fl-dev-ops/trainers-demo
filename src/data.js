@@ -87,6 +87,7 @@ export const MARCUS_CAUCHI = {
   firstName: 'Marcus',
   initials: 'MC',
   face: '/media/marcus-cauchi-headshot.jpg',
+  portrait: '/media/marcus-cauchi-portrait.jpg',
   room: {
     kind: 'Ask me anything · Demo',
     title: 'Ask about prospecting and selling',
