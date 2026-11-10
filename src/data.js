@@ -347,15 +347,22 @@ BEVAN_BROADBENT.sources = [
   ]],
 ]
 
-FLO_AKINBIYI.sourceSummary = '152 LinkedIn posts · 25 YouTube videos'
+FLO_AKINBIYI.sourceSummary = '605 LinkedIn posts · 42 YouTube videos · 56 website pages'
 FLO_AKINBIYI.sources = [
-  ['LinkedIn', '152 posts', [
-    ['Flo Akinbiyi on LinkedIn', 'His own posts, January to November 2026'],
+  ['LinkedIn', '605 posts', [
+    ['Flo Akinbiyi on LinkedIn', 'His own posts, January 2024 to November 2026'],
   ]],
-  ['YouTube', '25 videos', [
+  ['YouTube', '42 videos', [
     ['TEDxRWA: The Human Edge, skills to thrive in the future of work', 'TEDx talk'],
     ['Web Summit Lisbon: the voice as a marketing tool', 'Talk'],
-    ['Three techniques to combat stage fright', 'Short'],
+    ['Interview with Helen Farmer', 'Dubai Eye 103.8 radio'],
+    ['Effective communication skills for success', 'Skillionaires podcast'],
+    ['The communication tricks that make people instantly like you', 'Podcast with Mehran Rowshan'],
+    ['The power of communication', 'Word Café podcast'],
     ['Memorable Moment', 'Dubai One interview'],
+    ['Three techniques to combat stage fright', 'Short'],
+  ]],
+  ['Website', '56 pages', [
+    ['flo-akinbiyi.com', 'Service pages and 35 blog posts'],
   ]],
 ]
