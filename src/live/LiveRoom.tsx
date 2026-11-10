@@ -13,7 +13,7 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Chat, Check, ChevronLeft, HangUp, Mic, VideoCam } from '@/components/Icons.jsx'
-import { SCENARIOS } from '@/data.js'
+import { OLGA_AMA, SCENARIOS } from '@/data.js'
 import { getConnectionStorageKey, parseConnectionDetails, type ConnectionDetails } from '@/lib/connection'
 import AvatarStage from '@/live/AvatarStage.jsx'
 import TranscriptPanel from '@/live/TranscriptPanel.jsx'
@@ -42,7 +42,7 @@ function LiveEntry({ trainer }: { trainer: Trainer }) {
   const trainerHome = `/${trainer.id}`
   const storageKey = getConnectionStorageKey(trainer.id)
   const searchParams = useSearchParams()
-  const SCENARIO = SCENARIOS.find((s) => s.id === searchParams.get('s')) ?? SCENARIOS[0]
+  const SCENARIO = [...SCENARIOS, OLGA_AMA].find((s) => s.id === searchParams.get('s')) ?? SCENARIOS[0]
   // A conversation starter picked on the welcome page (?q=...), asked once the twin has greeted the user.
   const starter = searchParams.get('q')?.trim() || null
   const [error, setError] = useState<string | null>(null)
