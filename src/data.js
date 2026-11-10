@@ -113,6 +113,22 @@ export const BEVAN_BROADBENT = {
   },
 }
 
+export const FLO_AKINBIYI = {
+  id: 'flo-akinbiyi',
+  name: 'Flo Akinbiyi',
+  // The agent answers the welcome-page starter as the first message (needs starter_reply in agents.json).
+  starterInRoom: true,
+  firstName: 'Flo',
+  initials: 'FA',
+  face: '/media/flo-akinbiyi-headshot.jpg',
+  portrait: '/media/flo-akinbiyi-portrait.jpg',
+  room: {
+    kind: 'Ask me anything · Demo',
+    title: 'Ask about speaking and connecting',
+    scenario: 'Flo’s AI twin will help you with stage fright, energy and presence, and connecting with people the human-first way. It was made only for this demo and is not a replacement for Flo.',
+  },
+}
+
 export const TONY_LATIMER = {
   id: 'tony-latimer',
   name: 'Tony Latimer',
@@ -328,5 +344,18 @@ BEVAN_BROADBENT.sources = [
     ['Tania talks to Bevan about coaching with him', 'coachbevan.com'],
     ['Matt Barlow talks to Bevan about coaching with him', 'coachbevan.com'],
     ['Marie talks to Bevan about coaching with him', 'coachbevan.com'],
+  ]],
+]
+
+FLO_AKINBIYI.sourceSummary = '152 LinkedIn posts · 25 YouTube videos'
+FLO_AKINBIYI.sources = [
+  ['LinkedIn', '152 posts', [
+    ['Flo Akinbiyi on LinkedIn', 'His own posts, January to November 2026'],
+  ]],
+  ['YouTube', '25 videos', [
+    ['TEDxRWA: The Human Edge, skills to thrive in the future of work', 'TEDx talk'],
+    ['Web Summit Lisbon: the voice as a marketing tool', 'Talk'],
+    ['Three techniques to combat stage fright', 'Short'],
+    ['Memorable Moment', 'Dubai One interview'],
   ]],
 ]

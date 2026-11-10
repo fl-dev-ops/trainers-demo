@@ -1,0 +1,121 @@
+# Flo Akinbiyi. Build with:
+#   python build.py build flo-akinbiyi
+# Source: 152 LinkedIn posts and 25 YouTube videos (2026), incl. his TEDx talk The Human Edge and Web Summit Lisbon.
+# No coaching calls exist, so the page follows a Dubai One interview (YouTube Short "Memorable Moment", Sept 2026),
+# where the host asks about memorable moments and Flo answers with his money-gun story from a workshop in Algeria.
+# Pronouns he/him: Flo speaks about himself in the third person in his own video ("Flo needs to do everything that he can").
+
+coach:
+  slug: flo-akinbiyi
+  name: Flo
+  full_name: Flo Akinbiyi
+  pronouns: [he, him, his]
+
+mobile: true
+
+session:
+  file: youtube/video/2026-09-15-memorable-moment-pSiZrAwySgI.md
+  kind: YouTube · Dubai One interview
+  start: Tell me about some memorable moments
+  coach_speaker: speaker_2
+  other: Host
+  other_role: Interviewer
+  cue: 0
+  move: 1
+  frames:
+    - ["question", "asking about memorable moments when it comes to stage presence"]
+    - ["story", "telling how he turned a CFO's 'average presentations' into a money-gun moment"]
+    - ["acknowledgment", "taking it in"]
+    - ["statement", "naming it: that's a memorable moment"]
+
+thread:
+  situation: presenting-on-stage
+  topic: audience-engagement
+  phase: 3
+  belief: 2
+
+default_phase: 4
+phases:
+  - title: Calm the nerves
+    keywords: [stage, fright, fear, nervous, mantra, breathe, ritual, mindset, intentionality, negative, thoughts]
+  - title: Know your content
+    keywords: [content, structure, notes, simple, complicated, explain, preparation, pitch, pitching, teleprompting, timing]
+  - title: Bring the energy
+    keywords: [energy, voice, modulation, body, language, face, presence, delivery, pronunciation, executive]
+  - title: Make it memorable
+    keywords: [memorable, moment, story, stories, audience, engagement, attention, hosting, event, rhetorical, devices]
+  - title: Connect human to human
+    keywords: [human, connection, first, impressions, compliments, customer, hospitality, interpersonal, digital, ai, technology]
+  - title: Lead through your words
+    keywords: [leadership, leading, uncertainty, crisis, future, vision, philosophy, branding, personal, career]
+
+beliefs:
+  - {title: Human connection first, text: 'But most of all, it is all about the human connection.', phases: [4, 3]}
+  - {title: Energy moves people, text: 'Energy is the difference between talking at an audience and moving them.', phases: [2, 3]}
+  - {title: How you made them feel, text: 'People won’t remember every word, but they’ll remember how you made them feel.', phases: [3, 4]}
+  - {title: Know it inside out, text: 'You’ve got to be obsessed with your content. You got to know your content inside out.', phases: [1, 0]}
+  - {title: Your best version, text: 'A mantra is there to help you show up as the best version of yourself.', phases: [0, 2]}
+  - {title: Presence does not change, text: 'Tools evolve. Presence does not.', phases: [5, 4]}
+
+steps:
+  collect: "We read {linkedin} of his LinkedIn posts and {youtube} of his YouTube videos, including his TEDx talk and Web Summit talk: <em>{words} words across {lines} lines.</em> In interviews we only use Flo’s own lines, never the host’s views as his. From this collection, we follow one moment from a Dubai One interview."
+  layer1: "The host asks <em>&ldquo;Tell me about some memorable moments when it comes to stage presence.&rdquo;</em> In the very next turn, Flo responds. These exact lines are the evidence for everything that follows."
+  meaning: "The host asks about stage presence. Flo doesn’t give a tip or a definition. He tells a story about a moment he created for an audience."
+  cue: "Asked about memorable moments, Flo answers, <em>&ldquo;So here’s a story. I was doing a workshop in Algeria…&rdquo;</em>"
+  layer2: "Flo answers with a story, not a rule. A CFO wanted better than average presentations, so Flo created a moment the team would never forget. The response stays linked to the exact exchange."
+  layer3: "A team presents, but nobody remembers it. In Flo’s material this shows up as <em>presenting on stage</em>."
+  layer4: "Flo comes back to this again and again in his posts and talks: how to engage an audience and leave a lasting impression."
+  layer5: "The purpose is to move from &ldquo;an average presentation&rdquo; to &ldquo;a moment they remember&rdquo;."
+  layer6: "<em>People won’t remember every word, but they’ll remember how you made them feel.</em> This is the principle behind Flo’s story."
+
+cards:
+  layer1:
+    cue: Tell me about some memorable moments when it comes to stage presence.
+    move: So here’s a story. I was doing a workshop in Algeria, and what happened is the CFO said, we just deliver average presentations, we want to do better. So I gave them a money gun &hellip;
+    foot: Two exact lines &middot; two speakers &middot; consecutive turns
+  layer2:
+    cue: Asks about memorable moments on stage
+    move: Answers with a story of a moment he created
+  layer3:
+    title: The presentation nobody remembers
+    text: A team delivers average presentations and wants to do better.
+    foot: Situation in {his} material &middot; &ldquo;presenting on stage&rdquo;
+  layer4:
+    title: Engage the audience
+    text: Flo keeps coming back to how you engage an audience and leave a lasting impression.
+    foot: Recurring topic &middot; the audience in 40 sources
+  layer5:
+    title: Make it memorable
+    text: Create a moment the audience will remember, not just a message.
+    starts: '&ldquo;We just deliver average presentations&rdquo;'
+    moves_to: '&ldquo;That’s a memorable moment&rdquo;'
+  layer6:
+    quote: People won’t remember every word, but they’ll remember how you made them feel.
+    text: 'The same idea runs through his work: <em>&ldquo;Energy is the difference between talking at an audience and moving them.&rdquo;</em>'
+
+about:
+  sources:
+    - ["LinkedIn", "in/floakinbiyi", "{linkedin} posts · 2026"]
+    - ["YouTube", "@floakinbiyi", "{youtube} videos · TEDx, Web Summit, Dubai One"]
+  rows:
+    - ["Type of coach", [["Communication coach", 1], ["Presenter & host", 1], ["Keynote speaker", 1], ["Life coaching", 0]], "from your LinkedIn headline: “International Presenter, TEDx Speaker and Communication Coach”"]
+    - ["Region", [["UAE", 1], ["Europe", 1], ["UK", 0], ["Global", 0]], "Dubai, United Arab Emirates · you work across the Middle East and Europe"]
+    - ["Who you coach", [["Individuals", 0], ["Corporate teams", 0], ["Both", 1]], "executive one-on-one coaching and corporate group workshops · from your LinkedIn About"]
+    - ["How you deliver", [["Workshops", 1], ["1:1 coaching", 1], ["Keynotes", 1], ["Event hosting", 1]], "the services you list on LinkedIn"]
+    - ["Your topics", [["Human-First Communication", 1], ["Public speaking", 1], ["Stage fright", 1], ["Energy & voice", 1], ["Leadership communication", 1]], "grouped from {topics} recurring topics in your posts and videos"]
+    - ["Named frameworks", [["Human-First Communication", 1], ["The Human Edge", 1]], "the term you coined for your work, and your TEDx talk"]
+    - ["Your style", [["Tells stories from his stages", 1], ["Energetic and expressive", 1], ["Keeps it simple", 1], ["1:1 coaching: not enough data yet", 0]], "your own stages and life in 36 sources · energy in 34 · “simple” in 18 · no recorded coaching sessions yet, so start calibration to see how you coach 1:1"]
+
+dd_lead: Flo's twin follows these in every answer. They come from patterns that run through his posts and talks.
+dos:
+  - ["put human connection first", "Frequent pattern · human-first in 27 sources"]
+  - ["bring the energy, about 20% more than feels natural", "Video · “use 20 percent more energy”"]
+  - ["breathe consciously before you speak", "Video · three techniques to combat stage fright"]
+  - ["know your content inside out", "Video · “be obsessed with your content”"]
+  - ["break complicated topics into simple ideas", "Video · “Keep it simple. That is the key.”"]
+  - ["create a moment the audience will remember", "Dubai One interview · memorable moments"]
+donts:
+  - ["say good luck before someone speaks; give a mantra", "Post · “Strong and free”"]
+  - ["use the resting face; smile", "Video · what’s wrong with the resting face"]
+  - ["read from a script; use a few keywords", "Post · “Great notes are a few keywords”"]
+  - ["hand your voice over to AI", "Post · “The biggest risk of AI”"]

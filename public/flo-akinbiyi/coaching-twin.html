@@ -1,0 +1,935 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How a Coach's Twin Learns</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#151310; --ink:#ece5d8; --dim:#a89e8c; --faint:#6f6759; --line:#37322a; --line2:#4a443a;
+  --l1:#e2a93b; --l2:#4fa9a0; --l3:#d4746a; --l4:#9a86c9; --l5:#8fae62; --l6:#c94f33;
+  --ease:cubic-bezier(.65,0,.25,1);
+  --serif:'Fraunces',Georgia,serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --sys:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--serif)}
+body{cursor:pointer;user-select:none;-webkit-user-select:none}
+body.final{cursor:grab}
+canvas#cv{position:fixed;inset:0;width:100vw;height:100vh;display:block}
+#stage{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0;pointer-events:none}
+#stage *{pointer-events:none}
+#stage .hit{pointer-events:auto}
+svg#wires{position:absolute;inset:0;width:1600px;height:900px;overflow:visible}
+
+/* ---------- header & chapter rail */
+header{position:absolute;left:60px;right:60px;top:34px;display:flex;align-items:center;justify-content:space-between;
+  font:500 11px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+header b{color:var(--l1);font-weight:600}
+#rail{display:flex;gap:28px}
+#rail .ch{display:flex;flex-direction:column;gap:9px;align-items:flex-start;transition:color .5s}
+#rail .ch.on{color:var(--ink)}
+#rail .ch.done{color:var(--dim)}
+#rail .dots{display:flex;gap:5px}
+#rail .dots i{width:6px;height:6px;border-radius:50%;background:var(--line2);transition:background .4s,transform .4s}
+#rail .dots i.done{background:var(--dim)}
+#rail .dots i.on{background:var(--l1);transform:scale(1.35)}
+#hint{position:absolute;left:60px;bottom:34px;font:500 10.5px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--faint);transition:opacity .6s}
+#hint kbd{font:inherit;color:var(--dim);border:1px solid var(--line2);border-radius:4px;padding:3px 6px;margin:0 2px}
+
+/* ---------- narrative column */
+#cap{position:absolute;left:60px;top:150px;width:390px;transition:opacity .45s}
+#cap.out{opacity:0}
+#cap .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin-bottom:22px}
+#cap h1{font-weight:380;font-size:38px;line-height:1.12;letter-spacing:-.01em;margin-bottom:22px;font-variation-settings:'opsz' 96}
+#cap p{font-size:18px;line-height:1.55;color:var(--dim);font-weight:330}
+#cap p em{color:var(--ink);font-style:italic}
+#stat{position:absolute;left:60px;bottom:96px;width:390px;transition:opacity .5s}
+#stat .num{font:300 64px/1 var(--serif);letter-spacing:-.02em;font-variation-settings:'opsz' 144;font-variant-numeric:tabular-nums}
+#stat .unit{font:500 11px/1.6 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-top:12px}
+#stat.hide{opacity:0}
+
+/* hero */
+#hero{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:opacity .8s,transform 1.1s var(--ease)}
+#hero .kick{font:500 12px/1 var(--mono);letter-spacing:.3em;text-transform:uppercase;color:var(--l1);margin-bottom:30px}
+#hero h1{font-weight:320;font-size:88px;line-height:1.02;letter-spacing:-.025em;font-variation-settings:'opsz' 144}
+#hero h1 i{color:var(--l1);font-weight:300}
+#hero p{margin-top:30px;font-size:21px;line-height:1.55;color:var(--dim);max-width:640px;font-weight:330}
+#hero .go{margin-top:46px;font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--faint)}
+#hero.out{opacity:0;transform:translateY(-30px) scale(.98)}
+
+/* ---------- the window: Finder -> transcript */
+#win{position:absolute;left:540px;top:120px;width:1000px;height:660px;border-radius:12px;background:#1d1c1b;
+  border:1px solid #3a3835;box-shadow:0 40px 90px rgba(0,0,0,.55),0 0 0 .5px rgba(255,255,255,.04) inset;
+  overflow:hidden;font-family:var(--sys);color:#e6e3de;
+  transition:left 1s var(--ease),top 1s var(--ease),width 1s var(--ease),height 1s var(--ease),opacity .7s,transform 1.1s var(--ease);
+  opacity:0;transform:translateY(40px) scale(.96)}
+#win.show{opacity:1;transform:none}
+#win.narrow{left:500px;top:96px;width:570px;height:772px}
+#win.gone{opacity:0;transition:opacity .35s}
+.tbar{height:46px;display:flex;align-items:center;gap:16px;padding:0 16px;background:#2a2927;border-bottom:1px solid #3a3835}
+.lights{display:flex;gap:8px}.lights i{width:12px;height:12px;border-radius:50%;background:#ff5f57}
+.lights i:nth-child(2){background:#febc2e}.lights i:nth-child(3){background:#28c840}
+.navb{color:#77736d;font-size:17px;letter-spacing:10px}
+.wtitle{font-weight:600;font-size:13.5px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.views{display:flex;gap:2px;background:#353330;border-radius:6px;padding:2px}
+.views i{width:28px;height:20px;border-radius:4px;display:block;position:relative}
+.views i.on{background:#55524d}
+.views i::after{content:'';position:absolute;left:9px;top:5px;width:10px;height:10px;border:1.5px solid #aaa49c;border-radius:2px}
+.views i:nth-child(2)::after{border-width:1.5px 0;height:3px;top:5px;box-shadow:0 4px 0 0 #aaa49c}
+.wbody{position:absolute;top:46px;bottom:26px;left:0;right:0;display:flex}
+.side{width:190px;flex:none;background:#242321;border-right:1px solid #33312e;padding:14px 10px;font-size:12.5px;transition:width .9s var(--ease),padding .9s var(--ease),opacity .5s;overflow:hidden;white-space:nowrap}
+.side h6{font-size:10.5px;font-weight:600;color:#7c7872;margin:6px 8px 6px}
+.side div{padding:5px 8px;border-radius:6px;display:flex;align-items:center;gap:8px;color:#d8d4ce;transition:background .4s}
+.side div.on{background:#3a3835}
+.side .fi{width:15px;height:11px;border-radius:2px;background:#5da6ec;position:relative;flex:none}
+.side .fi::before{content:'';position:absolute;left:0;top:-2px;width:6px;height:3px;border-radius:2px 2px 0 0;background:#5da6ec}
+.pane{flex:1;position:relative;overflow:hidden}
+.pane>section{position:absolute;inset:0;transition:opacity .6s,transform .8s var(--ease);opacity:0;transform:translateY(12px)}
+.pane>section.on{opacity:1;transform:none}
+.status{position:absolute;bottom:0;left:0;right:0;height:26px;border-top:1px solid #33312e;background:#242321;font-size:11px;color:#8b8780;display:flex;align-items:center;justify-content:center}
+
+/* icon view */
+.icons{display:flex;gap:70px;padding:120px 60px;justify-content:center}
+.folder{width:150px;text-align:center;font-size:14px;opacity:0;transform:translateY(16px) scale(.9);transition:opacity .6s,transform .7s var(--ease)}
+.on .folder{opacity:1;transform:none}
+.on .folder:nth-child(2){transition-delay:.15s}
+.ficon{width:130px;height:100px;margin:0 auto 14px;position:relative}
+.ficon::before{content:'';position:absolute;left:0;top:0;width:54px;height:18px;border-radius:8px 8px 0 0;background:#4b8fd6}
+.ficon::after{content:'';position:absolute;left:0;top:10px;right:0;bottom:0;border-radius:5px 9px 9px 9px;background:linear-gradient(#78b8f5,#5a9ee6)}
+.ficon i{position:absolute;z-index:1;left:50%;top:50px;transform:translateX(-50%)}
+.folder small{display:block;color:#8b8780;font-size:12px;margin-top:5px}
+
+/* list view */
+.lhead,.lrow{display:grid;grid-template-columns:1fr 130px 110px 70px;gap:12px;padding:0 18px;align-items:center}
+.lhead{height:30px;font-size:11px;font-weight:600;color:#8b8780;border-bottom:1px solid #33312e;background:#1d1c1b;position:relative;z-index:1}
+.lrows{position:absolute;top:30px;left:0;right:0;will-change:transform}
+.lrow{height:26px;font-size:12.5px;white-space:nowrap;transition:background .4s,color .4s}
+.lrow:nth-child(even){background:#232220}
+.lrow .nm{overflow:hidden;text-overflow:ellipsis;display:flex;gap:9px;align-items:center}
+.lrow .kd,.lrow .dt,.lrow .sz{color:#8b8780;font-size:11.5px}
+.lrow .sz{text-align:right}
+.badge{width:16px;height:12px;border-radius:3px;flex:none;position:relative;display:block}
+.badge.yt{background:#e5443b}.badge.yt::after{content:'';position:absolute;left:6px;top:3px;border-left:5px solid #fff;border-top:3px solid transparent;border-bottom:3px solid transparent}
+.badge.lm{background:#7a5af5}.badge.lm::after{content:'';position:absolute;left:4px;top:3px;width:6px;height:6px;border-radius:50%;border:1.5px solid #fff}
+.ficon .badge{width:30px;height:22px;border-radius:5px}
+.ficon .badge.yt::after{left:11px;top:6px;border-left-width:9px;border-top-width:5px;border-bottom-width:5px}
+.ficon .badge.lm::after{left:8px;top:4px;width:11px;height:11px;border-width:2px}
+.badge.li{background:#0a66c2}.badge.li::after{content:'in';position:absolute;left:3px;top:0;font:700 8px/12px var(--sys);color:#fff}
+.badge.wb{background:#6c8a5a}.badge.wb::after{content:'';position:absolute;left:4px;top:2px;width:6px;height:6px;border-radius:50%;border:1.5px solid #fff}
+.lrow.sel{background:#2f5fb3!important;color:#fff}
+.lrow.sel .kd,.lrow.sel .dt,.lrow.sel .sz{color:#dfe8fa}
+
+/* document view */
+.doc{padding:16px 22px 16px 18px;font-size:13.5px;line-height:1.42}
+.fm{font:12px/1.6 var(--mono);color:#8b8780;white-space:pre;overflow:hidden;max-height:120px;transition:max-height .9s var(--ease),opacity .6s,margin .9s var(--ease);margin-bottom:12px}
+.doc.clean .fm{max-height:0;opacity:0;margin:0}
+.ln{position:relative;padding:4px 8px 4px 8px;border-radius:7px;transition:background .5s,box-shadow .5s,opacity .5s;margin-bottom:2px}
+.rh{font:12px/1.5 var(--mono);color:#9a958d;max-height:20px;overflow:hidden;transition:max-height .8s var(--ease),opacity .5s}
+.rh .h{color:#6c6862}
+.row{display:flex;gap:10px;align-items:baseline}
+.ts{font:11px/1 var(--mono);color:#77736d;width:0;overflow:hidden;opacity:0;flex:none;transition:width .8s var(--ease),opacity .6s}
+.who{font:600 10.5px/1 var(--sys);letter-spacing:.04em;text-transform:uppercase;width:0;overflow:hidden;opacity:0;flex:none;transition:width .8s var(--ease),opacity .6s;padding-top:1px}
+.who.o{color:var(--l1)}.who{white-space:nowrap}.who.s{color:#9fb8d6}
+.txt{flex:1;font:12.5px/1.5 var(--mono);color:#cfcac2}
+.txt .c{display:none}.doc.clean .txt .r{display:none}.doc.clean .txt .c{display:inline}
+.doc.clean .rh{max-height:0;opacity:0}
+.doc.clean .ts{width:46px;opacity:1}
+.doc.clean .who{width:54px;opacity:1}
+.doc.clean .txt{font:13.4px/1.4 var(--sys);color:#ece8e2}
+.doc.focus .ln{opacity:.32}
+.doc.focus .ln.key{opacity:1;box-shadow:inset 0 0 0 1px rgba(226,169,59,.75);background:rgba(226,169,59,.1)}
+
+/* ---------- right column panels */
+.rpanel{position:absolute;left:1120px;top:110px;width:420px;opacity:0;transform:translateX(30px);transition:opacity .6s,transform .9s var(--ease)}
+.rpanel.on{opacity:1;transform:none}
+.plabel{font:500 10.5px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin-bottom:16px}
+
+/* frames */
+#frames{top:100px;height:760px}
+#frames .plabel{position:absolute;top:-28px}
+.fc{position:absolute;left:0;width:420px;padding:6px 11px 7px 12px;border-radius:8px;background:#1b211f;border:1px solid rgba(79,169,160,.35);
+  font-size:12.8px;line-height:1.32;color:#dbeee9;font-weight:340;opacity:0;transform:translateX(24px);transition:opacity .5s,transform .7s var(--ease),border-color .5s,background .5s,box-shadow .5s}
+.fc .k{display:inline;font:600 9px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--l2);margin-right:8px}
+.fc .k em{font-style:normal;color:var(--l1);margin-left:8px}
+#frames.on .fc{opacity:1;transform:none}
+#frames.focus .fc{opacity:.25}
+#frames.focus .fc.key{opacity:1;border-color:var(--l2);background:#1d2a27;box-shadow:0 0 30px rgba(79,169,160,.18)}
+.wire{fill:none;stroke:var(--l2);stroke-width:1.2;opacity:0;transition:opacity .6s}
+.wire.on{opacity:.45}
+.wire.dim{opacity:.08}
+.wire.key{opacity:.95;stroke-width:1.8}
+
+/* layer cards */
+#cards{top:150px}
+.card{position:absolute;left:0;top:0;width:420px;padding:22px 24px 22px;border-radius:12px;background:rgba(32,29,24,.94);border:1px solid var(--line2);
+  opacity:0;transform:translateY(16px);transition:opacity .55s,transform .8s var(--ease);backdrop-filter:blur(6px)}
+.card.on{opacity:1;transform:none;transition-delay:.35s}
+.card .lv{font:600 10px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;margin-bottom:14px}
+.card h3{font-weight:400;font-size:23px;line-height:1.22;margin-bottom:12px;font-variation-settings:'opsz' 72}
+.card p{font-size:15px;line-height:1.5;color:var(--dim);font-weight:330}
+.card .pair{display:grid;grid-template-columns:62px 1fr;gap:10px 12px;margin-top:6px}
+.card .pair dt{font:600 9.5px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.card .pair dd{font-size:15px;line-height:1.45;color:var(--ink);font-weight:340}
+.card .pair dd.q{font-style:italic}
+.card .foot{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font:500 10px/1.6 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.card blockquote{font-size:20px;line-height:1.38;font-weight:360;color:var(--ink);margin:4px 0 14px;font-style:italic}
+
+/* finale legend */
+#legend{top:170px;left:1270px;width:290px}
+.lg{display:grid;grid-template-columns:14px 1fr auto;gap:12px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line);opacity:0;transform:translateX(14px);transition:opacity .5s,transform .7s var(--ease)}
+#legend.on .lg{opacity:1;transform:none}
+.lg i{width:9px;height:9px;border-radius:50%;display:block;transform:translateY(-1px)}
+.lg span{font:500 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.lg b{font:300 26px/1 var(--serif);font-variant-numeric:tabular-nums}
+#tip{position:fixed;max-width:360px;padding:9px 12px;border-radius:8px;background:rgba(21,19,16,.95);border:1px solid var(--line2);font-size:14px;line-height:1.4;color:var(--ink);pointer-events:none;opacity:0;transition:opacity .15s;z-index:5}
+#tip small{display:block;font:600 9.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px}
+/* ---------- findings: a docs page, one layer per page */
+#fd{position:absolute;left:60px;right:60px;top:96px;bottom:34px;display:grid;grid-template-columns:280px 1fr;gap:56px;
+  opacity:0;visibility:hidden;transform:translateY(16px);transition:opacity .6s,transform .9s var(--ease),visibility 0s .6s;cursor:default}
+#fd.on{opacity:1;visibility:visible;transform:none;transition:opacity .6s .2s,transform .9s var(--ease) .2s,visibility 0s}
+#stage #fd,#stage #fd *{pointer-events:auto}
+#fd .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin:24px 0 20px}
+#fd .lead h1{font-weight:380;font-size:32px;line-height:1.14;margin-bottom:16px;font-variation-settings:'opsz' 96}
+#fd .lead p{font-size:15px;line-height:1.55;color:var(--dim);font-weight:330}
+#fd nav{margin-top:30px;border-top:1px solid var(--line)}
+#fd nav a{display:grid;grid-template-columns:12px 1fr;gap:12px;align-items:center;padding:14px 10px;border-bottom:1px solid var(--line);
+  cursor:pointer;color:var(--dim);transition:background .3s,color .3s}
+#fd nav a:hover{background:rgba(255,255,255,.03);color:var(--ink)}
+#fd nav a.on{background:rgba(255,255,255,.05);color:var(--ink)}
+#fd nav a i{width:9px;height:9px;border-radius:50%}
+#fd nav a span{font:500 11px/1.35 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+#fd nav a b{font:600 9px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:5px 7px;border-radius:4px;border:1px solid currentColor;opacity:.85}
+#fd .keys{margin-top:18px;font:500 10px/1.6 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+#fd .page{overflow-y:auto;padding:24px 36px 40px 0;scrollbar-width:thin;scrollbar-color:var(--line2) transparent}
+#fd article{display:none;max-width:920px}
+#fd article.on{display:block;animation:fdin .5s var(--ease)}
+@keyframes fdin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#fd .lv{font:600 10.5px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;margin-bottom:16px}
+#fd h2{font-weight:380;font-size:40px;line-height:1.1;margin-bottom:14px;font-variation-settings:'opsz' 120;display:flex;align-items:center;gap:18px}
+#fd h2 b{font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;padding:7px 10px;border-radius:5px;border:1px solid currentColor}
+#fd .what{font-size:19px;line-height:1.5;color:var(--dim);font-weight:330;max-width:760px}
+#fd .what em{color:var(--ink)}
+#fd .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:30px 0 8px}
+#fd .nums div{border-top:1px solid var(--line2);padding-top:14px}
+#fd .nums strong{display:block;font:300 40px/1 var(--serif);font-variant-numeric:tabular-nums;font-variation-settings:'opsz' 144}
+#fd .nums small{display:block;margin-top:10px;font:500 10px/1.5 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+#fd h4{font:600 10.5px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--faint);margin:38px 0 14px}
+#fd .how{font-size:16px;line-height:1.6;color:var(--ink);font-weight:340;max-width:800px}
+#fd .how code,#fd li code,#fd .ex code{font:12.5px var(--mono);color:var(--l1);background:rgba(226,169,59,.08);padding:1px 5px;border-radius:4px}
+#fd .exs{display:grid;gap:12px}
+#fd .ex{padding:16px 18px;border-radius:10px;background:rgba(32,29,24,.9);border:1px solid var(--line2);border-left-width:3px}
+#fd .ex.good{border-left-color:var(--l5)}#fd .ex.bad{border-left-color:var(--l6)}
+#fd .ex .tag{font:600 9.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;margin-bottom:10px}
+#fd .ex.good .tag{color:var(--l5)}#fd .ex.bad .tag{color:#e0715a}
+#fd .ex q{display:block;font-size:17px;line-height:1.42;font-style:italic;color:var(--ink);font-weight:350;quotes:'“' '”'}
+#fd .ex p{margin-top:9px;font-size:14px;line-height:1.5;color:var(--dim);font-weight:330}
+#fd .ex p q{display:inline;font-size:14px;color:#d8d0c2}
+#fd ul{list-style:none;display:grid;gap:10px;max-width:820px}
+#fd li{position:relative;padding-left:22px;font-size:16px;line-height:1.5;color:var(--ink);font-weight:340}
+#fd li::before{content:'';position:absolute;left:2px;top:10px;width:7px;height:7px;border-radius:50%;background:#e0715a}
+#fd li strong{font-weight:560}
+#fd .todo{margin-top:34px;padding:18px 20px;border-radius:10px;border:1px dashed var(--line2);font-size:16px;line-height:1.55;color:var(--ink);font-weight:340}
+#ab{position:absolute;left:60px;right:60px;top:96px;bottom:34px;display:grid;grid-template-columns:280px 1fr;gap:56px;
+  opacity:0;visibility:hidden;transform:translateY(16px);transition:opacity .6s,transform .9s var(--ease),visibility 0s .6s;cursor:default}
+#ab.on{opacity:1;visibility:visible;transform:none;transition:opacity .6s .2s,transform .9s var(--ease) .2s,visibility 0s}
+#stage #ab,#stage #ab *{pointer-events:auto}
+#ab .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin:24px 0 20px}
+#ab .lead h1{font-weight:380;font-size:32px;line-height:1.14;margin-bottom:16px;font-variation-settings:'opsz' 96}
+#ab .lead p{font-size:15px;line-height:1.55;color:var(--dim);font-weight:330}
+#ab .found{margin-top:26px;border-top:1px solid var(--line)}
+#ab .found div{padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;line-height:1.35}
+#ab .found b{font-weight:520}#ab .found em{font-style:normal;color:var(--l5);float:right}
+#ab .found small{display:block;margin-top:4px;font:500 9.5px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+#ab .page{padding-top:24px}
+#ab h2{font-weight:380;font-size:40px;line-height:1.1;margin-bottom:10px;font-variation-settings:'opsz' 120}
+#ab .what{font-size:17px;line-height:1.5;color:var(--dim);font-weight:330}
+#ab .sheet{max-width:1080px;margin-top:22px;padding:4px 24px;border-radius:12px;border:1px solid var(--line2);background:rgba(32,29,24,.9)}
+#ab .row{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--line)}
+#ab .row:last-child{border-bottom:0}
+#ab .row>span{font:600 10px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+#ab .chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#ab .chip{font:400 14px/1 var(--serif);color:var(--dim);padding:8px 13px;border-radius:999px;border:1px solid var(--line2);background:transparent;cursor:pointer;transition:all .2s}
+#ab .chip:hover{color:var(--ink);border-color:var(--dim)}
+#ab .chip[aria-pressed=true]{color:#1b1712;background:var(--l1);border-color:var(--l1);font-weight:500}
+#ab .ev{flex-basis:100%;margin-top:4px;font:500 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+#fd .todo span{display:block;font:600 10px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--l5);margin-bottom:10px}
+
+/* ---------- source badges for the other kinds */
+.badge.ig{background:#c13584}.badge.ig::after{content:'';position:absolute;left:4px;top:2px;width:6px;height:6px;border-radius:2px;border:1.5px solid #fff}
+.badge.tw{background:#3a3a3a}.badge.tw::after{content:'X';position:absolute;left:4px;top:0;font:700 8px/12px var(--sys);color:#fff}
+/* ---------- do's & don'ts page */
+#fd .principle-count{margin-top:20px;border-top:1px solid var(--line);padding-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#fd .principle-count b{display:block;font:300 56px/1 var(--serif);color:var(--ink)}
+#fd .principle-count span{display:block;margin-top:10px;font:500 10px/1.5 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+#fd .ptabs{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line2);border-radius:999px;margin:2px 0 4px}
+#fd .ptab{font:500 13px/1 var(--serif);color:var(--dim);padding:9px 16px;border-radius:999px;border:0;background:transparent;cursor:pointer;transition:all .2s}
+#fd .ptab:hover{color:var(--ink)}
+#fd .ptab[aria-selected=true]{color:#1b1712;background:var(--l1);font-weight:600}
+#fd .dd-cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:18px;max-width:1080px}
+#fd .dd-head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;font-size:19px;font-weight:450}
+#fd .dd-head small{font-size:13.5px;color:var(--dim);font-weight:330}
+#fd .dd-head.do i{color:var(--l5);font-style:normal}#fd .dd-head.dont i{color:#e0715a;font-style:normal}
+#fd .dd-row{display:grid;grid-template-columns:22px 1fr;gap:12px;padding:10px 16px;margin-bottom:8px;border:1px solid var(--line2);border-radius:10px;background:rgba(32,29,24,.9)}
+#fd .dd-row>i{font-style:normal;font-size:15px;line-height:1.4}
+#fd .dd-row.do>i{color:var(--l5)}#fd .dd-row.dont>i{color:#e0715a}
+#fd .dd-row p{font-size:15.5px;line-height:1.4;color:var(--ink);font-weight:340}
+#fd .dd-row p b{font-weight:600}
+#fd .dd-row small{display:block;margin-top:6px;font:500 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+#fd .keys{cursor:pointer}
+
+/* ---------- phones (config `mobile: true`): one portrait column instead of the scaled 16:9 slide */
+#vis,#mback,#rot{display:none}
+body.m{touch-action:none}
+body.m canvas#cv{width:100%;height:100%}
+body.m #stage{width:100%;height:100%;transform:none!important;padding:0 18px;display:grid;grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto minmax(0,1fr) auto auto auto;grid-template-areas:'hd' 'vis' 'st' 'cap' 'ft'}
+body.m #vis{display:block;grid-area:vis}
+body.m header{grid-area:hd;position:relative;left:auto;right:auto;top:auto;padding:max(16px,env(safe-area-inset-top)) 0 12px;font-size:10px}
+body.m #hdr{display:none}
+body.m #rail{gap:12px;width:100%;justify-content:space-between}
+body.m #rail .ch{gap:7px}
+body.m #rail .ch>span:first-child{display:none}
+body.m #rail .dots{gap:6px}
+body.m #rail .dots i{width:7px;height:7px}
+body.m header{min-height:44px}
+/* hero */
+body.m #hero{padding:0 26px}
+body.m #hero .kick{font-size:10px;letter-spacing:.24em;margin-bottom:22px;line-height:1.6}
+body.m #hero h1{font-size:52px}
+body.m #hero p{font-size:17px;margin-top:22px}
+body.m #hero .go{margin-top:34px}
+/* narrative */
+body.m #cap{grid-area:cap;position:relative;left:auto;top:auto;width:auto;padding:12px 0 4px}
+body.m #cap .kick{font-size:10px;margin-bottom:10px}
+body.m #cap h1{font-size:24px;line-height:1.15;margin-bottom:9px}
+body.m #cap p{font-size:15px;line-height:1.5}
+body.m #stat{grid-area:st;position:relative;left:auto;bottom:auto;width:auto;display:flex;align-items:baseline;gap:12px;padding-top:14px}
+body.m #stat .num{font-size:34px}
+body.m #stat .unit{margin-top:0;font-size:10px;line-height:1.4}
+body.m #hint{grid-area:ft;position:relative;left:auto;bottom:auto;display:flex;justify-content:space-between;align-items:center;
+  padding:14px 0 max(18px,env(safe-area-inset-bottom));font-size:10px}
+body.m #mback{display:inline-block;padding:8px 12px 8px 0;margin:-8px 0;color:var(--dim)}
+/* the window */
+body.m #win{grid-area:vis;position:relative;left:auto;top:auto;width:auto;height:auto;min-height:0;margin-top:4px}
+body.m #win.narrow{opacity:0;transform:translateY(20px) scale(.97)}
+body.m .side{display:none}
+body.m .tbar{height:38px;gap:10px;padding:0 12px}
+body.m .lights i{width:10px;height:10px}
+body.m .navb,body.m .views{display:none}
+body.m .wtitle{font-size:12px}
+body.m .wbody{top:38px;bottom:22px}
+body.m .status{height:22px;font-size:10px}
+body.m .lhead,body.m .lrow{grid-template-columns:minmax(0,1fr) 78px;padding:0 12px}
+body.m .lhead span:nth-child(2),body.m .lhead span:nth-child(4),body.m .lrow .kd,body.m .lrow .sz{display:none}
+body.m .lrow{font-size:12px}
+body.m .doc{padding:12px 12px}
+body.m .doc .txt{font-size:11.5px}
+body.m .doc.clean .txt{font-size:12.5px}
+body.m .doc.clean .ts{width:0;opacity:0}
+body.m .doc.clean .who{width:56px}
+/* frames */
+body.m #wires{display:none}
+body.m .rpanel{transform:translateY(16px)}
+body.m .rpanel.on{transform:none}
+body.m #frames{grid-area:vis;position:relative;left:auto;top:auto;height:auto;width:auto;min-height:0;overflow:hidden;padding-top:8px}
+body.m #frames .plabel{position:static;margin-bottom:10px}
+body.m .fc{position:relative;width:auto;top:auto!important;margin-bottom:6px;font-size:12px;transform:translateY(12px)}
+/* layer cards and the legend sit under the layered space */
+body.m #cards,body.m #legend{grid-area:vis;align-self:end;position:relative;left:auto;top:auto;width:auto}
+body.m .card{position:absolute;left:0;right:0;top:auto;bottom:0;width:auto;padding:16px 18px}
+body.m .card.on{position:relative}
+body.m .card .lv{margin-bottom:10px}
+body.m .card h3{font-size:19px;margin-bottom:8px}
+body.m .card p,body.m .card .pair dd{font-size:14px}
+body.m .card blockquote{font-size:18px}
+body.m .card .foot{margin-top:12px;padding-top:10px}
+body.m #legend{display:grid;grid-template-columns:1fr 1fr;column-gap:16px}
+body.m #legend .plabel{grid-column:1 / -1;margin-bottom:6px}
+body.m .lg{padding:8px 0;gap:9px}
+body.m .lg span{font-size:9px;letter-spacing:.1em;line-height:1.3}
+/* about you, do's & don'ts: scrolling pages */
+body.m #ab,body.m #fd{position:absolute;left:0;right:0;top:44px;bottom:0;display:block;overflow-y:auto;background:var(--bg);padding:0 18px max(40px,env(safe-area-inset-bottom));touch-action:pan-y;-webkit-overflow-scrolling:touch}
+body.m #ab{bottom:52px;padding-bottom:28px}
+body.m #ab .kick,body.m #fd .kick{margin:18px 0 14px}
+body.m #ab .lead h1,body.m #fd .lead h1{font-size:30px}
+body.m #ab .page,body.m #fd .page{overflow:visible;padding:30px 0 0}
+body.m #ab h2,body.m #fd h2{font-size:30px;flex-wrap:wrap}
+body.m #ab .what,body.m #fd .what{font-size:16px}
+body.m #ab .sheet{padding:2px 16px}
+body.m #ab .row{grid-template-columns:1fr;gap:10px}
+body.m #ab .chip{font-size:13.5px;padding:8px 12px}
+body.m #fd .lead .principle-count b{font-size:44px}
+body.m #fd .keys{display:inline-block;margin-top:16px;padding:8px 0;font-size:11px;color:var(--dim)}
+body.m #fd .ptabs{display:flex;width:100%;margin:6px 0 2px}
+body.m #fd .ptab{flex:1;padding:10px 8px;font-size:13px}
+body.m #fd .dd-cols{grid-template-columns:1fr;gap:26px}
+body.m #fd .dd-row{padding:10px 14px}
+body.m #fd .dd-row p{font-size:15px}
+body.m #tip{display:none}
+/* a phone turned sideways */
+body.rot #stage,body.rot #cv{display:none}
+body.rot #rot{display:flex;position:fixed;inset:0;z-index:9;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px}
+#rot b{font-weight:330;font-size:30px;font-variation-settings:'opsz' 96}
+#rot span{font:500 10.5px/1.6 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="tip"></div>
+<div id="rot"><b>Turn your phone upright</b><span>This page reads best in portrait</span></div>
+<div id="stage">
+  <div id="vis"></div>
+  <header><div id="hdr"></div><nav id="rail" class="hit"></nav></header>
+
+  <div id="hero">
+    <div class="kick">One real exchange, followed all the way through</div>
+    <h1 id="hero-h"></h1>
+    <p id="hero-p"></p>
+    <div class="go" id="go">Click to begin →</div>
+  </div>
+
+  <div id="cap" class="out"><div class="kick" id="kick"></div><h1 id="title"></h1><p id="body"></p></div>
+  <div id="stat" class="hide"><div class="num" id="num">0</div><div class="unit" id="unit"></div></div>
+
+  <div id="win">
+    <div class="tbar"><span class="lights"><i></i><i></i><i></i></span><span class="navb">‹ ›</span><span class="wtitle" id="wtitle"></span><span class="views"><i class="on" id="v1"></i><i id="v2"></i></span></div>
+    <div class="wbody">
+      <div class="side" id="side"></div>
+      <div class="pane">
+        <section id="list"><div class="lhead"><span>Name</span><span>Kind</span><span>Date</span><span style="text-align:right">Size</span></div><div class="lrows" id="lrows"></div></section>
+        <section id="docs"><div class="doc" id="doc"></div></section>
+      </div>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <svg id="wires"></svg>
+  <div class="rpanel" id="frames"></div>
+  <div class="rpanel" id="cards"></div>
+  <div class="rpanel" id="legend"></div>
+  <div id="ab"></div>
+  <div id="fd">
+    <div class="lead">
+      <div class="kick">06 · Do’s &amp; Don’ts</div>
+      <h1>Do’s &amp; Don’ts</h1>
+      <p id="dd-lead"></p>
+      <div class="principle-count" id="dd-count"></div>
+      <div class="keys">← back</div>
+    </div>
+    <div class="page" id="fdpage"></div>
+  </div>
+  <div id="hint">Click or <kbd>→</kbd> to continue · <kbd>←</kbd> back</div>
+</div>
+
+<script>
+/* Filled in by build.py: STORY is the data, CONFIG is the written copy (configs/<slug>.yaml). */
+const STORY = {"files":[{"n":"Choosing J.O.Y. as a Theme for the Year","d":"2026-01-06","s":1506,"k":"linkedin"},{"n":"Theme for the year: J.O.Y.","d":"2026-01-07","s":1496,"k":"linkedin"},{"n":"Three Techniques to Combat Stage Fright","d":"2026-01-07","s":1376,"k":"youtube"},{"n":"Making Instant Human Connections Using First-Second Techniques","d":"2026-01-08","s":1873,"k":"linkedin"},{"n":"Using AI without losing your voice, credibility, or human impact","d":"2026-01-08","s":1692,"k":"linkedin"},{"n":"Structuring Communication Like a Professional Kitchen","d":"2026-01-09","s":840,"k":"linkedin"},{"n":"Joy as performance fuel for the week","d":"2026-01-12","s":1458,"k":"linkedin"},{"n":"Smart AR Glasses as the Future of Teleprompting and Public Speaking","d":"2026-01-13","s":767,"k":"linkedin"},{"n":"COMMUNICATION IN 2026: HUMAN x AI","d":"2026-01-14","s":1869,"k":"linkedin"},{"n":"Using Human-First Communication and Hospitality in Customer-Facing Businesses","d":"2026-01-15","s":2597,"k":"linkedin"},{"n":"Treat human attention as a luxury","d":"2026-01-16","s":2310,"k":"linkedin"},{"n":"Tech-assisted","d":"2026-01-19","s":2597,"k":"linkedin"},{"n":"The Power of Saying Yes Across Career Milestones","d":"2026-01-20","s":3107,"k":"linkedin"},{"n":"1. Initial innocent conversation","d":"2026-01-21","s":3100,"k":"linkedin"},{"n":"A masterclass in how language can create change","d":"2026-01-22","s":2782,"k":"linkedin"},{"n":"Attending the Ultimate Supercar Garage at Rétromobile in Paris","d":"2026-01-23","s":1684,"k":"linkedin"},{"n":"Your outfit speaks before you do","d":"2026-01-26","s":1978,"k":"linkedin"},{"n":"Personal do’s and don’ts when traveling","d":"2026-01-27","s":2512,"k":"linkedin"},{"n":"Using energy to move an audience and keep them engaged","d":"2026-01-28","s":792,"k":"linkedin"},{"n":"Why Speak with Energy","d":"2026-01-28","s":822,"k":"youtube"},{"n":"Using a Pre-Speaking Mantra to Ground and Empower Yourself","d":"2026-01-29","s":1664,"k":"linkedin"},{"n":"Ultimate Supercar Garage: Day One Highlights","d":"2026-01-30","s":1443,"k":"linkedin"},{"n":"Finding balance and seeing familiar places through a new lens while traveling for work","d":"2026-02-02","s":1518,"k":"linkedin"},{"n":"The ABCs of public speaking","d":"2026-02-03","s":815,"k":"linkedin"},{"n":"24 hours at home and living by carpe diem","d":"2026-02-04","s":1059,"k":"linkedin"},{"n":"Creating a Personalized Caricature with ChatGPT","d":"2026-02-05","s":1140,"k":"linkedin"},{"n":"Hosting the Global All Hands for Messe Muenchen","d":"2026-02-09","s":1432,"k":"linkedin"},{"n":"How Human Connection from a Train Conductor Rescued a Delayed Journey Experience","d":"2026-02-10","s":1626,"k":"linkedin"},{"n":"Choosing Confident Words Before Stepping on Stage","d":"2026-02-11","s":785,"k":"linkedin"},{"n":"Don't Say Good Luck!","d":"2026-02-11","s":1123,"k":"youtube"},{"n":"Testimonial from Felix Haas","d":"2026-02-11","s":695,"k":"youtube"},{"n":"Human-First Communication and Healthcare Innovation at WHX Dubai","d":"2026-02-12","s":1909,"k":"linkedin"},{"n":"Appreciating the Unseen Strength of Women on Valentine's Day","d":"2026-02-13","s":988,"k":"linkedin"},{"n":"Here’s what I learned from France’s best-selling international Artist: Richard Orlinski","d":"2026-02-16","s":2135,"k":"linkedin"},{"n":"Your style communicates before you speak","d":"2026-02-17","s":781,"k":"linkedin"},{"n":"Reflecting on the Meaning and Values of Ramadan","d":"2026-02-18","s":940,"k":"linkedin"},{"n":"Digital commerce has no borders anymore","d":"2026-02-19","s":1570,"k":"linkedin"},{"n":"One sentence shift in perspective","d":"2026-02-20","s":849,"k":"linkedin"},{"n":"Practicing Public Speaking and Voice Modulation Through Bedtime Stories","d":"2026-02-23","s":1553,"k":"linkedin"},{"n":"SKInnovation Mountain Startup Conference and Networking","d":"2026-02-24","s":1909,"k":"linkedin"},{"n":"Technology is accelerating. Clarity is not.","d":"2026-02-25","s":1377,"k":"linkedin"},{"n":"Sharing the stage with Terry Crews at One Young World","d":"2026-02-26","s":1800,"k":"linkedin"},{"n":"Using a Magic Trick to Make Communication Memorable","d":"2026-02-27","s":1085,"k":"linkedin"},{"n":"Gratitude for Safety and Leadership in the UAE During Regional Crisis","d":"2026-03-03","s":2807,"k":"linkedin"},{"n":"Magic Trick for Entrepreneur","d":"2026-03-04","s":1962,"k":"youtube"},{"n":"Communicating with your team in times of uncertainty","d":"2026-03-11","s":2571,"k":"linkedin"},{"n":"Empowering Leaders to Communicate During Times of Uncertainty","d":"2026-03-16","s":1745,"k":"linkedin"},{"n":"Leadership communication in times of uncertainty","d":"2026-03-18","s":1998,"k":"linkedin"},{"n":"Leadership communication in times of uncertainty","d":"2026-03-18","s":1998,"k":"linkedin"},{"n":"Choosing silence over reactive posting and focusing on human-first communication","d":"2026-04-23","s":1397,"k":"linkedin"},{"n":"A small difference in how you communicate can change how people feel around you","d":"2026-04-24","s":1799,"k":"linkedin"},{"n":"Using Conscious and Positive Communication to Impact Others","d":"2026-04-24","s":1798,"k":"linkedin"},{"n":"Human-first communication and inspiring through speeches","d":"2026-04-27","s":1361,"k":"linkedin"},{"n":"Human-first communication as a way to inspire and make an impact","d":"2026-04-27","s":1361,"k":"linkedin"},{"n":"Human-first Communication","d":"2026-04-28","s":1607,"k":"linkedin"},{"n":"Human-first Communication","d":"2026-04-28","s":1607,"k":"linkedin"},{"n":"TEDxRWA THE HUMAN EDGE Skills to Thrive in the Future of Work","d":"2026-04-28","s":8331,"k":"youtube"},{"n":"WEB SUMMIT LISBON 2024 The Voice as a Marketing Tool","d":"2026-04-28","s":8210,"k":"youtube"},{"n":"Leading through love rather than just respect","d":"2026-04-29","s":2432,"k":"linkedin"},{"n":"Leading through love rather than just respect","d":"2026-04-29","s":2432,"k":"linkedin"},{"n":"Own Your First Impression","d":"2026-04-29","s":1050,"k":"youtube"},{"n":"Overcoming Fear and Negativity in Communication and Mindset","d":"2026-04-30","s":1581,"k":"linkedin"},{"n":"Weg mit der German Angst! - No more German Angst!","d":"2026-04-30","s":1581,"k":"linkedin"},{"n":"Actively shaping your first impression and human connection","d":"2026-05-01","s":2020,"k":"linkedin"},{"n":"A strong speaker has a 5x higher chance to win the business","d":"2026-05-05","s":1671,"k":"linkedin"},{"n":"HUMAN 2 HUMAN SUMMIT 2026 The Human Connection","d":"2026-05-05","s":18003,"k":"youtube"},{"n":"B2B vs B2C communication approach","d":"2026-05-06","s":662,"k":"linkedin"},{"n":"Human 2 Human Communication","d":"2026-05-06","s":460,"k":"youtube"},{"n":"Using communication to evoke emotion and create memorable human moments","d":"2026-05-07","s":1953,"k":"linkedin"},{"n":"Build It Demo Day: The Agentic Edition at MBZUAI","d":"2026-05-08","s":1490,"k":"linkedin"},{"n":"Using AI for Imagination and Creativity Rather than Pure Optimization","d":"2026-05-11","s":1563,"k":"linkedin"},{"n":"Communicating the future using the three-case framework","d":"2026-05-12","s":1909,"k":"linkedin"},{"n":"Human-first communication and respectful leadership","d":"2026-05-13","s":792,"k":"linkedin"},{"n":"Reflecting on Career Evolution While Resuming Outdoor Travel and Events","d":"2026-05-14","s":1334,"k":"linkedin"},{"n":"Mental and Physical Lessons from Climbing for Presence and Public Speaking","d":"2026-05-15","s":2271,"k":"linkedin"},{"n":"Mental and physical benefits of climbing for communication and personal presence","d":"2026-05-15","s":2271,"k":"linkedin"},{"n":"Hosting the Doers Summit in Cyprus and Networking with the Startup Ecosystem","d":"2026-05-19","s":1148,"k":"linkedin"},{"n":"Human-First Communication and Audience Empathy","d":"2026-05-20","s":717,"k":"linkedin"},{"n":"Hosting the European Outdoor Awards and In4Out Innovation Day at European Outdoor Week","d":"2026-05-21","s":1861,"k":"linkedin"},{"n":"The keynote of Vladimir Sucha: Better output, weaker people","d":"2026-05-22","s":1669,"k":"linkedin"},{"n":"Preparing Executive Communication Skills in Advance","d":"2026-05-25","s":1648,"k":"linkedin"},{"n":"Leadership lessons from Pep Guardiola","d":"2026-05-26","s":1272,"k":"linkedin"},{"n":"It is never just business and it is never just talking","d":"2026-05-27","s":590,"k":"linkedin"},{"n":"Powerful Communication: Connecting with Humans","d":"2026-05-27","s":978,"k":"youtube"},{"n":"Why brands and speakers should take bold communication stances instead of trying to please everyone","d":"2026-05-28","s":1797,"k":"linkedin"},{"n":"Bold Brand Communication and Taking a Stance","d":"2026-05-29","s":1797,"k":"linkedin"},{"n":"Visiting Zayed National Museum and Experiencing UAE Cultural History","d":"2026-06-01","s":1313,"k":"linkedin"},{"n":"Using AI for Presentations Without Reviewing and Preparing Wastes the Audience's Time","d":"2026-06-02","s":804,"k":"linkedin"},{"n":"Challenge of the day: Give as many honest compliments as possible","d":"2026-06-04","s":1739,"k":"linkedin"},{"n":"Challenge of the day: Give as many honest compliments as possible","d":"2026-06-05","s":1739,"k":"linkedin"},{"n":"Impact of Communication Skills Coaching Across Diverse Industries","d":"2026-06-08","s":1357,"k":"linkedin"},{"n":"Elevating communication skills across industries and career stages","d":"2026-06-09","s":1356,"k":"linkedin"},{"n":"Resilience and Key Founder Lessons from Hub71's Impact 26","d":"2026-06-10","s":1612,"k":"linkedin"},{"n":"Nordberg Medical Train the Trainer event on communication skills for doctors","d":"2026-06-11","s":944,"k":"linkedin"},{"n":"Coaching aesthetic medical doctors in communication and lifelong learning","d":"2026-06-16","s":2371,"k":"linkedin"},{"n":"The Impact of Human and Friendly Customer Service","d":"2026-06-17","s":2052,"k":"linkedin"},{"n":"Preserving Human Skills in the Age of AI","d":"2026-06-18","s":1752,"k":"linkedin"},{"n":"Hosting the Durst Group AG Next Technology Festival and 90th Anniversary","d":"2026-06-19","s":2221,"k":"linkedin"},{"n":"Every small gesture is communication","d":"2026-06-20","s":863,"k":"linkedin"},{"n":"Putting in the Effort to Become a Powerful Communicator","d":"2026-06-22","s":1686,"k":"linkedin"},{"n":"What I learned when I danced on stage with Terry Crews","d":"2026-06-23","s":2396,"k":"linkedin"},{"n":"Fatima Ahmed Buhajir from Dubai Police","d":"2026-06-24","s":1992,"k":"linkedin"},{"n":"Celebrating the Print Industry at DurstNEXT","d":"2026-06-30","s":1923,"k":"linkedin"},{"n":"Using notes effectively in a presentation or on stage","d":"2026-06-30","s":1404,"k":"linkedin"},{"n":"Delivering an Outstanding Retail Customer Experience Through Brand Storytelling and Passion","d":"2026-07-01","s":1495,"k":"linkedin"},{"n":"How to connect with people digitally","d":"2026-07-02","s":644,"k":"linkedin"},{"n":"How to connect with people digitally","d":"2026-07-02","s":996,"k":"youtube"},{"n":"Drei Experten für Kommunikation, Cyberkriminalität und Teamresilienz","d":"2026-07-20","s":1621,"k":"linkedin"},{"n":"Maintaining Human Responsibility and Connection in AI-Assisted Communication","d":"2026-08-27","s":1395,"k":"linkedin"},{"n":"Grow Your Startup: Be a super‑communicator","d":"2026-08-29","s":1300,"k":"linkedin"},{"n":"Seven days offline: lessons from a strict digital detox","d":"2026-08-31","s":1983,"k":"linkedin"},{"n":"Seven days offline: lessons from taking a strict digital detox","d":"2026-08-31","s":1983,"k":"linkedin"},{"n":"Connecting with your audience like a tour guide in corporate presentations","d":"2026-09-01","s":1635,"k":"linkedin"},{"n":"Energy is Not Just Being Loud","d":"2026-09-02","s":884,"k":"youtube"},{"n":"What’s the secret to having high energy on stage?","d":"2026-09-02","s":503,"k":"linkedin"},{"n":"Hosting the SOC Weekend Costa Navarino in Greece","d":"2026-09-03","s":1268,"k":"linkedin"},{"n":"Putting extra effort into communication to build meaningful connection","d":"2026-09-04","s":1416,"k":"linkedin"},{"n":"Why should you put in an extra effort when you communicate?","d":"2026-09-04","s":1416,"k":"linkedin"},{"n":"Making perfumers better communicators by translating creations into compelling words","d":"2026-09-07","s":2113,"k":"linkedin"},{"n":"Improving communication impact and voice assessment in one hour","d":"2026-09-08","s":1621,"k":"linkedin"},{"n":"Overcoming self-imposed limits and negative thoughts through dedication","d":"2026-09-09","s":1779,"k":"linkedin"},{"n":"Hosting the Main Stage at Fithera Fitness and Therapy Event","d":"2026-09-10","s":1408,"k":"linkedin"},{"n":"Supercar Owners Circle Tour in Greece","d":"2026-09-11","s":1352,"k":"linkedin"},{"n":"Using Shared Experiences to Build Community in Communication","d":"2026-09-11","s":1667,"k":"linkedin"},{"n":"Going the extra mile in workplace communication","d":"2026-09-14","s":1689,"k":"linkedin"},{"n":"Memorable Moment","d":"2026-09-15","s":1089,"k":"youtube","sel":1},{"n":"What is a memorable moment?","d":"2026-09-15","s":461,"k":"linkedin"},{"n":"Changing founder communication through pitch practice, video recording, and feedback","d":"2026-09-16","s":1643,"k":"linkedin"},{"n":"Every speech is an opportunity to inspire","d":"2026-09-17","s":516,"k":"linkedin"},{"n":"Conscientiousness as the Recipe for Success and Dealing with Pressure","d":"2026-09-18","s":1040,"k":"linkedin"},{"n":"Taking Care of Yourself and Switching Off Through Climbing During Intense Travel","d":"2026-09-21","s":1639,"k":"linkedin"},{"n":"First-human Communication","d":"2026-09-22","s":1074,"k":"youtube"},{"n":"What is the human-first communication mix?","d":"2026-09-22","s":504,"k":"linkedin"},{"n":"Presenter testimonial from Aira Piva at the Gulfood","d":"2026-09-23","s":1495,"k":"youtube"},{"n":"The best salesperson in Venice never tried to sell us anything","d":"2026-09-23","s":1394,"k":"linkedin"},{"n":"Three things that make a great pitch from pitch competition judges","d":"2026-09-24","s":788,"k":"linkedin"},{"n":"Bits & Pretzels Schedule and Activities","d":"2026-09-25","s":1239,"k":"linkedin"},{"n":"Flo Returns to Host the Golden Pretzel Award at Bits & Pretzels 2026","d":"2026-09-25","s":782,"k":"linkedin"},{"n":"What's wrong with the resting face?","d":"2026-09-28","s":545,"k":"linkedin"},{"n":"What’s wrong with the resting face?","d":"2026-09-28","s":1279,"k":"youtube"},{"n":"Trevor Noah on Value and Perspective in Difficult Situations","d":"2026-09-29","s":1214,"k":"linkedin"},{"n":"Hosting the Golden Pretzel Award and Coaching Pitches at Bits & Pretzels","d":"2026-09-30","s":975,"k":"linkedin"},{"n":"Hosting Bits & Pretzels Liquid Networking and Connecting the Startup Community","d":"2026-10-01","s":1303,"k":"linkedin"},{"n":"Emirates Captain Mike Howard's Secret Voice Technique","d":"2026-10-02","s":568,"k":"linkedin"},{"n":"How Do You Explain Complicated Topics?","d":"2026-10-02","s":1044,"k":"youtube"},{"n":"Shifting from having energy to giving energy to the audience","d":"2026-10-05","s":1004,"k":"linkedin"},{"n":"Stepping Up to Host and Reflecting on a Twenty-Year Career","d":"2026-10-06","s":2486,"k":"linkedin"},{"n":"Stepping Up to Host and the 20-Year Presenter Journey","d":"2026-10-06","s":2486,"k":"linkedin"},{"n":"Communicating by talking to people like people rather than finding perfect words","d":"2026-10-07","s":574,"k":"linkedin"},{"n":"Teach Me Communication","d":"2026-10-07","s":1116,"k":"youtube"},{"n":"Observing childhood body language and the importance of early communication education","d":"2026-10-08","s":2311,"k":"linkedin"},{"n":"Supporting workplace mental health through human-centric leadership and communication","d":"2026-10-09","s":1982,"k":"linkedin"},{"n":"Supporting Workplace Mental Health Through Human-First Leadership","d":"2026-10-10","s":1982,"k":"linkedin"},{"n":"Adding spice to communication to capture attention","d":"2026-10-12","s":1833,"k":"linkedin"},{"n":"Pronunciation Hack","d":"2026-10-12","s":1272,"k":"youtube"},{"n":"One hack to help with your pronunication","d":"2026-10-13","s":500,"k":"linkedin"},{"n":"Gulfood Top Table","d":"2026-10-14","s":543,"k":"youtube"},{"n":"Hosting the Health-i Award 2026 in Hamburg","d":"2026-10-14","s":677,"k":"linkedin"},{"n":"Testimonial from Udie Chima Zillow","d":"2026-10-14","s":2141,"k":"youtube"},{"n":"Seven things every speaker should know","d":"2026-10-15","s":386,"k":"linkedin"},{"n":"Health-i Award Highlights and the Maturation of Health Tech","d":"2026-10-16","s":2889,"k":"linkedin"},{"n":"Viva con Agua: Combining business and social impact for clean water access","d":"2026-10-19","s":1929,"k":"linkedin"},{"n":"The Elon Musk Effect","d":"2026-10-20","s":1287,"k":"youtube"},{"n":"Why do people listen to Elon Musk?","d":"2026-10-20","s":472,"k":"linkedin"},{"n":"Leaving employment to build a career in public speaking and event hosting","d":"2026-10-21","s":1328,"k":"linkedin"},{"n":"Transitioning from Employment to a Full-Time Presenter and Coach Career","d":"2026-10-21","s":1329,"k":"linkedin"},{"n":"Investing in human-first communication skills alongside AI","d":"2026-10-22","s":2309,"k":"linkedin"},{"n":"The Power of the Pause","d":"2026-10-23","s":1249,"k":"linkedin"},{"n":"Obama’s Secret to Great Communication","d":"2026-10-26","s":549,"k":"linkedin"},{"n":"What is Obama’s secret to great communication?","d":"2026-10-26","s":1296,"k":"youtube"},{"n":"Impact of Communication Coaching on Executive Presence and Self-Awareness","d":"2026-10-27","s":1310,"k":"linkedin"},{"n":"Impactful Leadership Communication Workshop for DHL","d":"2026-10-27","s":2402,"k":"linkedin"},{"n":"How to introduce yourself","d":"2026-10-28","s":1543,"k":"linkedin"},{"n":"Hosting the MEDICA Main Stage at MEDICA 2026","d":"2026-10-29","s":2163,"k":"linkedin"},{"n":"What is human first communication?","d":"2026-11-03","s":1062,"k":"youtube"},{"n":"What is human-first communication and what makes it special","d":"2026-11-03","s":520,"k":"linkedin"},{"n":"Staying optimistic through intercultural dialogue and grassroots impact","d":"2026-11-04","s":2602,"k":"linkedin"}],"totals":{"conversations":177,"actions":1803,"frames":1328,"tactics":63,"scenes":44,"phases":6,"beliefs":6,"words":38507},"session":{"title":"Memorable Moment","date":"2026-09-15","kind":"YouTube · Dubai One interview","turns":4,"other":"Host","lines":[{"id":"t0016","ts":"¶1","raw":"speaker_1","coach":false,"who":"Host","text":"Tell me about some memorable moments when it comes to stage presence"},{"id":"t0018","ts":"¶2","raw":"speaker_2","coach":true,"who":"Flo","text":"So heres a story I was doing a workshop in Algeria and what happened is the CFO said we just deliver average presentations we want to do better So I gave them a money gun and said would you ever shoot a money gun in a meeting with …"},{"id":"t0020","ts":"¶3","raw":"speaker_1","coach":false,"who":"Host","text":"Okay"},{"id":"t0022","ts":"¶4","raw":"speaker_2","coach":true,"who":"Flo","text":"Thats a memorable moment"}]},"frames":[{"id":"f-00","span":"asking about memorable moments when it comes to stage presence","kind":"question","from":["t0016"]},{"id":"f-01","span":"telling how he turned a CFO's 'average presentations' into a money-gun moment","kind":"story","from":["t0018"]},{"id":"f-02","span":"taking it in","kind":"acknowledgment","from":["t0020"]},{"id":"f-03","span":"naming it: that's a memorable moment","kind":"statement","from":["t0022"]}],"thread":{"cue":"f-00","move":"f-01","cueLine":"t0016","moveLine":"t0018"},"labels":{"tactics":["presenting on stage","times of uncertainty","stage fright","pitching for investment or business","meeting someone for the first time","maintaining authenticity and leadership presence with AI","leading conversations","needing to perform when not in the mood","greeting customers","imposter syndrome and career uncertainty","initiating conversation","sharing personal struggles","navigating airport terminals and staff interactions","traveling home for work","stepping onto the stage","five minutes before stepping on stage","Valentine's Day","observing the holy month","Iran–Israel–US conflict crisis","meeting a celebrity on stage","leading through times of crisis and uncertainty","uncertainty and conflict online","missed train connection and delays","leading in times of uncertainty","navigating crisis and conditioned negativity","navigating crisis","leadership in times of uncertainty","resuming business travel","sudden high-stakes presentation","launching controversial or polarizing products","launching polarizing products","presenting slides created by AI without prior review","medical professionals stepping outside comfort zones","unfriendly airport customer experience","relying on AI tools","navigating change and uncertainty","high-ticket product shock","connecting digitally in an AI-dominated world","using AI for drafting and preparation","disconnecting from work and devices during summer holidays","translating complex or sensory work into client-friendly language","facing negative thoughts of inability","supporting crew members","founders struggling to present their product","taking time off work and devices","pitch competition","no presenter available","no presenter available for an event","frequent international travel","navigating workplace stress and uncertainty","competing with distractions","browsing in-store without immediate intent to buy","leaving full-time employment","rushing through a presentation","preparing for a presentation","explaining startup challenges","entering a room to connect with people","organizing in-person gatherings","communicating across digital barriers","speaking to an audience","difficult technical terms","nervousness presenting to stakeholders","diverse audience at tech conference"],"scenes":["human-first communication","public speaking","event hosting","leadership communication","audience engagement","interpersonal communication","customer experience","communication skills","body language","public speaking delivery","first impressions","personal branding","supercars","crisis communication","annual themes","AI in communication","AI communication","public speaking energy","work-life balance","voice modulation","public speaking practice","executive presence","intentional communication","positive communication","leadership philosophy","giving genuine compliments","communication training","human skills vs AI","digital detox","stage energy","workplace mental health","pronunciation","public speaking career transition","communication coaching","human to human communication","mindset and intentionality","human-first AI communication","communication structure and timing","energy management","smart AR glasses","teleprompting","audience attention","hospitality","rhetorical devices"],"phases":["Calm the nerves","Know your content","Bring the energy","Make it memorable","Connect human to human","Lead through your words"],"beliefs":["Human connection first: But most of all, it is all about the human connection.","Energy moves people: Energy is the difference between talking at an audience and moving them.","How you made them feel: People won’t remember every word, but they’ll remember how you made them feel.","Know it inside out: You’ve got to be obsessed with your content. You got to know your content inside out.","Your best version: A mantra is there to help you show up as the best version of yourself.","Presence does not change: Tools evolve. Presence does not."]},"floors":{"1":[399,-10,529,111,673,-65,648,136,89,245,-144,-39,297,861,465,-591,-122,363,-715,451,15,415,179,327,-46,-23,337,434,-24,-219,682,431,-84,300,-532,555,-683,-69,-80,-46,11,-705,-156,-714,-761,422,-31,543,209,633,-32,-19,242,-79,355,499,-37,508,77,-637,-35,227,-25,590,-750,-60,415,23,348,-69,455,526,-68,-693,-174,-453,394,732,94,375,-142,562,-348,-568,23,275,-2,613,42,405,494,47,-62,-692,464,-410,-251,-491,680,571,36,404,41,0,-42,-858,30,643,-42,-390,-99,-580,-502,-166,-258,6,662,302,-93,-274,-37,-396,22,62,24,267,-61,-452,284,58,517,298,-119,-606,458,482,195,359,50,-206,-769,-62,-9,-230,176,279,132,708,-704,113,-530,98,-138,782,-25,778,566,130,115,598,59,380,662,-48,-427,-460,541,-352,-195,-413,-4,843,-679,-230,304,754,-126,-947,21,166,-238,854,-362,-342,243,-104,-563,91,185,229,506,-6,154,302,-829,455,477,363,-19,308,-603,-458,-335,-102,-749,50,274,49,-118,13,-658,-316,-74,-508,173,703,-39,332,-807,528,-713,130,-242,-701,-155,-722,-14,101,-438,-563,-288,199,48,241,-123,-315,53,110,-369,596,-122,-360,-269,-8,-152,553,665,-109,-951,226,84,635,-22,-416,102,356,-353,458,-49,161,423,635,429,453,164,200,-70,-292,85,1,490,290,-293,-727,-39,-178,305,436,579,-49,-130,212,183,51,520,383,235,-98,32,-831,-112,215,383,713,-102,58,-530,103,496,600,-522,-266,596,459,-691,559,70,303,554,-147,-10,209,233,478,211,-634,574,572,523,527,135,412,27,122,127,35,-169,513,-392,340,-327,-39,232,36,-762,-158,233,937,-47,-140,193,-11,33,-464,66,82,158,692,-148,-165,254,-533,-232,592,-90,135,-121,58,473,-466,-231,656,-309,419,-258,-409,-191,-625,104,-287,-265,-315,672,-10,15,-435,-312,-711,190,387,-440,688,554,-638,95,682,256,62,146,203,72,395,63,-669,-548,126,36,262,70,-521,604,-640,-644,112,-497,-832,-527,-370,-872,387,812,357,9,-128,127,327,-8,-758,617,709,267,622,318,882,579,702,481,787,-36,248,88,294,-331,384,502,450,537,340,-590,505,272,169,-823,-217,-251,266,451,641,670,-96,761,-516,650,289,-513,-89,-528,679,95,-561,-293,-173,186,7,-427,-432,479,705,-776,-119,-46,-827,-938,500,242,54,557,-284,318,-246,-162,150,395,-564,203,418,46,-111,727,-139,394,608,44,293,104,338,610,546,334,-82,-403,642,199,218,-76,-632,78,-81,-8,489,-60,-384,136,416,-406,38,89,-158,-647,52,-74,-167,96,302,-40,-480,-323,317,-258,182,-75,-680,136,88,28,367,-777,-82,-541,607,-15,-445,-98,-353,-185,-367,-183,-67,364,93,-171,301,-77,235,-454,-427,-668,-395,-785,-67,90,266,-200,98,535,466,203,-605,73,96,-375,-384,-248,-414,-90,347,95,-645,-353,-150,39,753,102,398,-505,240,126,-157,-128,-533,171,446,521,-841,-740,-316,-173,63,158,764,-15,-707,-188,-706,194,341,185,353,-110,529,546,751,-204,-269,170,-492,64,210,541,404,358,-550,62,44,371,306,259,608,-197,584,-311,-69,56,417,-63,103,-568,625,591,58,125,40,-10,-515,168,130,-140,-506,-677,743,103,399,-170,-578,539,-160,-406,199,96,590,347,43,479,373,-552,416,147,116,222,430,113,227,542,-704,460,128,-106,-123,-60,542,4,-136,384,642,-158,-718,162,258,733,361,-10,151,-41,67,47,197,19,-408,-225,228,-423,-125,-19,490,-136,-725,-279,404,668,540,162,198,-707,129,104,-330,-540,555,-132,136,-431,-57,-179,-269,67,279,48,-705,203,-415,67,366,-554,-257,-318,614,-337,-203,467,46,-124,525,-541,756,146,204,105,438,-442,491,700,-88,-225,-257,428,-601,207,380,-73,570,-370,-265,103,-236,70,184,-256,-314,399,287,131,476,-60,61,0,-118,-254,-111,-438,-355,-91,-667,-377,-378,43,381,188,199,110,138,220,527,-202,514,-112,-863,-795,-135,-162,-653,287,406,-35,91,-6,134,-153,88,-499,-203,198,235,349,279,379,515,-158,414,403,709,532,-321,-333,-108,267,236,-69,528,38,616,473,508,-118,181,-182,399,-580,-215,-474,6,207,432,-344,-501,186,262,472,-51,232,376,-188,-975,-225,-285,530,398,-45,-390,-528,276,-141,-603,617,-140,-447,527,219,-882,221,252,-557,-517,-724,-476,-43,393,259,359,-522,-18,-587,-389,483,320,-154,-831,-32,-398,-350,419,87,-62,-527,40,10,285,171,-45,-752,-82,-603,-323,-238,-183,-589,364,87,5,-207,159,50,868,-347,262,-42,-242,441,-234,128,365,-127,217,527,567,279,131,415,-451,398,318,-578,-25,-249,-574,-343,410,63,138,-667,-478,-569,-264,199,110,477,411,-120,-113,82,849,180,789,-397,207,696,19,-132,-820,427,-719,133,614,115,779,147,558,-78,-828,19,-727,124,-44,15,-778,-262,45,34,390,204,-344,-2,371,68,631,-128,-402,347,-536,666,-82,112,482,469,432,619,721,-240,652,348,531,123,382,-35,-170,-39,-527,-446,-745,-187,-605,-45,-317,311,397,9,-434,-486,-325,-186,307,-42,256,154,294,180,-245,264,-645,-219,-358,-148,650,198,495,92,179,571,185,97,-383,185,-11,374,196,-46,-493,284,-417,-56,550,-591,-53,200,105,301,660,-760,-35,-568,235,-12,-554,454,231,-116,-91,303,-394,-279,566,267,-437,-192,-697,181,-545,75,235,-229,-595,-437,607,45,-630,539,528,344,-666,-531,466,463,190,685,20,198,421,-541,40,579,-65,130,375,59,156,-7,452,-759,99,-200,-311,629,-662,-46,-193,671,401,-176,340,172,254,-818,-186,40,-282,-860,168,157,435,327,-631,486,248,-523,-577,315,184,523,330,96,378,71,-391,-293,-601,12,-426,-192,-495,271,768,720,-265,84,62,-517,555,-455,-351,-383,-6,212,447,-607,-106,-413,159,-709,324,644,215,191,422,-58,-238,-569,266,386,-115,31,681,-56,-10,657,138,-1,340,73,365,740,-345,38,129,-254,-160,320,-93,-246,-534,-71,-18,-36,-291,-171,107,154,-132,-241,-394,-410,596,-218,-18,-742,162,-69,299,-237,-388,-287,253,-41,750,-713,60,258,43,12,227,-354,168,53,-719,-491,598,53,-41,41,123,4,428,499,-263,678,217,-383,33,288,530,67,931,519,-208,-406,546,-221,-93,170,240,-658,164,304,-520,364,535,-205,-423,190,657,-524,-740,-434,756,115,213,-133,-731,-209,-129,286,128,-66,182,438,838,-78,-310,-460,-130,-34,-267,411,-25,580,-496,-90,-634,-64,530,308,593,-935,199,-16,-205,-141,-375,776,-333,267,-422,-249,674,-37,27,-19,-737,262,356,8,683,465,707,-744,129,350,-238,34,405,-815,370,-85,-244,183,234,-74,-186,118,-310,-165,-333,-465,716,269,655,368,-677,470,-296,110,197,-261,331,-421,762,-743,619,201,-170,-687,137,-647,382,558,-380,-249,-742,-148,-91,746,-266,28,185,-509,-214,130,233,-646,258,513,-769,192,427,125,706,-352,465,264,-833,466,-345,120,320,-877,470,128,-785,324,357,186,-547,-45,-444,-599,73,-469,-165,-1,-433,232,683,-599,328,-255,-58,343,-270,-395,29,676,142,-412,865,-645,79,-185,911,386,391,-326,-322,62,340,-685,94,105,368,475,-628,-563,-262,-513,316,-694,213,800,-167,119,234,-130,374,80,444,355,-95,-322,499,-63,-349,92,468,-539,-399,-69,-327,413,790,212,273,-96,366,-985,329,555,406,-170,288,-457,-559,-244,-408,-283,-394,134,65,-33,-636,94,16,-37,-436,-668,-23,174,370,-455,357,52,344,-522,-132,-151,99,377,-366,-825,-12,655,-203,-725,14,-67,-131,-221,-112,379,245,117,583,58,-57,3,161,-295,143,-143,179,87,-570,-324,-730,439,166,-250,-44,215,615,356,500,-158,92,112,-712,157,714,-432,-687,-291,102,-53,118,-370,-113,566,369,347,472,-545,181,363,128,11,191,226,-713,-353,-37,-34,536,7,300,147,817,-458,611,-92,-309,-58,-51,-79,456,-436,770,241,249,-54,624,-789,-82,-220,836,-575,310,-489,291,1,-101,-758,-148,137,-6,213,304,226,132,-206,-386,115,-772,-374,-803,309,151,-243,-152,-469,437,198,-344,-172,-661,481,-114,152,-545,-610,357,445,165,-57,-748,560,-726,448,95,704,604,555,35,-212,607,-421,-31,534,417,-23,-730,-71,-745,172,-165,12,46,646,-438,68,720,108,250,188,526,-16,401,-163,286,153,525,172,-46,-260,585,502,534,-475,607,-31,46,51,538,321,109,344,682,-18,271,-815,-235,-24,320,355,307,13,274,725,-115,164,-368,272,93,-629,227,-78,693,143,260,131,474,36,-32,78,-398,303,180,474,-505,38,1,-317,822,-682,447,-40,-351,70,169,158,56,718,41,-136,75,57,50,299,143,-192,-495,-126,147,-985,108,-46,-292,222,711,-104,-393,540,-218,-442,-214,-310,-93,-468,454,234,-336,-187,-689,75,-145,-470,-175,202,4,259,-555,224,696,493,683,-230,-266,-431,-307,-19,74,-250,-243,-501,272,-267,-270,-552,-271,-475,-22,140,324,231,311,-533,-11,76,-174,-235,-652,-323,75,294,779,-176,-93,18,31,495,582,-475,-814,-539,-82,237,359,243,-590,69,34,-467,285,62,303,-512,526,-135,-320,565,-488,-308,327,197,-277,-328,-274,400,-334,-111,-649,481,744,69,282,-459,106,-296,-840,486,-118,315,-717,-50,201,-861,-211,-637,430,-51,54,694,-555,-189,-855,-190,-36,-690,-98,160,830,-209,497,542,689,-580,177,-489,355,-346,11,-18,-98,-54,-330,39,193,374,735,-73,-211,175,755,-25,-354,-97,-307,-340,-712,326,52,144,63,259,-685,-191,522,89,275,18,342,555,411,14,319,182,-503,-640,316,253,639,212,564,-75,-369,-591,164,118,741,-138,264,-598,278,-385,566,-819,147,-245,208,-135,519,170,814,-728,-111,86,-6,-486,-603,472,-149,-116,292,-79,135,29,-470,413,281,-208,-164,163,310,623,380,717,-135,10,-538,138,264,-59,787,73,-759,-570,-275,62,147,-746,96,-319,-474,-7,142,467,483,-128,-216,-133,61,-633,-482,451,148,145,25,268,359,1,-22,-34,-409,4,-444,15,157,623,670,162,-151,-90,-593,179,78,-548,-791,517,241,524,598,190,-229,-581,626,879,9,469,666,-12,-420,14,-546,110,-136,-698,124,230,583,316,841,-489,692,477,-355,169,476,188,236,985,31,106,-261,-201,-661,-100,-310,437,396,95,465,-209,66,-441,-88,-21,-266,290,564,-773,69,118,-442,213,617,-763,-186,470,-582,-349,-78,-46,-354,255,-487,445,-112,92,-170,-213,51,212,-754,192,260,175,84,-683,183,101,312,117,-315,-639,26,-73,-58,530,487,-20,424,-246,134,-805,569,-245,-696,-26,-778,37,-608,-39,-792,-272,-155,224,334,-563,-479,357,688,7,221,-86,549,-766,329,-322,784,-221,543,90,524,237,618,-126,614,-139,-452,-291,-769,-29,-745,272,-507,131,221,663,595,-222,-155,36,66,-479,538,0,-670,199,-460,-155,183,-396,461,148,298,-901,-281,577,-394,-609,613,47,705,-441,-303,-247,483,616,276,-10,312,-386,-853,96,-592,141,92,110,491,135,274,-418,-645,25,-229,49,-330,49,98,-110,196,9,168,10,-445,-261,-705,247,108,94,-308,-447,-268,-22,206,244,-654,-591,410,-62,-868,926,7,42,402,-125,641,-246,-622,538,-542,91,170,223,-5,-237,-111,-243,-779,132,-25,-625,402,-623,-206,-117,214,57,174,12,-609,150,-307,-199,292,-530,-107,236,423,33,463,191,340,-553,279,52,-612,151,209,-454,-431,-180,503,-117,93,346,-357,-138,-172,213,29,177,376,-349,-53,73,330,-213,-700,332,722,-173,-448,-226,-361,-650,244,341,-27,-843,-188,128,-98,-209,103,314,659,27,9,511,153,95,98,451,670,-179,-50,855,221,-126,-16,712,218,379,-83,-74,285,-355,698,144,-850,138,264,19,-273,-485,-226,251,335,-360,618,0,591,-753,-148,162,99,-805,-402,424,406,22,-640,-356,499,28,165,133,410,-82,106,765,107,128,169,321,-60,-190,-502,78,815,-254,-296,139,315,-126,-135,471,-202,189,100,648,-136,-499,-82,-524,-496,51,-55,-46,-173,-124,103,-78,-624,256,-426,-74,138,-726,32,21,-534,-42,-428,208,340,330,-80,-102,16,-479,-109,61,105,-361,431,249,707,179,406,-397,-444,491,661,647,542,777,212,55,-26,574,574,748,186,-352,535,-85,-1,765,-10,113,221,197,659,493,168,22,157,85,63,-434,879,-49,-785,-155,388,186,871,-298,-747,555,-182,158,467,294,446,219,142,-134,268,301,-384,549,271,-91,55,484,766,137,24,145,189,-31,166,-414,678,-16,-883,-750,-333,227,89,-416,253,-245,-354,-504,568,-467,326,193,-329,-83,-374,468,762,95,352,11,797,205,5,-597,-141,-137,800,669,566,92,243,215,-293,85,552,-69,364,211,-213,-557,-196,-18,182,312,702,-791,-162,152,-12,293,-447,624,-386,226,349,-673,178,30,-279,251,117,304,242,538,-26,-395,618,-179,-444,89,509,765,-285,-684,-1,-142,-338,49,248,-380,453,-710,158,-517,554,-593,-542,263,261,-153,294,-732,0,401,815,-160,-781,316,600,-879,-63,157,-651,143,-37,-274,18,359,-403,-61,460,-196,-369,-101,133,153,509,-193,-522,682,-108,246,329,-416,-576,-86,47,-303,496,-76,-255,-39,-177,250,377,-643,-468,-393,-196,27,-321,51,92,-80,-412,174,652,-211,-505,-668,174,10,21,180,56,-158,500,599,-163,108,-305,203,12,5,-574,152,-554,-199,340,-471,422,182,96,43,-104,-322,-245,-91,-383,-568,516,224,-290,-32,109,-119,-436,110,826,244,976,-30,442,59,-787,-253,-387,796,-16,-46,592,-557,67,283,807,107,700,123,-162,-145,-496,-34,196,-159,-533,110,229,532,136,117,495,178,-485,-95,43,-227,-446,-5,-387,-519,504,7,117,687,-228,-114,-151,-73,-546,-199,-706,152,-98,302,221,-13,-164,511,458,-27,-452,217,244,-93,-782,-448,-136,-42,-249,485,53,-280,573,-89,139,-105,-732,23,-402,255,210,-38,-403,-213,-397,-63,588,-86,-177,-139,-137,-193,-486,-58,360,-641,217,409,-32,-14,149,607,-315,597,-408,185,333,-389,671,192,720,405,302,341,-16,-440,-646,-467,-740,-49,-855,299,-627,138,-78,84,-273,167,348,588,76,319,672,477,507,6,-275,641,694,-99,-90,-47,-298,-260,239,-66,-447,-101,-37,-119,-352,682,-276,351,604,-361,252,-417,-156,204,-326,-158,519,685,-186,-77,-81,213,364,-99,-585,-112,-702,641,-260,-30,-568,191,105,301,108,42,-331,8,-739,187,239,-371,974,172,262,688,8,34,-204,-393,409,-106,-304,-616,644,-134,219,-112,-507,695,246,36,-539,778,-377,-515,509,-420,-454,182,172,164,288,340,-683,174,486,18,-8,343,687,156,625,-273,-697,-447,-226,-789,-65,-97,-414,267,291,-114,-477,-592,255,-29,484,-58,318,85,28,732,396,180,24,237,383,406,-801,-45,606,104,915,-690,-167,503,98,-599,598,39,119,48,350,-107,-28,-156,185,248,534,270,268,-487,445,33,-770,241,194,323,-169,241,571,-283,-297,-494,-350,-94,-720,117,-516,-630,152,816,46,153,224,-493,-424,380,596,-31,194,-296,-79,127,603,-286,-630,231,-709,81,318,-843,-120,524,319,81,754,41,500,-503,-858,-593,581,-526,301,620,-53,-479,332,181,370,-459,-468,129,719,-358,599,303,-142,-30,100,149,372,-803,-52,498,42,172,373,-40,-10,-374,405,-164,22,745,-14,-343,-321,183,306,557,233,593,-418,368,341,137,266,35,46,-53,-700,-840,54,144,-843,-528,358,638,-137,-133,-596,605,713,170,-101,168,193,596,406,-103,-370,164,123,390,773,150,-639,141,-666,-309,-296,-490,580,-405,614,110,-44,-376,-295,553,835,-33,105,515,370,331,-683,648,19,500,62,-427,-330,215,-163,-284,744,-25,277,317,-297,-276,2,526,-656,245,50,-254,726,259,-79,145,444,759,-234,-488,458,487,275,478,137,499,-422,231,491,-896,355,20,30,-517,-120,-414,751,-588,-215,-390,701,496,-86,-108,-126,-84,132,466,70,-294,464,89,-407,-172,-448,-59,568,-189,581,569,-228,-58,-77,431,153,259,-319,-270,-440,68,192,156,372,-420,-354,-116,300,-177,-541,59,855,669,-343,-496,-503,-498,-245,367,433,-375,689,-88,-335,604,-29,-47,450,312,-616,-516,473,442,-616,96,-82,252,-25,722,525,-420,-534,-359,-669,-301,513,423,373,615,247,317,284,54,-946,-183,100,232,-215,551,-360,100,-208,341,389,-856,84,-593,542,-68,429,-75,-589,96,443,395,-616,132,115,199,437,122,289,34,425,-171,118,-385,798,-38,566,-337,-146,-70,-737,-64,-48,176,66,-29,-414,358,307,469,703,38,183,-333,67,-54,824,-31,-634,-176,313,-154,50,40,54,-403,-660,164,254,33,-438,-760,494,24,250,11,259,-63,-361,-111,207,524,42,555,-330,51,222,-217,-335,19,290,713,-572,9,228,-546,137,-98,-360,448,-271,-85,-293,-634,-297,35,562,179,184,524,635,-570,252,527,585,-389,560,551,-111,-421,746,-38,127,51,258,645,407,-54,-301,72,770,-932,-1,216,90,-100,-455,35,-151,-14,42,-593,-417,428,69,-317,-560,-555,-268,-242,-246,227,358,478,160,-253,-145,250,410,197,-393,-588,-236,789,-53,108,5,469,-133,-438,-544,-151,356,756,-223,-234,-257,-488,-479,-298,-343,-128,136,-154,-252,-826,-9,163,304,-396,-335,-241,-338,-42,53,88,294,325,614,-53,103,137,231,-324,-160,-556,475,-148,173,-191,-630,117,467,199,-55,323,236,-242,-63,-191,-243,60,578,-489,-498,433,554,137,427,-433,14,452,-597,-294,-768,-45,29,-876,3,223,75,218,127,300,-35,220,-329,317,458,-240,-577,663,454,126,-326,256,545,18,307,101,351,-588,205,-110,-127,347,77,48,-801,256,637,-300,-502,-688,608,-348,-583,-518,357,-55,517,-17,626,-359,619,150,426,-795,-132,780,443,114,265,-600,530,287,-404,-71,462,30,-789,-246,-106,-582,176,251,667,56,158,450,-466,250,694,76,-228,327,685,-861,149,631,219,-2,209,-241,185,-3,-322,105,-213,-339,316,634,-415,-185,-113,-627,-421,528,198,561,-336,-666,-106,741,-191,94,-394,-891,-199,345,325,-172,380,-190,183,10,401,237,-73,177,-10,-256,-400],"2":[417,-46,506,87,682,-47,628,174,477,490,-550,-517,266,541,-448,-477,-36,223,-14,421,340,483,628,445,-21,-178,-116,-391,-15,66,-277,722,-25,-527,-533,126,555,607,657,556,129,215,116,436,446,777,38,-652,149,455,16,556,322,-175,556,-507,-140,-722,-44,-444,372,769,159,-121,34,598,328,507,-195,-886,236,980,-437,-260,-203,79,-599,-232,190,270,-37,-389,-131,579,4,-416,-381,-227,552,715,597,526,-171,592,-226,-629,-256,-250,783,-376,104,250,-766,-334,-328,396,539,247,-424,317,-590,-458,455,-601,-259,556,-608,205,-511,-366,40,263,164,365,587,442,-225,-133,-362,195,249,-385,275,653,-668,237,-203,240,173,358,263,-672,-254,223,501,73,433,407,-65,-263,-55,-170,308,522,346,-685,60,930,4,-118,-47,-381,110,217,391,227,-76,608,524,532,-3,600,-491,443,-342,699,51,695,277,49,-159,183,-522,131,650,-443,-103,279,-662,-456,-643,187,-784,-128,375,-373,216,226,214,-398,-722,109,-66,-378,-191,-552,-505,320,237,-22,329,639,-318,-540,-5,-187,37,655,293,570,-821,-16,502,-353,-276,-44,-501,-58,-78,-35,552,-393,4,-454,-641,147,-250,-156,-590,630,-693,-108,44,256,245,-617,-30,328,-179,529,-96,-433,-573,-203,-82,111,-724,-11,158,396,-195,-519,485,-221,281,-612,176,471,-721,431,276,542,15,754,-124,120,-272,-633,119,374,81,193,-605,327,97,-182,467,499,12,-771,383,626,433,808,520,-664,-52,-415,-873,357,578,818,-80,561,658,-381,-304,-314,675,595,37,322,94,60,279,88,-75,-730,644,136,515,83,-688,140,-2,-230,195,76,-690,141,32,-783,451,-479,765,-288,-308,331,59,195,-664,142,96,227,266,-330,293,615,-208,-78,-153,-636,91,308,-309,451,196,-358,469,699,634,700,-425,739,-5,140,335,-712,-477,370,5,-578,306,337,337,370,-843,-182,242,45,139,371,107,280,528,335,-153,501,405,490,490,196,26,-351,564,177,-479,-434,-222,-716,730,588,-488,-478,358,-678,5,372,96,-163,192,291,157,172,-226,-258,-622,12,322,439,31,358,-105,315,-25,-231,187,-187,243,668,-187,-566,4,-478,-702,33,-54,-330,341,-236,109,238,23,-699,109,310,384,-64,-437,-517,-8,-275,59,201,428,-24,-374,571,-77,290,-411,601,586,39,132,322,198,372,193,695,-477,432,-619,-291,-636,397,647,432,-36,394,-487,-18,45,-615,226,50,187,520,104,95,-61,-406,-72,419,-221,-376,-186,92,836,334,497,-72,183,210,-522,349,-78,-849,-168,-480,-135,509,-694,-137,156,98,371,281,36,-651,407,-18,-602,-269,-264,12,-606,346,-35,-726,-135,-832,-460,-808,433,396,619,-29,-64,556,139,720,154,195,-409,-279,482,503,-72,-217,44,-41,-108,-871,323,783,-57,230,163,298,258,-198,-290,445,596,-654,-2,276,168,94,-333,-273,-2,-300,406,789,-665,-482,-121,336,53,200,-688,611,-647,-464,18,-549,-620,-54,346,329,-860,-11,-274,-619,-90,-339,353,-16,68,-155,284,-141,503,483,572,430,-527,-405,33,-431,-56,-187,127,302,134,858,70,-51,308,695,-116,358,-297,-356,126,-783,-132,802,616,735,-90,-625,-196,408,-590,158,362,115,164,265,-204,309,419,361,-660,553,448,524,-19,64,119,699,123,371,-163,-713,-49,-383,386,-68,767,-339,-56,436,64,167,474,414,157,-853,63,264,-29,-29,765,-261,-304,-112,240,586,-686,421,-597,263,-437,771,91,-549,-449,467,-227,-485,500,488,-216,70,453,677,-73,28,35,145,-29,-304,-698,-110,206,-25,-117,452,-231,-257,-788,322,-391,472,685,-257,-171,242,-78,39,96,-618,477,99,-579,-255,211,165,23,30,-579,548,-400,-316,-48,-776,415,-286,141,298,-409,19,55,-604,-19,278,-83,-604,474,461,-519,-517,680,-116,242,-632,102,489,-577,-775,275,648,216,208,-520,-237,153,267,668,-97,29,-207,542,-232,-393,-340,-102,584,34,-705,591,-63,-45,151,189,684,246,335,229,33,120,-92,-985,111,-396,-660,483,381,618,383,-194,-380,-217,579,41,112,162,745,103,613,508,217,317,874,29,-277,-550,315,-696,291,-349,-136,37,-292,552,-540,-449,629,213,299,-420,-439,-45,349,-63,-662,-420,-223,-187,-247,-434,-677,-12,89,127,352,229,-508,-394,225,384,430,751,-189,-88,-102,-141,-101,65,162,-49,-159,-410,-472,-58,-848,-15,75,394,-358,474,-438,592,-277,533,106,-364,484,-728,-412,-798,146,525,-66,-722,209,350,471,-258,547,227,-70,389,292,-396,177,-77,353,-368,668,-509,-723,-217,219,541,-144,584,-178,-64,-577,111,398,-346,412,300,862,162,482,-812,-47,118,363,694,-264,153,808,396,-612,-98,-506,-105,280,64,15,525,623,206,-883,381,-370,-139,-142,-731,619,20,305,-659,-439,-353,598,864,49,-390,272,317,54,45,398,-410,619,-46,372,1,-473,-220,605,-180,-341,79,-423,271,258,-5,-499,485,-476,-375,-52,77,338,616,-632,466,126,-696,1,115,755,145,299,-202,-273,-103,-335,567,-355,-39,-280,-116,170,-629,151,-104,-606,-518,-150,268,-413,58,356,-324,-481,61,61,74,323,150,-680,448,-287,188,441,10,-146,186,-244,235,-333,122,-41,274,214,-422,-664,-413,-618,117,-533,164,-238,-552,8,71,242,139,-125,-118,174,-616,652,-374,799,-307,-99,-77,457,-761,494,-3,-64,39,-443,542,211,-299,-419,566,-204,650,-141,223,454,15,111,-32,-78,-386,-874,-592,-262,180,304,271,-408,13,-254,-263,310,445,-635,-337,633,173,-289,731,379,-459,899,-277,-661,-503,325,-129,528,102,401,-537,397,-773,-95,-226,-243,-54,535,10,-410,-130,-107,-499,667,-212,576,-482,-198,-3,-200,42,-410,-162,105,185,869,-559,230,235,-72,224,434,-284,-726,-110,620,-9,270,182,415,121,731,72,577,-206,-116,549,375,235,504,172,196,-432,-214,152,433,12,-5,198,251,-199,395,-64,154,-92,116,116,260,101,310,-568,226,-985,326,240,-143,147,300,-527,426,-911,341,-101,142,308,-408,-105,85,-413,350,305,-213,133,2,-71,-19,-830,-113,126,259,-1,151,-68,-118,-275,-116,-499,302,10,402,659,693,39,-153,-595,-245,90,-242,181,423,365,10,76,-326,264,613,-408,-2,302,400,-266,-501,-13,44,25,-755,686,275,-4,273,-182,62,156,725,-35,-253,-113,-339,-155,183,180,203,82,473,-712,-351,510,-784,-310,-394,632,38,-564,256,342,599,-59,455,240,361,58,738,-807,-421,-28,-756,209,-369,437,262,495,584,-542,-496,-204,-83,387,293,326,752,554,-767,57,787,-93,-397,-211,-431,491,478,-213,809,-45,522,-313,-605,32,-37,-526,119,111,154,-90,552,446,167,284,243,-297,352,172,72,282,-437,311,666,173,380,335,-116,-399,-129,481,570,-335,412,-685,-38,-148,-714,659,301,-155,-153,-286,-433,569,435,-300,-158,-82,-307,-430,-303,145,110,-175,-557,-869,68,-868,-222,269,579,-21,297,590,-371,-195,-374,-612,-118,201,384,-108,651,88,-75,151,-338,142,275,-272,-15,-254,-68,257,-811,-265,601,478,680,-81,-684,238,387,-503,-66,-463,-530,-139,-613,-270,-399,-479,80,202,452,163,494,309,21,-824,434,-333,-470,-48,442,-728,108,29,-738,110,-286,543,163,-39,-121,313,636,-191,-485,122,165,-233,-329,-481,-129,495,-569,-430,-698,81,129,209,115,-10,414,-70,-388,-366,-153,430,679,181,681,56,77,-374,3,54,-542,-98,51,121,-309,-211,461,-129,-754,-36,830,502,275,-346,267,606,-398,-394,968,620,381,-33,398,82,-223,43,661,54,-310,545,597,-79,-795,-310,277,344,-281,-237,829,-19,-422,-55,-540,151,469,-55,110,233,510,-66,-441,-465,-154,943,-1,499,514,-69,40,641,-374,-532,408,-660,641,-422,769,110,-242,341,-111,192,-129,-536,-82,191,175,425,293,-273,552,-807,565,197,-788,-427,-47,197,-35,130,-566,119,-467,-257,703,-37,-333,-97,76,23,671,-7,337,-944,-30,228,577,38,250,125,331,76,310,632,304,499,346,3,-714,-302,-45,116,518,91,-110,-201,-423,157,-679,715,-84,102,-314,118,205,565,486,320,-414,505,496,167,463,5,-614,-58,-51,-461,-204,210,270,-59,-342,-70,-767,-503,402,-98,-146,577,-684,-5,200,-222,365,716,-105,83,-390,-562,280,49,523,357,527,-780,76,150,-637,-559,-117,-26,271,-536,-297,251,714,228,70,629,-200,162,-367,613,-469,254,174,464,-200,500,-390,-375,-309,-287,-289,-132,82,-489,265,219,639,-9,-325,239,268,129,-349,185,-483,-110,-731,-558,88,618,-16,-138,-124,-68,-402,-675,116,530,-215,556,599,-53,-51,-447,-586,154,352,-269,-751,153,164,756,-538,139,-485,-49,-507,-92,-647,49,-767,-173,-460,-370,555,64,254,125,436,-705,138,-560,473,240,354,173,821,10,60,440,169,139,-703,123,300,-795,-78,102,-269,-422,-450,-286,-260,320,130,-143,-413,56,92,19,-448,295,-30,-219,-129,-410,-421,123,-323,62,384,513,123,109,-311,80,-29,7,263,519,372,336,230,731,504,243,-75,-482,-338,-858,150,-15,887,-370,-282,-150,149,-747,145,207,451,-33,114,-901,-307,75,424,164,177,-60,584,583,-408,157,204,-241,669,87,212,-811,-50,64,-219,-924,505,-666,116,-245,-128,184,-430,-172,-236,-576,-372,-357,-757,-853,378,-752,-99,141,496,-199,-399,220,-255,9,-17,581,80,73,66,197,-21,-15,153,-617,-170,-566,-255,-637,356,63,147,-148,-931,-731,84,181,146,-548,202,203,256,228,476,219,126,464,229,44,17,465,763,-459,-746,-823,-149,-360,639,-920,18,-700,88,-141,-772,-125,198,168,9,-346,-370,326,-90,-196,541,-203,-634,170,285,-308,-714,-15,-406,-705,14,152,-160,-253,-285,-178,-460,-293,-3,633,236,261,470,-284,15,43,213,498,28,-51,-866,43,137,-508,-847,-40,26,-488,-407,-251,-347,102,33,208,447,569,-722,121,36,38,147,32,6,-514,615,210,202,185,363,-160,586,107,262,360,-548,71,-78,281,408,-788,-64,164,51,475,-95,461,-635,-310,-794,21,-427,340,-260,659,609,706,-75,-206,-275,-18,68,301,-502,156,241,623,-274,-241,-169,-951,220,169,99,-26,415,-21,488,-207,335,-106,122,-61,176,297,147,774,-390,-735,44,-457,346,72,-545,-553,-272,-155,335,-787,-115,-538,-395,63,73,343,-369,333,446,-40,-863,72,113,801,-143,-636,86,353,273,556,-106,350,302,158,227,32,-404,100,-196,-322,495,258,361,184,78,-438,676,197,68,303,401,-5,442,-105,134,-476,601,56,816,-239,-80,-14,481,-113,-692,-636,62,-450,550,-149,-817,547,283,705,-561,186,262,309,369,-122,895,334,-31,-78,-740,33,363,-150,-483,86,465,-64,310,55,289,-263,-176,-213,316,624,242,-220,-186,-99,291,554,-201,-677,336,451,754,183,13,123,622,-416,656,292,-530,-137,-511,45,343,-162,332,1,-417,380,835,58,276,151,220,13,-469,74,-62,115,-798,402,683,-56,-302,-624,-94,322,460,-47,-274,493,153,-464,268,517,-859,215,307,773,405,-859,-190,205,-137,-270,-454,241,365,-595,160,537,381,-770,-38,163,87,221,-722,12,-19,-47,280,-493,-33,796,-18,-89,-225,40,-753,-101,29,-370,-167,221,-417,-47,-132,751,1,-124,215,-120,-280,183,513,-187,433,-94,-249,-526,-366,273,593,98,531,-305,273,37,293,134,409,83,-713,645,222,-154,-70,-30,203,66,169,300,867,-115,-422,-226,-665,97,420,81,306,-818,80,239,63,-216,-257,738,73,-35,-725,-465,-3,417,-438,-83,-312,-675,-466,-349,-242,171,271,-743,-138,-617,139,503,679,-196,153,408,-93,-485,553,259,686,-57,251,-101,-59,-42,-349,283,219,-187,-365,682,30,687,219,-33,182,-535,-8,-115,-336,196,364,-204,-984,-122,-327,-238,-739,-117,-298,-73,21,-14,-305,-256,-469,-210,-122,-220,471,98,528,-765,-143,89,-39,-58,-63,37,-413,-299,-76,-786,434,172,-508,-216,272,74,895,-46,223,-134,-419,564,89,529,246,-77,-803,70,-74,91,516,461,782,523,-204,-310,63,254,-672,-385,452,-729,-92,808,16,-172,-353,-566,225,-263,-550,236,-74,-288,-28,564,-290,-41,629,-117,201,243,935,502,-91,-240,-521,203,-261,15,285,409,-574,-78,-293,-8,-533,672,512,-579,587,81,-304,-605,117,-596,-370,56,170,540,-350,287,90,-55,515,143,576,-88,535,613,-71,-494,-341,-181,-689,-487,-589,150,340,-343,502,519,384,-34,-690,61,469,106,853,-63,-261,403,773,230,650,-322,-408,-109,-647,103,251,680,4,608,-407,4,-885,-92,-476,545,-33,-552,-580,335,597,409,114,705,212,-608,282,-138,235,161,-64,-176,-682,-676,754,308,-65,776,461,-257,-321,-149,336,149,233,308,65,-257,652,-511,-155,469,55,-425,-119,127,-83,314,153,317,-527,-74,-776,-400,-345,-164,168,157,414,-294,149,-145,184,331,773,395,742,-355,-717,271,301,5,-120,416,26,35,31,302,773,-128,-314,-450,-319,215,343,-431,-325,46,175,-842,-122,310,206,90,560,18,164,183,245,-125,-619,-246,-340,16,345,434,-343,-747,136,-566,92,423,707,-534,467,-411,767,17,140,-376,714,-42,-641,125,-872,-207,66,511,281,-244,-277,-386,415,500,685,107,711,238,-677,-75,-156,-265,-809,-428,-349,46,256,-419,-53,111,1,-359,-801,58,659,457,-225,-432,880,300,125,33,865,552,640,133,337,215,-581,-764,-42,-818,555,-72,795,664,689,-901,-216],"3":[-398,-21,628,-21,-753,79,-259,95,225,-335,-114,-506,674,515,-616,-77,577,238,271,472,606,507,315,-532,190,273,481,-548,-68,52,556,356,285,-498,-271,-700,133,-566,-119,-248,570,-47,248,-102,74,377,346,746,205,164,-459,620,310,664,118,871,-72,33,64,237,125,298,-92,-685,563,-264,14,332,-213,518,303,315,-153,463,159,-48,-9,-782,-195,-766,633,-272,-717,340,139,229,-282,167,-178,-799,591,287,-131,-377,-68,-270,-509,-630,-739,101,-344,20,-136,292,112,687,-37,120,-456,468,123,288,138,-387,712,69,147,171,-77,69,310,-747,-502,-482,-489,289],"4":[161,-16,-34,99,-55,-329,141,274,-258,-47,185,-324,-37,427,-312,-292,369,88,-312,257,287,-391,209,512,-514,-209,567,-98,-435,573,-86,-565,457,413,-632,31,476,-521,-172,568,-423,-472,588,27,-498,256,130,-630,318,670,-634,-262,673,-311,-278,688,-188,-703,617,361,-707,177,352,-664,113,756,-584,-464,731,-45,-470,541,17,-766,497,568,-769,-72,517,-284,-9,683,-362,-627,679,232,-680,385],"5":[98,507,252,697,-44,-39,-457,-291,-73,-216,300,423],"6":[-208,-319,-309,-198,-274,-217,185,683,9,192,48,152]},"edges":[0,1803,1,1804,2,1805,3,1806,837,1817,1007,1821,1579,1841,122,1844,1737,1859,849,1861,1511,1864,949,1873,623,1879,757,1885,792,1886,159,1887,1598,1896,271,1904,889,1906,1419,1908,491,1911,649,1912,19,1917,1624,1918,909,1924,1293,1931,45,1963,166,1966,1771,1968,273,1977,1585,1980,760,1985,698,1989,10,2006,258,2007,372,2009,1235,2012,171,2019,308,2029,893,2035,1212,2036,1332,2038,437,2042,1391,2063,1673,2064,1026,2070,1089,2075,8,2092,945,2101,1541,2106,1367,2131,496,2137,48,2149,217,2150,927,2153,1287,2161,1418,2162,470,2167,1768,2170,1710,2180,1695,2187,1099,2190,1233,2191,549,2195,1224,2197,1328,2199,1654,2202,1363,2207,1410,2212,800,2219,1400,2225,328,2229,1425,2232,721,2247,464,2251,582,2252,467,2261,176,2287,854,2289,337,2296,748,2312,895,2325,1014,2327,1657,2333,224,2339,1093,2343,533,2346,7,2349,1263,2351,188,2354,1252,2355,452,2358,686,2366,1561,2376,776,2381,1749,2382,1540,2383,256,2385,239,2403,1411,2413,1690,2414,585,2417,357,2419,1756,2420,1652,2428,292,2439,148,2462,339,2464,913,2467,775,2473,1387,2479,230,2482,787,2483,326,2486,603,2492,627,2500,36,2504,658,2505,738,2507,772,2528,1254,2532,1640,2533,933,2541,1649,2543,565,2544,1394,2546,830,2549,53,2551,1562,2556,1357,2560,702,2564,1760,2569,249,2573,833,2582,1298,2602,1170,2612,405,2613,876,2616,1134,2623,1546,2627,1358,2647,75,2649,932,2673,1048,2689,1750,2694,26,2698,316,2708,1024,2759,121,2770,202,2775,1718,2776,901,2784,1459,2793,494,2801,747,2818,1494,2823,1745,2826,1004,2841,996,2842,1352,2861,175,2876,409,2887,18,2889,908,2893,1467,2896,935,2901,755,2915,145,2917,313,2923,382,2932,211,2933,419,2943,802,2960,1445,2962,446,2964,1670,2965,1025,2968,1460,2987,1006,2989,969,2998,1581,3009,1132,3035,38,3038,186,3043,1279,3047,1463,3052,1058,3070,1502,3089,1046,3098,1348,3099,1681,3102,595,3103,742,3105,1110,3113,2043,3134,2363,3134,3134,3201,2768,3135,3009,3135,2320,3135,2744,3135,2832,3135,2472,3135,3135,3200,3135,3210,2039,3136,3133,3136,3136,3235,1874,3137,2281,3137,3137,3206,2825,3138,2556,3138,2446,3138,2022,3138,3138,3207,3138,3202,2970,3139,2044,3139,3139,3212,2553,3140,2655,3140,3140,3234,2099,3141,2039,3141,3141,3235,2052,3142,2691,3142,2924,3142,2285,3142,3142,3239,3142,3203,2124,3143,2706,3143,2046,3143,2512,3143,3143,3198,3143,3208,2272,3144,2655,3144,3144,3234,1859,3145,2635,3145,3145,3215,2708,3146,3096,3146,3146,3200,2217,3147,2295,3147,2845,3147,3056,3147,3147,3215,3147,3232,2979,3148,2844,3148,3148,3198,2352,3149,2697,3149,3149,3226,2346,3150,2173,3150,3150,3207,2738,3151,2542,3151,3151,3225,2323,3152,2928,3152,3152,3220,2980,3153,2147,3153,3153,3199,2677,3154,2466,3154,2603,3154,2242,3154,3154,3200,3154,3210,2740,3155,2675,3155,3155,3197,2253,3156,2869,3156,3156,3203,1938,3157,1847,3157,3157,3221,2433,3158,2008,3158,3158,3200,2009,3159,2842,3159,2475,3159,2033,3159,3159,3200,3159,3232,3083,3160,2503,3160,3160,3221,2129,3161,1891,3161,3161,3229,3075,3162,2714,3162,3162,3198,1942,3163,2326,3163,3163,3200,2326,3164,1863,3164,3164,3200,2849,3165,2205,3165,3165,3212,1895,3166,1852,3166,3166,3223,2578,3167,2006,3167,3167,3203,2875,3168,2458,3168,3168,3224,3023,3169,1990,3169,3169,3200,2120,3170,2441,3170,3170,3203,1892,3171,2746,3171,3171,3197,2990,3172,2935,3172,3172,3233,3010,3173,2659,3173,3173,3225,2258,3174,2241,3174,3174,3223,2717,3175,2333,3175,3175,3240,2726,3176,2130,3176,3176,3200,2510,3177,1874,3177,3177,3206,2542,3178,2738,3178,3178,3225,2595,3179,2352,3179,3179,3226,2103,3180,2523,3180,3180,3199,2617,3181,2057,3181,3181,3199,2001,3182,2366,3182,3182,3230,2442,3183,1842,3183,1913,3183,2718,3183,3183,3200,3183,3227,3004,3184,2974,3184,3184,3201,2013,3185,1954,3185,3185,3203,3121,3186,1881,3186,3186,3229,2232,3187,2124,3187,3187,3198,2126,3188,2218,3188,3188,3232,2505,3189,1942,3189,3189,3200,3003,3190,3062,3190,1900,3190,1975,3190,3190,3205,3190,3207,2280,3191,2565,3191,3191,3231,2594,3192,2008,3192,3192,3200,2979,3193,2521,3193,3193,3198,2790,3194,3069,3194,3194,3228,2444,3195,1808,3195,3195,3230,2066,3196,1857,3196,3196,3219,3197,3245,3198,3245,3199,3244,3200,3246,3201,3244,3202,3245,3203,3245,3204,3245,3205,3243,3206,3243,3207,3245,3208,3246,3209,3245,3210,3246,3211,3245,3212,3245,3213,3245,3214,3243,3215,3245,3216,3243,3217,3245,3218,3243,3219,3245,3220,3245,3221,3246,3222,3245,3223,3245,3224,3245,3225,3245,3226,3241,3227,3245,3228,3243,3229,3246,3230,3245,3231,3245,3232,3241,3233,3245,3234,3242,3235,3243,3236,3245,3237,3242,3238,3244,3239,3245,3240,3244,3245,3247,3244,3247,3243,3248,3244,3248,3244,3249,3245,3249,3242,3250,3241,3250,3241,3251,3243,3251,3246,3252,3245,3252,0,3134,1,3134],"sessNodes":[0,1,2,3],"sessFrameNodes":{"f-00":1803,"f-01":1804,"f-02":1805,"f-03":1806},"threadNodes":[0,1,1803,1804,3134,3201,3244,3249]};
+const CONFIG = {"coach":{"name":"Flo","full_name":"Flo Akinbiyi","slug":"flo-akinbiyi","pronouns":["he","him","his"]},"session":{"other_role":"Interviewer"},"steps":{"collect":{"t":"177 sources, gathered in one place","b":"We read 152 of his LinkedIn posts and 25 of his YouTube videos, including his TEDx talk and Web Summit talk: <em>38,507 words across 1,803 lines.<\/em> In interviews we only use Flo’s own lines, never the host’s views as his. From this collection, we follow one moment from a Dubai One interview."},"transcript":{"t":"A recording becomes text","b":"The conversation is transcribed turn by turn. At first, it is simply a record of what each person said."},"speakers":{"t":"Who said what","b":"We identify Flo and Host, while keeping their words exactly as spoken. Now every moment has a speaker, a turn and a source."},"layer1":{"t":"Layer 1 · What was said","b":"The host asks <em>&ldquo;Tell me about some memorable moments when it comes to stage presence.&rdquo;<\/em> In the very next turn, Flo responds. These exact lines are the evidence for everything that follows."},"meaning":{"t":"What happened next?","b":"The host asks about stage presence. Flo doesn’t give a tip or a definition. He tells a story about a moment he created for an audience."},"cue":{"t":"What Flo does in response","b":"Asked about memorable moments, Flo answers, <em>&ldquo;So here’s a story. I was doing a workshop in Algeria…&rdquo;<\/em>"},"layer2":{"t":"Layer 2 · Flo’s response","b":"Flo answers with a story, not a rule. A CFO wanted better than average presentations, so Flo created a moment the team would never forget. The response stays linked to the exact exchange."},"layer3":{"t":"Layer 3 · The situation","b":"A team presents, but nobody remembers it. In Flo’s material this shows up as <em>presenting on stage<\/em>."},"layer4":{"t":"Layer 4 · The recurring pattern","b":"Flo comes back to this again and again in his posts and talks: how to engage an audience and leave a lasting impression."},"layer5":{"t":"Layer 5 · The coaching purpose","b":"The purpose is to move from &ldquo;an average presentation&rdquo; to &ldquo;a moment they remember&rdquo;."},"layer6":{"t":"Layer 6 · The principle","b":"<em>People won’t remember every word, but they’ll remember how you made them feel.<\/em> This is the principle behind Flo’s story."},"trace":{"t":"One exchange becomes a principle","b":"We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the exact moment Flo responded."}},"cards":{"layer1":{"cue":"Tell me about some memorable moments when it comes to stage presence.","move":"So here’s a story. I was doing a workshop in Algeria, and what happened is the CFO said, we just deliver average presentations, we want to do better. So I gave them a money gun &hellip;","foot":"Two exact lines &middot; two speakers &middot; consecutive turns"},"layer2":{"cue":"Asks about memorable moments on stage","move":"Answers with a story of a moment he created"},"layer3":{"title":"The presentation nobody remembers","text":"A team delivers average presentations and wants to do better.","foot":"Situation in his material &middot; &ldquo;presenting on stage&rdquo;"},"layer4":{"title":"Engage the audience","text":"Flo keeps coming back to how you engage an audience and leave a lasting impression.","foot":"Recurring topic &middot; the audience in 40 sources"},"layer5":{"title":"Make it memorable","text":"Create a moment the audience will remember, not just a message.","starts":"&ldquo;We just deliver average presentations&rdquo;","moves_to":"&ldquo;That’s a memorable moment&rdquo;"},"layer6":{"quote":"People won’t remember every word, but they’ll remember how you made them feel.","text":"The same idea runs through his work: <em>&ldquo;Energy is the difference between talking at an audience and moving them.&rdquo;<\/em>"}},"about":{"sources":[["LinkedIn","in/floakinbiyi","152 posts · 2026"],["YouTube","@floakinbiyi","25 videos · TEDx, Web Summit, Dubai One"]],"rows":[["Type of coach",[["Communication coach",1],["Presenter & host",1],["Keynote speaker",1],["Life coaching",0]],"from your LinkedIn headline: “International Presenter, TEDx Speaker and Communication Coach”"],["Region",[["UAE",1],["Europe",1],["UK",0],["Global",0]],"Dubai, United Arab Emirates · you work across the Middle East and Europe"],["Who you coach",[["Individuals",0],["Corporate teams",0],["Both",1]],"executive one-on-one coaching and corporate group workshops · from your LinkedIn About"],["How you deliver",[["Workshops",1],["1:1 coaching",1],["Keynotes",1],["Event hosting",1]],"the services you list on LinkedIn"],["Your topics",[["Human-First Communication",1],["Public speaking",1],["Stage fright",1],["Energy & voice",1],["Leadership communication",1]],"grouped from 44 recurring topics in your posts and videos"],["Named frameworks",[["Human-First Communication",1],["The Human Edge",1]],"the term you coined for your work, and your TEDx talk"],["Your style",[["Tells stories from his stages",1],["Energetic and expressive",1],["Keeps it simple",1],["1:1 coaching: not enough data yet",0]],"your own stages and life in 36 sources · energy in 34 · “simple” in 18 · no recorded coaching sessions yet, so start calibration to see how you coach 1:1"]]},"dos":[["put human connection first","Frequent pattern · human-first in 27 sources"],["bring the energy, about 20% more than feels natural","Video · “use 20 percent more energy”"],["breathe consciously before you speak","Video · three techniques to combat stage fright"],["know your content inside out","Video · “be obsessed with your content”"],["break complicated topics into simple ideas","Video · “Keep it simple. That is the key.”"],["create a moment the audience will remember","Dubai One interview · memorable moments"]],"donts":[["say good luck before someone speaks; give a mantra","Post · “Strong and free”"],["use the resting face; smile","Video · what’s wrong with the resting face"],["read from a script; use a few keywords","Post · “Great notes are a few keywords”"],["hand your voice over to AI","Post · “The biggest risk of AI”"]],"personas":[],"mobile":true,"words":{},"about_lead":"","dd_lead":"Flo's twin follows these in every answer. They come from patterns that run through his posts and talks."};
+</script>
+<script>
+(() => {
+const S = STORY, CF = CONFIG, T = S.totals, TH = S.thread, sess = S.session, L = sess.lines;
+const NM = CF.coach.name, [HE, HIM, HIS] = CF.coach.pronouns;
+const WD = Object.assign({coaching: 'coaching', Coaching: 'Coaching', coaches: 'coaches'}, CF.words || {});
+const $ = s => document.querySelector(s);
+const fmt = n => n.toLocaleString('en-US');
+const css = getComputedStyle(document.documentElement);
+const C = {}; for (let l = 1; l <= 6; l++) C[l] = css.getPropertyValue('--l' + l).trim();
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const day = d => d ? `${+d.slice(8, 10)} ${MON[+d.slice(5, 7) - 1]} ${d.slice(0, 4)}` : '—';
+const kb = b => Math.max(1, Math.round(b / 1e3)) + ' KB';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const lineOf = id => L.find(l => l.id === id);
+const cueL = lineOf(TH.cueLine), moveL = lineOf(TH.moveLine);
+const NAMES = ['', 'Lines', 'Moves', 'Situations', 'Topics', 'Phases', 'Beliefs'];
+const KIND = {youtube: ['YouTube video', 'yt', 'YouTube'], linkedin: ['LinkedIn post', 'li', 'LinkedIn'], web: ['Web page', 'wb', 'Website'],
+  medium: ['Medium article', 'wb', 'Medium'], doc: ['Document', 'wb', 'Documents'], recording: ['Recording', 'lm', 'Recordings'],
+  instagram: ['Instagram post', 'ig', 'Instagram'], twitter: ['Post on X', 'tw', 'X']};
+
+/* ================= the states ================= */
+const P = CF.steps;
+const CH = ['Collect', 'Read', 'Follow', 'Understand', 'About you', 'Do’s & Don’ts'];
+const STATES = [
+  {ch: -1},
+  {ch: 0, ...P.collect, stat: [T.conversations, `sources · ${(T.words / 1e6).toFixed(1)}m words`]},
+  {ch: 1, ...P.transcript},
+  {ch: 1, ...P.speakers},
+  {ch: 1, ...P.layer1, stat: [T.actions, 'lines spoken or written'], lvl: 1},
+  {ch: 2, ...P.meaning, stat: [S.frames.length, `frames from these ${L.length} lines`]},
+  {ch: 2, ...P.cue},
+  {ch: 3, ...P.layer2, stat: [T.frames, `substantive lines by ${NM}`], lvl: 2},
+  {ch: 3, ...P.layer3, stat: [T.tactics, 'situations'], lvl: 3},
+  {ch: 3, ...P.layer4, stat: [T.scenes, 'recurring topics'], lvl: 4},
+  {ch: 3, ...P.layer5, stat: [T.phases, WD.coaching + ' purposes'], lvl: 5},
+  {ch: 3, ...P.layer6, stat: [T.beliefs, 'principles'], lvl: 6},
+  {ch: 3, ...P.trace, lvl: 7},
+  {ch: 4, ab: true},
+  {ch: 5, fd: true},
+];
+const N = STATES.length, ST_L1 = STATES.findIndex(s => s.lvl === 1), ST_L2 = STATES.findIndex(s => s.lvl === 2);
+const ST_FR = ST_L1 + 1, ST_CUE = ST_L1 + 2;
+
+/* ================= build the DOM ================= */
+document.title = `How ${NM}'s Twin Learns`;
+$('#hdr').innerHTML = `Twin-memory · <b>From ${esc(NM)}'s words to a ${WD.coaching} principle</b>`;
+$('#hero-h').innerHTML = `How ${esc(NM)}'s twin<br><i>learns</i>`;
+$('#hero-p').textContent = `Start with what was said. Follow what ${NM} does next, the situation ${HE} recognizes, and the principle behind ${HIS} response.`;
+
+const stage = $('#stage');
+const rail = $('#rail');
+CH.forEach((name, c) => {
+  const el = document.createElement('div'); el.className = 'ch';
+  el.innerHTML = `<span>${pad(c + 1)} ${name}</span><span class="dots">${
+    STATES.map((s, i) => s.ch === c ? `<i data-i="${i}" class="hit"></i>` : '').join('')}</span>`;
+  rail.appendChild(el);
+});
+
+// finder list: every source, oldest first; the session is selected
+const files = S.files;
+const selIdx = files.findIndex(f => f.sel);
+const kinds = [...new Set(files.map(f => f.k))];
+$('#side').innerHTML = `<h6>Favourites</h6><div class="on"><i class="fi"></i>${esc(CF.coach.slug)}</div>
+  <h6 style="margin-top:14px">Sources</h6>${kinds.map(k => `<div><i class="fi"></i>${(KIND[k] || KIND.doc)[2]}</div>`).join('')}`;
+$('#lrows').innerHTML = files.map(f => { const K = KIND[f.k] || KIND.doc;
+  return `<div class="lrow"><span class="nm"><i class="badge ${K[1]}"></i>${esc(f.n)}</span><span class="kd">${K[0]}</span><span class="dt">${day(f.d)}</span><span class="sz">${kb(f.s)}</span></div>`; }).join('');
+
+// transcript
+const keyLines = new Set([TH.cueLine, TH.moveLine]);
+$('#doc').innerHTML = `<div class="fm">---\ntitle: '${esc(sess.title)}'\ndate: '${sess.date}'\nturns: ${sess.turns}\n---</div>` +
+  L.map(l => `<div class="ln${keyLines.has(l.id) ? ' key' : ''}" data-id="${l.id}">
+    <div class="rh"><span class="h">### </span>${l.ts} · ${l.raw}</div>
+    <div class="row"><span class="ts">${l.ts}</span><span class="who ${l.coach ? 'o' : 's'}">${esc(l.who)}</span><span class="txt"><span class="r">${esc(l.text)}</span><span class="c">${esc(l.text)}</span></span></div></div>`).join('');
+
+// frames
+$('#frames').innerHTML = `<div class="plabel">Frames · <b style="color:var(--l2)">what each line meant</b></div>` +
+  S.frames.map(f => `<div class="fc${f.id === TH.cue || f.id === TH.move ? ' key' : ''}"><span class="k">${f.kind}${f.id === TH.cue ? '<em>cue</em>' : f.id === TH.move ? `<em>${esc(NM)}’s move</em>` : ''}</span>${esc(f.span)}</div>`).join('');
+
+// layer cards (copy is trusted HTML from the config)
+const K = CF.cards;
+$('#cards').innerHTML = `
+  <div class="card" id="c1"><div class="lv" style="color:var(--l1)">Layer 1 · What was said</div>
+    <dl class="pair"><dt>${esc(sess.other)}</dt><dd class="q">“${K.layer1.cue}”</dd><dt>${esc(NM)}</dt><dd class="q">“${K.layer1.move}”</dd></dl>
+    <div class="foot">${K.layer1.foot || `${day(sess.date)} · ${cueL.ts} and ${moveL.ts} · stored word for word`}</div></div>
+  <div class="card" id="c2"><div class="lv" style="color:var(--l2)">Layer 2 · What ${esc(NM)} does</div>
+    <dl class="pair"><dt>${esc(CF.session.other_role)}</dt><dd>${K.layer2.cue}</dd><dt>${esc(NM)}</dt><dd>${K.layer2.move}</dd></dl>
+    <div class="foot">The response stays linked to the exact exchange</div></div>
+  <div class="card" id="c3"><div class="lv" style="color:var(--l3)">Layer 3 · The situation</div><h3>${K.layer3.title}</h3><p>${K.layer3.text}</p>
+    <div class="foot">${K.layer3.foot}</div></div>
+  <div class="card" id="c4"><div class="lv" style="color:var(--l4)">Layer 4 · The recurring pattern</div><h3>${K.layer4.title}</h3><p>${K.layer4.text}</p>
+    <div class="foot">${K.layer4.foot}</div></div>
+  <div class="card" id="c5"><div class="lv" style="color:var(--l5)">Layer 5 · The ${WD.coaching} purpose</div><h3>${K.layer5.title}</h3><p>${K.layer5.text}</p>
+    <dl class="pair" style="margin-top:14px"><dt>Starts</dt><dd>${K.layer5.starts}</dd><dt>Moves to</dt><dd>${K.layer5.moves_to}</dd></dl>
+    <div class="foot">Why ${esc(NM)}’s reply matters</div></div>
+  <div class="card" id="c6"><div class="lv" style="color:var(--l6)">Layer 6 · The ${WD.coaching} principle</div><blockquote>“${K.layer6.quote}”</blockquote><p>${K.layer6.text}</p>
+    <div class="foot">Derived from the recorded pattern</div></div>`;
+
+const LG = ['What was said', `What ${NM} does`, 'The situation', 'Recurring pattern', WD.Coaching + ' purpose', 'Derived principle'];
+$('#legend').innerHTML = `<div class="plabel">This exchange, layer by layer</div>` + [6, 5, 4, 3, 2, 1].map((l, i) =>
+  `<div class="lg" style="transition-delay:${.1 + i * .08}s"><i style="background:${C[l]}"></i><span>L${l} ${esc(LG[l - 1])}</span></div>`).join('');
+
+// about you
+const A = CF.about;
+$('#ab').innerHTML = `<div class="lead">
+    <div class="kick">05 · About you</div>
+    <h1>Where we found you</h1>
+    <p>${CF.about_lead || 'Your twin starts from what you have already shared in public.'}</p>
+    <div class="found">${A.sources.map(([k, where, meta]) => `<div><b>${k}</b> ${where}<em>✓</em><small>${meta}</small></div>`).join('')}</div>
+  </div>
+  <div class="page">
+    <h2>Here’s who we think you are</h2>
+    <p class="what">From your ${(n => n.length > 1 ? n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1] : n[0])(A.sources.map(s => s[0]))}. Tap to correct anything.</p>
+    <div class="sheet">${A.rows.map(([label, opts, ev]) => `<div class="row"><span>${label}</span><div class="chips">${
+      opts.map(([v, on]) => `<button type="button" class="chip" aria-pressed="${!!on}">${v}</button>`).join('')}<span class="ev">${ev}</span></div></div>`).join('')}</div>
+  </div>`;
+
+// do's & don'ts (optionally one set per persona, e.g. a professor who also teaches Sanskrit chanting)
+const PERS = (CF.personas && CF.personas.length) ? CF.personas : [{label: '', dd_lead: CF.dd_lead, dos: CF.dos, donts: CF.donts}];
+const ddRow = (kind, [text, meta]) => `<div class="dd-row ${kind}"><i>${kind === 'do' ? '✓' : '✕'}</i><div><p><b>${kind === 'do' ? 'Do' : 'Don’t'}</b> ${text}</p><small>${meta}</small></div></div>`;
+function showPersona(k) {
+  const P = PERS[k];
+  $('#dd-lead').innerHTML = P.dd_lead || CF.dd_lead;
+  $('#dd-count').innerHTML = `<div><b>${P.dos.length}</b><span>Do’s</span></div><div><b>${P.donts.length}</b><span>Don’ts</span></div>`;
+  const tabs = PERS.length > 1 ? `<div class="ptabs" role="tablist">${PERS.map((q, n) =>
+    `<button type="button" class="ptab" role="tab" data-p="${n}" aria-selected="${n === k}">${esc(q.label)}</button>`).join('')}</div>` : '';
+  $('#fdpage').innerHTML = `<article class="on">
+  <h2>How ${esc(NM)} ${WD.coaches}</h2>${tabs}
+  <div class="dd-cols">
+    <section><div class="dd-head do"><i>✓</i> Do’s <small>how ${HIS} twin behaves</small></div>${P.dos.map(x => ddRow('do', x)).join('')}</section>
+    <section><div class="dd-head dont"><i>✕</i> Don’ts <small>lines ${HIS} twin never crosses</small></div>${P.donts.map(x => ddRow('dont', x)).join('')}</section>
+  </div>
+</article>`;
+}
+showPersona(0);
+
+/* ================= the layered space ================= */
+const FLOOR = {1: 1.0, 2: .84, 3: .68, 4: .52, 5: .36, 6: .2}, FY = l => -1 + (l - 1) * .4;
+const counts = {}, off = {}; let NN = 0;
+for (let l = 1; l <= 6; l++) { counts[l] = S.floors[l].length / 2; off[l] = NN; NN += counts[l]; }
+const X = new Float32Array(NN), Y = new Float32Array(NN), Z = new Float32Array(NN), LAY = new Uint8Array(NN);
+for (let l = 1; l <= 6; l++) {
+  const f = S.floors[l], w = FLOOR[l];
+  for (let k = 0; k < counts[l]; k++) { const i = off[l] + k; X[i] = f[2 * k] / 1000 * w; Z[i] = f[2 * k + 1] / 1000 * w; Y[i] = FY(l); LAY[i] = l; }
+}
+// draw order: a shuffle per layer, so a floor fills evenly as it appears
+const ORDER = {};
+for (let l = 1; l <= 6; l++) {
+  const a = new Uint32Array(counts[l]); for (let k = 0; k < a.length; k++) a[k] = off[l] + k;
+  for (let k = a.length - 1; k > 0; k--) { const j = (Math.random() * (k + 1)) | 0; const t = a[k]; a[k] = a[j]; a[j] = t; }
+  ORDER[l] = a;
+}
+const EDGE = {};                               // links grouped by the upper layer they reach
+for (let k = 0; k < S.edges.length; k += 2) { const a = S.edges[k], b = S.edges[k + 1], l = LAY[b]; (EDGE[l] ||= []).push(a, b); }
+const SN = S.sessNodes;                        // the lines we followed, in transcript order
+const SF = S.frames.map(f => ({node: S.sessFrameNodes[f.id], from: SN[L.findIndex(l => l.id === f.from.at(-1))]}));
+const thr = S.threadNodes;                     // [line cue, line move, frame cue, frame move, situation, topic, phase, belief]
+const thrEdges = [[thr[0], thr[2]], [thr[1], thr[3]], [thr[2], thr[4]], [thr[3], thr[4]], [thr[4], thr[5]], [thr[5], thr[6]], [thr[6], thr[7]]];
+const PX = new Float32Array(NN), PYs = new Float32Array(NN);
+const LBL = i => { const l = LAY[i], k = i - off[l]; return l === 3 ? S.labels.tactics[k] : l === 4 ? S.labels.scenes[k] : l === 5 ? S.labels.phases[k] : l === 6 ? S.labels.beliefs[k] : ''; };
+
+/* ================= animated values ================= */
+const V = {}, TG = {};
+const val = (k, v) => { V[k] = TG[k] = v; };
+[['ry', .55], ['rx', .62], ['zoom', .82], ['ty', -1], ['cx', 790], ['cy', 520], ['spin', 0], ['thrA', 0]].forEach(([k, v]) => val(k, v));
+for (let l = 1; l <= 6; l++) { val('L' + l, 0); val('E' + l, 0); }
+let rot = 0, drag = 0, cur = -1, thrUpTo = 0, cardLevel = 0, fly = null, flyF = null, wiresLeft = 0;
+
+/* ================= layout ================= */
+const cv = $('#cv'), ctx = cv.getContext('2d');
+let W = 0, H = 0, DPR = 1, KS = 1, OX = 0, OY = 0, KD = 1, M = false;
+const sx = x => OX + x * KS, sy = y => OY + y * KS;
+const HINT = $('#hint').innerHTML;
+// media queries, not innerWidth: a phone zooms out to fit the 1600px slide, which inflates innerWidth
+const MQ = matchMedia('(orientation: portrait) and (max-width: 899px)'), MQR = matchMedia('(orientation: landscape) and (max-height: 499px)');
+function fit() {
+  // phones: a portrait column (opt-in per coach); a phone held sideways is asked to turn upright
+  M = !!CF.mobile && MQ.matches;
+  document.body.classList.toggle('m', M);
+  document.body.classList.toggle('rot', !!CF.mobile && MQR.matches);
+  W = innerWidth; H = innerHeight; DPR = Math.min(2, devicePixelRatio || 1);
+  cv.width = W * DPR; cv.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  $('#hint').innerHTML = M ? '<span id="mback" class="hit">← Back</span><span>Tap to continue</span>' : HINT;
+  $('#go').textContent = M ? 'Tap to begin →' : 'Click to begin →';
+  if (M) { camM(0); wiresLeft = 0; return; }
+  KS = Math.min(W / 1600, H / 900); KD = KS; OX = (W - 1600 * KS) / 2; OY = (H - 900 * KS) / 2;
+  stage.style.transform = `translate(${OX}px,${OY}px) scale(${KS})`;
+  wiresLeft = 30;
+}
+// phones: fit the layered space into the free part of the visual area (above a card or the legend), easing as it changes
+function camM(dt) {
+  const v = $('#vis').getBoundingClientRect(), panel = ['#cards', '#legend'].map(s => $(s)).find(el => el.classList.contains('on'));
+  const top = v.top + 6, bottom = panel ? panel.getBoundingClientRect().top - 10 : v.bottom - 6, h = Math.max(120, bottom - top);
+  const ks = Math.min(W / 860, h / 560), ox = W / 2 - 800 * ks, oy = top + h / 2 - 470 * ks;
+  const k = dt ? 1 - Math.exp(-dt * 5) : 1;
+  KS += (ks - KS) * k; OX += (ox - OX) * k; OY += (oy - OY) * k; KD = Math.max(KS, .62);
+}
+
+/* ================= state application ================= */
+const cls = (sel, c, on) => $(sel).classList.toggle(c, !!on);
+// camera per layer: start low and close on the dense floors, rise with each layer, end on the whole
+const CAM = {1: [.62, .82, -1.0, 790, 520], 2: [.44, .8, -.78, 790, 530], 3: [.4, .78, -.52, 790, 520], 4: [.37, .76, -.28, 790, 505],
+             5: [.4, .76, -.05, 790, 490], 6: [.44, .74, .12, 790, 470], 7: [.5, .7, 0, 840, 470]};
+function go(i) {
+  i = Math.max(0, Math.min(N - 1, i)); if (i === cur) return;
+  const prev = cur; cur = i; const st = STATES[i], now = performance.now();
+  // the lines drop from the transcript onto the floor
+  fly = null;
+  if (i === ST_L1 && prev === ST_L1 - 1)
+    fly = {t0: now, from: [...document.querySelectorAll('.ln')].map(el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r.width, r.height]; })};
+  flyF = null;
+  if (i === ST_L2 && prev === ST_CUE)
+    flyF = {t0: now, from: [...document.querySelectorAll('.fc')].map(el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r.width, r.height]; })};
+
+  cls('#hero', 'out', i > 0);
+  const cap = $('#cap');
+  cap.classList.add('out');
+  if (i > 0 && !st.fd && !st.ab) setTimeout(() => {
+    if (cur !== i) return;
+    $('#kick').textContent = `${pad(st.ch + 1)} · ${CH[st.ch]}`;
+    $('#title').innerHTML = st.t; $('#body').innerHTML = st.b; cap.classList.remove('out');
+  }, 380);
+  if (st.stat) { countTo(st.stat[0]); $('#unit').textContent = st.stat[1]; }
+  cls('#stat', 'hide', !st.stat);
+  $('#hint').style.opacity = i === N - 1 ? 0 : 1;
+  document.body.classList.toggle('final', st.lvl === 7);
+  cls('#fd', 'on', st.fd);
+  cls('#ab', 'on', st.ab);
+  document.querySelectorAll('#rail .ch').forEach((el, c) => { el.classList.toggle('on', c === st.ch); el.classList.toggle('done', c < st.ch); });
+  document.querySelectorAll('#rail i').forEach(el => { const k = +el.dataset.i; el.classList.toggle('on', k === i); el.classList.toggle('done', k < i); });
+
+  // ----- the window
+  const win = $('#win');
+  const shown = i >= 1 && i < ST_L1 || i === ST_FR || i === ST_CUE;
+  win.classList.toggle('show', shown);
+  win.classList.toggle('gone', !shown && i > 0);
+  win.classList.toggle('narrow', i === ST_FR || i === ST_CUE);
+  $('#side').style.cssText = i <= 1 ? '' : 'width:0;padding:14px 0;opacity:0';
+  cls('#list', 'on', i === 1); cls('#docs', 'on', i >= 2);
+  $('#wtitle').textContent = i <= 1 ? CF.coach.slug : `${sess.date} · ${sess.title}.md`;
+  $('#status').textContent = i >= 2 ? `${sess.kind} · ${day(sess.date)}` : '';
+  if (i === 1) runList(); else listAnim++;
+  const doc = $('#doc');
+  doc.classList.toggle('clean', i >= 3); doc.classList.toggle('focus', i === ST_CUE);
+
+  // ----- right panels
+  cls('#frames', 'on', i === ST_FR || i === ST_CUE); cls('#frames', 'focus', i === ST_CUE);
+  for (let l = 1; l <= 6; l++) cls('#c' + l, 'on', st.lvl === l);
+  cls('#cards', 'on', st.lvl >= 1 && st.lvl <= 6);
+  cls('#legend', 'on', st.lvl === 7);
+  wiresLeft = 100;
+
+  // ----- canvas targets
+  const lv = st.lvl || 0, t = TG;
+  for (let l = 1; l <= 6; l++) { t['L' + l] = lv && l <= lv ? 1 : 0; t['E' + l] = lv && l <= lv && l > 1 ? 1 : 0; }
+  t.thrA = lv ? 1 : 0; thrUpTo = Math.min(lv, 6); cardLevel = lv >= 1 && lv <= 6 ? lv : 0;
+  t.spin = lv === 7 ? .07 : lv ? .02 : 0;
+  if (lv) { const [rx, zoom, ty, cx, cy] = CAM[lv]; Object.assign(t, {rx, zoom, ty, cx, cy}); }
+}
+
+let numCur = 0, numAnim = 0;
+function countTo(v) {
+  const from = numCur, t0 = performance.now(), id = ++numAnim;
+  const tick = now => {
+    if (id !== numAnim) return;
+    const p = Math.min(1, (now - t0) / 1100), e = 1 - Math.pow(1 - p, 3);
+    numCur = Math.round(from + (v - from) * e); $('#num').textContent = fmt(numCur);
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* the list scrolls through every source, then selects our session */
+let listAnim = 0;
+function runList() {
+  const rows = $('#lrows'), id = ++listAnim, t0 = performance.now();
+  rows.querySelectorAll('.sel').forEach(r => r.classList.remove('sel'));
+  const target = Math.max(0, Math.min(selIdx * 26 - 300, files.length * 26 - 556)), dur = 3600;
+  rows.style.transform = 'translateY(0)';
+  const tick = now => {
+    if (id !== listAnim || cur !== 1) return;
+    const p = Math.min(1, (now - t0) / dur), e = p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+    rows.style.transform = `translateY(${-e * target}px)`;
+    if (p < 1) requestAnimationFrame(tick);
+    else setTimeout(() => id === listAnim && rows.children[selIdx].classList.add('sel'), 250);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* wires: transcript lines -> frame cards */
+function wires() {
+  const svg = $('#wires'), fr = $('#frames'), on = cur === ST_FR || cur === ST_CUE;
+  const lineBox = {};
+  document.querySelectorAll('.ln').forEach(el => { const r = el.getBoundingClientRect(); lineBox[el.dataset.id] = ((r.top + r.bottom) / 2 - OY) / KS; });
+  const cards = [...fr.querySelectorAll('.fc')], frTop = 100;
+  let y = 0;
+  const pos = cards.map((el, k) => {
+    const h = el.offsetHeight || 54, a = lineBox[S.frames[k].from.at(-1)];
+    const want = a !== undefined ? a - frTop - h / 2 : y;
+    y = Math.max(want, y); const top = y; y += h + 6; return {top, h};
+  });
+  const over = y - 765;
+  if (over > 0) pos.forEach((p, k) => p.top -= over * k / Math.max(1, pos.length - 1));
+  cards.forEach((el, k) => { el.style.top = pos[k].top + 'px'; el.style.transitionDelay = (on && cur === ST_FR ? .25 + k * .1 : 0) + 's'; });
+  if (!svg.childElementCount) S.frames.forEach(f => f.from.forEach(() => svg.appendChild(document.createElementNS('http://www.w3.org/2000/svg', 'path'))));
+  let n = 0;
+  cards.forEach((el, k) => {
+    const f = S.frames[k], key = f.id === TH.cue || f.id === TH.move, ty = frTop + pos[k].top + pos[k].h / 2, tx = 1120;
+    f.from.forEach(id => {
+      const p = svg.children[n++], a = lineBox[id]; if (a === undefined) return;
+      const x0 = 1072, mx = (x0 + tx) / 2;
+      p.setAttribute('d', `M${x0},${a} C${mx},${a} ${mx},${ty} ${tx},${ty}`);
+      p.setAttribute('class', `wire${on ? ' on' : ''}${cur === ST_CUE ? (key ? ' key' : ' dim') : ''}`);
+      p.style.transitionDelay = (on && cur === ST_FR ? .35 + k * .1 : 0) + 's';
+    });
+  });
+}
+
+/* ================= canvas ================= */
+function project(x, y, z, out) {
+  const ry = rot + V.ry + drag, rx = V.rx, s = KS * 380 * V.zoom;
+  y -= V.ty;
+  const cy = Math.cos(ry), sy_ = Math.sin(ry), cx = Math.cos(rx), sx_ = Math.sin(rx);
+  const x1 = x * cy + z * sy_, z1 = -x * sy_ + z * cy;
+  const y2 = y * cx - z1 * sx_, z2 = y * sx_ + z1 * cx;
+  const p = 3.4 / (3.4 + z2);
+  out[0] = sx(V.cx) + x1 * p * s; out[1] = sy(V.cy) - y2 * p * s;
+  return out;
+}
+const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${n >> 8 & 255},${n & 255},${a})`; };
+const ease = t => t <= 0 ? 0 : t >= 1 ? 1 : t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const pt = [0, 0];
+const DOT = {1: 1.1, 2: 1.3, 3: 2.3, 4: 4, 5: 5.4, 6: 6};
+const ALPHA = {1: .5, 2: .55, 3: .8, 4: .9, 5: .9, 6: .95};
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  for (const k in TG) {
+    const rate = k[0] === 'L' ? 1.1 : k[0] === 'E' ? 1.4 : 2.6;
+    V[k] += (TG[k] - V[k]) * (1 - Math.exp(-dt * rate));
+  }
+  rot += dt * V.spin;
+  if (M) camM(dt);
+  else if (wiresLeft > 0) { wiresLeft--; wires(); }
+  ctx.clearRect(0, 0, W, H);
+  if ([1, 2, 3, 4, 5, 6].some(l => V['L' + l] > .005)) drawLayers(now);
+  requestAnimationFrame(frame);
+}
+
+function drawLayers(now) {
+  for (let l = 1; l <= 6; l++) {
+    if (V['L' + l] < .005) continue;
+    for (let i = off[l], e = off[l] + counts[l]; i < e; i++) { project(X[i], Y[i], Z[i], pt); PX[i] = pt[0]; PYs[i] = pt[1]; }
+  }
+  // floors
+  for (let l = 1; l <= 6; l++) {
+    const a = Math.min(1, V['L' + l] * 1.5); if (a < .01) continue;
+    const w = FLOOR[l], y = FY(l), cs = [[-w, -w], [w, -w], [w, w], [-w, w]].map(([x, z]) => project(x, y, z, [0, 0]));
+    ctx.beginPath(); cs.forEach((p, k) => k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath();
+    ctx.fillStyle = rgba(C[l], .04 * a); ctx.fill(); ctx.strokeStyle = rgba(C[l], .28 * a); ctx.lineWidth = 1; ctx.stroke();
+    const right = cs.reduce((m, p) => p[0] > m[0] ? p : m);
+    ctx.fillStyle = rgba(C[l], .9 * a); ctx.font = `600 ${M ? 9 : 10.5 * KS}px 'IBM Plex Mono',monospace`;
+    const lbl = `L${l} · ${NAMES[l].toUpperCase()}`, lx = right[0] + 12 * KD;
+    ctx.fillText(lbl, M ? Math.min(lx, W - 4 - ctx.measureText(lbl).width) : lx, right[1] + 4 * KD);
+  }
+  // links up into each layer, one path per layer
+  for (let l = 2; l <= 6; l++) {
+    const a = V['E' + l] * Math.min(V['L' + l], V['L' + (l - 1)]); if (a < .01 || !EDGE[l]) continue;
+    const E = EDGE[l], n = Math.floor(E.length / 2 * Math.min(1, a * 1.2));
+    ctx.strokeStyle = rgba(C[l], (l >= 5 ? .2 : l === 4 ? .13 : .07) * a); ctx.lineWidth = l >= 4 ? .8 : .5;
+    ctx.beginPath();
+    for (let k = 0; k < n; k++) { const p = E[2 * k], q = E[2 * k + 1]; ctx.moveTo(PX[p], PYs[p]); ctx.lineTo(PX[q], PYs[q]); }
+    ctx.stroke();
+  }
+  // atoms: each floor fills in as it appears
+  for (let l = 1; l <= 6; l++) {
+    const v = V['L' + l]; if (v < .005) continue;
+    const ord = ORDER[l], n = Math.floor(ord.length * Math.min(1, v * 1.15)), r = DOT[l] * KD;
+    ctx.fillStyle = rgba(C[l], ALPHA[l] * (cardLevel && cardLevel - l >= 2 ? .45 : 1));
+    if (l <= 3) for (let k = 0; k < n; k++) { const i = ord[k]; ctx.fillRect(PX[i] - r / 2, PYs[i] - r / 2, r, r); }
+    else {
+      ctx.strokeStyle = rgba(C[l], .3);
+      for (let k = 0; k < n; k++) {
+        const i = ord[k]; ctx.beginPath(); ctx.arc(PX[i], PYs[i], r, 0, 6.283); ctx.fill();
+        ctx.beginPath(); ctx.arc(PX[i], PYs[i], r + 3 * KD, 0, 6.283); ctx.stroke();
+      }
+    }
+  }
+  drawSession(now);
+  drawThread(now);
+}
+
+// the session's lines (and their frames) stay lit, so the eye can follow them
+function drawSession(now) {
+  const a1 = V.L1; if (a1 < .01) return;
+  SN.forEach((i, k) => {
+    let x = PX[i], y = PYs[i];
+    if (fly) {
+      const p = ease((now - fly.t0 - k * 55) / 1500), f = fly.from[k];
+      if (p < 1) {
+        x = f[0] + (x - f[0]) * p; y = f[1] + (y - f[1]) * p;
+        const w = f[2] + (5 * KD - f[2]) * p, h = f[3] + (5 * KD - f[3]) * p;
+        ctx.fillStyle = rgba(C[1], .16 + .5 * p); ctx.strokeStyle = rgba(C[1], .8); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(x - w / 2, y - h / 2, w, h, Math.min(7, h / 2)); ctx.fill(); ctx.stroke();
+        return;
+      }
+    }
+    ctx.fillStyle = rgba('#f6d48a', a1); ctx.beginPath(); ctx.arc(x, y, 2.6 * KD, 0, 6.283); ctx.fill();
+  });
+  if (V.L2 < .01) return;
+  SF.forEach((f, k) => {
+    let x = PX[f.node], y = PYs[f.node];
+    if (flyF) {
+      const p = ease((now - flyF.t0 - k * 55) / 1500), r = flyF.from[k];
+      if (p < 1) {
+        x = r[0] + (x - r[0]) * p; y = r[1] + (y - r[1]) * p;
+        const w = r[2] + (5 * KD - r[2]) * p, h = r[3] + (5 * KD - r[3]) * p;
+        ctx.fillStyle = rgba(C[2], .16 + .5 * p); ctx.strokeStyle = rgba(C[2], .85); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(x - w / 2, y - h / 2, w, h, Math.min(8, h / 2)); ctx.fill(); ctx.stroke();
+        return;
+      }
+    }
+    ctx.strokeStyle = rgba(C[2], .6 * V.L2); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(PX[f.from], PYs[f.from]); ctx.lineTo(x, y); ctx.stroke();
+    ctx.fillStyle = rgba('#9fe3da', V.L2); ctx.beginPath(); ctx.arc(x, y, 2.6 * KD, 0, 6.283); ctx.fill();
+  });
+}
+
+function drawThread(now) {
+  if (V.thrA < .02) return;
+  const pulse = .75 + .25 * Math.sin(now / 420), flying = (fly && now - fly.t0 < 2300) || (flyF && now - flyF.t0 < 2300);
+  ctx.lineWidth = 2 * KD;
+  for (const [a, b] of thrEdges) {
+    const lb = LAY[b]; if (lb > thrUpTo) continue;
+    const al = Math.min(V['L' + LAY[a]], V['L' + lb]) * V.thrA * (flyF && lb >= 2 ? ease((now - flyF.t0 - 1500) / 700) : 1);
+    ctx.strokeStyle = rgba('#f3ead9', .85 * al);
+    ctx.beginPath(); ctx.moveTo(PX[a], PYs[a]); ctx.lineTo(PX[b], PYs[b]); ctx.stroke();
+  }
+  for (const i of thr) {
+    const l = LAY[i]; if (l > thrUpTo || (flying && l === thrUpTo)) continue;
+    const al = V['L' + l] * V.thrA, big = l >= 4;
+    ctx.fillStyle = rgba(C[l], al); ctx.beginPath(); ctx.arc(PX[i], PYs[i], (big ? 7 : 4.5) * KD, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = rgba('#f3ead9', .95 * al); ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(PX[i], PYs[i], (big ? 11 : 9) * KD * pulse, 0, 6.283); ctx.stroke();
+  }
+  // leaders from this layer's thread atoms to its card
+  if (cardLevel && !flying) {
+    const r = $('#c' + cardLevel).getBoundingClientRect();
+    ctx.strokeStyle = rgba(C[cardLevel], .75 * V.thrA); ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+    thr.filter(i => LAY[i] === cardLevel).forEach((i, k) => {
+      ctx.beginPath(); ctx.moveTo(PX[i] + (M ? 0 : 10 * KS), PYs[i] + (M ? 10 * KD : 0));
+      if (M) ctx.lineTo(r.left + r.width * (.3 + k * .4), r.top - 6); else ctx.lineTo(r.left - 8, r.top + (cardLevel <= 2 ? 56 + k * 74 : 26) * KS);
+      ctx.stroke();
+    });
+    ctx.setLineDash([]);
+  }
+}
+
+/* ================= input ================= */
+let down = null, moved = false;
+addEventListener('pointerdown', e => { down = {x: e.clientX, d: drag}; moved = false; });
+addEventListener('pointermove', e => {
+  if (down && Math.abs(e.clientX - down.x) > 5 && STATES[cur].lvl) { moved = true; drag = down.d + (e.clientX - down.x) * .006; }
+  hover(e);
+});
+addEventListener('pointerup', e => {
+  const was = down; down = null;
+  if (!was || moved) return;
+  const dot = e.target.closest && e.target.closest('#rail i');
+  if (dot) { go(+dot.dataset.i); return; }
+  if (e.target.closest && e.target.closest('#mback, #fd .keys')) { go(cur - 1); return; }
+  const ptab = e.target.closest && e.target.closest('#fd .ptab');
+  if (ptab) { showPersona(+ptab.dataset.p); return; }
+  const chip = e.target.closest && e.target.closest('#ab .chip');
+  if (chip) { chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true')); return; }
+  if (STATES[cur].fd) return;                  // reading the last page: clicks do not advance
+  go(cur + 1);
+});
+addEventListener('keydown', e => {
+  if (['ArrowRight', ' ', 'Enter', 'PageDown'].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+  if (['ArrowLeft', 'Backspace', 'PageUp'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+  if (e.key === 'Home') go(0);
+});
+const tip = $('#tip');
+function hover(e) {
+  if (M || STATES[cur].lvl !== 7 || down) { tip.style.opacity = 0; return; }
+  let best = -1, bd = 12 * 12;
+  for (let i = off[3]; i < NN; i++) { const dx = PX[i] - e.clientX, dy = PYs[i] - e.clientY, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = i; } }
+  if (best < 0) { tip.style.opacity = 0; return; }
+  const l = LAY[best];
+  tip.innerHTML = `<small style="color:${C[l]}">L${l} · ${NAMES[l]}</small>${esc(LBL(best))}`;
+  tip.style.left = Math.min(W - 380, e.clientX + 16) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; tip.style.opacity = 1;
+}
+addEventListener('resize', fit);
+MQ.addEventListener && MQ.addEventListener('change', fit);
+fit(); requestAnimationFrame(fit);
+go(+location.hash.slice(1) || 0);
+addEventListener('hashchange', () => go(+location.hash.slice(1) || 0));
+requestAnimationFrame(frame);
+if (document.fonts) document.fonts.ready.then(() => { wiresLeft = 30; });
+})();
+</script>
+</body>
+</html>
