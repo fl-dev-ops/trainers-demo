@@ -120,8 +120,8 @@ export const FLO_AKINBIYI = {
   starterInRoom: true,
   firstName: 'Flo',
   initials: 'FA',
-  face: '/media/flo-akinbiyi-headshot-v2.jpg',
-  portrait: '/media/flo-akinbiyi-portrait-v2.jpg',
+  face: '/media/flo-akinbiyi-headshot.jpg',
+  portrait: '/media/flo-akinbiyi-portrait.jpg',
   room: {
     kind: 'Ask me anything · Demo',
     title: 'Ask about speaking and connecting',
