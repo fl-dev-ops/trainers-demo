@@ -7,6 +7,8 @@ export const TWIN = {
   demo: 'https://www.loom.com/share/5d5335a668de4abebec06d4c2271f7d0',
   poster: '/media/olga-intro-poster.jpg',
   face: '/media/olga-face.jpg',
+  // The agent answers the welcome-page starter as the first message (needs starter_reply in agents.json).
+  starterInRoom: true,
 }
 
 export const JAMEEL = {
@@ -148,6 +150,8 @@ export const SCENARIOS = [
     initials: 'P',
     participant: 'Priya · Agent · AI',
     quote: '“He said, ‘Just send me some options.’ I sent three. Now… nothing.”',
+    // What the agent says to the twin when this row is clicked (sent as the first message).
+    ask: 'My client said, just send me some options. I sent three. Now nothing.',
     scenario: 'Priya sent options after a good call. The investor went quiet. She asks you what went wrong.',
     cues: [
       'Tell her what happened',
@@ -163,6 +167,7 @@ export const SCENARIOS = [
     initials: 'I',
     participant: 'Investor · AI',
     quote: '“I\'ll wait for prices to drop.”',
+    ask: 'My client says he’ll wait for prices to drop.',
     scenario: 'An investor expects a 30% drop and wants to wait.',
     cues: [
       "Don't argue with the market",
@@ -171,6 +176,23 @@ export const SCENARIOS = [
     ],
   },
 ]
+
+/* "Ask me anything" on Olga's page: the live room shows this instead of a role play. */
+export const OLGA_AMA = {
+  id: 'ama',
+  title: 'Ask me anything',
+  tag: 'Your clients · Your objections',
+  initials: 'Y',
+  participant: 'You · Agent',
+  quote: 'Ask me anything',
+  ask: '',
+  scenario: 'Ask Olga’s twin about any client objection or difficult conversation.',
+  cues: [
+    'Tell her what your client said, word for word',
+    'Share what you said before it',
+    'Ask what you could say next',
+  ],
+}
 
 /* Sources for Jameel and Prathosh, from fl-dev-ops/trainertwin-lore (users/<id>/data). */
 JAMEEL.sourceSummary = '184 videos · 235 Shorts · 825 LinkedIn posts'

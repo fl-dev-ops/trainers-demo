@@ -3,7 +3,7 @@
 import { useCallback, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { SCENARIOS, TWIN } from '@/data.js'
+import { OLGA_AMA, SCENARIOS, TWIN } from '@/data.js'
 import MadeFrom from '@/components/MadeFrom.jsx'
 import SourcesDrawer from '@/components/SourcesDrawer.jsx'
 import RemoveDialog from '@/components/RemoveDialog.jsx'
@@ -44,11 +44,17 @@ export default function Welcome() {
           </article>
 
           <article className="path">
-            <div className="peek peek--rps">
-              <span className="peek-k">{SCENARIOS.length} role plays from your videos</span>
+            <div className="peek peek--rps peek--wrap">
+              <span className="peek-k">Ask your twin</span>
               <div className="rprows">
+                <Link href={{ pathname: '/olga/live', query: { s: OLGA_AMA.id, mode: 'ama' } }} className="rprow" aria-label="Ask me anything">
+                  <span className="cl" aria-hidden="true">{OLGA_AMA.initials}</span>
+                  <span className="q">{OLGA_AMA.quote}</span>
+                  <img className="tw" src={TWIN.face} alt="" />
+                  <span className="pl" aria-hidden="true"><Play /></span>
+                </Link>
                 {SCENARIOS.map((s) => (
-                  <Link key={s.id} href={`/olga/live?s=${s.id}`} className="rprow" aria-label={'Start the role play: ' + s.title}>
+                  <Link key={s.id} href={{ pathname: '/olga/live', query: { s: s.id, q: s.ask } }} className="rprow" aria-label={'Ask: ' + s.title}>
                     <span className="cl" aria-hidden="true">{s.initials}</span>
                     <span className="q">{s.quote}</span>
                     <img className="tw" src={TWIN.face} alt="" />
