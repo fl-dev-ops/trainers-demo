@@ -9,7 +9,7 @@ const QUESTIONS = [
   'I keep feeling like I’ll be found out. What do I do?',
 ]
 
-const ROLEPLAY_URL = 'https://dash.trainertwin.216.48.181.196.nip.io/agents/the-one-to-one-you-keep-putting-off-liam-team-lead-bevan-bro'
+const ROLEPLAY_URL = 'https://dash.roleplay.foreverlearning.in/agents/the-one-to-one-you-keep-putting-off-liam-team-lead-bevan-bro'
 
 const SITUATION = 'Liam is an AI persona. He is the lead engineer at a 15-person software startup and one of its first hires. The person he is talking to is the founder. For months, the founder has been re-checking Liam’s work and quietly redoing parts of it. Because of this, Liam has stopped taking initiative and now waits to be told what to do. One decision Liam could have made himself has been on hold until the founder got round to it. Today is their weekly one-to-one. Liam starts by saying everything is fine.'
 
