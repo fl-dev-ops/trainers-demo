@@ -48,6 +48,12 @@ export default function Welcome() {
             <div className="peek peek--rps peek--wrap">
               <span className="peek-k">Ask a question</span>
               <div className="rprows">
+                <Link href={{ pathname: '/bevan-broadbent/live', query: { mode: 'ama' } }} className="rprow" aria-label="Ask me anything">
+                  <span className="cl" aria-hidden="true">Y</span>
+                  <span className="q">Ask me anything</span>
+                  <img className="tw" src={BEVAN_BROADBENT.face} alt="" />
+                  <span className="pl" aria-hidden="true"><Play /></span>
+                </Link>
                 {QUESTIONS.map((q) => (
                   <Link key={q} href={{ pathname: '/bevan-broadbent/live', query: { q } }} className="rprow" aria-label={'Ask: ' + q}>
                     <span className="cl" aria-hidden="true">Y</span>
