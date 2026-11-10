@@ -1,0 +1,935 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How a Coach's Twin Learns</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#151310; --ink:#ece5d8; --dim:#a89e8c; --faint:#6f6759; --line:#37322a; --line2:#4a443a;
+  --l1:#e2a93b; --l2:#4fa9a0; --l3:#d4746a; --l4:#9a86c9; --l5:#8fae62; --l6:#c94f33;
+  --ease:cubic-bezier(.65,0,.25,1);
+  --serif:'Fraunces',Georgia,serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --sys:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--serif)}
+body{cursor:pointer;user-select:none;-webkit-user-select:none}
+body.final{cursor:grab}
+canvas#cv{position:fixed;inset:0;width:100vw;height:100vh;display:block}
+#stage{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0;pointer-events:none}
+#stage *{pointer-events:none}
+#stage .hit{pointer-events:auto}
+svg#wires{position:absolute;inset:0;width:1600px;height:900px;overflow:visible}
+
+/* ---------- header & chapter rail */
+header{position:absolute;left:60px;right:60px;top:34px;display:flex;align-items:center;justify-content:space-between;
+  font:500 11px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+header b{color:var(--l1);font-weight:600}
+#rail{display:flex;gap:28px}
+#rail .ch{display:flex;flex-direction:column;gap:9px;align-items:flex-start;transition:color .5s}
+#rail .ch.on{color:var(--ink)}
+#rail .ch.done{color:var(--dim)}
+#rail .dots{display:flex;gap:5px}
+#rail .dots i{width:6px;height:6px;border-radius:50%;background:var(--line2);transition:background .4s,transform .4s}
+#rail .dots i.done{background:var(--dim)}
+#rail .dots i.on{background:var(--l1);transform:scale(1.35)}
+#hint{position:absolute;left:60px;bottom:34px;font:500 10.5px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--faint);transition:opacity .6s}
+#hint kbd{font:inherit;color:var(--dim);border:1px solid var(--line2);border-radius:4px;padding:3px 6px;margin:0 2px}
+
+/* ---------- narrative column */
+#cap{position:absolute;left:60px;top:150px;width:390px;transition:opacity .45s}
+#cap.out{opacity:0}
+#cap .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin-bottom:22px}
+#cap h1{font-weight:380;font-size:38px;line-height:1.12;letter-spacing:-.01em;margin-bottom:22px;font-variation-settings:'opsz' 96}
+#cap p{font-size:18px;line-height:1.55;color:var(--dim);font-weight:330}
+#cap p em{color:var(--ink);font-style:italic}
+#stat{position:absolute;left:60px;bottom:96px;width:390px;transition:opacity .5s}
+#stat .num{font:300 64px/1 var(--serif);letter-spacing:-.02em;font-variation-settings:'opsz' 144;font-variant-numeric:tabular-nums}
+#stat .unit{font:500 11px/1.6 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-top:12px}
+#stat.hide{opacity:0}
+
+/* hero */
+#hero{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:opacity .8s,transform 1.1s var(--ease)}
+#hero .kick{font:500 12px/1 var(--mono);letter-spacing:.3em;text-transform:uppercase;color:var(--l1);margin-bottom:30px}
+#hero h1{font-weight:320;font-size:88px;line-height:1.02;letter-spacing:-.025em;font-variation-settings:'opsz' 144}
+#hero h1 i{color:var(--l1);font-weight:300}
+#hero p{margin-top:30px;font-size:21px;line-height:1.55;color:var(--dim);max-width:640px;font-weight:330}
+#hero .go{margin-top:46px;font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--faint)}
+#hero.out{opacity:0;transform:translateY(-30px) scale(.98)}
+
+/* ---------- the window: Finder -> transcript */
+#win{position:absolute;left:540px;top:120px;width:1000px;height:660px;border-radius:12px;background:#1d1c1b;
+  border:1px solid #3a3835;box-shadow:0 40px 90px rgba(0,0,0,.55),0 0 0 .5px rgba(255,255,255,.04) inset;
+  overflow:hidden;font-family:var(--sys);color:#e6e3de;
+  transition:left 1s var(--ease),top 1s var(--ease),width 1s var(--ease),height 1s var(--ease),opacity .7s,transform 1.1s var(--ease);
+  opacity:0;transform:translateY(40px) scale(.96)}
+#win.show{opacity:1;transform:none}
+#win.narrow{left:500px;top:96px;width:570px;height:772px}
+#win.gone{opacity:0;transition:opacity .35s}
+.tbar{height:46px;display:flex;align-items:center;gap:16px;padding:0 16px;background:#2a2927;border-bottom:1px solid #3a3835}
+.lights{display:flex;gap:8px}.lights i{width:12px;height:12px;border-radius:50%;background:#ff5f57}
+.lights i:nth-child(2){background:#febc2e}.lights i:nth-child(3){background:#28c840}
+.navb{color:#77736d;font-size:17px;letter-spacing:10px}
+.wtitle{font-weight:600;font-size:13.5px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.views{display:flex;gap:2px;background:#353330;border-radius:6px;padding:2px}
+.views i{width:28px;height:20px;border-radius:4px;display:block;position:relative}
+.views i.on{background:#55524d}
+.views i::after{content:'';position:absolute;left:9px;top:5px;width:10px;height:10px;border:1.5px solid #aaa49c;border-radius:2px}
+.views i:nth-child(2)::after{border-width:1.5px 0;height:3px;top:5px;box-shadow:0 4px 0 0 #aaa49c}
+.wbody{position:absolute;top:46px;bottom:26px;left:0;right:0;display:flex}
+.side{width:190px;flex:none;background:#242321;border-right:1px solid #33312e;padding:14px 10px;font-size:12.5px;transition:width .9s var(--ease),padding .9s var(--ease),opacity .5s;overflow:hidden;white-space:nowrap}
+.side h6{font-size:10.5px;font-weight:600;color:#7c7872;margin:6px 8px 6px}
+.side div{padding:5px 8px;border-radius:6px;display:flex;align-items:center;gap:8px;color:#d8d4ce;transition:background .4s}
+.side div.on{background:#3a3835}
+.side .fi{width:15px;height:11px;border-radius:2px;background:#5da6ec;position:relative;flex:none}
+.side .fi::before{content:'';position:absolute;left:0;top:-2px;width:6px;height:3px;border-radius:2px 2px 0 0;background:#5da6ec}
+.pane{flex:1;position:relative;overflow:hidden}
+.pane>section{position:absolute;inset:0;transition:opacity .6s,transform .8s var(--ease);opacity:0;transform:translateY(12px)}
+.pane>section.on{opacity:1;transform:none}
+.status{position:absolute;bottom:0;left:0;right:0;height:26px;border-top:1px solid #33312e;background:#242321;font-size:11px;color:#8b8780;display:flex;align-items:center;justify-content:center}
+
+/* icon view */
+.icons{display:flex;gap:70px;padding:120px 60px;justify-content:center}
+.folder{width:150px;text-align:center;font-size:14px;opacity:0;transform:translateY(16px) scale(.9);transition:opacity .6s,transform .7s var(--ease)}
+.on .folder{opacity:1;transform:none}
+.on .folder:nth-child(2){transition-delay:.15s}
+.ficon{width:130px;height:100px;margin:0 auto 14px;position:relative}
+.ficon::before{content:'';position:absolute;left:0;top:0;width:54px;height:18px;border-radius:8px 8px 0 0;background:#4b8fd6}
+.ficon::after{content:'';position:absolute;left:0;top:10px;right:0;bottom:0;border-radius:5px 9px 9px 9px;background:linear-gradient(#78b8f5,#5a9ee6)}
+.ficon i{position:absolute;z-index:1;left:50%;top:50px;transform:translateX(-50%)}
+.folder small{display:block;color:#8b8780;font-size:12px;margin-top:5px}
+
+/* list view */
+.lhead,.lrow{display:grid;grid-template-columns:1fr 130px 110px 70px;gap:12px;padding:0 18px;align-items:center}
+.lhead{height:30px;font-size:11px;font-weight:600;color:#8b8780;border-bottom:1px solid #33312e;background:#1d1c1b;position:relative;z-index:1}
+.lrows{position:absolute;top:30px;left:0;right:0;will-change:transform}
+.lrow{height:26px;font-size:12.5px;white-space:nowrap;transition:background .4s,color .4s}
+.lrow:nth-child(even){background:#232220}
+.lrow .nm{overflow:hidden;text-overflow:ellipsis;display:flex;gap:9px;align-items:center}
+.lrow .kd,.lrow .dt,.lrow .sz{color:#8b8780;font-size:11.5px}
+.lrow .sz{text-align:right}
+.badge{width:16px;height:12px;border-radius:3px;flex:none;position:relative;display:block}
+.badge.yt{background:#e5443b}.badge.yt::after{content:'';position:absolute;left:6px;top:3px;border-left:5px solid #fff;border-top:3px solid transparent;border-bottom:3px solid transparent}
+.badge.lm{background:#7a5af5}.badge.lm::after{content:'';position:absolute;left:4px;top:3px;width:6px;height:6px;border-radius:50%;border:1.5px solid #fff}
+.ficon .badge{width:30px;height:22px;border-radius:5px}
+.ficon .badge.yt::after{left:11px;top:6px;border-left-width:9px;border-top-width:5px;border-bottom-width:5px}
+.ficon .badge.lm::after{left:8px;top:4px;width:11px;height:11px;border-width:2px}
+.badge.li{background:#0a66c2}.badge.li::after{content:'in';position:absolute;left:3px;top:0;font:700 8px/12px var(--sys);color:#fff}
+.badge.wb{background:#6c8a5a}.badge.wb::after{content:'';position:absolute;left:4px;top:2px;width:6px;height:6px;border-radius:50%;border:1.5px solid #fff}
+.lrow.sel{background:#2f5fb3!important;color:#fff}
+.lrow.sel .kd,.lrow.sel .dt,.lrow.sel .sz{color:#dfe8fa}
+
+/* document view */
+.doc{padding:16px 22px 16px 18px;font-size:13.5px;line-height:1.42}
+.fm{font:12px/1.6 var(--mono);color:#8b8780;white-space:pre;overflow:hidden;max-height:120px;transition:max-height .9s var(--ease),opacity .6s,margin .9s var(--ease);margin-bottom:12px}
+.doc.clean .fm{max-height:0;opacity:0;margin:0}
+.ln{position:relative;padding:4px 8px 4px 8px;border-radius:7px;transition:background .5s,box-shadow .5s,opacity .5s;margin-bottom:2px}
+.rh{font:12px/1.5 var(--mono);color:#9a958d;max-height:20px;overflow:hidden;transition:max-height .8s var(--ease),opacity .5s}
+.rh .h{color:#6c6862}
+.row{display:flex;gap:10px;align-items:baseline}
+.ts{font:11px/1 var(--mono);color:#77736d;width:0;overflow:hidden;opacity:0;flex:none;transition:width .8s var(--ease),opacity .6s}
+.who{font:600 10.5px/1 var(--sys);letter-spacing:.04em;text-transform:uppercase;width:0;overflow:hidden;opacity:0;flex:none;transition:width .8s var(--ease),opacity .6s;padding-top:1px}
+.who.o{color:var(--l1)}.who{white-space:nowrap}.who.s{color:#9fb8d6}
+.txt{flex:1;font:12.5px/1.5 var(--mono);color:#cfcac2}
+.txt .c{display:none}.doc.clean .txt .r{display:none}.doc.clean .txt .c{display:inline}
+.doc.clean .rh{max-height:0;opacity:0}
+.doc.clean .ts{width:46px;opacity:1}
+.doc.clean .who{width:54px;opacity:1}
+.doc.clean .txt{font:13.4px/1.4 var(--sys);color:#ece8e2}
+.doc.focus .ln{opacity:.32}
+.doc.focus .ln.key{opacity:1;box-shadow:inset 0 0 0 1px rgba(226,169,59,.75);background:rgba(226,169,59,.1)}
+
+/* ---------- right column panels */
+.rpanel{position:absolute;left:1120px;top:110px;width:420px;opacity:0;transform:translateX(30px);transition:opacity .6s,transform .9s var(--ease)}
+.rpanel.on{opacity:1;transform:none}
+.plabel{font:500 10.5px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin-bottom:16px}
+
+/* frames */
+#frames{top:100px;height:760px}
+#frames .plabel{position:absolute;top:-28px}
+.fc{position:absolute;left:0;width:420px;padding:6px 11px 7px 12px;border-radius:8px;background:#1b211f;border:1px solid rgba(79,169,160,.35);
+  font-size:12.8px;line-height:1.32;color:#dbeee9;font-weight:340;opacity:0;transform:translateX(24px);transition:opacity .5s,transform .7s var(--ease),border-color .5s,background .5s,box-shadow .5s}
+.fc .k{display:inline;font:600 9px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--l2);margin-right:8px}
+.fc .k em{font-style:normal;color:var(--l1);margin-left:8px}
+#frames.on .fc{opacity:1;transform:none}
+#frames.focus .fc{opacity:.25}
+#frames.focus .fc.key{opacity:1;border-color:var(--l2);background:#1d2a27;box-shadow:0 0 30px rgba(79,169,160,.18)}
+.wire{fill:none;stroke:var(--l2);stroke-width:1.2;opacity:0;transition:opacity .6s}
+.wire.on{opacity:.45}
+.wire.dim{opacity:.08}
+.wire.key{opacity:.95;stroke-width:1.8}
+
+/* layer cards */
+#cards{top:150px}
+.card{position:absolute;left:0;top:0;width:420px;padding:22px 24px 22px;border-radius:12px;background:rgba(32,29,24,.94);border:1px solid var(--line2);
+  opacity:0;transform:translateY(16px);transition:opacity .55s,transform .8s var(--ease);backdrop-filter:blur(6px)}
+.card.on{opacity:1;transform:none;transition-delay:.35s}
+.card .lv{font:600 10px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;margin-bottom:14px}
+.card h3{font-weight:400;font-size:23px;line-height:1.22;margin-bottom:12px;font-variation-settings:'opsz' 72}
+.card p{font-size:15px;line-height:1.5;color:var(--dim);font-weight:330}
+.card .pair{display:grid;grid-template-columns:62px 1fr;gap:10px 12px;margin-top:6px}
+.card .pair dt{font:600 9.5px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.card .pair dd{font-size:15px;line-height:1.45;color:var(--ink);font-weight:340}
+.card .pair dd.q{font-style:italic}
+.card .foot{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font:500 10px/1.6 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.card blockquote{font-size:20px;line-height:1.38;font-weight:360;color:var(--ink);margin:4px 0 14px;font-style:italic}
+
+/* finale legend */
+#legend{top:170px;left:1270px;width:290px}
+.lg{display:grid;grid-template-columns:14px 1fr auto;gap:12px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line);opacity:0;transform:translateX(14px);transition:opacity .5s,transform .7s var(--ease)}
+#legend.on .lg{opacity:1;transform:none}
+.lg i{width:9px;height:9px;border-radius:50%;display:block;transform:translateY(-1px)}
+.lg span{font:500 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.lg b{font:300 26px/1 var(--serif);font-variant-numeric:tabular-nums}
+#tip{position:fixed;max-width:360px;padding:9px 12px;border-radius:8px;background:rgba(21,19,16,.95);border:1px solid var(--line2);font-size:14px;line-height:1.4;color:var(--ink);pointer-events:none;opacity:0;transition:opacity .15s;z-index:5}
+#tip small{display:block;font:600 9.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px}
+/* ---------- findings: a docs page, one layer per page */
+#fd{position:absolute;left:60px;right:60px;top:96px;bottom:34px;display:grid;grid-template-columns:280px 1fr;gap:56px;
+  opacity:0;visibility:hidden;transform:translateY(16px);transition:opacity .6s,transform .9s var(--ease),visibility 0s .6s;cursor:default}
+#fd.on{opacity:1;visibility:visible;transform:none;transition:opacity .6s .2s,transform .9s var(--ease) .2s,visibility 0s}
+#stage #fd,#stage #fd *{pointer-events:auto}
+#fd .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin:24px 0 20px}
+#fd .lead h1{font-weight:380;font-size:32px;line-height:1.14;margin-bottom:16px;font-variation-settings:'opsz' 96}
+#fd .lead p{font-size:15px;line-height:1.55;color:var(--dim);font-weight:330}
+#fd nav{margin-top:30px;border-top:1px solid var(--line)}
+#fd nav a{display:grid;grid-template-columns:12px 1fr;gap:12px;align-items:center;padding:14px 10px;border-bottom:1px solid var(--line);
+  cursor:pointer;color:var(--dim);transition:background .3s,color .3s}
+#fd nav a:hover{background:rgba(255,255,255,.03);color:var(--ink)}
+#fd nav a.on{background:rgba(255,255,255,.05);color:var(--ink)}
+#fd nav a i{width:9px;height:9px;border-radius:50%}
+#fd nav a span{font:500 11px/1.35 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+#fd nav a b{font:600 9px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:5px 7px;border-radius:4px;border:1px solid currentColor;opacity:.85}
+#fd .keys{margin-top:18px;font:500 10px/1.6 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+#fd .page{overflow-y:auto;padding:24px 36px 40px 0;scrollbar-width:thin;scrollbar-color:var(--line2) transparent}
+#fd article{display:none;max-width:920px}
+#fd article.on{display:block;animation:fdin .5s var(--ease)}
+@keyframes fdin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#fd .lv{font:600 10.5px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;margin-bottom:16px}
+#fd h2{font-weight:380;font-size:40px;line-height:1.1;margin-bottom:14px;font-variation-settings:'opsz' 120;display:flex;align-items:center;gap:18px}
+#fd h2 b{font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;padding:7px 10px;border-radius:5px;border:1px solid currentColor}
+#fd .what{font-size:19px;line-height:1.5;color:var(--dim);font-weight:330;max-width:760px}
+#fd .what em{color:var(--ink)}
+#fd .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:30px 0 8px}
+#fd .nums div{border-top:1px solid var(--line2);padding-top:14px}
+#fd .nums strong{display:block;font:300 40px/1 var(--serif);font-variant-numeric:tabular-nums;font-variation-settings:'opsz' 144}
+#fd .nums small{display:block;margin-top:10px;font:500 10px/1.5 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+#fd h4{font:600 10.5px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--faint);margin:38px 0 14px}
+#fd .how{font-size:16px;line-height:1.6;color:var(--ink);font-weight:340;max-width:800px}
+#fd .how code,#fd li code,#fd .ex code{font:12.5px var(--mono);color:var(--l1);background:rgba(226,169,59,.08);padding:1px 5px;border-radius:4px}
+#fd .exs{display:grid;gap:12px}
+#fd .ex{padding:16px 18px;border-radius:10px;background:rgba(32,29,24,.9);border:1px solid var(--line2);border-left-width:3px}
+#fd .ex.good{border-left-color:var(--l5)}#fd .ex.bad{border-left-color:var(--l6)}
+#fd .ex .tag{font:600 9.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;margin-bottom:10px}
+#fd .ex.good .tag{color:var(--l5)}#fd .ex.bad .tag{color:#e0715a}
+#fd .ex q{display:block;font-size:17px;line-height:1.42;font-style:italic;color:var(--ink);font-weight:350;quotes:'“' '”'}
+#fd .ex p{margin-top:9px;font-size:14px;line-height:1.5;color:var(--dim);font-weight:330}
+#fd .ex p q{display:inline;font-size:14px;color:#d8d0c2}
+#fd ul{list-style:none;display:grid;gap:10px;max-width:820px}
+#fd li{position:relative;padding-left:22px;font-size:16px;line-height:1.5;color:var(--ink);font-weight:340}
+#fd li::before{content:'';position:absolute;left:2px;top:10px;width:7px;height:7px;border-radius:50%;background:#e0715a}
+#fd li strong{font-weight:560}
+#fd .todo{margin-top:34px;padding:18px 20px;border-radius:10px;border:1px dashed var(--line2);font-size:16px;line-height:1.55;color:var(--ink);font-weight:340}
+#ab{position:absolute;left:60px;right:60px;top:96px;bottom:34px;display:grid;grid-template-columns:280px 1fr;gap:56px;
+  opacity:0;visibility:hidden;transform:translateY(16px);transition:opacity .6s,transform .9s var(--ease),visibility 0s .6s;cursor:default}
+#ab.on{opacity:1;visibility:visible;transform:none;transition:opacity .6s .2s,transform .9s var(--ease) .2s,visibility 0s}
+#stage #ab,#stage #ab *{pointer-events:auto}
+#ab .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin:24px 0 20px}
+#ab .lead h1{font-weight:380;font-size:32px;line-height:1.14;margin-bottom:16px;font-variation-settings:'opsz' 96}
+#ab .lead p{font-size:15px;line-height:1.55;color:var(--dim);font-weight:330}
+#ab .found{margin-top:26px;border-top:1px solid var(--line)}
+#ab .found div{padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;line-height:1.35}
+#ab .found b{font-weight:520}#ab .found em{font-style:normal;color:var(--l5);float:right}
+#ab .found small{display:block;margin-top:4px;font:500 9.5px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+#ab .page{padding-top:24px}
+#ab h2{font-weight:380;font-size:40px;line-height:1.1;margin-bottom:10px;font-variation-settings:'opsz' 120}
+#ab .what{font-size:17px;line-height:1.5;color:var(--dim);font-weight:330}
+#ab .sheet{max-width:1080px;margin-top:22px;padding:4px 24px;border-radius:12px;border:1px solid var(--line2);background:rgba(32,29,24,.9)}
+#ab .row{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--line)}
+#ab .row:last-child{border-bottom:0}
+#ab .row>span{font:600 10px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+#ab .chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#ab .chip{font:400 14px/1 var(--serif);color:var(--dim);padding:8px 13px;border-radius:999px;border:1px solid var(--line2);background:transparent;cursor:pointer;transition:all .2s}
+#ab .chip:hover{color:var(--ink);border-color:var(--dim)}
+#ab .chip[aria-pressed=true]{color:#1b1712;background:var(--l1);border-color:var(--l1);font-weight:500}
+#ab .ev{flex-basis:100%;margin-top:4px;font:500 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+#fd .todo span{display:block;font:600 10px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--l5);margin-bottom:10px}
+
+/* ---------- source badges for the other kinds */
+.badge.ig{background:#c13584}.badge.ig::after{content:'';position:absolute;left:4px;top:2px;width:6px;height:6px;border-radius:2px;border:1.5px solid #fff}
+.badge.tw{background:#3a3a3a}.badge.tw::after{content:'X';position:absolute;left:4px;top:0;font:700 8px/12px var(--sys);color:#fff}
+/* ---------- do's & don'ts page */
+#fd .principle-count{margin-top:20px;border-top:1px solid var(--line);padding-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#fd .principle-count b{display:block;font:300 56px/1 var(--serif);color:var(--ink)}
+#fd .principle-count span{display:block;margin-top:10px;font:500 10px/1.5 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+#fd .ptabs{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line2);border-radius:999px;margin:2px 0 4px}
+#fd .ptab{font:500 13px/1 var(--serif);color:var(--dim);padding:9px 16px;border-radius:999px;border:0;background:transparent;cursor:pointer;transition:all .2s}
+#fd .ptab:hover{color:var(--ink)}
+#fd .ptab[aria-selected=true]{color:#1b1712;background:var(--l1);font-weight:600}
+#fd .dd-cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:18px;max-width:1080px}
+#fd .dd-head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;font-size:19px;font-weight:450}
+#fd .dd-head small{font-size:13.5px;color:var(--dim);font-weight:330}
+#fd .dd-head.do i{color:var(--l5);font-style:normal}#fd .dd-head.dont i{color:#e0715a;font-style:normal}
+#fd .dd-row{display:grid;grid-template-columns:22px 1fr;gap:12px;padding:10px 16px;margin-bottom:8px;border:1px solid var(--line2);border-radius:10px;background:rgba(32,29,24,.9)}
+#fd .dd-row>i{font-style:normal;font-size:15px;line-height:1.4}
+#fd .dd-row.do>i{color:var(--l5)}#fd .dd-row.dont>i{color:#e0715a}
+#fd .dd-row p{font-size:15.5px;line-height:1.4;color:var(--ink);font-weight:340}
+#fd .dd-row p b{font-weight:600}
+#fd .dd-row small{display:block;margin-top:6px;font:500 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+#fd .keys{cursor:pointer}
+
+/* ---------- phones (config `mobile: true`): one portrait column instead of the scaled 16:9 slide */
+#vis,#mback,#rot{display:none}
+body.m{touch-action:none}
+body.m canvas#cv{width:100%;height:100%}
+body.m #stage{width:100%;height:100%;transform:none!important;padding:0 18px;display:grid;grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto minmax(0,1fr) auto auto auto;grid-template-areas:'hd' 'vis' 'st' 'cap' 'ft'}
+body.m #vis{display:block;grid-area:vis}
+body.m header{grid-area:hd;position:relative;left:auto;right:auto;top:auto;padding:max(16px,env(safe-area-inset-top)) 0 12px;font-size:10px}
+body.m #hdr{display:none}
+body.m #rail{gap:12px;width:100%;justify-content:space-between}
+body.m #rail .ch{gap:7px}
+body.m #rail .ch>span:first-child{display:none}
+body.m #rail .dots{gap:6px}
+body.m #rail .dots i{width:7px;height:7px}
+body.m header{min-height:44px}
+/* hero */
+body.m #hero{padding:0 26px}
+body.m #hero .kick{font-size:10px;letter-spacing:.24em;margin-bottom:22px;line-height:1.6}
+body.m #hero h1{font-size:52px}
+body.m #hero p{font-size:17px;margin-top:22px}
+body.m #hero .go{margin-top:34px}
+/* narrative */
+body.m #cap{grid-area:cap;position:relative;left:auto;top:auto;width:auto;padding:12px 0 4px}
+body.m #cap .kick{font-size:10px;margin-bottom:10px}
+body.m #cap h1{font-size:24px;line-height:1.15;margin-bottom:9px}
+body.m #cap p{font-size:15px;line-height:1.5}
+body.m #stat{grid-area:st;position:relative;left:auto;bottom:auto;width:auto;display:flex;align-items:baseline;gap:12px;padding-top:14px}
+body.m #stat .num{font-size:34px}
+body.m #stat .unit{margin-top:0;font-size:10px;line-height:1.4}
+body.m #hint{grid-area:ft;position:relative;left:auto;bottom:auto;display:flex;justify-content:space-between;align-items:center;
+  padding:14px 0 max(18px,env(safe-area-inset-bottom));font-size:10px}
+body.m #mback{display:inline-block;padding:8px 12px 8px 0;margin:-8px 0;color:var(--dim)}
+/* the window */
+body.m #win{grid-area:vis;position:relative;left:auto;top:auto;width:auto;height:auto;min-height:0;margin-top:4px}
+body.m #win.narrow{opacity:0;transform:translateY(20px) scale(.97)}
+body.m .side{display:none}
+body.m .tbar{height:38px;gap:10px;padding:0 12px}
+body.m .lights i{width:10px;height:10px}
+body.m .navb,body.m .views{display:none}
+body.m .wtitle{font-size:12px}
+body.m .wbody{top:38px;bottom:22px}
+body.m .status{height:22px;font-size:10px}
+body.m .lhead,body.m .lrow{grid-template-columns:minmax(0,1fr) 78px;padding:0 12px}
+body.m .lhead span:nth-child(2),body.m .lhead span:nth-child(4),body.m .lrow .kd,body.m .lrow .sz{display:none}
+body.m .lrow{font-size:12px}
+body.m .doc{padding:12px 12px}
+body.m .doc .txt{font-size:11.5px}
+body.m .doc.clean .txt{font-size:12.5px}
+body.m .doc.clean .ts{width:0;opacity:0}
+body.m .doc.clean .who{width:56px}
+/* frames */
+body.m #wires{display:none}
+body.m .rpanel{transform:translateY(16px)}
+body.m .rpanel.on{transform:none}
+body.m #frames{grid-area:vis;position:relative;left:auto;top:auto;height:auto;width:auto;min-height:0;overflow:hidden;padding-top:8px}
+body.m #frames .plabel{position:static;margin-bottom:10px}
+body.m .fc{position:relative;width:auto;top:auto!important;margin-bottom:6px;font-size:12px;transform:translateY(12px)}
+/* layer cards and the legend sit under the layered space */
+body.m #cards,body.m #legend{grid-area:vis;align-self:end;position:relative;left:auto;top:auto;width:auto}
+body.m .card{position:absolute;left:0;right:0;top:auto;bottom:0;width:auto;padding:16px 18px}
+body.m .card.on{position:relative}
+body.m .card .lv{margin-bottom:10px}
+body.m .card h3{font-size:19px;margin-bottom:8px}
+body.m .card p,body.m .card .pair dd{font-size:14px}
+body.m .card blockquote{font-size:18px}
+body.m .card .foot{margin-top:12px;padding-top:10px}
+body.m #legend{display:grid;grid-template-columns:1fr 1fr;column-gap:16px}
+body.m #legend .plabel{grid-column:1 / -1;margin-bottom:6px}
+body.m .lg{padding:8px 0;gap:9px}
+body.m .lg span{font-size:9px;letter-spacing:.1em;line-height:1.3}
+/* about you, do's & don'ts: scrolling pages */
+body.m #ab,body.m #fd{position:absolute;left:0;right:0;top:44px;bottom:0;display:block;overflow-y:auto;background:var(--bg);padding:0 18px max(40px,env(safe-area-inset-bottom));touch-action:pan-y;-webkit-overflow-scrolling:touch}
+body.m #ab{bottom:52px;padding-bottom:28px}
+body.m #ab .kick,body.m #fd .kick{margin:18px 0 14px}
+body.m #ab .lead h1,body.m #fd .lead h1{font-size:30px}
+body.m #ab .page,body.m #fd .page{overflow:visible;padding:30px 0 0}
+body.m #ab h2,body.m #fd h2{font-size:30px;flex-wrap:wrap}
+body.m #ab .what,body.m #fd .what{font-size:16px}
+body.m #ab .sheet{padding:2px 16px}
+body.m #ab .row{grid-template-columns:1fr;gap:10px}
+body.m #ab .chip{font-size:13.5px;padding:8px 12px}
+body.m #fd .lead .principle-count b{font-size:44px}
+body.m #fd .keys{display:inline-block;margin-top:16px;padding:8px 0;font-size:11px;color:var(--dim)}
+body.m #fd .ptabs{display:flex;width:100%;margin:6px 0 2px}
+body.m #fd .ptab{flex:1;padding:10px 8px;font-size:13px}
+body.m #fd .dd-cols{grid-template-columns:1fr;gap:26px}
+body.m #fd .dd-row{padding:10px 14px}
+body.m #fd .dd-row p{font-size:15px}
+body.m #tip{display:none}
+/* a phone turned sideways */
+body.rot #stage,body.rot #cv{display:none}
+body.rot #rot{display:flex;position:fixed;inset:0;z-index:9;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px}
+#rot b{font-weight:330;font-size:30px;font-variation-settings:'opsz' 96}
+#rot span{font:500 10.5px/1.6 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="tip"></div>
+<div id="rot"><b>Turn your phone upright</b><span>This page reads best in portrait</span></div>
+<div id="stage">
+  <div id="vis"></div>
+  <header><div id="hdr"></div><nav id="rail" class="hit"></nav></header>
+
+  <div id="hero">
+    <div class="kick">One real exchange, followed all the way through</div>
+    <h1 id="hero-h"></h1>
+    <p id="hero-p"></p>
+    <div class="go" id="go">Click to begin →</div>
+  </div>
+
+  <div id="cap" class="out"><div class="kick" id="kick"></div><h1 id="title"></h1><p id="body"></p></div>
+  <div id="stat" class="hide"><div class="num" id="num">0</div><div class="unit" id="unit"></div></div>
+
+  <div id="win">
+    <div class="tbar"><span class="lights"><i></i><i></i><i></i></span><span class="navb">‹ ›</span><span class="wtitle" id="wtitle"></span><span class="views"><i class="on" id="v1"></i><i id="v2"></i></span></div>
+    <div class="wbody">
+      <div class="side" id="side"></div>
+      <div class="pane">
+        <section id="list"><div class="lhead"><span>Name</span><span>Kind</span><span>Date</span><span style="text-align:right">Size</span></div><div class="lrows" id="lrows"></div></section>
+        <section id="docs"><div class="doc" id="doc"></div></section>
+      </div>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <svg id="wires"></svg>
+  <div class="rpanel" id="frames"></div>
+  <div class="rpanel" id="cards"></div>
+  <div class="rpanel" id="legend"></div>
+  <div id="ab"></div>
+  <div id="fd">
+    <div class="lead">
+      <div class="kick">06 · Do’s &amp; Don’ts</div>
+      <h1>Do’s &amp; Don’ts</h1>
+      <p id="dd-lead"></p>
+      <div class="principle-count" id="dd-count"></div>
+      <div class="keys">← back</div>
+    </div>
+    <div class="page" id="fdpage"></div>
+  </div>
+  <div id="hint">Click or <kbd>→</kbd> to continue · <kbd>←</kbd> back</div>
+</div>
+
+<script>
+/* Filled in by build.py: STORY is the data, CONFIG is the written copy (configs/<slug>.yaml). */
+const STORY = {"files":[{"n":"Choosing Product-led over Project-led Strategies During Tough Times","d":"2024-11-28","s":2809,"k":"linkedin"},{"n":"Starting a new position as Lead Product Owner/Manager at Gamma","d":"2025-02-07","s":312,"k":"linkedin"},{"n":"Hiring for Senior Product Owner & Manager at Gamma","d":"2025-02-09","s":894,"k":"linkedin"},{"n":"Product knowledge storage tools and alternatives to Confluence","d":"2025-02-10","s":524,"k":"linkedin"},{"n":"Hiring Product Owner Manager and Senior Roles in Product Design and Delivery","d":"2025-02-14","s":508,"k":"linkedin"},{"n":"Completing iPEC's Coaching Fundamentals Training Programme","d":"2025-07-14","s":515,"k":"linkedin"},{"n":"Coaching Fundamentals Certificate issued by iPEC Coaching","d":"2025-07-15","s":482,"k":"linkedin"},{"n":"Obtaining the Coaching Fundamentals Certificate from iPEC Coaching","d":"2025-07-15","s":331,"k":"linkedin"},{"n":"UX Designer Hiring in Manchester","d":"2025-07-31","s":935,"k":"linkedin"},{"n":"Launching Positive Partnerships to support fundraising for arts organisations","d":"2025-08-15","s":1270,"k":"linkedin"},{"n":"Breaking the cycle with personal development consultation","d":"2025-10-07","s":453,"k":"linkedin"},{"n":"Songs appearing when you need them","d":"2025-10-09","s":501,"k":"linkedin"},{"n":"Understanding if coaching is for high potential people","d":"2025-11-11","s":528,"k":"linkedin"},{"n":"Hiring a Product Owner Manager at Gamma","d":"2025-11-27","s":717,"k":"linkedin"},{"n":"Finding Purpose for Now Rather Than Forever","d":"2026-01-02","s":1766,"k":"linkedin"},{"n":"Acting Authentically Without Fear of Mistakes","d":"2026-01-12","s":756,"k":"linkedin"},{"n":"Life is a game that cannot be won or lost, only played","d":"2026-01-13","s":632,"k":"linkedin"},{"n":"Leading through trust and believing in the innate goodness and capability of your team","d":"2026-01-14","s":995,"k":"linkedin"},{"n":"Awareness as the Goal of Meditation Practice","d":"2026-01-15","s":836,"k":"linkedin"},{"n":"How is coaching like crumble?","d":"2026-01-16","s":952,"k":"linkedin"},{"n":"Using anger to uncover true purpose and combat anxiety","d":"2026-01-19","s":1155,"k":"linkedin"},{"n":"Core energy levels and awareness","d":"2026-01-20","s":1499,"k":"linkedin"},{"n":"Overcoming Fear to Give Compassionate Feedback","d":"2026-01-21","s":1316,"k":"linkedin"},{"n":"To be more efficient, stop focusing on efficiency and start focusing on clutter","d":"2026-01-23","s":756,"k":"linkedin"},{"n":"Question volume as the primary measure of presentation success","d":"2026-01-26","s":1000,"k":"linkedin"},{"n":"Widening your lens by processing energy when encountering stressors","d":"2026-01-27","s":983,"k":"linkedin"},{"n":"Breath is the link between our conscious and subconscious minds","d":"2026-01-28","s":443,"k":"linkedin"},{"n":"Silence is the greatest leadership skill","d":"2026-01-29","s":615,"k":"linkedin"},{"n":"Conflict is the cornerstone of alignment","d":"2026-01-30","s":836,"k":"linkedin"},{"n":"Vulnerability and honesty in leadership during stakeholder updates","d":"2026-02-02","s":778,"k":"linkedin"},{"n":"What would you like to achieve by the end of this conversation?","d":"2026-02-03","s":503,"k":"linkedin"},{"n":"Challenging the Stereotypes Shaped by a Minority of Boys","d":"2026-02-04","s":297,"k":"linkedin"},{"n":"Colour Theory, Joy, and Success","d":"2026-02-04","s":646,"k":"linkedin"},{"n":"Leadership and setting rules for team performance","d":"2026-02-05","s":647,"k":"linkedin"},{"n":"Coaching vs Mentoring Differences","d":"2026-02-06","s":1098,"k":"linkedin"},{"n":"Using repetition and affirmation to shape belief and achieve goals","d":"2026-02-10","s":881,"k":"linkedin"},{"n":"Choosing Authentic Voice Over AI on LinkedIn","d":"2026-02-11","s":519,"k":"linkedin"},{"n":"Finding happiness by following your passion","d":"2026-02-12","s":457,"k":"linkedin"},{"n":"Living Your Dreams as a Role Model for Your Kids","d":"2026-02-13","s":726,"k":"linkedin"},{"n":"Decluttering physical, organisational, and mental space for clarity","d":"2026-02-16","s":777,"k":"linkedin"},{"n":"GOAL - A smart goal they care about.","d":"2026-02-17","s":544,"k":"linkedin"},{"n":"Better people make better leaders through a holistic approach","d":"2026-02-19","s":812,"k":"linkedin"},{"n":"Reconnecting with core values to build confidence in decision-making","d":"2026-02-20","s":1108,"k":"linkedin"},{"n":"Choosing and changing your beliefs to enable growth","d":"2026-02-23","s":877,"k":"linkedin"},{"n":"Efficiency versus Creativity in Business","d":"2026-02-24","s":1136,"k":"linkedin"},{"n":"Protecting Team Flow State in Business","d":"2026-02-25","s":844,"k":"linkedin"},{"n":"All meetings must be of value to all attendees","d":"2026-02-26","s":835,"k":"linkedin"},{"n":"Using expectations effectively during transitions","d":"2026-02-27","s":1160,"k":"linkedin"},{"n":"Distinguishing genuine desire from guilt-driven 'shoulds'","d":"2026-03-02","s":903,"k":"linkedin"},{"n":"Energy Leadership™ Index Master Practitioner (ELI-MP) Certification","d":"2026-03-02","s":504,"k":"linkedin"},{"n":"Client recommendation acknowledgment and celebrating progress","d":"2026-03-03","s":399,"k":"linkedin"},{"n":"Finding Purpose as the Opposite of Anxiety","d":"2026-03-04","s":541,"k":"linkedin"},{"n":"Managing inner voices and self-talk to foster curiosity and collaboration","d":"2026-03-05","s":1227,"k":"linkedin"},{"n":"We avoid anger. But maybe we need to feel it?","d":"2026-03-06","s":1364,"k":"linkedin"},{"n":"Why Female Leadership Improves Society","d":"2026-03-08","s":736,"k":"linkedin"},{"n":"Adopting the All Blacks' Standards and Practices","d":"2026-03-09","s":299,"k":"linkedin"},{"n":"Overcoming Overthinking by Listening to Intuition","d":"2026-03-10","s":987,"k":"linkedin"},{"n":"Finding your superpower and refusing to settle in career alignment","d":"2026-03-11","s":1466,"k":"linkedin"},{"n":"Certified Professional Coach (CPC) was issued by iPEC Coaching to Bevan Broadbent","d":"2026-03-12","s":483,"k":"linkedin"},{"n":"Obtaining Certified Professional Coach (CPC) certification from iPEC Coaching","d":"2026-03-12","s":1080,"k":"linkedin"},{"n":"Bringing internal answers to the surface","d":"2026-03-13","s":382,"k":"linkedin"},{"n":"Those that work well for us","d":"2026-03-16","s":495,"k":"linkedin"},{"n":"The Unalome as a Representation of Non-Linear Personal Growth","d":"2026-03-17","s":924,"k":"linkedin"},{"n":"Focusing on beliefs that actually matter for your goals","d":"2026-03-18","s":688,"k":"linkedin"},{"n":"Experiencing emotional release and physical awareness in a sensory deprivation tank","d":"2026-03-19","s":1407,"k":"linkedin"},{"n":"Explaining Energy","d":"2026-03-20","s":228,"k":"linkedin"},{"n":"Matt's Inspiring Approach to Running an Outdoor Functional Fitness Business","d":"2026-03-20","s":1365,"k":"linkedin"},{"n":"Prioritising by Ease to Build Momentum and Confidence","d":"2026-03-23","s":1299,"k":"linkedin"},{"n":"Crumble is really easy to make!","d":"2026-03-24","s":653,"k":"linkedin"},{"n":"Overcoming limiting beliefs about change and playing small","d":"2026-03-25","s":628,"k":"linkedin"},{"n":"Whatever I put my energy into will bear fruit","d":"2026-03-26","s":511,"k":"linkedin"},{"n":"Needing Help = Weakness Is a Belief That Keeps Us Small","d":"2026-03-27","s":865,"k":"linkedin"},{"n":"Building organizational culture through ceremony, togetherness, and excellence","d":"2026-03-30","s":1378,"k":"linkedin"},{"n":"The Impact of Informal Team Bonding and Tea Rituals on Success","d":"2026-04-01","s":1041,"k":"linkedin"},{"n":"Completing Level 1 Reiki practitioner training","d":"2026-04-02","s":739,"k":"linkedin"},{"n":"Embracing the Life Coach Identity","d":"2026-04-08","s":899,"k":"linkedin"},{"n":"Silence is passive, allyship is active","d":"2026-04-13","s":749,"k":"linkedin"},{"n":"Why Established Tech Businesses Fail to Innovate","d":"2026-04-20","s":1386,"k":"linkedin"},{"n":"Not core to business success","d":"2026-04-21","s":2036,"k":"linkedin"},{"n":"Manifestation as a developable skill","d":"2026-04-24","s":575,"k":"linkedin"},{"n":"The Little Hunger","d":"2026-04-24","s":2138,"k":"linkedin"},{"n":"Inspiring others to embrace their power through sharing selfies","d":"2026-04-28","s":376,"k":"linkedin"},{"n":"Discomfort is where growth happens","d":"2026-04-29","s":488,"k":"linkedin"},{"n":"Unblocking Growth with a Free Coaching Session","d":"2026-04-30","s":486,"k":"linkedin"},{"n":"Lessons from working at a fairground to get into a festival","d":"2026-05-04","s":561,"k":"linkedin"},{"n":"Certified Openmind Practitioner and implicit sentiment measurement","d":"2026-05-05","s":915,"k":"linkedin"},{"n":"Impact of Modern High-Stimulation Cartoons and Media on Children","d":"2026-05-06","s":1613,"k":"linkedin"},{"n":"Responding to a failed delivery","d":"2026-05-06","s":444,"k":"linkedin"},{"n":"Unlocking Your Full Potential and Living a Bigger Life","d":"2026-05-07","s":824,"k":"linkedin"},{"n":"Chasing goals that sound impressive versus goals that truly matter","d":"2026-05-08","s":1027,"k":"linkedin"},{"n":"Learning about yourself through others as mirrors","d":"2026-05-11","s":607,"k":"linkedin"},{"n":"Uncovering the root cause of avoiding anger through coaching","d":"2026-05-12","s":1011,"k":"linkedin"},{"n":"The energy you put into the world directly impacts what you get back","d":"2026-05-13","s":734,"k":"linkedin"},{"n":"Kids books have incredible lessons that we adults need to learn","d":"2026-05-14","s":950,"k":"linkedin"},{"n":"Unlocking human potential and choosing to get unstuck","d":"2026-05-18","s":903,"k":"linkedin"},{"n":"If at first you don't succeed... (finish this sentence)","d":"2026-05-19","s":264,"k":"linkedin"},{"n":"Associate Certified Coach (ACC) Credential Achievement","d":"2026-05-21","s":510,"k":"linkedin"},{"n":"Breaking the cycle of burnout and harsh discipline for sustainable achievement","d":"2026-05-21","s":1224,"k":"linkedin"},{"n":"How Openmind Psychometrics and Neurotech Platform Work","d":"2026-05-25","s":544,"k":"linkedin"},{"n":"Pausing career development for childcare and normalizing shared parenting roles","d":"2026-05-27","s":1205,"k":"linkedin"},{"n":"Understanding the protective inner voice that stops self-ownership","d":"2026-06-04","s":1452,"k":"linkedin"},{"n":"Seeking a recommendation for a nutritionist specializing in gut health and micronutrients","d":"2026-06-06","s":545,"k":"linkedin"},{"n":"Coaching has been dying for years","d":"2026-06-07","s":1022,"k":"linkedin"},{"n":"Limitations of Line Manager Coaching for Low Performers","d":"2026-06-08","s":1338,"k":"linkedin"},{"n":"Overcoming Adversity and Embracing Change Through Ancestral Resilience","d":"2026-06-09","s":881,"k":"linkedin"},{"n":"Transitioning from Corporate to Business Coaching","d":"2026-06-10","s":944,"k":"linkedin"},{"n":"Transitioning from Corporate Life into Business Coaching","d":"2026-06-12","s":1209,"k":"linkedin"},{"n":"Reframing Imposter Syndrome as a Systemic Issue","d":"2026-06-13","s":1084,"k":"linkedin"},{"n":"Recognizing forms of wealth and practicing gratitude amidst doom and gloom","d":"2026-06-15","s":866,"k":"linkedin"},{"n":"Hope isn't a strategy: Seeking professional help over relying on willpower","d":"2026-06-22","s":1168,"k":"linkedin"},{"n":"Resolving Disagreements by Listening Rather Than Voting","d":"2026-06-24","s":1447,"k":"linkedin"},{"n":"Clean career exits through honesty","d":"2026-07-02","s":1354,"k":"linkedin"},{"n":"Hitting targets while quietly struggling with career alignment","d":"2026-07-07","s":1683,"k":"linkedin"},{"n":"Working harder is often the most expensive way to stay exactly where you are","d":"2026-07-08","s":1263,"k":"linkedin"},{"n":"Imposter Syndrome in Capable Leaders","d":"2026-07-09","s":1196,"k":"linkedin"},{"n":"Rebuilding executive confidence and overcoming imposter syndrome","d":"2026-07-14","s":1276,"k":"linkedin"},{"n":"Rebuilding a leader's trust in their own judgment to enable delegation","d":"2026-07-15","s":1652,"k":"linkedin"},{"n":"The wrong job is hardest to leave when it's going well","d":"2026-07-16","s":1338,"k":"linkedin"},{"n":"Belief First, Success Second: Navigating the Messy Middle of Transformation","d":"2026-07-20","s":1695,"k":"linkedin"},{"n":"Why prior executive product experience changes executive coaching","d":"2026-07-21","s":1450,"k":"linkedin"},{"n":"Overcoming Hidden Imposter Syndrome and Limiting Beliefs in High Performers","d":"2026-07-22","s":1374,"k":"linkedin"},{"n":"Questioning limiting background beliefs in coaching","d":"2026-07-23","s":1310,"k":"linkedin"},{"n":"Chasing the signal versus wanting the job in career promotions","d":"2026-07-30","s":1141,"k":"linkedin"},{"n":"Why hard work is an overrated quality in leadership compared to shepherd-style steering","d":"2026-08-04","s":1438,"k":"linkedin"},{"n":"Making coaching clients independent as quickly as possible","d":"2026-08-05","s":1116,"k":"linkedin"},{"n":"Failing Fast Requires Self-Trust Over Confidence","d":"2026-08-06","s":1595,"k":"linkedin"},{"n":"Changing behavioral patterns and building lasting self-trust through coaching","d":"2026-08-11","s":1157,"k":"linkedin"},{"n":"The danger of meetings with no disagreement","d":"2026-08-13","s":1113,"k":"linkedin"},{"n":"Stepping back from deep technical knowledge to stop being a leadership bottleneck","d":"2026-08-14","s":1454,"k":"linkedin"},{"n":"ProductTank Manchester September Meetup Announcement","d":"2026-08-16","s":1600,"k":"linkedin"},{"n":"Shielding high performers from organizational politics and unhelpful visibility","d":"2026-08-18","s":1404,"k":"linkedin"},{"n":"Asking better questions in one-to-one meetings","d":"2026-08-19","s":1024,"k":"linkedin"},{"n":"A dashboard full of green can hide a leader who's completely underwater","d":"2026-08-20","s":1528,"k":"linkedin"},{"n":"Fix the safety and almost any question works","d":"2026-08-25","s":1596,"k":"linkedin"},{"n":"The first is the real one - meetings, one-to-ones and reviews","d":"2026-09-02","s":1403,"k":"linkedin"},{"n":"Tracking Intervention Frequency as a Metric of Trust and Delegation","d":"2026-09-03","s":1269,"k":"linkedin"},{"n":"Letting go of technical detail to focus on people","d":"2026-09-07","s":1676,"k":"linkedin"},{"n":"Ted Lasso Leadership Course Concept Validation","d":"2026-09-09","s":661,"k":"linkedin"},{"n":"Performing confidence versus authentic self-knowledge","d":"2026-09-10","s":1567,"k":"linkedin"},{"n":"Servant leadership breaks when it only flows downhill","d":"2026-09-11","s":1875,"k":"linkedin"},{"n":"How Problems Evolve Through Long-Term Coaching","d":"2026-09-22","s":1499,"k":"linkedin"},{"n":"Slowing down to go faster by empowering teams to halt delivery for quality","d":"2026-09-23","s":1923,"k":"linkedin"},{"n":"Senior leaders justifying salary with after-hours problem solving","d":"2026-09-24","s":1380,"k":"linkedin"},{"n":"Software problems usually give you an answer, but human problems in leadership remain unresolved","d":"2026-09-29","s":1666,"k":"linkedin"},{"n":"Pulling Product Managers out of delivery to focus on customer discovery","d":"2026-09-30","s":1913,"k":"linkedin"},{"n":"Why I left Product, and why you should stay","d":"2026-10-01","s":733,"k":"linkedin"},{"n":"Delivering faster without a delivery lead by trusting engineers","d":"2026-10-06","s":1888,"k":"linkedin"},{"n":"Product managers rely too much on data to make decisions","d":"2026-10-07","s":2385,"k":"linkedin"},{"n":"Dreaming Big Enough","d":"2026-10-13","s":480,"k":"linkedin"},{"n":"Belief 1: it’s boring to go to bed early. I don’t want to be boring.","d":"2026-10-19","s":2451,"k":"linkedin"},{"n":"Agreeing on revenue growth perspective","d":"2026-10-20","s":234,"k":"linkedin"},{"n":"Corporate skunk works vs startup experience","d":"2026-10-26","s":1383,"k":"linkedin"},{"n":"Your team don't need a nanny","d":"2026-10-28","s":1254,"k":"linkedin"},{"n":"Aragorn vs Gandalf: Leadership and Coaching Roles in Business","d":"2026-10-30","s":835,"k":"linkedin"},{"n":"Learning Directly from End Users to Build Better Products","d":"2026-11-02","s":1905,"k":"linkedin"},{"n":"Unstructured Coaching to Uncover Underlying Problems","d":"2026-11-04","s":1081,"k":"linkedin"},{"n":"The person you keep letting down might be you","d":"2026-11-06","s":729,"k":"linkedin"},{"n":"Client testimonial: Ivana Galic talks to Bevan about coaching with him","d":"2026-11-09","s":6904,"k":"recording","sel":1},{"n":"Client testimonial: Marie Garel talks to Bevan about coaching with him","d":"2026-11-09","s":2947,"k":"recording"},{"n":"Client testimonial: Matt Barlow talks to Bevan about coaching with him","d":"2026-11-09","s":3602,"k":"recording"},{"n":"Client testimonial: Tatiana Kukhareva talks to Bevan about coaching with him","d":"2026-11-09","s":6042,"k":"recording"},{"n":"Your first hire brings unexpected trust issues and requires letting go","d":"2026-11-09","s":1095,"k":"linkedin"}],"totals":{"conversations":162,"actions":1229,"frames":923,"tactics":97,"scenes":44,"phases":6,"beliefs":6,"words":24181},"session":{"title":"Client testimonial: Ivana Galic talks to Bevan about coaching with him","date":"2026-11-09","kind":"Video · client interview on coachbevan.com","turns":22,"other":"Ivana","lines":[{"id":"t0020","ts":"¶3","raw":"speaker_1","coach":true,"who":"Bevan","text":"So cool. So why did you come to coaching?"},{"id":"t0022","ts":"¶4","raw":"speaker_2","coach":false,"who":"Ivana","text":"Because I have gremlins in my head and they are oftentimes putting me in this little box and making me feel small and insignificant, or rather not, not worthy enough of whatever I get. Um, and so I wanted to— I actually, I wanted to, …"},{"id":"t0024","ts":"¶5","raw":"speaker_1","coach":true,"who":"Bevan","text":"Yeah, that makes a lot of sense. And, uh, How did you feel? How did the gremlins make you feel when they got noisy?"},{"id":"t0026","ts":"¶6","raw":"speaker_2","coach":false,"who":"Ivana","text":"Oh, well, they would— many times they would— I would feel frozen by and overwhelmed by that emotion in the moment."},{"id":"t0028","ts":"¶7","raw":"speaker_1","coach":true,"who":"Bevan","text":"Yeah."},{"id":"t0030","ts":"¶8","raw":"speaker_2","coach":false,"who":"Ivana","text":"And the worst thing is that it would happen— obviously there was a pattern to it, but it would happen in public, in groups of people, Where there's, you know, comparison between what I do, what other people do, how, how much more …"},{"id":"t0032","ts":"¶9","raw":"speaker_1","coach":true,"who":"Bevan","text":"Yeah, that's so, um, such a normal way, but so many people feel a similar freeze when their gremlins show up. So what was the coaching experience like for you?"}]},"frames":[{"id":"f-00","span":"asking why she came to coaching","kind":"question","from":["t0020"]},{"id":"f-01","span":"naming the gremlins that make her feel small and not worthy","kind":"statement","from":["t0022"]},{"id":"f-02","span":"slowing it down: how did the gremlins make her feel when they got noisy?","kind":"question","from":["t0024"]},{"id":"f-03","span":"describing feeling frozen and overwhelmed in the moment","kind":"statement","from":["t0026"]},{"id":"f-04","span":"letting her keep going","kind":"acknowledgment","from":["t0028"]},{"id":"f-05","span":"noticing the pattern: it happens in groups, when she compares herself","kind":"statement","from":["t0030"]},{"id":"f-06","span":"telling her the freeze is normal, and that many people feel it when their gremlins show up","kind":"reframe","from":["t0032"]}],"thread":{"cue":"f-01","move":"f-02","cueLine":"t0022","moveLine":"t0024"},"labels":{"tactics":["feeling small and unworthy","fostering team responsibility and autonomy","personal issues seeping into business","overwhelmed by long-term life purpose questions","managing triggers and frustration","fear of judgment when posting online","feeling stuck in what you need or should do","fear of confrontation","encountering a stressor","disagreement between team members","stakeholder update calls","feeling disconnected and lacking confidence in choices","trying to maximize both efficiency and creativity","regaining lost confidence","feeling stuck in fixed beliefs","workplace interruptions","feeling guilt over unpursued goals","career transition","settling for good enough","dealing with anxiety","handling disagreements","feeling stuck in career or life choices","settling for tolerable work","giving attention to beliefs that don't matter","feeling overwhelmed and losing momentum","fear of change","viewing needing help as weakness","leadership facing skepticism when introducing new team rituals","fostering cross-team collaboration and high performance","stigma around life coaching","scaling beyond initial founder success","innovation treated as a side project","lack of customer problem passion","managing and motivating innovation teams","hesitation to post selfies","failed delivery","feeling capable of bigger impact despite existing success","failing to achieve a goal","comparing oneself to others","high achiever trapped in cycle of pushing, collapsing, and self-hate","putting career on pause for childcare","looking to optimize health and diet","struggling to introduce oneself as a founder","change doesn't feel easy","struggling with self-control and dietary habits","leaving a role after completing transformation","leaders secretly doubting their competence","stressed and overloaded leadership","moving into a larger organisation and feeling intimidated","leader struggling to delegate after a bad hire","budget cuts and AI replacing coaching","coaching stressed product leaders","navigating uncertainty during structural reorganization","feeling exhausted in a successful role","high performer convinced they fooled everyone","chasing career promotions for external validation","delaying shipping due to fear of failure","leader becomes a bottleneck","everyone agrees in meeting","resolving disagreements through consensus","developer exposed to toxic stakeholder politics","feeling inadequate despite meeting targets","project falling behind estimates","uncovering hidden problems early","a team misses a deadline","stalling as a leader by trying to know every technical detail","postponing decisions and difficult conversations","managing up in political organizations","stepping into projects","handling feedback and opinions","rushing feature delivery at the expense of architecture and customer need","transitioning from technical work to management","inter-team communication breakdown","product managers acting as delivery administrators","managing engineering teams without a delivery lead","over-relying on data analytics","struggling to go to bed early","procrastinating bedtime to do tasks","economic downturn prompting defensive strategies","fast-paced modern children's entertainment","stepping into high-stakes rooms","coaching low performers","feeling full of doom and gloom","feeling small and second-guessing in challenging situations","feeling overwhelmed","doing tasks yourself because it is quicker","struggling to identify customer needs","overextending until burnout or injury","delegating for the first time","moving from corporate to entrepreneurship","facing a major life shift at 40","prospective clients questioning need for a coach","overwhelmed by social comparison","reaching self-sufficiency","feeling lost","confusion and unsettled energy","feeling stuck"],"scenes":["limiting beliefs","imposter syndrome","delegation","finding purpose","personal growth","career transition","team management","leadership communication","decluttering","core energy coaching","conflict resolution","goal setting","value of coaching","coaching outcomes","unlocking human potential","value and ROI of coaching","hiring product owner managers","anxiety","meditation","mindfulness and awareness","core energy levels","authenticity","life perspective","trust-based leadership","coaching metaphor","public speaking","audience engagement","silence in leadership","efficiency","giving feedback","team alignment","leadership vulnerability","breathwork and nervous system control","colour theory","joy and success","leadership rules","team autonomy vs control","coaching vs mentoring","affirmations","mindset","setting conversation goals","measuring conversation success","AI content vs authentic voice","following passion"],"phases":["Hear the problem as it is","Slow it down","Get curious about the voice","Question the belief","Choose your energy","Trust yourself and your team"],"beliefs":["The problem behind the problem: I like the problem behind the problem. I don’t trust the first explanation, especially when it’s mine.","Not a knowledge problem: That gap isn’t a knowledge problem, so another tactic won’t close it.","Beliefs: Most of what holds you back isn’t a skill you’re missing. It’s a belief you’ve never questioned.","Move with the voice: The work isn’t killing the voice. It’s learning to move with it. Instead of being stopped by it.","Self-trust over confidence: Confidence waits for certainty. Self-trust acts without it.","Become unnecessary: My job is to get you to stop needing me as fast as possible."]},"floors":{"1":[-291,-35,-11,180,-110,193,336,218,-556,-329,-336,-427,-452,-298,-8,-229,168,-37,215,-673,32,717,447,183,-212,228,129,32,11,-586,230,-28,539,-441,346,-355,-250,281,691,380,47,-219,509,71,122,830,570,103,357,-408,-22,312,291,364,-371,-452,478,-503,20,-494,-358,-257,-61,672,444,100,-246,587,183,-23,-211,253,-682,-356,-194,-656,305,-589,644,-632,-361,32,-546,149,123,771,-391,-517,252,683,-40,637,-470,-27,265,-468,393,-153,-315,-303,-747,214,-814,56,-66,-512,-277,-2,353,405,505,396,-216,-546,259,-216,527,-563,-2,323,462,631,570,760,-267,-144,-345,-169,465,400,-164,767,-34,-721,102,-347,106,-192,-336,-164,452,-402,-182,-123,271,-343,-53,-555,624,445,-577,-275,-651,418,-406,243,-464,227,-678,183,681,-442,-105,392,-741,-194,91,547,205,-37,482,461,141,104,669,384,5,-830,-154,-3,-627,266,-207,338,315,48,668,465,-229,-71,-445,-632,123,-657,362,457,-649,264,-284,633,268,30,-392,15,211,-406,-427,229,199,-537,330,524,573,396,886,55,211,754,-9,-229,559,445,475,-444,-369,-419,-333,-220,321,329,-425,-691,-146,304,65,-363,-468,-442,-418,-226,-396,-548,231,-317,-540,-7,148,-56,285,-56,92,-138,-761,16,-601,425,428,-807,280,-376,280,309,34,140,-171,-298,-828,-45,386,-31,-466,611,591,524,367,-207,158,-985,-465,-475,-237,-260,-334,-87,-111,490,33,543,-727,378,80,-218,-200,205,-482,-217,621,-450,-100,-835,582,449,97,-659,-234,369,-623,-28,130,-668,-411,110,416,351,-610,-38,-442,-434,-153,413,-461,-12,324,386,-547,-172,-29,125,149,184,-284,-344,-69,-678,-349,135,-739,-2,-167,60,-196,207,224,-643,-556,-419,405,-15,402,563,-128,-223,-502,375,-172,443,203,-478,105,-571,381,448,-479,-323,-203,-308,223,-763,-477,347,453,360,11,-808,260,502,225,-92,-801,-69,593,-286,-538,-555,-235,-193,357,457,-533,43,66,678,555,518,-125,-757,-45,-559,-569,-168,295,-354,-134,284,-678,79,178,-859,831,-93,-704,246,546,348,261,-329,230,730,-163,-107,-293,248,-75,-478,216,-326,-57,573,547,345,366,482,-729,37,724,396,439,615,-179,-85,-309,-311,313,90,-840,94,-293,334,-457,-394,-85,-655,-345,-259,-202,269,401,503,-512,164,302,-403,512,-306,-161,258,174,205,-526,-610,-778,-497,200,-530,187,-154,221,512,346,213,184,704,192,-346,-161,-297,304,461,-166,-810,271,220,-214,-655,128,-83,-323,-19,-550,74,534,345,446,672,-669,108,470,651,-565,-210,182,-662,320,374,283,485,-683,-520,568,-576,272,-442,-28,-8,-653,213,518,501,-147,-162,142,531,501,-698,752,481,-43,-413,844,506,-759,-16,-588,97,-489,249,-440,-213,-231,-650,79,81,-249,-90,225,-283,332,-557,577,794,-72,-307,664,-211,-230,270,-415,132,-92,354,164,-111,-590,473,446,669,-297,-269,257,-749,192,-99,330,-520,-360,-46,-97,-716,-233,115,-387,-254,-481,256,149,-723,-210,-547,355,-1,710,247,584,670,-248,427,-67,190,-218,-582,892,567,65,-513,434,-293,587,719,-191,-375,-343,403,346,561,17,-421,613,-569,-216,-739,322,-237,-403,-77,-864,243,390,-241,86,140,23,460,309,-638,80,-116,-447,-232,267,-607,-585,-22,-276,119,528,362,731,240,461,599,71,-238,694,140,135,482,14,186,-169,551,-41,245,-28,198,62,-149,-153,-628,562,78,-134,16,313,-68,82,-791,-10,143,-198,404,842,-132,-320,-211,-645,-209,486,710,-246,438,-533,50,6,-449,-363,-272,-108,453,73,-362,-297,182,-744,83,487,301,400,-46,-466,-437,-356,295,-445,260,-278,-82,138,320,-69,199,-198,270,286,-763,388,609,98,335,-39,310,-260,236,-614,171,-95,277,-143,265,214,382,529,164,-777,367,-917,-43,-480,-148,652,-436,726,348,-241,703,225,-853,573,-650,262,-100,409,519,476,537,-586,387,136,-681,-491,-165,632,-427,-463,-256,199,646,282,-44,70,151,627,633,21,891,-36,497,-810,429,-436,-227,694,179,53,-914,-162,441,277,-557,-296,-455,308,-271,-464,-10,407,392,-504,-109,411,588,639,487,-300,263,479,574,172,-166,186,385,530,717,-358,325,-787,90,-48,195,110,764,-83,190,-511,-147,588,-386,-79,691,-226,434,582,442,-764,-208,243,-495,-779,369,589,395,708,347,-490,-367,660,406,76,365,-103,428,983,198,-473,-253,122,119,-420,795,-779,227,212,-671,709,243,612,-403,320,170,578,218,-628,-29,129,-386,409,-72,407,375,-534,-154,468,-658,-23,732,716,-420,-270,-171,-81,-755,412,743,-254,291,272,147,210,-153,-752,-92,732,325,231,-717,-151,555,341,419,37,500,-253,700,458,-523,475,444,-271,643,-52,-328,-327,622,398,-161,-56,-305,-133,256,207,-73,295,269,-228,593,-219,569,-400,-286,411,-393,523,94,517,651,-463,620,538,682,-198,-182,484,-575,-685,131,-298,116,-288,128,104,-519,-677,537,-512,-80,773,137,-20,342,44,-302,-458,-351,-286,-162,-524,360,-349,-179,124,-150,-317,-147,-326,778,352,-104,181,-62,281,-492,186,46,-49,785,-18,627,-81,-143,-107,257,298,400,-179,-161,-29,357,-282,235,141,-574,60,182,-411,111,484,581,563,-418,401,117,150,276,224,-550,318,-151,18,217,-529,-19,497,-72,551,-490,-483,-67,72,-728,178,-601,257,-768,-432,-66,-457,-758,340,562,-40,-160,82,254,-166,551,189,-781,-466,366,-124,-416,-42,186,3,-233,576,231,-415,202,-551,294,-152,632,-119,-516,430,761,-367,-33,-218,-347,62,-538,-393,-284,-574,401,130,237,-110,-192,507,-305,205,51,639,494,-164,-794,321,378,655,-575,461,-499,-209,-283,-275,-10,-672,114,180,-51,373,-276,-160,-378,-622,-324,73,494,152,-613,-309,-207,116,-74,300,683,359,454,-166,423,-29,873,17,-569,-15,189,-256,746,-219,-201,455,312,-296,75,263,140,304,14,137,-702,756,-440,-425,423,650,252,104,-308,-505,131,54,-534,-237,282,-45,324,-325,559,414,361,169,-488,-260,-620,316,-150,-32,-203,98,243,134,259,-649,-285,278,-61,225,-44,64,73,-93,-461,895,74,421,-488,339,-91,-271,-177,-22,-224,84,22,-561,479,-239,202,-113,243,4,-766,-118,-361,575,460,-478,229,655,713,302,107,-689,-25,386,-657,192,-384,188,-272,415,109,121,-583,-60,266,99,-479,-1,398,53,417,-340,750,283,-354,-222,-170,-123,-80,133,658,318,-686,-649,-59,-458,31,-61,480,-760,-92,491,119,-339,622,-310,-468,-393,-8,-43,484,-266,358,348,808,203,-459,15,-88,268,303,-182,435,-388,211,-423,-471,-141,83,-219,504,-636,-273,-455,59,-133,682,532,447,-543,-151,-45,-141,-235,214,88,-328,454,-393,704,-330,291,445,-186,811,-263,-840,-38,-609,566,-473,251,-52,-565,-190,-233,-502,-247,552,-328,-413,-179,365,78,-814,-13,-575,919,97,645,-524,-834,222,-548,-27,179,-760,788,603,-387,-422,-530,740,52,-177,-579,-417,634,473,-613,258,489,524,42,374,-509,-103,499,579,100,253,279,358,-412,84,-330,-686,461,-150,219,-13,-58,-219,327,-47,-837,-38,552,556,557,620,595,650,-541,-28,-433,386,-527,-46,-532,-165,-458,31,-124,-408,-386,17,-199,-633,-93,387,-439,-240,-245,95,110,-631,855,-119,521,537,636,-358,621,736,-316,-12,84,-509,78,-72,561,-230,282,-916,-454,470,101,-727,200,-88,-290,487,-292,-303,179,273,-74,350,251,623,-307,435,415,106,-390,457,-298,230,-325,334,255,-836,199,-690,-607,-415,-502,-303,-187,212,-131,365,512,119,272,-593,-172,435,3,709,421,-416,237,-340,158,613,686,414,104,-285,-200,-329,274,165,-225,-394,-62,-489,-730,-5,30,643,230,38,-390,249,199,74,-346,595,368,-110,712,-229,380,518,-6,369,498,-502,131,-157,-528,-100,99,168,-182,417,-53,422,-162,689,-164,-694,-484,-187,291,170,661,-176,57,-344,714,110,388,-854,-629,-476,-87,-267,-393,148,84,715,-401,409,577,-550,938,371,790,-270,728,15,544,401,457,-17,739,-456,-383,-529,761,-172,-306,-398,80,-462,570,-454,95,295,-924,445,63,601,-157,-436,-132,-139,-139,-645,189,-737,76,172,-142,571,509,760,-282,119,-150,322,652,-687,164,139,589,547,166,239,194,23,594,655,-124,-744,244,-544,135,447,-67,-185,5,-4,499,-359,-301,-19,-423,-232,589,180,-68,-862,-26,476,-443,-271,264,-353,424,760,403,-781,-308,-306,-21,-588,-844,316,510,-643,-47,-241,-593,263,58,-569,426,529,-432,484,266,-187,-539,-263,112,-507,301,-206,48,-615,600,593,-258,104,456,-394,557,572,67,-325,71,-293,-792,437,-482,313,383,431,-663,45,-552,643,-11,-660,117,-719,286,645,-199,-25,723,561,211,-198,-317,-162,172,332,-16,-356,-518,74,258,122,124,-387,280,-624,205,-530,362,-496,84,61,-450,48,-127,-137,185,-714,-296,-562,-223,272,-602,-162,789,-67,22,408,-215,-34,460,451,514,168,-358,-360,744,-400,-323,-267,-270,-37,576,-253,-482,73,-408,-162,-457,-212,-433,-156,-448,-95,473,-517,843,-90,159,-98,-448,-575,318,-211,-129,-109,-479,23,219,-101,256,-639,607,-423,570,448,-346,618,44,-695,249,-535,634,-430,360,780,162,-697,-162,-791,434,113,9,-483,57,-596,-663,-158,-337,-436,600,135,693,626,-67,-235,12,-771,-316,348,563,593,167,12,782,310,147,121,252,-78,509,-580,-178,49,174,-49,210,41,328,717,-160,-383,-757,122,218,-55,37,-201,-28,-276,-532,569,15,100,-72,524,425,365,214,-28,9,603,714,-172,-586,-186,-312,535,785,468,330,300,433,-484,-181,110,338,-310,196,638,805,-7,-501,-411,188,95,-259,-325,688,318,-183,278,513,396,133,127,517,410,245,735,-181,-883,-513,-580,568,-42,155,707,26,-704,355,320,-475,750,820,307,594,545,-201,267,-61,-361,-349,-379,138,-202,208,64,61,210,362,476,211,319,-695,182,-197,322,521,634,-763,33,-668,72,-46,608,-116,-763,-406,-256,4,448,-135,100,-365,-269,707,125,-220,405,123,554,299,-665,-162,-714,-273,471,82,-564,392,694,676,251,185,786,-603,-192,-390,-230,-14,-553,-147,-430,108,-545,778,446,-472,-530,-197,-349,156,-680,-501,341,-286,-288,-488,2,-478,201,-404,64,-409,-185,213,645,577,-24,-192,531,208,-16,129,408,-724,-404,420,413,390,-668,-241,-503,115,-163,-294,-219,-267,-619,-72,-544,-421,-384,119,-259,123,78,-149,-548,369,-671,-755,330,179,560,-82,346,412,-393,-487,215,-225,530,353,513,-438,-114,311,11,143,340,507,505,-224,-228,-589,94,745,382,-754,434,621,178,544,433,358,635,-171,-181,-202,-119,-335,155,224,355,188,-65,160,370,387,625,386,612,-104,325,-728,-298,34,-291,108,-869,32,82,-630,39,-21,402,262,296,192,223,-453,-726,-453,30,-111,534,126,-985,-410,-328,-399,-195,672,371,-422,-96,201,61,-412,-15,-114,-57,-171,-270,322,-275,-105,-581,-812,371,324,491,-720,-60,-107,-130,-64,-915,-151,112,-546,115,-170,373,-361,303,555,7,523,352,560,317,36,-510,613,692,-153,-569,-232,-305,-212,78,-913,196,223,300,547,501,620,-614,-520,79,118,413,339,18,-274,119,684,407,450,312,218,-755,448,-539,-618,-96,-177,730,515,322,295,-540,-419,-485,-43,844,-359,-495,-422,35,-178,103,-192,-88,748,483,570,153,-154,-155,242,38,-536,828,-364,-242,741,494,-704,-182,-763,-243,-526,-623,81,-310,494,564,134,593,429,604,191,-513,620,-78,-213,7,-540,-296,150,370,39,-720,-494,-174,673,446,553,439,142,60,383,587,518,538,467,556,343,405,47,-780,383,-402,651,244,218,331,-126,128,129,-510,-484,-308,-58,304,-239,772,54,488,17,282,-170,-560,126,-825,383,524,594,127,621,-81,-723,105,-138,-140,-379,87,-100,-54,372,393,671,-77,-423,733,284,-782,-414,-207,-687,-250,602,560,-18,217,-5,-488,34,398,759,-93,322,660,-890,-125,-350,-459,-270,-453,-426,114,58,756,-242,-186,-73,431,-91,674,568,588,-229,429,-156,-596,295,-265,-435,337,-115,-68,-569,-19,-288,356,76,862,616,408,-526,567,-306,-379,161,-190,-153,-561,-574,312,228,-531,249,-850,-675,736,152,-101,365,-11,376,593,-236,447,-311,-377,205,-544,171,-221,320,783,629,-61,531,-657,-213,-239,-438,283,-462,17,345,-72,191,-329,-337,-94,2,-540,-169,-243,-502,168],"2":[-325,-50,-27,198,-70,185,330,209,-560,-333,-282,-450,-455,-315,180,321,-499,140,-415,-8,-99,281,-851,69,-614,-39,-198,-667,771,484,-836,319,509,643,-327,-420,162,-172,-648,106,-172,205,-94,-72,-469,113,-475,-269,220,-574,33,-548,-126,6,218,-68,-211,-763,-201,556,245,719,-59,-249,147,686,190,-139,-324,-265,-192,-812,-127,-101,-106,-626,-142,268,96,-690,144,-699,-461,-97,337,36,37,861,648,-324,-506,345,-145,-373,510,-582,-474,-706,321,-127,277,-340,-116,-16,-115,-277,-379,-460,-557,461,-235,-649,-379,-5,-25,9,137,-391,431,756,-142,-110,90,297,270,366,-692,272,-642,441,649,366,457,-503,607,625,-567,-163,-325,-441,-244,425,13,585,398,101,-758,23,768,486,489,464,124,20,-868,211,594,341,-406,-333,517,419,552,565,330,-354,-553,138,77,-491,654,-586,-155,-594,355,789,308,338,306,169,-375,120,-317,498,204,-89,-478,590,-47,730,-423,226,589,-571,-529,-243,-196,-253,-94,667,-207,-154,569,-548,-738,76,-123,387,326,-276,586,-445,215,41,-507,93,126,558,127,444,21,-747,236,-668,568,469,-608,-152,404,-409,-1,351,-284,427,-21,-217,-34,-733,474,621,379,-843,-192,451,78,-323,119,317,113,-142,276,451,-251,-457,-78,-588,517,371,454,323,-415,-107,-443,19,-457,-83,-361,-482,113,-684,805,-190,636,501,-224,-198,522,-25,-179,401,278,301,-914,440,442,393,642,-447,240,317,-185,271,326,395,436,768,-249,281,108,222,299,-649,-6,137,147,-66,698,244,304,-117,-316,-262,-327,-175,-114,473,556,760,550,-466,-12,438,-167,472,-263,-248,195,-406,779,-76,807,-133,372,625,366,-115,271,-288,542,521,80,-270,98,-640,-224,746,68,-370,471,-463,-350,-345,-420,-195,268,115,816,-49,344,506,-17,-260,232,-51,209,89,472,129,-361,101,249,278,-702,68,529,-530,-426,-264,166,103,508,-373,-327,299,262,-779,220,-85,90,37,499,524,-29,204,-301,-238,-573,-406,657,-84,272,-53,222,-430,272,-426,260,-338,-88,363,460,633,172,-90,142,-476,53,489,334,-690,-540,-2,601,-630,318,406,206,-526,-648,104,271,-95,-184,-4,-133,64,-168,78,432,639,-270,-266,-647,-187,-399,17,-119,-672,-477,-416,619,651,-357,614,-229,418,-12,210,124,-251,103,-682,-175,-562,-333,-302,427,509,431,411,274,15,-521,125,158,379,58,-71,-481,619,-686,-272,155,-121,46,540,-254,1,538,399,-129,219,-266,-49,301,-294,614,-550,-479,-211,-478,-4,-436,-444,617,560,-149,-159,-417,737,215,-58,-476,-23,794,421,-733,-7,167,572,-158,626,380,497,-560,-554,-621,-38,-337,590,-240,-820,-253,135,-528,-107,148,-173,-735,427,-458,-19,79,-785,607,191,614,-433,-306,358,-136,-726,-213,-275,-385,-231,33,189,-162,355,48,661,901,77,529,350,-124,267,415,-77,225,-555,60,684,-378,109,-156,-263,-540,-153,-80,-486,-372,-172,-234,-95,364,-659,380,596,541,189,663,662,-308,780,-29,410,-491,-44,296,-194,-667,733,-613,-404,-482,-160,475,-603,211,-634,-456,-272,301,448,288,-506,482,522,775,240,229,346,-388,-22,88,-105,589,101,689,-254,-74,-458,542,406,-495,194,-155,-128,-306,187,-272,-354,76,109,-414,-407,-915,-62,-185,215,-25,-32,795,-282,184,-24,-99,444,713,-425,349,678,559,441,-283,197,550,461,-464,-183,124,869,-150,534,-243,-290,-41,-290,371,610,319,768,283,380,-210,-673,282,464,264,-780,-509,-208,-219,257,-556,-409,35,-362,-710,125,-78,427,119,305,593,-266,-293,-281,196,-586,-39,857,167,-716,464,309,-796,-63,674,233,43,79,801,123,660,-649,385,517,693,351,-231,-89,-308,23,-912,-121,486,-480,280,-502,-509,358,-605,110,-504,599,-332,292,75,-783,166,71,341,464,747,393,-440,132,3,448,-413,234,-143,-216,-189,-62,-415,346,774,597,-322,-82,652,478,218,41,-479,-331,452,-509,-200,340,373,-270,323,488,-8,-373,-131,-425,561,141,-561,-15,558,101,582,637,576,529,354,821,507,-94,-300,56,-260,-199,-278,340,89,-353,387,-6,181,-204,-223,213,-382,-380,333,-636,-319,-198,-475,-549,-134,-106,201,788,-225,-278,-524,-16,482,-152,571,588,-278,231,-203,-129,304,-422,985,236,-199,756,-238,-305,-231,-518,-58,573,-269,-112,195,191,-517,-54,126,645,-561,562,403,-30,355,-477,-401,-215,23,-732,-276,279,357,-496,-284,494,53,444,-124,-315,-29,601,-228,559,-149,676,472,396,265,737,380,625,-466,-212,-128,-554,-170,554,224,31,-163,434,272,-615,138,-142,489,-654,-405,-523,-388,-319,-428,450,-32,-187,-811,440,-262,-268,608,402,-641,-377,-237,-30,125,798,215,-55,-618,-185,199,-243,-137,-114,-298,-345,222,-526,260,631,-632,-98,-598,415,-578,-202,726,-409,585,425,237,-21,-524,-290,254,693,903,558,221,-358,-401,-128,328,-273,731,-462,-340,-462,-510,39,-59,354,-790,3,140,561,-842,398,40,88,443,-376,355,304,-554,283,-145,264,180,-92,391,521,333,371,252,-839,-204,-405,465,556,-248,557,730,102,-200,256,-453,248,-69,-295,63,481,-524,-586,-217,-153,362,18,178,-165,-250,-186,320,-236,-433,-429,829,-118,-181,343,-410,-218,744,-2,-914,212,-184,-620,168,-173,-789,31,-157,442,-402,-382,-354,-368,-579,315,36,174,-589,147,-168,-731,166,-826,513,423,156,-86,-517,-28,581,558,-139,320,-58,-351,260,-223,-256,85,-95,-188,348,155,283,659,-59,313,388,-166,-244,283,199,-842,-322,-289,-241,-160,-8,215,556,541,-173,11,-148,353,105,-304,723,377,-444,-216,259,-93,44,-835,200,-513,416,-844,-74,-324,538,384,-318,562,379,476,-148,274,-399,-251,-727,-79,-135,-281,-437,401,-387,197,-160,-568,556,218,-218,-296,-133,-150,-761,-188,412,753,23,225,-302,380,-412,63,-608,260,-736,-304,681,142,147,355,158,124,374,620,54,-335,326,-604,191,-317,606,730,-465,764,-160,-745,530,364,-29,321,456,575,-240,-526,-512,-364,731,514,412,5,248,-474,333,477,830,-78,-131,723,-261,798,-24,-533,567,-405,-582,-181,-535,-154,-167,-813,-705,-53,171,-150,-125,-136,-533,61,126,-490,-753,-281,171,341,351,-417,602,551,457,-496,402,-694,-63,792,-163,-333,412,115,848,-94,-394,-295,22,381,-100,-80,-112,-408,234,587,2,434,370,-258,164,797,430,-38,395,-770,428,464,-135,114,-458,-250,-587,400,-53,664,112,-556,-251,432,165,-702,648,-76,-178,-572,8,-658,-132,578,355,502,-103,715,-97,377,-460,224,-111,-828,138,168,178,-478,194,-471,498,556,488,63,199,629,328,450,544,-343,98,268,74,-353,673,417,178,-548,-78,219,-42,-205,-544,12,560,458,-130,-397,160,580,353,-192,551,396,-61,-214,795,10,-342,-382,588,382,-509,320,-158,388,392,581,377,477,-210,-564,84,-231,-219,529,-409,-510,100,-834,-120,-701,-568,-12,484,-437,-545,712,477,369,198,-387,666,253,-45,182,82,-266,-285,285,733,-352,14,155,635,-468,-192,-665,883,107,407,672,484,202,-646,-295,-429,133,-842,79,-309,297,655,-201,106,325,-252,398,392,-421,153,-584,-693,-179,185,-85,555,94,200,-13,-242,-25,-769,205,-466,87,222,-590,-469,-118,-11,182,576,-215,496,591,-500,-31,723,343,258,-763,-59,311,-219,264,441,-418,200,-684,443,638,-59,398,-432,206,-230,297,-230,560,-732,-19,297,-625,177,-512,689,214,600,394,163,341,607,469,-725,150,189,423,-786,384,-152,154,261,-376,435,530,-21,-616,331,325,-491,395,-520,354,-526,-618,363,207,-272,692,2,-639,286,-558,187,-741,28,-446,-465,250,567,741,-40,879,-331,550,-336,399,223,710,-301,442,526,710,-236,414,-152,260,-467,44,-549,208,505,728,310,381,687,333,-815,-4,59,721,261,141,293,-453,381,414,60,-230,-516,-610,779,299,187,-697,545,288,-170,-268,159,-985,318,381,717,331,70,45,-144,312,364,-120,-454,54,63,-304,220,61,272,-310,-428,17,146,517,-4,143,86,273,713,430,239,-869,455,134,54,-202,-15,223,27,-709,637,656,-321,105,-481,-104,-540,-151,55,-142,6,-797,-23,-141,362,553,424,276,-155,278,-403,109,265,189,-183,404,21,-243,-205,7,334,16,-627,217,611,725,-298,517,150,-673,-133,224,-312,-169,605,-386,689,284,-549,-151,-392,-501,-453,-768,133,386,-247,-231,242,40,511,-682,-96,-495,-436,-208,-2,598,-297,619,616,-32,-482,346,677,336,387,-532,388,297,600,795,136,-522,129,-199,-293,-573,-354,-272,-251,85,-163,-431,491,573,-368,-31,-529,291,599,616,464,602,-441,-625,-182,-377,260,487,-43,-703,451,99,-298,361,-663,-25,-636,-501,602,573,-154,-61,59,-772,-364,-139,280,-945,565,196,-395,69,67,-283,346,-57,-506,345,630,-581,561,318,452,-511,-86,535,245,366,174,26,377,-656,-596,96,-872,269,604,-682,53,-477,119,-632,-43,187,-86,-762,92,29,892,86,85,-561,96,168,517,522,-540,-295,556,589,471,482,218,-302,-459,-406,265,-632,-532,-27,-276,-469,-298,-429,-203,71,95,554,-410,-678,334,612,-131,-214,208,-23,-99,87,443,-429,563,735,-445,488,-54,232,-761,-535,88,-950,432,-265,453,584,-474,617,-241,574,240,-517,-48,-301,-375,-226,691,365,-350,-97,652,-424,229,329,72,-240,564,-482],"3":[-205,38,328,453,449,-491,241,329,-514,-469,697,-21,-368,389,588,393,-377,42,178,-597,406,-713,-308,170,-195,-714,-296,-308,222,97,-133,440,443,-686,291,507,-415,203,128,161,420,-635,403,591,112,236,237,-75,400,-613,243,42,-490,420,731,15,-64,342,-364,-242,-423,352,467,-306,539,434,-135,397,-633,-235,-238,296,-143,609,187,375,-23,-551,-579,197,-360,-41,556,-356,266,-57,-432,141,495,645,423,-704,-58,59,-11,172,87,648,-25,-276,38,-610,-389,-304,-774,244,291,-378,-80,-10,-545,-294,257,-636,-67,-236,-166,490,153,-593,-260,244,-601,-2,136,370,-73,-644,-78,-366,482,135,-51,-327,-275,-153,113,-301,772,184,208,717,512,450,-174,-213,645,403,178,-692,404,613,545,-497,170,175,581,597,-126,344,-91,83,-422,-264,15,-559,271,-670,-344,-17,-38,-260,-473,-373,-748,106,-468,-528,321,-323,812,9,-133,-707,-283,-259,389,150,-631,129,-730,146,-411,-12],"4":[207,-24,-133,85,-34,-242,136,270,-408,-6,260,-359,-153,332,-227,-277,520,128,-488,217,167,-511,298,448,-420,-231,301,62,-123,611,-13,-568,501,432,-691,25,457,-203,102,512,-520,-562,760,-9,-434,413,210,-702,210,677,-615,-267,592,-311,-379,644,-198,-665,666,352,-681,143,427,-616,65,756,-532,-432,646,-163,-526,502,-54,-689,486,590,-769,-129,535,-453,-195,676,-340,-520,745,187,-726,360],"5":[263,2,278,235,359,161,526,-190,-608,-126,-101,22],"6":[383,105,411,-58,380,19,470,-8,138,109,-357,-101]},"edges":[0,1229,1,1230,2,1231,3,1232,4,1233,5,1234,6,1235,222,1240,246,1242,837,1244,1171,1250,529,1253,550,1254,968,1261,237,1262,226,1263,244,1264,896,1270,1071,1277,40,1285,455,1288,199,1297,1193,1299,945,1300,13,1305,682,1306,560,1314,912,1316,516,1319,998,1320,451,1323,1107,1338,125,1353,667,1354,690,1365,343,1380,609,1383,889,1384,500,1385,345,1394,692,1398,782,1402,541,1409,1069,1414,202,1415,875,1423,129,1432,1038,1433,60,1434,290,1435,122,1439,383,1440,169,1446,1013,1449,313,1477,1174,1483,761,1487,773,1496,442,1502,195,1509,893,1520,623,1522,744,1531,403,1537,319,1551,282,1576,172,1577,878,1586,357,1587,1154,1589,87,1594,724,1596,764,1610,318,1621,574,1622,805,1624,325,1626,480,1627,647,1634,299,1636,182,1645,230,1651,62,1657,636,1660,732,1668,1163,1678,334,1679,772,1683,789,1687,1201,1691,508,1698,1214,1699,873,1700,1114,1702,869,1716,593,1717,83,1719,840,1724,1165,1727,272,1735,983,1746,976,1755,823,1769,25,1772,471,1773,589,1782,717,1784,295,1794,132,1796,103,1798,426,1803,979,1805,90,1808,993,1810,1060,1813,1095,1820,369,1821,1026,1823,777,1830,1226,1832,449,1835,1087,1837,194,1840,1132,1842,816,1845,466,1846,467,1862,552,1865,31,1866,304,1871,164,1879,713,1895,137,1897,611,1899,106,1902,588,1918,411,1921,657,1929,360,1932,1153,1936,50,1943,658,1944,578,1947,251,1957,776,1958,429,1966,74,1968,374,1970,1133,1979,310,1990,133,2001,145,2006,460,2014,767,2017,326,2033,155,2042,7,2045,1044,2047,1109,2077,544,2081,309,2085,187,2086,66,2087,1113,2104,107,2117,999,2118,683,2127,655,2136,415,2138,303,2140,19,2150,379,2152,1555,2156,1230,2156,2156,2254,1317,2157,1709,2157,1363,2157,1339,2157,2157,2264,2157,2289,1417,2158,1824,2158,1388,2158,1330,2158,2158,2265,2158,2292,1980,2159,1812,2159,2159,2256,1362,2160,1277,2160,2160,2273,1745,2161,1900,2161,2161,2274,1687,2162,1283,2162,2162,2275,1294,2163,2150,2163,2163,2282,1932,2164,1996,2164,2164,2262,1545,2165,2113,2165,2048,2165,1331,2165,2165,2263,2165,2283,1847,2166,1844,2166,2166,2284,1986,2167,1443,2167,2167,2262,1315,2168,1284,2168,2168,2281,1385,2169,1938,2169,1270,2169,1901,2169,2169,2265,2169,2260,1713,2170,2100,2170,2170,2253,1725,2171,1512,2171,2171,2259,2021,2172,2108,2172,2172,2284,1291,2173,1540,2173,2173,2264,1600,2174,1249,2174,2174,2262,2071,2175,1976,2175,2175,2256,2111,2176,2009,2176,2176,2284,1288,2177,1561,2177,2177,2290,1976,2178,1425,2178,2178,2256,2015,2179,1637,2179,2179,2253,2108,2180,2021,2180,2180,2284,1713,2181,2135,2181,2181,2253,1797,2182,1283,2182,2182,2275,1428,2183,1745,2183,2183,2274,2105,2184,1953,2184,2184,2259,1469,2185,1575,2185,2185,2265,1791,2186,1283,2186,2186,2275,1343,2187,1556,2187,2187,2279,1616,2188,2049,2188,2188,2269,1668,2189,1474,2189,2189,2259,1297,2190,1803,2190,2190,2278,1666,2191,1433,2191,2191,2259,1981,2192,1672,2192,2192,2267,1970,2193,1536,2193,2193,2264,2115,2194,1982,2194,2194,2268,1959,2195,1877,2195,2195,2262,2046,2196,1342,2196,2196,2257,1556,2197,1273,2197,2197,2279,1256,2198,1785,2198,2198,2253,1472,2199,1646,2199,2199,2257,1813,2200,1525,2200,2200,2290,2021,2201,2062,2201,2201,2284,1863,2202,2130,2202,2202,2254,1495,2203,1503,2203,2203,2259,1859,2204,2002,2204,2204,2285,2045,2205,1399,2205,2205,2255,1519,2206,1356,2206,2206,2268,1505,2207,1929,2207,2207,2265,2081,2208,2048,2208,2208,2283,1963,2209,1920,2209,2209,2258,1919,2210,1632,2210,2210,2254,1690,2211,2056,2211,2211,2265,1775,2212,1952,2212,2212,2276,1286,2213,1688,2213,2213,2255,1368,2214,1267,2214,2214,2259,1869,2215,1438,2215,2215,2263,1765,2216,1954,2216,2216,2259,1913,2217,1837,2217,2217,2270,1352,2218,1335,2218,2218,2256,2115,2219,1925,2219,2219,2268,1901,2220,1327,2220,2220,2260,2028,2221,1928,2221,2221,2261,1741,2222,2006,2222,2222,2255,1461,2223,1384,2223,2223,2260,1482,2224,1611,2224,1954,2224,1503,2224,2224,2255,2224,2259,1829,2225,2055,2225,2225,2295,1354,2226,1509,2226,2226,2277,1987,2227,1245,2227,2227,2290,1289,2228,1699,2228,2228,2260,1357,2229,1309,2229,2229,2269,1421,2230,1436,2230,2230,2276,1570,2231,1462,2231,2231,2290,1619,2232,2155,2232,2232,2292,1484,2233,1762,2233,2233,2253,1676,2234,1310,2234,2234,2290,1447,2235,1638,2235,2235,2259,2052,2236,1590,2236,2236,2254,1618,2237,1235,2237,2237,2265,1356,2238,1937,2238,2238,2268,2087,2239,1867,2239,2239,2276,1329,2240,2022,2240,2240,2257,1482,2241,1286,2241,2241,2255,1427,2242,1715,2242,2242,2286,1752,2243,2081,2243,2243,2283,1277,2244,1979,2244,2244,2273,1392,2245,1476,2245,2245,2258,1851,2246,1394,2246,2246,2274,1982,2247,1347,2247,2247,2268,1754,2248,1685,2248,2248,2265,1464,2249,2017,2249,2249,2266,1498,2250,1415,2250,2250,2283,1752,2251,2081,2251,2251,2283,1596,2252,1329,2252,2252,2257,2253,2300,2254,2299,2255,2302,2256,2297,2257,2302,2258,2297,2259,2302,2260,2302,2261,2298,2262,2301,2263,2302,2264,2302,2265,2302,2266,2302,2267,2302,2268,2302,2269,2302,2270,2301,2271,2298,2272,2298,2273,2301,2274,2300,2275,2302,2276,2302,2277,2302,2278,2302,2279,2302,2280,2302,2281,2302,2282,2302,2283,2302,2284,2302,2285,2298,2286,2302,2287,2302,2288,2302,2289,2302,2290,2302,2291,2302,2292,2300,2293,2302,2294,2302,2295,2299,2296,2302,2297,2303,2298,2303,2297,2304,2300,2304,2300,2305,2299,2305,2299,2306,2300,2306,2302,2307,2299,2307,2302,2308,2301,2308,1,2156,2,2156],"sessNodes":[0,1,2,3,4,5,6],"sessFrameNodes":{"f-00":1229,"f-01":1230,"f-02":1231,"f-03":1232,"f-04":1233,"f-05":1234,"f-06":1235},"threadNodes":[1,2,1230,1231,2156,2254,2299,2306]};
+const CONFIG = {"coach":{"name":"Bevan","full_name":"Bevan Broadbent","slug":"coach-bevan","pronouns":["he","him","his"]},"session":{"other_role":"Client"},"steps":{"collect":{"t":"162 sources, gathered in one place","b":"We read 158 of his LinkedIn posts and 4 video interviews with his clients from coachbevan.com: <em>24,181 words across 1,229 lines.<\/em> In the interviews we only use Bevan’s own lines, never his clients’ views as his. From this collection, we follow one moment where Bevan asks his client Ivana why she came to coaching."},"transcript":{"t":"A recording becomes text","b":"The conversation is transcribed turn by turn. At first, it is simply a record of what each person said."},"speakers":{"t":"Who said what","b":"We identify Bevan and Ivana, while keeping their words exactly as spoken. Now every moment has a speaker, a turn and a source."},"layer1":{"t":"Layer 1 · What was said","b":"Ivana says <em>&ldquo;I have gremlins in my head.&rdquo;<\/em> In the very next turn, Bevan responds. These exact lines are the evidence for everything that follows."},"meaning":{"t":"What happened next?","b":"The client names the problem. Bevan doesn’t reassure her, explain it away or offer a fix. He asks her to look at it more closely."},"cue":{"t":"What Bevan does in response","b":"Ivana says her gremlins make her feel small. Bevan answers, <em>&ldquo;How did you feel? How did the gremlins make you feel when they got noisy?&rdquo;<\/em>"},"layer2":{"t":"Layer 2 · Bevan’s response","b":"Bevan treats the voice as something to get curious about, not something to silence. He slows the problem down and asks about the feeling underneath. The response stays linked to the exact exchange."},"layer3":{"t":"Layer 3 · The situation","b":"A capable person feels small and not good enough. In Bevan’s material this shows up as <em>feeling small and unworthy<\/em>."},"layer4":{"t":"Layer 4 · The recurring pattern","b":"Bevan comes back to this again and again in his posts: the voice <em>&ldquo;has almost nothing to do with ability&rdquo;<\/em>, and it <em>&ldquo;gets louder with responsibility, not with weakness.&rdquo;<\/em>"},"layer5":{"t":"Layer 5 · The coaching purpose","b":"The purpose is to move from &ldquo;the voice stops me&rdquo; to &ldquo;I know what it’s for&rdquo;, so it loses its grip."},"layer6":{"t":"Layer 6 · The principle","b":"<em>The work isn’t killing the voice. It’s learning to move with it. Instead of being stopped by it.<\/em> This is the principle behind Bevan’s question."},"trace":{"t":"One exchange becomes a principle","b":"We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the exact moment Bevan responded."}},"cards":{"layer1":{"cue":"Because I have gremlins in my head and they are oftentimes putting me in this little box and making me feel small and insignificant &hellip;","move":"Yeah, that makes a lot of sense. And, uh, How did you feel? How did the gremlins make you feel when they got noisy?","foot":"Two exact lines &middot; two speakers &middot; consecutive turns"},"layer2":{"cue":"Names the gremlins that make her feel small","move":"Asks what the gremlins feel like when they get noisy"},"layer3":{"title":"She feels small and not good enough","text":"She is capable and doing well, yet a voice keeps putting her in a little box.","foot":"Situation in his material &middot; &ldquo;feeling small and unworthy&rdquo;"},"layer4":{"title":"The voice isn’t about ability","text":"Bevan says the voice gets louder with responsibility, not with weakness, and the people who hear it loudest are often the most capable in the room.","foot":"Recurring topic &middot; imposter feelings"},"layer5":{"title":"Get curious about the voice","text":"Find out what the voice is for, so it stops running the show.","starts":"&ldquo;I have gremlins in my head&rdquo;","moves_to":"&ldquo;I know what it’s for now&rdquo;"},"layer6":{"quote":"The work isn’t killing the voice. It’s learning to move with it. Instead of being stopped by it.","text":"The same idea runs through his posts: <em>&ldquo;The voice has almost nothing to do with ability.&rdquo;<\/em>"}},"about":{"sources":[["LinkedIn","in/coach-bevan","158 posts · November 2024 to today"],["Video","Client interviews","4 video testimonials on coachbevan.com"]],"rows":[["Type of coach",[["Founder coach",1],["Leadership",1],["Life coaching",1],["Career & interviews",0]],"from your LinkedIn headline: “Founder Coach | For founders ready to grow beyond what got them here”"],["Region",[["UK",1],["US",0],["Europe",0],["Global",0]],"Altrincham, England · from your LinkedIn profile"],["Who you coach",[["Individuals",1],["Corporate teams",0],["Both",0]],"founders of small teams, up to about 20 people, and tech and product leaders"],["How you deliver",[["1:1 coaching",1],["ELI assessment",1],["Talks & events",1],["Workshops",0]],"from your posts and LinkedIn profile"],["Your topics",[["Delegation & trust",1],["Imposter feelings",1],["Limiting beliefs",1],["Purpose",1],["Energy",1],["Conflict & feedback",1]],"grouped from 44 recurring topics in your posts and client interviews"],["Methods & tools",[["Core Energy Coaching",1],["Energy Leadership Index™",1],["Openmind",1],["Goal · Agility · Trust",1]],"Core Energy Coaching and the ELI from your iPEC training; Goal · Agility · Trust from your posts"],["Your style",[["Answers with a question",1],["Direct, but calm",1],["Shares his own mistakes",1],["Everyday analogies",1],["Gives advice",0]],"a first read; you’ll refine it when you calibrate"]]},"dos":[["ask before you advise; let them find the answer","LinkedIn About · “Mostly I ask”"],["look for the problem behind the problem","LinkedIn About · “I don't trust the first explanation”"],["slow a problem down: what actually happened, what was assumed","Post on Marie · questions in 18 sources"],["get curious about the inner voice instead of fighting it","Frequent pattern · the inner voice in 14 sources"],["check whether a belief actually holds","Frequent pattern · beliefs in 13 sources"],["ask what the leader would need to trust to let go","Frequent pattern · trust in 20 sources"]],"donts":[["treat a knowing-doing gap as a knowledge problem","LinkedIn About · “another tactic won't close it”"],["tell someone to push harder; look at their energy","Effort and working harder in 11 sources · energy in 17"],["perform confidence instead of building self-trust","Confidence discussed in 11 sources"],["keep a client needing you","Post · “My job is to get you to stop needing me”"],["blame in a post-mortem; ask what we missed, not who","Post · “What did we miss?”"]],"personas":[],"mobile":true,"words":{},"dd_lead":"Bevan's twin follows these in every answer. They come from patterns that run through his LinkedIn posts and client interviews."};
+</script>
+<script>
+(() => {
+const S = STORY, CF = CONFIG, T = S.totals, TH = S.thread, sess = S.session, L = sess.lines;
+const NM = CF.coach.name, [HE, HIM, HIS] = CF.coach.pronouns;
+const WD = Object.assign({coaching: 'coaching', Coaching: 'Coaching', coaches: 'coaches'}, CF.words || {});
+const $ = s => document.querySelector(s);
+const fmt = n => n.toLocaleString('en-US');
+const css = getComputedStyle(document.documentElement);
+const C = {}; for (let l = 1; l <= 6; l++) C[l] = css.getPropertyValue('--l' + l).trim();
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const day = d => d ? `${+d.slice(8, 10)} ${MON[+d.slice(5, 7) - 1]} ${d.slice(0, 4)}` : '—';
+const kb = b => Math.max(1, Math.round(b / 1e3)) + ' KB';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const lineOf = id => L.find(l => l.id === id);
+const cueL = lineOf(TH.cueLine), moveL = lineOf(TH.moveLine);
+const NAMES = ['', 'Lines', 'Moves', 'Situations', 'Topics', 'Phases', 'Beliefs'];
+const KIND = {youtube: ['YouTube video', 'yt', 'YouTube'], linkedin: ['LinkedIn post', 'li', 'LinkedIn'], web: ['Web page', 'wb', 'Website'],
+  medium: ['Medium article', 'wb', 'Medium'], doc: ['Document', 'wb', 'Documents'], recording: ['Recording', 'lm', 'Recordings'],
+  instagram: ['Instagram post', 'ig', 'Instagram'], twitter: ['Post on X', 'tw', 'X']};
+
+/* ================= the states ================= */
+const P = CF.steps;
+const CH = ['Collect', 'Read', 'Follow', 'Understand', 'About you', 'Do’s & Don’ts'];
+const STATES = [
+  {ch: -1},
+  {ch: 0, ...P.collect, stat: [T.conversations, `sources · ${(T.words / 1e6).toFixed(1)}m words`]},
+  {ch: 1, ...P.transcript},
+  {ch: 1, ...P.speakers},
+  {ch: 1, ...P.layer1, stat: [T.actions, 'lines spoken or written'], lvl: 1},
+  {ch: 2, ...P.meaning, stat: [S.frames.length, `frames from these ${L.length} lines`]},
+  {ch: 2, ...P.cue},
+  {ch: 3, ...P.layer2, stat: [T.frames, `substantive lines by ${NM}`], lvl: 2},
+  {ch: 3, ...P.layer3, stat: [T.tactics, 'situations'], lvl: 3},
+  {ch: 3, ...P.layer4, stat: [T.scenes, 'recurring topics'], lvl: 4},
+  {ch: 3, ...P.layer5, stat: [T.phases, WD.coaching + ' purposes'], lvl: 5},
+  {ch: 3, ...P.layer6, stat: [T.beliefs, 'principles'], lvl: 6},
+  {ch: 3, ...P.trace, lvl: 7},
+  {ch: 4, ab: true},
+  {ch: 5, fd: true},
+];
+const N = STATES.length, ST_L1 = STATES.findIndex(s => s.lvl === 1), ST_L2 = STATES.findIndex(s => s.lvl === 2);
+const ST_FR = ST_L1 + 1, ST_CUE = ST_L1 + 2;
+
+/* ================= build the DOM ================= */
+document.title = `How ${NM}'s Twin Learns`;
+$('#hdr').innerHTML = `Twin-memory · <b>From ${esc(NM)}'s words to a ${WD.coaching} principle</b>`;
+$('#hero-h').innerHTML = `How ${esc(NM)}'s twin<br><i>learns</i>`;
+$('#hero-p').textContent = `Start with what was said. Follow what ${NM} does next, the situation ${HE} recognizes, and the principle behind ${HIS} response.`;
+
+const stage = $('#stage');
+const rail = $('#rail');
+CH.forEach((name, c) => {
+  const el = document.createElement('div'); el.className = 'ch';
+  el.innerHTML = `<span>${pad(c + 1)} ${name}</span><span class="dots">${
+    STATES.map((s, i) => s.ch === c ? `<i data-i="${i}" class="hit"></i>` : '').join('')}</span>`;
+  rail.appendChild(el);
+});
+
+// finder list: every source, oldest first; the session is selected
+const files = S.files;
+const selIdx = files.findIndex(f => f.sel);
+const kinds = [...new Set(files.map(f => f.k))];
+$('#side').innerHTML = `<h6>Favourites</h6><div class="on"><i class="fi"></i>${esc(CF.coach.slug)}</div>
+  <h6 style="margin-top:14px">Sources</h6>${kinds.map(k => `<div><i class="fi"></i>${(KIND[k] || KIND.doc)[2]}</div>`).join('')}`;
+$('#lrows').innerHTML = files.map(f => { const K = KIND[f.k] || KIND.doc;
+  return `<div class="lrow"><span class="nm"><i class="badge ${K[1]}"></i>${esc(f.n)}</span><span class="kd">${K[0]}</span><span class="dt">${day(f.d)}</span><span class="sz">${kb(f.s)}</span></div>`; }).join('');
+
+// transcript
+const keyLines = new Set([TH.cueLine, TH.moveLine]);
+$('#doc').innerHTML = `<div class="fm">---\ntitle: '${esc(sess.title)}'\ndate: '${sess.date}'\nturns: ${sess.turns}\n---</div>` +
+  L.map(l => `<div class="ln${keyLines.has(l.id) ? ' key' : ''}" data-id="${l.id}">
+    <div class="rh"><span class="h">### </span>${l.ts} · ${l.raw}</div>
+    <div class="row"><span class="ts">${l.ts}</span><span class="who ${l.coach ? 'o' : 's'}">${esc(l.who)}</span><span class="txt"><span class="r">${esc(l.text)}</span><span class="c">${esc(l.text)}</span></span></div></div>`).join('');
+
+// frames
+$('#frames').innerHTML = `<div class="plabel">Frames · <b style="color:var(--l2)">what each line meant</b></div>` +
+  S.frames.map(f => `<div class="fc${f.id === TH.cue || f.id === TH.move ? ' key' : ''}"><span class="k">${f.kind}${f.id === TH.cue ? '<em>cue</em>' : f.id === TH.move ? `<em>${esc(NM)}’s move</em>` : ''}</span>${esc(f.span)}</div>`).join('');
+
+// layer cards (copy is trusted HTML from the config)
+const K = CF.cards;
+$('#cards').innerHTML = `
+  <div class="card" id="c1"><div class="lv" style="color:var(--l1)">Layer 1 · What was said</div>
+    <dl class="pair"><dt>${esc(sess.other)}</dt><dd class="q">“${K.layer1.cue}”</dd><dt>${esc(NM)}</dt><dd class="q">“${K.layer1.move}”</dd></dl>
+    <div class="foot">${K.layer1.foot || `${day(sess.date)} · ${cueL.ts} and ${moveL.ts} · stored word for word`}</div></div>
+  <div class="card" id="c2"><div class="lv" style="color:var(--l2)">Layer 2 · What ${esc(NM)} does</div>
+    <dl class="pair"><dt>${esc(CF.session.other_role)}</dt><dd>${K.layer2.cue}</dd><dt>${esc(NM)}</dt><dd>${K.layer2.move}</dd></dl>
+    <div class="foot">The response stays linked to the exact exchange</div></div>
+  <div class="card" id="c3"><div class="lv" style="color:var(--l3)">Layer 3 · The situation</div><h3>${K.layer3.title}</h3><p>${K.layer3.text}</p>
+    <div class="foot">${K.layer3.foot}</div></div>
+  <div class="card" id="c4"><div class="lv" style="color:var(--l4)">Layer 4 · The recurring pattern</div><h3>${K.layer4.title}</h3><p>${K.layer4.text}</p>
+    <div class="foot">${K.layer4.foot}</div></div>
+  <div class="card" id="c5"><div class="lv" style="color:var(--l5)">Layer 5 · The ${WD.coaching} purpose</div><h3>${K.layer5.title}</h3><p>${K.layer5.text}</p>
+    <dl class="pair" style="margin-top:14px"><dt>Starts</dt><dd>${K.layer5.starts}</dd><dt>Moves to</dt><dd>${K.layer5.moves_to}</dd></dl>
+    <div class="foot">Why ${esc(NM)}’s reply matters</div></div>
+  <div class="card" id="c6"><div class="lv" style="color:var(--l6)">Layer 6 · The ${WD.coaching} principle</div><blockquote>“${K.layer6.quote}”</blockquote><p>${K.layer6.text}</p>
+    <div class="foot">Derived from the recorded pattern</div></div>`;
+
+const LG = ['What was said', `What ${NM} does`, 'The situation', 'Recurring pattern', WD.Coaching + ' purpose', 'Derived principle'];
+$('#legend').innerHTML = `<div class="plabel">This exchange, layer by layer</div>` + [6, 5, 4, 3, 2, 1].map((l, i) =>
+  `<div class="lg" style="transition-delay:${.1 + i * .08}s"><i style="background:${C[l]}"></i><span>L${l} ${esc(LG[l - 1])}</span></div>`).join('');
+
+// about you
+const A = CF.about;
+$('#ab').innerHTML = `<div class="lead">
+    <div class="kick">05 · About you</div>
+    <h1>Where we found you</h1>
+    <p>Your twin starts from what you have already shared in public.</p>
+    <div class="found">${A.sources.map(([k, where, meta]) => `<div><b>${k}</b> ${where}<em>✓</em><small>${meta}</small></div>`).join('')}</div>
+  </div>
+  <div class="page">
+    <h2>Here’s who we think you are</h2>
+    <p class="what">From your ${(n => n.length > 1 ? n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1] : n[0])(A.sources.map(s => s[0]))}. Tap to correct anything.</p>
+    <div class="sheet">${A.rows.map(([label, opts, ev]) => `<div class="row"><span>${label}</span><div class="chips">${
+      opts.map(([v, on]) => `<button type="button" class="chip" aria-pressed="${!!on}">${v}</button>`).join('')}<span class="ev">${ev}</span></div></div>`).join('')}</div>
+  </div>`;
+
+// do's & don'ts (optionally one set per persona, e.g. a professor who also teaches Sanskrit chanting)
+const PERS = (CF.personas && CF.personas.length) ? CF.personas : [{label: '', dd_lead: CF.dd_lead, dos: CF.dos, donts: CF.donts}];
+const ddRow = (kind, [text, meta]) => `<div class="dd-row ${kind}"><i>${kind === 'do' ? '✓' : '✕'}</i><div><p><b>${kind === 'do' ? 'Do' : 'Don’t'}</b> ${text}</p><small>${meta}</small></div></div>`;
+function showPersona(k) {
+  const P = PERS[k];
+  $('#dd-lead').innerHTML = P.dd_lead || CF.dd_lead;
+  $('#dd-count').innerHTML = `<div><b>${P.dos.length}</b><span>Do’s</span></div><div><b>${P.donts.length}</b><span>Don’ts</span></div>`;
+  const tabs = PERS.length > 1 ? `<div class="ptabs" role="tablist">${PERS.map((q, n) =>
+    `<button type="button" class="ptab" role="tab" data-p="${n}" aria-selected="${n === k}">${esc(q.label)}</button>`).join('')}</div>` : '';
+  $('#fdpage').innerHTML = `<article class="on">
+  <h2>How ${esc(NM)} ${WD.coaches}</h2>${tabs}
+  <div class="dd-cols">
+    <section><div class="dd-head do"><i>✓</i> Do’s <small>how ${HIS} twin behaves</small></div>${P.dos.map(x => ddRow('do', x)).join('')}</section>
+    <section><div class="dd-head dont"><i>✕</i> Don’ts <small>lines ${HIS} twin never crosses</small></div>${P.donts.map(x => ddRow('dont', x)).join('')}</section>
+  </div>
+</article>`;
+}
+showPersona(0);
+
+/* ================= the layered space ================= */
+const FLOOR = {1: 1.0, 2: .84, 3: .68, 4: .52, 5: .36, 6: .2}, FY = l => -1 + (l - 1) * .4;
+const counts = {}, off = {}; let NN = 0;
+for (let l = 1; l <= 6; l++) { counts[l] = S.floors[l].length / 2; off[l] = NN; NN += counts[l]; }
+const X = new Float32Array(NN), Y = new Float32Array(NN), Z = new Float32Array(NN), LAY = new Uint8Array(NN);
+for (let l = 1; l <= 6; l++) {
+  const f = S.floors[l], w = FLOOR[l];
+  for (let k = 0; k < counts[l]; k++) { const i = off[l] + k; X[i] = f[2 * k] / 1000 * w; Z[i] = f[2 * k + 1] / 1000 * w; Y[i] = FY(l); LAY[i] = l; }
+}
+// draw order: a shuffle per layer, so a floor fills evenly as it appears
+const ORDER = {};
+for (let l = 1; l <= 6; l++) {
+  const a = new Uint32Array(counts[l]); for (let k = 0; k < a.length; k++) a[k] = off[l] + k;
+  for (let k = a.length - 1; k > 0; k--) { const j = (Math.random() * (k + 1)) | 0; const t = a[k]; a[k] = a[j]; a[j] = t; }
+  ORDER[l] = a;
+}
+const EDGE = {};                               // links grouped by the upper layer they reach
+for (let k = 0; k < S.edges.length; k += 2) { const a = S.edges[k], b = S.edges[k + 1], l = LAY[b]; (EDGE[l] ||= []).push(a, b); }
+const SN = S.sessNodes;                        // the lines we followed, in transcript order
+const SF = S.frames.map(f => ({node: S.sessFrameNodes[f.id], from: SN[L.findIndex(l => l.id === f.from.at(-1))]}));
+const thr = S.threadNodes;                     // [line cue, line move, frame cue, frame move, situation, topic, phase, belief]
+const thrEdges = [[thr[0], thr[2]], [thr[1], thr[3]], [thr[2], thr[4]], [thr[3], thr[4]], [thr[4], thr[5]], [thr[5], thr[6]], [thr[6], thr[7]]];
+const PX = new Float32Array(NN), PYs = new Float32Array(NN);
+const LBL = i => { const l = LAY[i], k = i - off[l]; return l === 3 ? S.labels.tactics[k] : l === 4 ? S.labels.scenes[k] : l === 5 ? S.labels.phases[k] : l === 6 ? S.labels.beliefs[k] : ''; };
+
+/* ================= animated values ================= */
+const V = {}, TG = {};
+const val = (k, v) => { V[k] = TG[k] = v; };
+[['ry', .55], ['rx', .62], ['zoom', .82], ['ty', -1], ['cx', 790], ['cy', 520], ['spin', 0], ['thrA', 0]].forEach(([k, v]) => val(k, v));
+for (let l = 1; l <= 6; l++) { val('L' + l, 0); val('E' + l, 0); }
+let rot = 0, drag = 0, cur = -1, thrUpTo = 0, cardLevel = 0, fly = null, flyF = null, wiresLeft = 0;
+
+/* ================= layout ================= */
+const cv = $('#cv'), ctx = cv.getContext('2d');
+let W = 0, H = 0, DPR = 1, KS = 1, OX = 0, OY = 0, KD = 1, M = false;
+const sx = x => OX + x * KS, sy = y => OY + y * KS;
+const HINT = $('#hint').innerHTML;
+// media queries, not innerWidth: a phone zooms out to fit the 1600px slide, which inflates innerWidth
+const MQ = matchMedia('(orientation: portrait) and (max-width: 899px)'), MQR = matchMedia('(orientation: landscape) and (max-height: 499px)');
+function fit() {
+  // phones: a portrait column (opt-in per coach); a phone held sideways is asked to turn upright
+  M = !!CF.mobile && MQ.matches;
+  document.body.classList.toggle('m', M);
+  document.body.classList.toggle('rot', !!CF.mobile && MQR.matches);
+  W = innerWidth; H = innerHeight; DPR = Math.min(2, devicePixelRatio || 1);
+  cv.width = W * DPR; cv.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  $('#hint').innerHTML = M ? '<span id="mback" class="hit">← Back</span><span>Tap to continue</span>' : HINT;
+  $('#go').textContent = M ? 'Tap to begin →' : 'Click to begin →';
+  if (M) { camM(0); wiresLeft = 0; return; }
+  KS = Math.min(W / 1600, H / 900); KD = KS; OX = (W - 1600 * KS) / 2; OY = (H - 900 * KS) / 2;
+  stage.style.transform = `translate(${OX}px,${OY}px) scale(${KS})`;
+  wiresLeft = 30;
+}
+// phones: fit the layered space into the free part of the visual area (above a card or the legend), easing as it changes
+function camM(dt) {
+  const v = $('#vis').getBoundingClientRect(), panel = ['#cards', '#legend'].map(s => $(s)).find(el => el.classList.contains('on'));
+  const top = v.top + 6, bottom = panel ? panel.getBoundingClientRect().top - 10 : v.bottom - 6, h = Math.max(120, bottom - top);
+  const ks = Math.min(W / 860, h / 560), ox = W / 2 - 800 * ks, oy = top + h / 2 - 470 * ks;
+  const k = dt ? 1 - Math.exp(-dt * 5) : 1;
+  KS += (ks - KS) * k; OX += (ox - OX) * k; OY += (oy - OY) * k; KD = Math.max(KS, .62);
+}
+
+/* ================= state application ================= */
+const cls = (sel, c, on) => $(sel).classList.toggle(c, !!on);
+// camera per layer: start low and close on the dense floors, rise with each layer, end on the whole
+const CAM = {1: [.62, .82, -1.0, 790, 520], 2: [.44, .8, -.78, 790, 530], 3: [.4, .78, -.52, 790, 520], 4: [.37, .76, -.28, 790, 505],
+             5: [.4, .76, -.05, 790, 490], 6: [.44, .74, .12, 790, 470], 7: [.5, .7, 0, 840, 470]};
+function go(i) {
+  i = Math.max(0, Math.min(N - 1, i)); if (i === cur) return;
+  const prev = cur; cur = i; const st = STATES[i], now = performance.now();
+  // the lines drop from the transcript onto the floor
+  fly = null;
+  if (i === ST_L1 && prev === ST_L1 - 1)
+    fly = {t0: now, from: [...document.querySelectorAll('.ln')].map(el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r.width, r.height]; })};
+  flyF = null;
+  if (i === ST_L2 && prev === ST_CUE)
+    flyF = {t0: now, from: [...document.querySelectorAll('.fc')].map(el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r.width, r.height]; })};
+
+  cls('#hero', 'out', i > 0);
+  const cap = $('#cap');
+  cap.classList.add('out');
+  if (i > 0 && !st.fd && !st.ab) setTimeout(() => {
+    if (cur !== i) return;
+    $('#kick').textContent = `${pad(st.ch + 1)} · ${CH[st.ch]}`;
+    $('#title').innerHTML = st.t; $('#body').innerHTML = st.b; cap.classList.remove('out');
+  }, 380);
+  if (st.stat) { countTo(st.stat[0]); $('#unit').textContent = st.stat[1]; }
+  cls('#stat', 'hide', !st.stat);
+  $('#hint').style.opacity = i === N - 1 ? 0 : 1;
+  document.body.classList.toggle('final', st.lvl === 7);
+  cls('#fd', 'on', st.fd);
+  cls('#ab', 'on', st.ab);
+  document.querySelectorAll('#rail .ch').forEach((el, c) => { el.classList.toggle('on', c === st.ch); el.classList.toggle('done', c < st.ch); });
+  document.querySelectorAll('#rail i').forEach(el => { const k = +el.dataset.i; el.classList.toggle('on', k === i); el.classList.toggle('done', k < i); });
+
+  // ----- the window
+  const win = $('#win');
+  const shown = i >= 1 && i < ST_L1 || i === ST_FR || i === ST_CUE;
+  win.classList.toggle('show', shown);
+  win.classList.toggle('gone', !shown && i > 0);
+  win.classList.toggle('narrow', i === ST_FR || i === ST_CUE);
+  $('#side').style.cssText = i <= 1 ? '' : 'width:0;padding:14px 0;opacity:0';
+  cls('#list', 'on', i === 1); cls('#docs', 'on', i >= 2);
+  $('#wtitle').textContent = i <= 1 ? CF.coach.slug : `${sess.date} · ${sess.title}.md`;
+  $('#status').textContent = i >= 2 ? `${sess.kind} · ${day(sess.date)}` : '';
+  if (i === 1) runList(); else listAnim++;
+  const doc = $('#doc');
+  doc.classList.toggle('clean', i >= 3); doc.classList.toggle('focus', i === ST_CUE);
+
+  // ----- right panels
+  cls('#frames', 'on', i === ST_FR || i === ST_CUE); cls('#frames', 'focus', i === ST_CUE);
+  for (let l = 1; l <= 6; l++) cls('#c' + l, 'on', st.lvl === l);
+  cls('#cards', 'on', st.lvl >= 1 && st.lvl <= 6);
+  cls('#legend', 'on', st.lvl === 7);
+  wiresLeft = 100;
+
+  // ----- canvas targets
+  const lv = st.lvl || 0, t = TG;
+  for (let l = 1; l <= 6; l++) { t['L' + l] = lv && l <= lv ? 1 : 0; t['E' + l] = lv && l <= lv && l > 1 ? 1 : 0; }
+  t.thrA = lv ? 1 : 0; thrUpTo = Math.min(lv, 6); cardLevel = lv >= 1 && lv <= 6 ? lv : 0;
+  t.spin = lv === 7 ? .07 : lv ? .02 : 0;
+  if (lv) { const [rx, zoom, ty, cx, cy] = CAM[lv]; Object.assign(t, {rx, zoom, ty, cx, cy}); }
+}
+
+let numCur = 0, numAnim = 0;
+function countTo(v) {
+  const from = numCur, t0 = performance.now(), id = ++numAnim;
+  const tick = now => {
+    if (id !== numAnim) return;
+    const p = Math.min(1, (now - t0) / 1100), e = 1 - Math.pow(1 - p, 3);
+    numCur = Math.round(from + (v - from) * e); $('#num').textContent = fmt(numCur);
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* the list scrolls through every source, then selects our session */
+let listAnim = 0;
+function runList() {
+  const rows = $('#lrows'), id = ++listAnim, t0 = performance.now();
+  rows.querySelectorAll('.sel').forEach(r => r.classList.remove('sel'));
+  const target = Math.max(0, Math.min(selIdx * 26 - 300, files.length * 26 - 556)), dur = 3600;
+  rows.style.transform = 'translateY(0)';
+  const tick = now => {
+    if (id !== listAnim || cur !== 1) return;
+    const p = Math.min(1, (now - t0) / dur), e = p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+    rows.style.transform = `translateY(${-e * target}px)`;
+    if (p < 1) requestAnimationFrame(tick);
+    else setTimeout(() => id === listAnim && rows.children[selIdx].classList.add('sel'), 250);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* wires: transcript lines -> frame cards */
+function wires() {
+  const svg = $('#wires'), fr = $('#frames'), on = cur === ST_FR || cur === ST_CUE;
+  const lineBox = {};
+  document.querySelectorAll('.ln').forEach(el => { const r = el.getBoundingClientRect(); lineBox[el.dataset.id] = ((r.top + r.bottom) / 2 - OY) / KS; });
+  const cards = [...fr.querySelectorAll('.fc')], frTop = 100;
+  let y = 0;
+  const pos = cards.map((el, k) => {
+    const h = el.offsetHeight || 54, a = lineBox[S.frames[k].from.at(-1)];
+    const want = a !== undefined ? a - frTop - h / 2 : y;
+    y = Math.max(want, y); const top = y; y += h + 6; return {top, h};
+  });
+  const over = y - 765;
+  if (over > 0) pos.forEach((p, k) => p.top -= over * k / Math.max(1, pos.length - 1));
+  cards.forEach((el, k) => { el.style.top = pos[k].top + 'px'; el.style.transitionDelay = (on && cur === ST_FR ? .25 + k * .1 : 0) + 's'; });
+  if (!svg.childElementCount) S.frames.forEach(f => f.from.forEach(() => svg.appendChild(document.createElementNS('http://www.w3.org/2000/svg', 'path'))));
+  let n = 0;
+  cards.forEach((el, k) => {
+    const f = S.frames[k], key = f.id === TH.cue || f.id === TH.move, ty = frTop + pos[k].top + pos[k].h / 2, tx = 1120;
+    f.from.forEach(id => {
+      const p = svg.children[n++], a = lineBox[id]; if (a === undefined) return;
+      const x0 = 1072, mx = (x0 + tx) / 2;
+      p.setAttribute('d', `M${x0},${a} C${mx},${a} ${mx},${ty} ${tx},${ty}`);
+      p.setAttribute('class', `wire${on ? ' on' : ''}${cur === ST_CUE ? (key ? ' key' : ' dim') : ''}`);
+      p.style.transitionDelay = (on && cur === ST_FR ? .35 + k * .1 : 0) + 's';
+    });
+  });
+}
+
+/* ================= canvas ================= */
+function project(x, y, z, out) {
+  const ry = rot + V.ry + drag, rx = V.rx, s = KS * 380 * V.zoom;
+  y -= V.ty;
+  const cy = Math.cos(ry), sy_ = Math.sin(ry), cx = Math.cos(rx), sx_ = Math.sin(rx);
+  const x1 = x * cy + z * sy_, z1 = -x * sy_ + z * cy;
+  const y2 = y * cx - z1 * sx_, z2 = y * sx_ + z1 * cx;
+  const p = 3.4 / (3.4 + z2);
+  out[0] = sx(V.cx) + x1 * p * s; out[1] = sy(V.cy) - y2 * p * s;
+  return out;
+}
+const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${n >> 8 & 255},${n & 255},${a})`; };
+const ease = t => t <= 0 ? 0 : t >= 1 ? 1 : t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const pt = [0, 0];
+const DOT = {1: 1.1, 2: 1.3, 3: 2.3, 4: 4, 5: 5.4, 6: 6};
+const ALPHA = {1: .5, 2: .55, 3: .8, 4: .9, 5: .9, 6: .95};
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  for (const k in TG) {
+    const rate = k[0] === 'L' ? 1.1 : k[0] === 'E' ? 1.4 : 2.6;
+    V[k] += (TG[k] - V[k]) * (1 - Math.exp(-dt * rate));
+  }
+  rot += dt * V.spin;
+  if (M) camM(dt);
+  else if (wiresLeft > 0) { wiresLeft--; wires(); }
+  ctx.clearRect(0, 0, W, H);
+  if ([1, 2, 3, 4, 5, 6].some(l => V['L' + l] > .005)) drawLayers(now);
+  requestAnimationFrame(frame);
+}
+
+function drawLayers(now) {
+  for (let l = 1; l <= 6; l++) {
+    if (V['L' + l] < .005) continue;
+    for (let i = off[l], e = off[l] + counts[l]; i < e; i++) { project(X[i], Y[i], Z[i], pt); PX[i] = pt[0]; PYs[i] = pt[1]; }
+  }
+  // floors
+  for (let l = 1; l <= 6; l++) {
+    const a = Math.min(1, V['L' + l] * 1.5); if (a < .01) continue;
+    const w = FLOOR[l], y = FY(l), cs = [[-w, -w], [w, -w], [w, w], [-w, w]].map(([x, z]) => project(x, y, z, [0, 0]));
+    ctx.beginPath(); cs.forEach((p, k) => k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath();
+    ctx.fillStyle = rgba(C[l], .04 * a); ctx.fill(); ctx.strokeStyle = rgba(C[l], .28 * a); ctx.lineWidth = 1; ctx.stroke();
+    const right = cs.reduce((m, p) => p[0] > m[0] ? p : m);
+    ctx.fillStyle = rgba(C[l], .9 * a); ctx.font = `600 ${M ? 9 : 10.5 * KS}px 'IBM Plex Mono',monospace`;
+    const lbl = `L${l} · ${NAMES[l].toUpperCase()}`, lx = right[0] + 12 * KD;
+    ctx.fillText(lbl, M ? Math.min(lx, W - 4 - ctx.measureText(lbl).width) : lx, right[1] + 4 * KD);
+  }
+  // links up into each layer, one path per layer
+  for (let l = 2; l <= 6; l++) {
+    const a = V['E' + l] * Math.min(V['L' + l], V['L' + (l - 1)]); if (a < .01 || !EDGE[l]) continue;
+    const E = EDGE[l], n = Math.floor(E.length / 2 * Math.min(1, a * 1.2));
+    ctx.strokeStyle = rgba(C[l], (l >= 5 ? .2 : l === 4 ? .13 : .07) * a); ctx.lineWidth = l >= 4 ? .8 : .5;
+    ctx.beginPath();
+    for (let k = 0; k < n; k++) { const p = E[2 * k], q = E[2 * k + 1]; ctx.moveTo(PX[p], PYs[p]); ctx.lineTo(PX[q], PYs[q]); }
+    ctx.stroke();
+  }
+  // atoms: each floor fills in as it appears
+  for (let l = 1; l <= 6; l++) {
+    const v = V['L' + l]; if (v < .005) continue;
+    const ord = ORDER[l], n = Math.floor(ord.length * Math.min(1, v * 1.15)), r = DOT[l] * KD;
+    ctx.fillStyle = rgba(C[l], ALPHA[l] * (cardLevel && cardLevel - l >= 2 ? .45 : 1));
+    if (l <= 3) for (let k = 0; k < n; k++) { const i = ord[k]; ctx.fillRect(PX[i] - r / 2, PYs[i] - r / 2, r, r); }
+    else {
+      ctx.strokeStyle = rgba(C[l], .3);
+      for (let k = 0; k < n; k++) {
+        const i = ord[k]; ctx.beginPath(); ctx.arc(PX[i], PYs[i], r, 0, 6.283); ctx.fill();
+        ctx.beginPath(); ctx.arc(PX[i], PYs[i], r + 3 * KD, 0, 6.283); ctx.stroke();
+      }
+    }
+  }
+  drawSession(now);
+  drawThread(now);
+}
+
+// the session's lines (and their frames) stay lit, so the eye can follow them
+function drawSession(now) {
+  const a1 = V.L1; if (a1 < .01) return;
+  SN.forEach((i, k) => {
+    let x = PX[i], y = PYs[i];
+    if (fly) {
+      const p = ease((now - fly.t0 - k * 55) / 1500), f = fly.from[k];
+      if (p < 1) {
+        x = f[0] + (x - f[0]) * p; y = f[1] + (y - f[1]) * p;
+        const w = f[2] + (5 * KD - f[2]) * p, h = f[3] + (5 * KD - f[3]) * p;
+        ctx.fillStyle = rgba(C[1], .16 + .5 * p); ctx.strokeStyle = rgba(C[1], .8); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(x - w / 2, y - h / 2, w, h, Math.min(7, h / 2)); ctx.fill(); ctx.stroke();
+        return;
+      }
+    }
+    ctx.fillStyle = rgba('#f6d48a', a1); ctx.beginPath(); ctx.arc(x, y, 2.6 * KD, 0, 6.283); ctx.fill();
+  });
+  if (V.L2 < .01) return;
+  SF.forEach((f, k) => {
+    let x = PX[f.node], y = PYs[f.node];
+    if (flyF) {
+      const p = ease((now - flyF.t0 - k * 55) / 1500), r = flyF.from[k];
+      if (p < 1) {
+        x = r[0] + (x - r[0]) * p; y = r[1] + (y - r[1]) * p;
+        const w = r[2] + (5 * KD - r[2]) * p, h = r[3] + (5 * KD - r[3]) * p;
+        ctx.fillStyle = rgba(C[2], .16 + .5 * p); ctx.strokeStyle = rgba(C[2], .85); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(x - w / 2, y - h / 2, w, h, Math.min(8, h / 2)); ctx.fill(); ctx.stroke();
+        return;
+      }
+    }
+    ctx.strokeStyle = rgba(C[2], .6 * V.L2); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(PX[f.from], PYs[f.from]); ctx.lineTo(x, y); ctx.stroke();
+    ctx.fillStyle = rgba('#9fe3da', V.L2); ctx.beginPath(); ctx.arc(x, y, 2.6 * KD, 0, 6.283); ctx.fill();
+  });
+}
+
+function drawThread(now) {
+  if (V.thrA < .02) return;
+  const pulse = .75 + .25 * Math.sin(now / 420), flying = (fly && now - fly.t0 < 2300) || (flyF && now - flyF.t0 < 2300);
+  ctx.lineWidth = 2 * KD;
+  for (const [a, b] of thrEdges) {
+    const lb = LAY[b]; if (lb > thrUpTo) continue;
+    const al = Math.min(V['L' + LAY[a]], V['L' + lb]) * V.thrA * (flyF && lb >= 2 ? ease((now - flyF.t0 - 1500) / 700) : 1);
+    ctx.strokeStyle = rgba('#f3ead9', .85 * al);
+    ctx.beginPath(); ctx.moveTo(PX[a], PYs[a]); ctx.lineTo(PX[b], PYs[b]); ctx.stroke();
+  }
+  for (const i of thr) {
+    const l = LAY[i]; if (l > thrUpTo || (flying && l === thrUpTo)) continue;
+    const al = V['L' + l] * V.thrA, big = l >= 4;
+    ctx.fillStyle = rgba(C[l], al); ctx.beginPath(); ctx.arc(PX[i], PYs[i], (big ? 7 : 4.5) * KD, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = rgba('#f3ead9', .95 * al); ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(PX[i], PYs[i], (big ? 11 : 9) * KD * pulse, 0, 6.283); ctx.stroke();
+  }
+  // leaders from this layer's thread atoms to its card
+  if (cardLevel && !flying) {
+    const r = $('#c' + cardLevel).getBoundingClientRect();
+    ctx.strokeStyle = rgba(C[cardLevel], .75 * V.thrA); ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+    thr.filter(i => LAY[i] === cardLevel).forEach((i, k) => {
+      ctx.beginPath(); ctx.moveTo(PX[i] + (M ? 0 : 10 * KS), PYs[i] + (M ? 10 * KD : 0));
+      if (M) ctx.lineTo(r.left + r.width * (.3 + k * .4), r.top - 6); else ctx.lineTo(r.left - 8, r.top + (cardLevel <= 2 ? 56 + k * 74 : 26) * KS);
+      ctx.stroke();
+    });
+    ctx.setLineDash([]);
+  }
+}
+
+/* ================= input ================= */
+let down = null, moved = false;
+addEventListener('pointerdown', e => { down = {x: e.clientX, d: drag}; moved = false; });
+addEventListener('pointermove', e => {
+  if (down && Math.abs(e.clientX - down.x) > 5 && STATES[cur].lvl) { moved = true; drag = down.d + (e.clientX - down.x) * .006; }
+  hover(e);
+});
+addEventListener('pointerup', e => {
+  const was = down; down = null;
+  if (!was || moved) return;
+  const dot = e.target.closest && e.target.closest('#rail i');
+  if (dot) { go(+dot.dataset.i); return; }
+  if (e.target.closest && e.target.closest('#mback, #fd .keys')) { go(cur - 1); return; }
+  const ptab = e.target.closest && e.target.closest('#fd .ptab');
+  if (ptab) { showPersona(+ptab.dataset.p); return; }
+  const chip = e.target.closest && e.target.closest('#ab .chip');
+  if (chip) { chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true')); return; }
+  if (STATES[cur].fd) return;                  // reading the last page: clicks do not advance
+  go(cur + 1);
+});
+addEventListener('keydown', e => {
+  if (['ArrowRight', ' ', 'Enter', 'PageDown'].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+  if (['ArrowLeft', 'Backspace', 'PageUp'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+  if (e.key === 'Home') go(0);
+});
+const tip = $('#tip');
+function hover(e) {
+  if (M || STATES[cur].lvl !== 7 || down) { tip.style.opacity = 0; return; }
+  let best = -1, bd = 12 * 12;
+  for (let i = off[3]; i < NN; i++) { const dx = PX[i] - e.clientX, dy = PYs[i] - e.clientY, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = i; } }
+  if (best < 0) { tip.style.opacity = 0; return; }
+  const l = LAY[best];
+  tip.innerHTML = `<small style="color:${C[l]}">L${l} · ${NAMES[l]}</small>${esc(LBL(best))}`;
+  tip.style.left = Math.min(W - 380, e.clientX + 16) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; tip.style.opacity = 1;
+}
+addEventListener('resize', fit);
+MQ.addEventListener && MQ.addEventListener('change', fit);
+fit(); requestAnimationFrame(fit);
+go(+location.hash.slice(1) || 0);
+addEventListener('hashchange', () => go(+location.hash.slice(1) || 0));
+requestAnimationFrame(frame);
+if (document.fonts) document.fonts.ready.then(() => { wiresLeft = 30; });
+})();
+</script>
+</body>
+</html>

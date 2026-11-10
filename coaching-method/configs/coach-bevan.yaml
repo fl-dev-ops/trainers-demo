@@ -1,0 +1,123 @@
+# Bevan Broadbent. Build with:
+#   python build.py build coach-bevan
+# Source: 158 LinkedIn posts (since Nov 2024) and the 4 client video interviews on coachbevan.com.
+# No coaching calls exist, so the page follows his interview with client Ivana Galic, where she names her "gremlins".
+
+coach:
+  slug: coach-bevan
+  name: Bevan
+  full_name: Bevan Broadbent
+  pronouns: [he, him, his]       # from DJ's prompt document
+
+mobile: true                     # phone layout (portrait stack, rotate prompt in landscape)
+
+session:
+  file: recordings/videos/2026-11-09-coachbevan-testimonial-ivana.md
+  kind: Video · client interview on coachbevan.com
+  start: So cool. So why did you come to coaching?
+  coach_speaker: speaker_1
+  other: Ivana
+  other_role: Client
+  cue: 1
+  move: 2
+  frames:
+    - ["question", "asking why she came to coaching"]
+    - ["statement", "naming the gremlins that make her feel small and not worthy"]
+    - ["question", "slowing it down: how did the gremlins make her feel when they got noisy?"]
+    - ["statement", "describing feeling frozen and overwhelmed in the moment"]
+    - ["acknowledgment", "letting her keep going"]
+    - ["statement", "noticing the pattern: it happens in groups, when she compares herself"]
+    - ["reframe", "telling her the freeze is normal, and that many people feel it when their gremlins show up"]
+
+thread:
+  situation: feeling-small-and-unworthy
+  topic: imposter-syndrome
+  phase: 2
+  belief: 3
+
+default_phase: 5
+phases:
+  - title: Hear the problem as it is
+    keywords: [stuck, lost, overwhelm, overwhelmed, purpose, finding, direction, career, transition, change, settling]
+  - title: Slow it down
+    keywords: [awareness, mindfulness, meditation, stressor, triggers, breathwork, presence, clutter, decluttering, intuition, overthinking]
+  - title: Get curious about the voice
+    keywords: [imposter, syndrome, self, talk, voice, comparison, small, unworthy, doubting, competence, confidence]
+  - title: Question the belief
+    keywords: [limiting, beliefs, belief, inspection, types, values, core, identity, authenticity, genuine, desires, mindset]
+  - title: Choose your energy
+    keywords: [energy, core, catabolic, levels, anxiety, anger, rest, effort, discipline, flow, motivation]
+  - title: Trust yourself and your team
+    keywords: [delegation, trust, autonomy, team, bottleneck, hire, feedback, conflict, disagreement, alignment, meeting, meetings, silence, leadership, product]
+
+beliefs:
+  - {title: The problem behind the problem, text: 'I like the problem behind the problem. I don’t trust the first explanation, especially when it’s mine.', phases: [0, 1]}
+  - {title: Not a knowledge problem, text: 'That gap isn’t a knowledge problem, so another tactic won’t close it.', phases: [0, 3]}
+  - {title: Beliefs, not skills, text: 'Most of what holds you back isn’t a skill you’re missing. It’s a belief you’ve never questioned.', phases: [3, 2]}
+  - {title: Move with the voice, text: 'The work isn’t killing the voice. It’s learning to move with it. Instead of being stopped by it.', phases: [2, 3]}
+  - {title: Self-trust over confidence, text: 'Confidence waits for certainty. Self-trust acts without it.', phases: [5, 2]}
+  - {title: Become unnecessary, text: 'My job is to get you to stop needing me as fast as possible.', phases: [5, 4]}
+
+steps:
+  collect: "We read {linkedin} of his LinkedIn posts and {recording} video interviews with his clients from coachbevan.com: <em>{words} words across {lines} lines.</em> In the interviews we only use Bevan’s own lines, never his clients’ views as his. From this collection, we follow one moment where Bevan asks his client Ivana why she came to coaching."
+  layer1: "Ivana says <em>&ldquo;I have gremlins in my head.&rdquo;</em> In the very next turn, Bevan responds. These exact lines are the evidence for everything that follows."
+  meaning: "The client names the problem. Bevan doesn’t reassure her, explain it away or offer a fix. He asks her to look at it more closely."
+  cue: "Ivana says her gremlins make her feel small. Bevan answers, <em>&ldquo;How did you feel? How did the gremlins make you feel when they got noisy?&rdquo;</em>"
+  layer2: "Bevan treats the voice as something to get curious about, not something to silence. He slows the problem down and asks about the feeling underneath. The response stays linked to the exact exchange."
+  layer3: "A capable person feels small and not good enough. In Bevan’s material this shows up as <em>feeling small and unworthy</em>."
+  layer4: "Bevan comes back to this again and again in his posts: the voice <em>&ldquo;has almost nothing to do with ability&rdquo;</em>, and it <em>&ldquo;gets louder with responsibility, not with weakness.&rdquo;</em>"
+  layer5: "The purpose is to move from &ldquo;the voice stops me&rdquo; to &ldquo;I know what it’s for&rdquo;, so it loses its grip."
+  layer6: "<em>The work isn’t killing the voice. It’s learning to move with it. Instead of being stopped by it.</em> This is the principle behind Bevan’s question."
+
+cards:
+  layer1:
+    cue: Because I have gremlins in my head and they are oftentimes putting me in this little box and making me feel small and insignificant &hellip;
+    move: Yeah, that makes a lot of sense. And, uh, How did you feel? How did the gremlins make you feel when they got noisy?
+    foot: Two exact lines &middot; two speakers &middot; consecutive turns
+  layer2:
+    cue: Names the gremlins that make her feel small
+    move: Asks what the gremlins feel like when they get noisy
+  layer3:
+    title: She feels small and not good enough
+    text: She is capable and doing well, yet a voice keeps putting her in a little box.
+    foot: Situation in {his} material &middot; &ldquo;feeling small and unworthy&rdquo;
+  layer4:
+    title: The voice isn’t about ability
+    text: Bevan says the voice gets louder with responsibility, not with weakness, and the people who hear it loudest are often the most capable in the room.
+    foot: Recurring topic &middot; imposter feelings
+  layer5:
+    title: Get curious about the voice
+    text: Find out what the voice is for, so it stops running the show.
+    starts: '&ldquo;I have gremlins in my head&rdquo;'
+    moves_to: '&ldquo;I know what it’s for now&rdquo;'
+  layer6:
+    quote: The work isn’t killing the voice. It’s learning to move with it. Instead of being stopped by it.
+    text: 'The same idea runs through his posts: <em>&ldquo;The voice has almost nothing to do with ability.&rdquo;</em>'
+
+about:
+  sources:
+    - ["LinkedIn", "in/coach-bevan", "{linkedin} posts · November 2024 to today"]
+    - ["Video", "Client interviews", "{recording} video testimonials on coachbevan.com"]
+  rows:
+    - ["Type of coach", [["Founder coach", 1], ["Leadership", 1], ["Life coaching", 1], ["Career & interviews", 0]], "from your LinkedIn headline: “Founder Coach | For founders ready to grow beyond what got them here”"]
+    - ["Region", [["UK", 1], ["US", 0], ["Europe", 0], ["Global", 0]], "Altrincham, England · from your LinkedIn profile"]
+    - ["Who you coach", [["Individuals", 1], ["Corporate teams", 0], ["Both", 0]], "founders of small teams, up to about 20 people, and tech and product leaders"]
+    - ["How you deliver", [["1:1 coaching", 1], ["ELI assessment", 1], ["Talks & events", 1], ["Workshops", 0]], "from your posts and LinkedIn profile"]
+    - ["Your topics", [["Delegation & trust", 1], ["Imposter feelings", 1], ["Limiting beliefs", 1], ["Purpose", 1], ["Energy", 1], ["Conflict & feedback", 1]], "grouped from {topics} recurring topics in your posts and client interviews"]
+    - ["Methods & tools", [["Core Energy Coaching", 1], ["Energy Leadership Index™", 1], ["Openmind", 1], ["Goal · Agility · Trust", 1]], "Core Energy Coaching and the ELI from your iPEC training; Goal · Agility · Trust from your posts"]
+    - ["Your style", [["Answers with a question", 1], ["Direct, but calm", 1], ["Shares his own mistakes", 1], ["Everyday analogies", 1], ["Gives advice", 0]], "a first read; you’ll refine it when you calibrate"]
+
+dd_lead: Bevan's twin follows these in every answer. They come from patterns that run through his LinkedIn posts and client interviews.
+dos:
+  - ["ask before you advise; let them find the answer", "LinkedIn About · “Mostly I ask”"]
+  - ["look for the problem behind the problem", "LinkedIn About · “I don't trust the first explanation”"]
+  - ["slow a problem down: what actually happened, what was assumed", "Post on Marie · questions in 18 sources"]
+  - ["get curious about the inner voice instead of fighting it", "Frequent pattern · the inner voice in 14 sources"]
+  - ["check whether a belief actually holds", "Frequent pattern · beliefs in 13 sources"]
+  - ["ask what the leader would need to trust to let go", "Frequent pattern · trust in 20 sources"]
+donts:
+  - ["treat a knowing-doing gap as a knowledge problem", "LinkedIn About · “another tactic won't close it”"]
+  - ["tell someone to push harder; look at their energy", "Effort and working harder in 11 sources · energy in 17"]
+  - ["perform confidence instead of building self-trust", "Confidence discussed in 11 sources"]
+  - ["keep a client needing you", "Post · “My job is to get you to stop needing me”"]
+  - ["blame in a post-mortem; ask what we missed, not who", "Post · “What did we miss?”"]

@@ -95,6 +95,20 @@ export const MARCUS_CAUCHI = {
   },
 }
 
+export const BEVAN_BROADBENT = {
+  id: 'bevan-broadbent',
+  name: 'Bevan Broadbent',
+  firstName: 'Bevan',
+  initials: 'BB',
+  face: '/media/bevan-broadbent-headshot.jpg',
+  portrait: '/media/bevan-broadbent-portrait.jpg',
+  room: {
+    kind: 'Ask me anything · Demo',
+    title: 'Ask about leading and letting go',
+    scenario: 'Bevan’s AI twin will help you look at delegation, trusting your team, self-doubt and the problem behind the problem. It was made only for this demo and is not a replacement for Bevan.',
+  },
+}
+
 export const TONY_LATIMER = {
   id: 'tony-latimer',
   name: 'Tony Latimer',
@@ -277,5 +291,18 @@ MARCUS_CAUCHI.sources = [
   ]],
   ['LinkedIn', '1,541 posts', [
     ['Marcus Cauchi on LinkedIn', 'His own posts, January 2025 to November 2026'],
+  ]],
+]
+
+BEVAN_BROADBENT.sourceSummary = '158 LinkedIn posts · 4 client video interviews'
+BEVAN_BROADBENT.sources = [
+  ['LinkedIn', '158 posts', [
+    ['Bevan Broadbent on LinkedIn', 'His own posts, November 2024 to November 2026'],
+  ]],
+  ['Video', '4 client interviews', [
+    ['Ivana Galic talks to Bevan about coaching with him', 'coachbevan.com'],
+    ['Tania talks to Bevan about coaching with him', 'coachbevan.com'],
+    ['Matt Barlow talks to Bevan about coaching with him', 'coachbevan.com'],
+    ['Marie talks to Bevan about coaching with him', 'coachbevan.com'],
   ]],
 ]
