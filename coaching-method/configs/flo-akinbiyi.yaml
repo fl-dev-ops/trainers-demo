@@ -1,8 +1,9 @@
 # Flo Akinbiyi. Build with:
 #   python build.py build flo-akinbiyi
 # Source: lore 022a2158: LinkedIn posts since Jan 2024 and 42 YouTube videos (2024-2026), plus 56 pages of flo-akinbiyi.com (lore 6b579791), incl. TEDx The Human Edge, Web Summit Lisbon, Dubai Eye, Skillionaires, Mehran Rowshan podcast.
-# No coaching calls exist, so the page follows a Dubai One interview (YouTube Short "Memorable Moment", Sept 2026),
-# where the host asks about memorable moments and Flo answers with his money-gun story from a workshop in Algeria.
+# No coaching calls exist, so the page follows listener questions on Dubai Eye 103.8 radio ("Afternoons with Helen Farmer",
+# youtube.com/watch?v=DP9msEva2P0, ~17:20-21:10): listener Priya writes in about blushing, shaking and a job she wants that
+# involves public speaking, and Flo answers. Only Flo's lines are used as his ideas; the host's own views are never used.
 # Pronouns he/him: Flo speaks about himself in the third person in his own video ("Flo needs to do everything that he can").
 
 coach:
@@ -14,25 +15,29 @@ coach:
 mobile: true
 
 session:
-  file: youtube/video/2026-09-15-memorable-moment-pSiZrAwySgI.md
-  kind: YouTube · Dubai One interview
-  start: Tell me about some memorable moments
+  file: youtube/video/2025-07-17-dubai-eye-103-8fm-interview-with-helen-farmer-DP9msEva2P0.md
+  kind: YouTube · Dubai Eye 103.8 radio
+  start: And Beez said this is a nightmare
   coach_speaker: speaker_2
-  other: Host
-  other_role: Interviewer
-  cue: 0
-  move: 1
+  other: Helen
+  other_role: Host, reading a listener's message
+  cue: 2
+  move: 3
   frames:
-    - ["question", "asking about memorable moments when it comes to stage presence"]
-    - ["story", "telling how he turned a CFO's 'average presentations' into a money-gun moment"]
-    - ["acknowledgment", "taking it in"]
-    - ["statement", "naming it: that's a memorable moment"]
+    - ["question", "reading a listener's message about blushing and stammering when she had to introduce herself"]
+    - ["reframe", "turning the dreaded introduction into a matter of preparation"]
+    - ["question", "reading Priya's message: she blushes, shakes and wants a job that involves public speaking"]
+    - ["story", "saying he gets nervous too, then giving fixes for her body: broad gestures, no paper in hand, breathing"]
+    - ["question", "asking what he thinks of power poses"]
+    - ["statement", "saying power poses can work"]
+    - ["acknowledgment", "reacting"]
+    - ["statement", "saying it's about finding the techniques that work for you"]
 
 thread:
-  situation: presenting-on-stage
-  topic: audience-engagement
-  phase: 3
-  belief: 2
+  situation: stage-fright
+  topic: stage-fright
+  phase: 0
+  belief: 0
 
 default_phase: 4
 phases:
@@ -50,6 +55,7 @@ phases:
     keywords: [leadership, leading, uncertainty, crisis, future, vision, philosophy, branding, personal, career]
 
 beliefs:
+  - {title: Nerves mean you care, text: 'Stage fright isn’t a sign that you’re not ready - it’s a sign that you care.', phases: [0, 2]}
   - {title: Human connection first, text: 'But most of all, it is all about the human connection.', phases: [4, 3]}
   - {title: Energy moves people, text: 'Energy is the difference between talking at an audience and moving them.', phases: [2, 3]}
   - {title: How you made them feel, text: 'People won’t remember every word, but they’ll remember how you made them feel.', phases: [3, 4]}
@@ -58,40 +64,40 @@ beliefs:
   - {title: Presence does not change, text: 'Tools evolve. Presence does not.', phases: [5, 4]}
 
 steps:
-  collect: "We read {linkedin} of his LinkedIn posts, {youtube} of his YouTube videos, including his TEDx talk and Web Summit talk, and {web} pages from his website: <em>{words} words across {lines} lines.</em> In interviews we only use Flo’s own lines, never the host’s views as his. From this collection, we follow one moment from a Dubai One interview."
-  layer1: "The host asks <em>&ldquo;Tell me about some memorable moments when it comes to stage presence.&rdquo;</em> In the very next turn, Flo responds. These exact lines are the evidence for everything that follows."
-  meaning: "The host asks about stage presence. Flo doesn’t give a tip or a definition. He tells a story about a moment he created for an audience."
-  cue: "Asked about memorable moments, Flo answers, <em>&ldquo;So here’s a story. I was doing a workshop in Algeria…&rdquo;</em>"
-  layer2: "Flo answers with a story, not a rule. A CFO wanted better than average presentations, so Flo created a moment the team would never forget. The response stays linked to the exact exchange."
-  layer3: "A team presents, but nobody remembers it. In Flo’s material this shows up as <em>presenting on stage</em>."
-  layer4: "Flo comes back to this again and again in his posts and talks: how to engage an audience and leave a lasting impression."
-  layer5: "The purpose is to move from &ldquo;an average presentation&rdquo; to &ldquo;a moment they remember&rdquo;."
-  layer6: "<em>People won’t remember every word, but they’ll remember how you made them feel.</em> This is the principle behind Flo’s story."
+  collect: "We read {linkedin} of his LinkedIn posts, {youtube} of his YouTube videos, including his TEDx talk and Web Summit talk, and {web} pages from his website: <em>{words} words across {lines} lines.</em> In interviews we only use Flo’s own lines, never the host’s views as his. From this collection, we follow listener questions on Dubai Eye 103.8 radio, where Flo answers people who struggle with nerves."
+  layer1: "A listener, Priya, writes in: <em>&ldquo;Inside I feel quite confident but it’s like my body betrays me.&rdquo;</em> She blushes, shakes, and wants a job that involves public speaking. In the very next turn, Flo responds. These exact lines are the evidence for everything that follows."
+  meaning: "Priya isn’t asking what to say. She’s asking how to stop her body giving her away. Flo doesn’t tell her to calm down or push through."
+  cue: "Asked how to deal with the blushing and shaking, Flo answers, <em>&ldquo;So first of all, Flo also gets nervous.&rdquo;</em>"
+  layer2: "Flo starts with his own nerves, then gives practical fixes for her body: broad gestures instead of clasped hands, no sheet of paper to shake, and breathing. The response stays linked to the exact exchange."
+  layer3: "Someone who knows their stuff, but whose body betrays them under pressure. In Flo’s material this shows up as <em>stage fright</em>."
+  layer4: "Flo comes back to stage fright again and again, in his posts, his website and videos like <em>Three techniques to combat stage fright</em>: understand what happens with your body, then develop a protocol."
+  layer5: "The purpose is to move from &ldquo;my body betrays me&rdquo; to &ldquo;I know what works for me&rdquo;, a protocol you can rely on before and on stage."
+  layer6: "<em>Stage fright isn’t a sign that you’re not ready - it’s a sign that you care.</em> This is the principle behind Flo’s answer."
 
 cards:
   layer1:
-    cue: Tell me about some memorable moments when it comes to stage presence.
-    move: So here’s a story. I was doing a workshop in Algeria, and what happened is the CFO said, we just deliver average presentations, we want to do better. So I gave them a money gun &hellip;
+    cue: I really struggle with public speaking mainly due to the physical symptoms of nerves &hellip; Inside I feel quite confident but its like my body betrays me &hellip;
+    move: I have a lot of advice. So first of all, Flo also gets nervous. And I had to actually quite well battle my way through stage fright as well &hellip;
     foot: Two exact lines &middot; two speakers &middot; consecutive turns
   layer2:
-    cue: Asks about memorable moments on stage
-    move: Answers with a story of a moment he created
+    cue: Blushes and shakes, and wants a job that involves speaking
+    move: Shares his own nerves, then gives fixes for the body
   layer3:
-    title: The presentation nobody remembers
-    text: A team delivers average presentations and wants to do better.
-    foot: Situation in {his} material &middot; &ldquo;presenting on stage&rdquo;
+    title: When your body betrays you
+    text: You know your content, but under pressure you blush, shake and your voice wobbles.
+    foot: Situation in {his} material &middot; &ldquo;stage fright&rdquo;
   layer4:
-    title: Engage the audience
-    text: Flo keeps coming back to how you engage an audience and leave a lasting impression.
-    foot: Recurring topic &middot; the audience in 228 sources
+    title: Manage the nerves, don't wait for them to go
+    text: Flo keeps coming back to stage fright and the protocols that help you deliver anyway.
+    foot: Recurring topic &middot; stage fright and nerves in 44 sources
   layer5:
-    title: Make it memorable
-    text: Create a moment the audience will remember, not just a message.
-    starts: '&ldquo;We just deliver average presentations&rdquo;'
-    moves_to: '&ldquo;That’s a memorable moment&rdquo;'
+    title: Find what works for you
+    text: Build your own protocol for the body and the mind, before and on stage.
+    starts: '&ldquo;My body betrays me&rdquo;'
+    moves_to: '&ldquo;I know what works for me&rdquo;'
   layer6:
-    quote: People won’t remember every word, but they’ll remember how you made them feel.
-    text: 'The same idea runs through his work: <em>&ldquo;Energy is the difference between talking at an audience and moving them.&rdquo;</em>'
+    quote: Stage fright isn’t a sign that you’re not ready - it’s a sign that you care.
+    text: 'The same idea runs through his work: <em>&ldquo;Flo also gets nervous.&rdquo;</em>'
 
 about:
   sources:
