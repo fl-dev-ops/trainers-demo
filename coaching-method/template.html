@@ -537,7 +537,7 @@ const A = CF.about;
 $('#ab').innerHTML = `<div class="lead">
     <div class="kick">05 · About you</div>
     <h1>Where we found you</h1>
-    <p>Your twin starts from what you have already shared in public.</p>
+    <p>${CF.about_lead || 'Your twin starts from what you have already shared in public.'}</p>
     <div class="found">${A.sources.map(([k, where, meta]) => `<div><b>${k}</b> ${where}<em>✓</em><small>${meta}</small></div>`).join('')}</div>
   </div>
   <div class="page">

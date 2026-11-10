@@ -1,0 +1,128 @@
+# Olga Sinenko. Build with:
+#   python build.py build olga
+# Source: her public YouTube (online practice sessions, trainings), LinkedIn, her course lessons and Loom sessions with agents.
+# The exchange is public: YouTube "Online practice session. How to overcome 'Just send me some options' - Part 1" (30 Oct 2025),
+# where agent Harvey asks what to do when a client won't talk, and Olga answers by starting a role play.
+# Pronouns she/her: from the team's own prompt for her twin (SALES.md, "not Olga herself").
+
+coach:
+  slug: olga
+  name: Olga
+  full_name: Olga Sinenko
+  pronouns: [she, her, her]
+
+mobile: true                     # phone layout (portrait stack, rotate prompt in landscape)
+
+session:
+  file: "youtube/video/2025-10-30-Online practice session. How to overcome  “Just sent me some options” - Part 1 [Hy0I6y2Q5bY].md"
+  kind: YouTube · online practice session
+  start: Um when you are on a call
+  coach_speaker: speaker_1
+  other: Harvey
+  other_role: Agent
+  cue: 0
+  move: 3
+  frames:
+    - ["question", "asking what to do when a client literally doesn't want to have the conversation"]
+    - ["acknowledgment", "letting him finish"]
+    - ["acknowledgment", "agreeing"]
+    - ["request", "asking him to play that client in a role play, with her guiding him"]
+    - ["acknowledgment", "agreeing to play the client"]
+    - ["statement", "explaining she'll pause after each reply and explain her thinking"]
+    - ["acknowledgment", "following along"]
+    - ["reframe", "saying the mindset behind each step is what changes how you act"]
+
+thread:
+  situation: client-resistance
+  topic: role-play-practice
+  phase: 5
+  belief: 5
+
+default_phase: 0
+phases:
+  - title: Get the client's exact words
+    keywords: [objection, objections, resistance, price, hesitation, options, budget, rush, think, wait, oversupplied]
+  - title: Ask what happened before
+    keywords: [question, questions, questioning, qualification, qualify, discovery, needs, opening, opener, cold, call, first]
+  - title: Find the real problem
+    keywords: [problem, pain, motivation, motive, reason, goal, investment, horizon, future, vision, decision, outcome]
+  - title: Lead as the expert, not needy
+    keywords: [trust, authority, expert, confidence, status, needy, pressure, persuasion, influence, branding, psychology, truth]
+  - title: Book the next step
+    keywords: [meeting, zoom, scheduling, follow, next, closing, close, booking, commitment, reactivation, aged, leads, whatsapp]
+  - title: Practise until it changes how you act
+    keywords: [role, play, practice, practise, training, coaching, script, scripts, session, feedback, skill, mindset]
+
+beliefs:
+  - {title: No problem, no buyer, text: 'If I don’t have a problem, I’m not looking for solution.', phases: [2, 0]}
+  - {title: No magic script, text: 'We cannot turn no into yes. There is no script in the world.', phases: [0, 5]}
+  - {title: Ask the difficult questions, text: 'The clients are usually buying with the expert and the authority in the client’s mind, because he is not afraid to ask difficult questions.', phases: [1, 3]}
+  - {title: Higher status, not needy, text: 'The advice from whom will he take? From a desperate person who is completely needy, attached, spreading commission breath on him, or someone who is higher status?', phases: [3, 4]}
+  - {title: Clients like truth, text: 'People in these big moves, they like truth.', phases: [3, 2]}
+  - {title: Practice changes behaviour, text: 'You just hearing me saying stuff is not going to change the way you act.', phases: [5, 1]}
+
+steps:
+  collect: "We read {youtube} of her YouTube videos, {recording} of her recorded sessions and lessons, {doc} of her course lessons and documents, and her LinkedIn profile: <em>{words} words across {lines} lines.</em> In sessions we only use Olga’s own lines, never her agents’ views as hers. From this collection, we follow one moment from a public online practice session with her agents."
+  layer1: "Harvey, one of her agents, asks <em>&ldquo;they just literally don’t want to have the conversation with you, is there still kind of a way that we can… turn that around?&rdquo;</em> Olga answers. These exact lines are the evidence for everything that follows."
+  meaning: "The agent asks for a way to turn a client around. Olga doesn’t give him a line to say. She asks him to play that client, so they can practise it."
+  cue: "Harvey asks how to turn around a client who won’t talk. Olga answers, <em>&ldquo;Are you happy to kind of role play with me?… Can you just be that client?&rdquo;</em>"
+  layer2: "Olga turns a question into practice. She plays the agent, he plays the client, and she stops after each reply to explain why she said it. The response stays linked to the exact exchange."
+  layer3: "A client is resisting and the agent wants a way through. In Olga’s material this shows up as <em>client resistance</em>."
+  layer4: "Olga comes back to this again and again: she role-plays objections live with her agents in her sessions, lessons and videos."
+  layer5: "The purpose is to move agents from &ldquo;what should I say?&rdquo; to having practised it, so they act differently on the next real call."
+  layer6: "<em>You just hearing me saying stuff is not going to change the way you act.</em> This is the principle behind Olga’s answer."
+
+cards:
+  layer1:
+    cue: When you are on a call, let’s say for example a client, and they just literally don’t want to have the conversation with you, is there still kind of a way that we can, I don’t know, turn that around? &hellip;
+    move: Very, very good. Are you are you happy to kind of role play with me? I believe that you’ve been in this conversation and you felt that way. Can you just be that client? And I will I will help you on the way.
+    foot: Two exact lines &middot; two speakers &middot; a few seconds apart
+  layer2:
+    cue: Asks how to turn around a client who won’t talk
+    move: Asks him to play that client in a role play
+  layer3:
+    title: The client won’t engage
+    text: The agent is on a call with a client who doesn’t want the conversation, and wants a way to turn it around.
+    foot: Situation in {his} material &middot; &ldquo;client resistance&rdquo;
+  layer4:
+    title: Practise it out loud
+    text: Olga role-plays objections live with her agents, then explains the thinking behind each step.
+    foot: Recurring pattern &middot; role play in 85 sources
+  layer5:
+    title: Practise until it changes how you act
+    text: Rehearse the real conversation, so the next call goes differently.
+    starts: '&ldquo;What do I say when they won’t talk?&rdquo;'
+    moves_to: '&ldquo;I’ve practised it&rdquo;'
+  layer6:
+    quote: You just hearing me saying stuff is not going to change the way you act.
+    text: 'The same idea runs through her sessions: <em>&ldquo;We cannot turn no into yes. There is no script in the world.&rdquo;</em>'
+
+about_lead: Your twin starts from your public videos and profile, plus the sessions and course you shared with us.
+about:
+  sources:
+    - ["YouTube", "@OlgaSinenkoRealEstate", "{youtube} videos and Shorts"]
+    - ["LinkedIn", "in/olgasi", "profile, headline and About"]
+    - ["Recordings", "Sessions and lessons", "{recording} Loom and course recordings"]
+    - ["Course", "Lessons and material", "{doc} course lessons, scripts and workbooks"]
+  rows:
+    - ["Type of coach", [["Sales trainer", 1], ["Real estate", 1], ["Mentor", 1], ["Life coaching", 0]], "from your LinkedIn headline: “Dubai Real Estate Sales Mentor & Business Consultant”"]
+    - ["Region", [["UAE", 1], ["UK", 0], ["Europe", 0], ["Global", 0]], "Dubai, United Arab Emirates · from your LinkedIn profile"]
+    - ["Who you coach", [["Individuals", 0], ["Agents & teams", 1], ["Both", 0]], "real estate agents, through your Live It Up academy · “Over 2,000 agents have gone through my trainings”"]
+    - ["How you deliver", [["Group sessions", 1], ["1:1 coaching", 1], ["Video courses", 1], ["YouTube", 1]], "from your recordings, course lessons and channel"]
+    - ["Your topics", [["Objection handling", 1], ["Lead qualification", 1], ["Cold calls & aged leads", 1], ["Booking the Zoom", 1], ["Closing off-plan", 1]], "grouped from {topics} recurring topics in your videos, sessions and course"]
+    - ["Named frameworks", [["Neuro-Emotional Persuasion System", 1], ["The Closing System", 1], ["Off-Plan Closers", 1]], "from your LinkedIn About and your course lesson titles"]
+    - ["Your style", [["Role-plays it live", 1], ["Teaches through examples", 1], ["Sets up “imagine…” scenes", 1], ["Stories from her own sales", 1]], "from your material: role play in 85 sources · “for example” in 219 · “imagine” in 191 · stories from your own sales years in 126"]
+
+dd_lead: Olga's twin follows these in every answer. They come from patterns that run through her videos, sessions and course.
+dos:
+  - ["get the client's exact words before answering", "Frequent pattern · word for word in 4 sources"]
+  - ["practise the conversation out loud in a role play", "Online practice session · role play in 85 sources"]
+  - ["find the client's real problem before pitching", "“If I don’t have a problem, I’m not looking for solution”"]
+  - ["ask the difficult questions, like an expert", "Video · “not afraid to ask difficult questions”"]
+  - ["tell clients the truth, even when it's direct", "Online practice session · “they like truth”"]
+  - ["understand why each scripted question is there", "Video · “understand why you’re asking those questions”"]
+donts:
+  - ["send options before you've had a real conversation", "Video · “they follow up sending more options”"]
+  - ["sound needy or desperate for the deal", "Needy or desperate in 46 sources"]
+  - ["use pressure or false urgency", "Pressure discussed in 68 sources"]
+  - ["try to turn a no into a yes with a script", "Online practice session · “We cannot turn no into yes”"]

@@ -7,7 +7,7 @@ import { OLGA_AMA, SCENARIOS, TWIN } from '@/data.js'
 import MadeFrom from '@/components/MadeFrom.jsx'
 import SourcesDrawer from '@/components/SourcesDrawer.jsx'
 import RemoveDialog from '@/components/RemoveDialog.jsx'
-import { Eye, Play, PlayBox, Shield, Sparkle, Trash, XLogo } from '@/components/Icons.jsx'
+import { Play, PlayBox, Shield, Sparkle, Trash, XLogo } from '@/components/Icons.jsx'
 
 const DASH = 'https://dash.trainertwin.216.48.181.196.nip.io/agents/'
 
@@ -50,15 +50,13 @@ export default function Welcome() {
           <article className="path">
             <div className="peek peek--fig" aria-hidden="true">
               <img src={TWIN.poster} alt="" />
-              <span className="peek-k">Your twin is waiting</span>
-              <span className="tag"><Eye />Meet to reveal</span>
+              <span className="peek-k">Coaching methodology</span>
             </div>
             <div className="path-b">
-              <h2>Meet your video twin</h2>
-              <p>Use your twin to share content with your agents.</p>
+              <h2>What your twin learns from</h2>
+              <p>See how your twin was built from your coaching, layer by layer.</p>
               <div className="row">
-                <Link href="/olga/meet" className="btn btn--strong">Meet your twin</Link>
-                <span className="meta">1 min</span>
+                <Link href="/olga/methodology" className="btn btn--strong">See how it learns</Link>
               </div>
             </div>
           </article>
