@@ -127,6 +127,9 @@ svg{flex:none}
 .scn-p{display:flex;align-items:center;gap:12px;font-size:16px;font-weight:600;color:var(--text)}
 .scn-p img{width:44px;height:44px;border-radius:999px;object-fit:cover;flex:none}
 .scn p{font-size:14px;line-height:22px;color:var(--text-2)}
+.scn .row{margin-top:8px}
+.scn-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:680px){.scn-grid{grid-template-columns:minmax(0,1fr)}}
 .path-b{display:flex;flex-direction:column;gap:6px;padding:20px 24px 24px}
 .path-b h2{font-size:20px;line-height:26px;font-weight:600}
 .path-b p{font-size:15px;color:var(--text-2)}
