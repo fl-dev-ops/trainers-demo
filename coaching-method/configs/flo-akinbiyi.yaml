@@ -1,6 +1,6 @@
 # Flo Akinbiyi. Build with:
 #   python build.py build flo-akinbiyi
-# Source: 152 LinkedIn posts and 25 YouTube videos (2026), incl. his TEDx talk The Human Edge and Web Summit Lisbon.
+# Source: lore 022a2158: LinkedIn posts since Jan 2024 and 42 YouTube videos (2024-2026), incl. TEDx The Human Edge, Web Summit Lisbon, Dubai Eye, Skillionaires, Mehran Rowshan podcast.
 # No coaching calls exist, so the page follows a Dubai One interview (YouTube Short "Memorable Moment", Sept 2026),
 # where the host asks about memorable moments and Flo answers with his money-gun story from a workshop in Algeria.
 # Pronouns he/him: Flo speaks about himself in the third person in his own video ("Flo needs to do everything that he can").
@@ -83,7 +83,7 @@ cards:
   layer4:
     title: Engage the audience
     text: Flo keeps coming back to how you engage an audience and leave a lasting impression.
-    foot: Recurring topic &middot; the audience in 40 sources
+    foot: Recurring topic &middot; the audience in 191 sources
   layer5:
     title: Make it memorable
     text: Create a moment the audience will remember, not just a message.
@@ -95,8 +95,8 @@ cards:
 
 about:
   sources:
-    - ["LinkedIn", "in/floakinbiyi", "{linkedin} posts · 2026"]
-    - ["YouTube", "@floakinbiyi", "{youtube} videos · TEDx, Web Summit, Dubai One"]
+    - ["LinkedIn", "in/floakinbiyi", "{linkedin} posts · since Jan 2024"]
+    - ["YouTube", "@floakinbiyi", "{youtube} videos · TEDx, Web Summit, Dubai One, Dubai Eye, podcasts"]
   rows:
     - ["Type of coach", [["Communication coach", 1], ["Presenter & host", 1], ["Keynote speaker", 1], ["Life coaching", 0]], "from your LinkedIn headline: “International Presenter, TEDx Speaker and Communication Coach”"]
     - ["Region", [["UAE", 1], ["Europe", 1], ["UK", 0], ["Global", 0]], "Dubai, United Arab Emirates · you work across the Middle East and Europe"]
@@ -104,11 +104,11 @@ about:
     - ["How you deliver", [["Workshops", 1], ["1:1 coaching", 1], ["Keynotes", 1], ["Event hosting", 1]], "the services you list on LinkedIn"]
     - ["Your topics", [["Human-First Communication", 1], ["Public speaking", 1], ["Stage fright", 1], ["Energy & voice", 1], ["Leadership communication", 1]], "grouped from {topics} recurring topics in your posts and videos"]
     - ["Named frameworks", [["Human-First Communication", 1], ["The Human Edge", 1]], "the term you coined for your work, and your TEDx talk"]
-    - ["Your style", [["Tells stories from his stages", 1], ["Energetic and expressive", 1], ["Keeps it simple", 1], ["1:1 coaching: not enough data yet", 0]], "your own stages and life in 36 sources · energy in 34 · “simple” in 18 · no recorded coaching sessions yet, so start calibration to see how you coach 1:1"]
+    - ["Your style", [["Tells stories from his stages", 1], ["Energetic and expressive", 1], ["Keeps it simple", 1], ["1:1 coaching: not enough data yet", 0]], "events you hosted or speakers you interviewed in 78 sources · energy in 102 · “simple” in 64 · no recorded coaching sessions yet, so start calibration to see how you coach 1:1"]
 
 dd_lead: Flo's twin follows these in every answer. They come from patterns that run through his posts and talks.
 dos:
-  - ["put human connection first", "Frequent pattern · human-first in 27 sources"]
+  - ["put human connection first", "Frequent pattern · human-first in 31 sources"]
   - ["bring the energy, about 20% more than feels natural", "Video · “use 20 percent more energy”"]
   - ["breathe consciously before you speak", "Video · three techniques to combat stage fright"]
   - ["know your content inside out", "Video · “be obsessed with your content”"]
