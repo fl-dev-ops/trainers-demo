@@ -422,6 +422,7 @@ def resolve(cfg, story):
             'personas': fmt(cfg.get('personas', [])),  # optional: [{label, dd_lead, dos, donts}] shown as tabs on Do's & Don'ts
             'mobile': bool(cfg.get('mobile', False)),  # optional: phone layout (portrait) instead of the scaled-down slide
             'words': cfg.get('words', {}),  # optional wording, e.g. {coaching: teaching, Coaching: Teaching, coaches: teaches}
+            'about_lead': fmt(cfg.get('about_lead', '')),  # optional: replaces "Your twin starts from what you have already shared in public."
             'dd_lead': fmt(cfg.get('dd_lead', '{name}’s twin follows these in every answer. They start as frequent patterns in how {he} coaches, plus the rules from {his} validated scenarios.'))}
 
 
