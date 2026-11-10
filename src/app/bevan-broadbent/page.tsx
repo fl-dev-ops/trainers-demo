@@ -9,6 +9,10 @@ const QUESTIONS = [
   'I keep feeling like I’ll be found out. What do I do?',
 ]
 
+const ROLEPLAY_URL = 'https://dash.trainertwin.216.48.181.196.nip.io/agents/the-one-to-one-you-keep-putting-off-liam-team-lead-bevan-bro'
+
+const SITUATION = 'Liam is an AI persona. He is the lead engineer at a 15-person software startup and one of its first hires. The person he is talking to is the founder. For months, the founder has been re-checking Liam’s work and quietly redoing parts of it. Because of this, Liam has stopped taking initiative and now waits to be told what to do. One decision Liam could have made himself has been on hold until the founder got round to it. Today is their weekly one-to-one. Liam starts by saying everything is fine.'
+
 export default function Welcome() {
   return (
     <section className="wrap">
@@ -60,6 +64,29 @@ export default function Welcome() {
               <div className="row">
                 <Link href="/bevan-broadbent/live" className="btn btn--strong">Start asking</Link>
                 <span className="meta">{BEVAN_BROADBENT.room.kind}</span>
+              </div>
+            </div>
+          </article>
+          <article className="path path--wide">
+            <div className="peek peek--wrap peek--scn">
+              <span className="peek-k">Role play</span>
+              <div className="scn">
+                <h3 className="scn-t">Help Liam take ownership again</h3>
+                <span className="scn-k">Client persona</span>
+                <div className="scn-p">
+                  <img src="/media/bevan-roleplay-liam.jpg" alt="" />
+                  <span>Liam Walsh (Demo for Bevan)</span>
+                </div>
+                <span className="scn-k">Situation</span>
+                <p>{SITUATION}</p>
+              </div>
+            </div>
+            <div className="path-b">
+              <h2>Practise the one-to-one you keep putting off</h2>
+              <p>Talk to Liam, a lead engineer who has stopped taking initiative, and help him own his work again.</p>
+              <div className="row">
+                <a href={ROLEPLAY_URL} target="_blank" rel="noopener noreferrer" className="btn btn--strong">Start the role play</a>
+                <span className="meta">Opens the role-play app</span>
               </div>
             </div>
           </article>
