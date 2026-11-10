@@ -9,6 +9,26 @@ import SourcesDrawer from '@/components/SourcesDrawer.jsx'
 import RemoveDialog from '@/components/RemoveDialog.jsx'
 import { Eye, Play, PlayBox, Shield, Sparkle, Trash, XLogo } from '@/components/Icons.jsx'
 
+const DASH = 'https://dash.trainertwin.216.48.181.196.nip.io/agents/'
+
+/* Olga's role plays on the role-play dashboard (situations rewritten in the third person from the scenarios). */
+const ROLE_PLAYS = [
+  {
+    slug: 'sales-options-collector',
+    title: 'The options-collector who ghosts',
+    persona: 'Priya Shah',
+    face: '/media/olga-roleplay-priya.jpg',
+    situation: 'Priya is a 36-year-old NHS pharmacist from Manchester. Two days ago she clicked an Instagram ad for a Dubai off-plan project. She has spoken to several other agents this week and her WhatsApp is full of brochures. It would be her first investment property. She is busy and brisk, and keeps asking the agent to just send some options, the price and the payment plan.',
+  },
+  {
+    slug: 'sales-wait-and-see-investor',
+    title: 'The wait-and-see investor',
+    persona: 'Daniel Hart',
+    face: '/media/olga-roleplay-daniel.jpg',
+    situation: 'Daniel is 44, from London, and works in finance operations. He enquired about an off-plan project seven months ago and put it on hold. He has about AED 1 million in savings he calls safe. He keeps hearing negative news, thinks the market looks oversupplied, and says he will wait for prices to hit the bottom, or maybe buy gold.',
+  },
+]
+
 export default function Welcome() {
   const router = useRouter()
   const [showSources, setShowSources] = useState(false)
@@ -69,6 +89,36 @@ export default function Welcome() {
               <div className="row">
                 <Link href={`/olga/live?s=${SCENARIOS[0].id}`} className="btn btn--strong">Start a role play</Link>
                 <span className="meta">{SCENARIOS.length} scenarios · about 2 min each</span>
+              </div>
+            </div>
+          </article>
+
+          <article className="path path--wide">
+            <div className="peek peek--wrap peek--scn">
+              <span className="peek-k">Role play</span>
+              <div className="scn-grid">
+                {ROLE_PLAYS.map((r) => (
+                  <div key={r.slug} className="scn">
+                    <h3 className="scn-t">{r.title}</h3>
+                    <span className="scn-k">Client persona</span>
+                    <div className="scn-p">
+                      <img src={r.face} alt="" />
+                      <span>{r.persona}</span>
+                    </div>
+                    <span className="scn-k">Situation</span>
+                    <p>{r.situation}</p>
+                    <div className="row">
+                      <a href={DASH + r.slug} target="_blank" rel="noopener noreferrer" className="btn btn--strong">Start this role play</a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="path-b">
+              <h2>Practise with AI clients</h2>
+              <p>Your agents practise real client conversations with AI clients, then get a score and feedback after each call.</p>
+              <div className="row">
+                <span className="meta">Opens the role-play app</span>
               </div>
             </div>
           </article>
