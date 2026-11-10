@@ -42,6 +42,8 @@ function getErrorType(error: unknown): string {
 export async function POST(request: Request) {
   let name = "";
   let agentId = "olga";
+  let starter = "";
+  let opener = "";
   try {
     const body = (await request.json()) as Record<string, unknown>;
     name = typeof body?.name === "string" ? body.name.trim() : "";
@@ -51,6 +53,10 @@ export async function POST(request: Request) {
       }
       agentId = body.profile;
     }
+    if (typeof body.starter === "string") {
+      starter = body.starter.replace(/\s+/g, " ").trim().slice(0, 300);
+    }
+    if (body.opener === "ama") opener = "ama";
   } catch {
     return Response.json({ error: "Invalid JSON body" }, { status: 400 });
   }
@@ -63,6 +69,8 @@ export async function POST(request: Request) {
     avatar: ANAM_AGENT_IDS.includes(agentId) ? "anam" : true,
     user_name: name,
     interaction_mode: "auto",
+    ...(starter ? { starter } : {}),
+    ...(opener ? { opener } : {}),
   });
 
   try {

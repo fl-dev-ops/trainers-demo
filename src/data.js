@@ -98,6 +98,8 @@ export const MARCUS_CAUCHI = {
 export const BEVAN_BROADBENT = {
   id: 'bevan-broadbent',
   name: 'Bevan Broadbent',
+  // The agent answers the welcome-page starter as the first message (needs starter_reply in agents.json).
+  starterInRoom: true,
   firstName: 'Bevan',
   initials: 'BB',
   face: '/media/bevan-broadbent-headshot.jpg',

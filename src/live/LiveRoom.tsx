@@ -20,7 +20,7 @@ import TranscriptPanel from '@/live/TranscriptPanel.jsx'
 
 type Scenario = (typeof SCENARIOS)[number]
 type TrainerRoom = { kind: string; title: string; scenario: string }
-type Trainer = { id: string; firstName: string; face: string; portrait?: string; portraitClass?: string; room?: TrainerRoom }
+type Trainer = { id: string; firstName: string; face: string; portrait?: string; portraitClass?: string; room?: TrainerRoom; starterInRoom?: boolean }
 
 // Stand-in identity until the app has a signed-in profile to read a real name from.
 const PARTICIPANT_NAME = 'Candidate'
@@ -48,6 +48,12 @@ function LiveEntry({ trainer }: { trainer: Trainer }) {
   const [error, setError] = useState<string | null>(null)
   const [connection, setConnection] = useState<ConnectionDetails | null>(null)
   const hasStartedRef = useRef(false)
+  // When the trainer's agent takes the starter as its first message, it travels with the room
+  // instead of being typed into the chat after the greeting.
+  const starterInRoom = Boolean(trainer.starterInRoom && starter)
+  // "Ask me anything" on the welcome page (?mode=ama) asks the agent for its AMA opening.
+  const ama = Boolean(trainer.starterInRoom && !starter && searchParams.get('mode') === 'ama')
+  const roomScoped = starterInRoom || ama
 
   // Connects on mount; the agent addresses the user by this name.
   // The ref guard survives StrictMode's double invoke, so we never mint two rooms.
@@ -55,7 +61,7 @@ function LiveEntry({ trainer }: { trainer: Trainer }) {
     if (hasStartedRef.current) return
     hasStartedRef.current = true
 
-    const cached = parseConnectionDetails(sessionStorage.getItem(storageKey))
+    const cached = roomScoped ? null : parseConnectionDetails(sessionStorage.getItem(storageKey))
     if (cached) {
       setConnection(cached)
       return
@@ -66,7 +72,7 @@ function LiveEntry({ trainer }: { trainer: Trainer }) {
     fetch('/api/connection-details', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: PARTICIPANT_NAME, profile: trainer.id }),
+      body: JSON.stringify({ name: PARTICIPANT_NAME, profile: trainer.id, ...(starterInRoom ? { starter } : {}), ...(ama ? { opener: 'ama' } : {}) }),
     })
       .then(async (response) => {
         const payload = await response.json().catch(() => null)
@@ -88,9 +94,9 @@ function LiveEntry({ trainer }: { trainer: Trainer }) {
         console.error(`[EXT-API:connection-details] event=failure elapsed_ms=${Date.now() - startedAt}`, caught)
         setError(caught instanceof Error ? caught.message : 'Could not start the role play.')
       })
-  }, [storageKey, trainer.id])
+  }, [storageKey, trainer.id, starter, starterInRoom, ama, roomScoped])
 
-  if (connection) return <RolePlay connection={connection} scenario={SCENARIO} trainer={trainer} starter={starter} />
+  if (connection) return <RolePlay connection={connection} scenario={SCENARIO} trainer={trainer} starter={starterInRoom ? null : starter} starterInRoom={roomScoped} />
 
   return (
     <section>
@@ -105,7 +111,7 @@ function LiveEntry({ trainer }: { trainer: Trainer }) {
 }
 
 /** The live room: owns the LiveKit session and renders the role play UI. */
-function RolePlay({ connection, scenario: SCENARIO, trainer, starter = null }: { connection: ConnectionDetails; scenario: Scenario; trainer: Trainer; starter?: string | null }) {
+function RolePlay({ connection, scenario: SCENARIO, trainer, starter = null, starterInRoom = false }: { connection: ConnectionDetails; scenario: Scenario; trainer: Trainer; starter?: string | null; starterInRoom?: boolean }) {
   const trainerHome = `/${trainer.id}`
   // Trainers with a fixed room (e.g. Jameel, Prathosh) skip the role-play scenario and cues.
   const fixedRoom = trainer.room
@@ -183,6 +189,12 @@ function RolePlay({ connection, scenario: SCENARIO, trainer, starter = null }: {
       room.off(RoomEvent.TrackUnmuted, syncTracks)
     }
   }, [session.room])
+
+  // A starter that went with the room is already the twin's first message: just drop it from
+  // the URL so a refresh doesn't ask it again.
+  useEffect(() => {
+    if (starterInRoom) router.replace(`${trainerHome}/live`)
+  }, [router, starterInRoom, trainerHome])
 
   // Sends the conversation starter once, after the twin's greeting has finished, then drops it
   // from the URL so a refresh doesn't ask it again.
