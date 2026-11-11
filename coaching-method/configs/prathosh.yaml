@@ -70,6 +70,11 @@ switch:
 
 sources:
   exclude:
+    - "youtube/video/2023-12-27-a-quick-course-in-veda-*"
+    - "youtube/video/2024-09-01-dr-prathosh-a-p-faculty-iisc-on-shastra-*"
+    - "youtube/video/2024-10-17-exploring-vedanta-*"
+    - "youtube/video/2024-12-21-intro-to-vtvn-*"
+    - "youtube/video/2025-03-17-the-non-negotiability-of-shastras-*"
     - "youtube/video/2026-06-23-Adhyaya*"
     - "youtube/video/2026-06-28-Skandha*"
     - "youtube/video/2026-10-01-chapter*"
