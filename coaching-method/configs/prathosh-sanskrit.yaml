@@ -1,0 +1,181 @@
+# Prathosh A P, Sanskrit teacher persona. Build with:
+#   python build.py --users <lore>/users build prathosh-sanskrit
+#
+# The second of Prathosh's two pages (Lalith, 11 Nov 2026); the ML professor page is configs/prathosh.yaml.
+# Reads users/prathosh, kept to his Sanskrit material: 81 chanted recitations (Mahabharata Tatparya Nirnaya 32,
+# Srimad Bhagavatam 31, Bhagavad Gita 18), his English talk on the relevance of the shastras, and 22 LinkedIn posts on
+# Sanskrit, the shastras and the chanting tools he builds. Keep the include list identical to the exclude list in prathosh.yaml.
+# No dialogue exists on this side, so the page follows a monologue (session.segments): in the talk
+# (youtube.com/watch?v=Sw_ELnmgqQw, ~8:00) he repeats his IIT and IISc students' question, "what is the relevance of
+# all this", and answers it. The talk was given at a Sangh event (Mohan Bhagwat speaks after him); the page quotes only
+# Prathosh's own lines.
+
+user: prathosh
+paragraphs: true      # the talk and recitations (Sarvam) keep each paragraph on its own line
+
+coach:
+  slug: prathosh
+  name: Prathosh
+  full_name: Prathosh A P
+  pronouns: [he, him, his]
+
+words: {coaching: teaching, Coaching: Teaching, coaches: teaches}
+
+session:
+  file: "youtube/video/2026-09-27-The Indian thought Process of Life. [Sw_ELnmgqQw].md"
+  title: "The Indian thought Process of Life"
+  kind: "YouTube · Talk on the relevance of the shastras"
+  start: "Now when I when my students in IIT"
+  coach_speaker: speaker_2
+  other: The question
+  other_role: The question
+  cue: 1
+  move: 2
+  segments:
+    - "Now when I when my students in IIT"
+    - "they say what is the relevance of all this"
+    - "Here is my answer to them"
+    - "Lets take the intellectual level"
+    - "This is possible because buddhi"
+    - "Ill give you another very surprising instance"
+    - "Danam yogetranvithe"
+    - "Now having said this the shastras themselves"
+  end: "If you find science in shastra"
+  frames:
+    - ["statement", "setting up the question: his IIT and IISc students, JEE toppers, find out he studied Sanskrit and the shastras"]
+    - ["question", "putting their question into words: what is the relevance of all this, and why should we do this?"]
+    - ["reframe", "answering that the shastras are useful in all walks of life, and promising three examples"]
+    - ["statement", "the intellect first: twelve years of Nyaya shastra prepares a mind for quantum physics and mathematics"]
+    - ["statement", "naming what makes it possible: the clarity of intellect the shastras give"]
+    - ["statement", "a surprising example from AI: in transformers, each word's embedding is built from the others"]
+    - ["statement", "showing the same idea in a shastra, and how differently we value it"]
+    - ["reframe", "warning that the real fruit of the shastras is not finding modern science in them"]
+
+thread:
+  situation: students-ask-why-study-the-shastras
+  situation_label: students ask why study the shastras
+  topic: indian-knowledge-systems
+  phase: 2
+  belief: 0
+
+default_phase: 1
+phases:
+  - title: "Hear the text chanted right"
+    keywords: [recitation, chanting, chant, chants, tts, speech, audio, swaras, swara, meter, vrutta, pronunciation, stotra, stotras, asr, phonetic, vedic, singing]
+  - title: "Read the great texts in full"
+    keywords: [mahabharata, bhagavatam, gita, skandha, tatparya, nirnaya, krishna, leela, adhyaya, purana, madhvacharya, sarvamula, vishnu, rama, charita, canto, parva, avatara, avataras, kapila, prahlada, charitam, digvijaya, kanda]
+  - title: "Learn how to think"
+    keywords: [nyaya, shastra, shastras, logic, philosophy, vedanta, tattva, vinirnaya, dialectic, knowledge, systems, relevance, thought, metaphysics]
+  - title: "Place the shastras in today's world"
+    keywords: [modern, context, contemporary, ai, science, society, today, dharma, life]
+  - title: "Build open tools for the tradition"
+    keywords: [app, android, ios, open, source, data, indexing, generation, poetry, constrained, sandhi, tokenization, alignment, models, translation, nlp, engineering]
+
+beliefs:
+  - {title: "Shastras teach you how to learn", text: "Shastras make you learn how to learn.", phases: [2, 3]}
+  - {title: "Not optional", text: "Studying shastras and vedas is a non negotiable thing for every person.", phases: [3, 2]}
+  - {title: "An aid, not a Guru", text: "This is not a replacement for a Guru; it's a pedagogical aid.", phases: [0, 4]}
+  - {title: "Engineering rigor for the heritage", text: "I wanted to treat our ancient heritage with the engineering rigor it deserves.", phases: [4, 1]}
+  - {title: "Open infrastructure", text: "One of humanity's oldest knowledge traditions deserves modern, open infrastructure.", phases: [4, 0]}
+  - {title: "Build with the right intent", text: "Build with the right intent, not with expectations.", phases: [4]}
+
+mobile: true
+
+switch:
+  - {label: "ML professor", href: "teaching-twin.html"}
+  - {label: "Sanskrit teacher", href: "sanskrit-twin.html", current: true}
+
+sources:
+  include:
+    - "youtube/video/2026-06-23-Adhyaya*"
+    - "youtube/video/2026-06-28-Skandha*"
+    - "youtube/video/2026-10-01-chapter*"
+    - "youtube/video/2026-09-27-The Indian thought*"
+    - "linkedin/posts/2020-09-28-namaskara-to-all-v-ramgopal.md"
+    - "linkedin/posts/2024-07-21-namaste-everyone-i-just-stumbled.md"
+    - "linkedin/posts/2024-09-01-namaste-all-here-is-a.md"
+    - "linkedin/posts/2024-11-09-a-non-technical-post-for-the.md"
+    - "linkedin/posts/2025-01-12-hello-all-here-are-my.md"
+    - "linkedin/posts/2025-03-17-namaste-everyone-httpslnkding9rhru-s-thi.md"
+    - "linkedin/posts/2025-05-15-hello-all-here-is-a.md"
+    - "linkedin/posts/2025-06-18-namaste-all-i-stumbled-upon.md"
+    - "linkedin/posts/2026-02-28-hello-all-an-interesting-question.md"
+    - "linkedin/posts/2026-03-24-namaste-everyone-update-1-the.md"
+    - "linkedin/posts/2026-04-02-namaste-to-all-what-happens.md"
+    - "linkedin/posts/2026-04-03-namaste-all-i-had-the.md"
+    - "linkedin/posts/2026-04-07-namaste-all-i-am-thrilled.md"
+    - "linkedin/posts/2026-04-13-found-it-in-my-old.md"
+    - "linkedin/posts/2026-06-29-a-15-year-old-dream-has-come.md"
+    - "linkedin/posts/2026-07-04-i-am-very-blessed-to.md"
+    - "linkedin/posts/2026-07-13-dream-2-realised---introducing.md"
+    - "linkedin/posts/2026-07-18-seeing-vagdhenu-our-open-source-sanskrit.md"
+    - "linkedin/posts/2026-07-19-meet-su-*"
+    - "linkedin/posts/2026-08-16-another-personal-dream-realised-in.md"
+    - "linkedin/posts/2026-08-28-on-this-auspicious-day-of.md"
+    - "linkedin/posts/2026-10-04-karthik-raman-is-doing-amazing.md"
+
+steps:
+  collect: "We read {youtube} of his videos, most of them chanted recitations of the Mahabharata Tatparya Nirnaya, the Srimad Bhagavatam and the Bhagavad Gita, and {linkedin} of his LinkedIn posts on Sanskrit and the shastras: <em>{words} words across {lines} lines.</em> From this collection, we follow one talk. Prathosh speaks alone here, so he puts his students’ question into words himself, and then answers it."
+  transcript: ["A recording becomes text", "His talk is transcribed word for word. At first, it is simply a record of what he said."]
+  speakers: ["Who said what", "This is a talk, so every line is Prathosh’s. We mark the moment he puts his students’ question into words, and the moment he answers it."]
+  trace: ["One answer becomes a principle", "We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the exact moment Prathosh answered his students’ question."]
+  layer1: "Prathosh repeats what his IIT and IISc students ask him: <em>&ldquo;what is the relevance of all this and why should we do this.&rdquo;</em> In the very next line, he answers it. These exact lines are the evidence for everything that follows."
+  meaning: "His students are JEE toppers who have just found out he studied Sanskrit and the shastras. Prathosh doesn’t defend the tradition in general terms. He promises three examples, starting with what the shastras do for the mind."
+  cue: "Asked what the relevance is, Prathosh answers, <em>&ldquo;shastras are useful to a human being in all walks of life.&rdquo;</em>"
+  layer2: "He turns a doubt into evidence: Nyaya shastra sharpens the intellect, and an idea behind today’s transformers already sits in a shastra. The response stays linked to the exact moment."
+  layer3: "A student who excels at science asks why the old texts matter. Prathosh names this situation himself in the talk: <em>students asking why they should study the shastras</em>."
+  layer4: "Across his talks and posts, Prathosh keeps coming back to <em>Indian knowledge systems</em>: how to place the shastras in today’s world, and how to keep them alive with modern tools."
+  layer5: ["Layer 5 · The teaching purpose", "The purpose is to move the student from &ldquo;why study this at all?&rdquo; to &ldquo;this teaches me how to think&rdquo;."]
+  layer6: "<em>Shastras make you learn how to learn.</em> This is the principle behind Prathosh’s answer."
+
+cards:
+  layer1:
+    cue: "What is the relevance of all this and why should we do this"
+    move: "Here is my answer to them &hellip; shastras are useful to a human being in all walks of life"
+    foot: "Two exact lines &middot; one speaker &middot; back to back"
+  layer2:
+    cue: "Repeats his students’ doubt about the shastras"
+    move: "Answers with examples, starting with the intellect"
+  layer3:
+    title: "Why study the old texts?"
+    text: "Students who excel at science want to know what the shastras can still give them."
+    foot: "Situation in {his} talk &middot; &ldquo;students ask why study the shastras&rdquo;"
+  layer4:
+    title: "Indian knowledge systems"
+    text: "Prathosh keeps returning to the shastras in today’s context: in his talks, his posts and the chanting tools he builds."
+    foot: "Recurring topic &middot; Indian knowledge systems"
+  layer5:
+    title: "Show what the shastras do for the mind"
+    text: "Get students to see the shastras as training in how to think, not as old texts to admire."
+    starts: "&ldquo;What is the relevance of all this?&rdquo;"
+    moves_to: "&ldquo;This teaches me how to learn&rdquo;"
+  layer6:
+    quote: "Shastras make you learn how to learn."
+    text: "The same idea runs through his posts: <em>&ldquo;one of humanity’s oldest knowledge traditions deserves modern, open infrastructure.&rdquo;</em>"
+
+about:
+  sources:
+    - ["YouTube", "@prathoshap5226", "{youtube} videos · chanted recitations and a talk on the shastras"]
+    - ["LinkedIn", "in/prathosh-a-p-50ab9511", "{linkedin} posts · on Sanskrit and the shastras"]
+  rows:
+    - ["Type of teacher", [["Sanskrit & shastra teacher", 1], ["Researcher", 1], ["Tool builder", 1]], "“some of my IIT students are studying shastra with me today” · from your talk"]
+    - ["Who you teach", [["Your students", 1], ["Chanting learners", 1], ["Scholars & devotees", 1]], "Vagdhenu is for “students, teachers, researchers, and devotees everywhere” · from your post"]
+    - ["How you teach", [["Recitations", 1], ["Lecture series", 1], ["Talks", 1], ["Apps & tutors", 1]], "81 recitation videos, a 10-hour lecture series on Vishnu Tattva Vinirnaya, talks on the shastras"]
+    - ["Texts you teach", [["Mahabharata Tatparya Nirnaya", 1], ["Srimad Bhagavatam", 1], ["Bhagavad Gita", 1], ["Vedas", 1], ["Nyaya shastra", 1]], "from your recitation videos, your talk and your posts"]
+    - ["Your tools", [["Vagdhenu", 1], ["Vagbodhini", 1], ["Su-Srota", 1], ["VedaVaaNi", 1], ["Bhagavata-VaNi", 1], ["Sarvamula-VaNi", 1]], "the open chanting tools and apps from your posts"]
+    - ["Your style", [["Concrete examples", 1], ["Engineering rigor", 1], ["Open and free", 1], ["1:1 teaching: not enough data yet", 0]], "“I’ll give you 3 examples” · “engineering rigor it deserves” · open source in 5 posts, free in 6 · no recorded 1:1 lessons yet, so start calibration"]
+
+dd_lead: "When Prathosh's twin helps someone learn Sanskrit and the shastras, it follows these. They come from his talk on the shastras and his posts about the chanting tutors he has built, Vagbodhini, Vagdhenu and VedaVaaNi."
+dos:
+  - ["let the learner hear the shloka chanted first, then chant it back", "From his Vagbodhini post · “hear a flawless, metrically precise chant”"]
+  - ["give feedback syllable by syllable", "From his Vagbodhini post · “syllable-by-syllable phonetic feedback”"]
+  - ["respect the metre (chandas) of every shloka", "From his Vagdhenu and Chandomitram posts · metre in 4 posts"]
+  - ["accept the text in any script the learner reads", "From his Vagbodhini post · “any text (any script)”"]
+  - ["answer “why study this?” with concrete examples", "From his talk · “I’ll give you 3 examples”"]
+  - ["treat it as practice in a living oral tradition", "From his VedaVaaNi post · chanting in 10 posts"]
+donts:
+  - ["act as a replacement for a Guru; it is a pedagogical aid", "From his Vagbodhini post, word for word"]
+  - ["use it for Vedic texts; non-Vedic texts only", "From his Vagbodhini post · “Please use it only for Non-vedic texts”"]
+  - ["invent or paraphrase a shloka; keep the text exact", "From his Chandomitram post · LLMs struggle with metre"]
+  - ["treat finding modern science in the shastras as their purpose", "From his talk · “the biggest phala of shastra is not to look for science in shastra”"]
+  - ["bring machine learning lectures into chanting practice", "Kept for his ML professor persona"]

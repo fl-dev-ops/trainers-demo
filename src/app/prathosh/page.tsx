@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { PRATHOSH } from '@/data.js'
 import MadeFrom from '@/components/MadeFrom.jsx'
 import TrustFooter from '@/components/TrustFooter.jsx'
-import { Play, Sparkle } from '@/components/Icons.jsx'
+import { Eye, Play, Sparkle } from '@/components/Icons.jsx'
 
 const DOUBTS = [
   'Why do we minimise empirical risk instead of the true risk?',
@@ -27,13 +27,15 @@ export default function Welcome() {
           <article className="path">
             <div className="peek peek--fig" aria-hidden="true">
               <Image className={PRATHOSH.portraitClass} src={PRATHOSH.portrait} alt="" fill sizes="(max-width: 680px) 100vw, 460px" />
-              <span className="peek-k">Teaching methodology</span>
+              <span className="peek-k">The twin is waiting</span>
+              <span className="tag"><Eye />Meet to reveal</span>
             </div>
             <div className="path-b">
-              <h2>What {PRATHOSH.firstName}’s twin learns from</h2>
-              <p>See how the twin was built from {PRATHOSH.firstName}’s lectures, layer by layer.</p>
+              <h2>Meet the video twin</h2>
+              <p>A short intro from Prathosh’s AI twin.</p>
               <div className="row">
-                <Link href="/prathosh/methodology" className="btn btn--strong">See how it learns</Link>
+                <Link href="/prathosh/meet" className="btn btn--strong">Watch the intro</Link>
+                <span className="meta">35 sec</span>
               </div>
             </div>
           </article>
@@ -62,6 +64,19 @@ export default function Welcome() {
             </div>
           </article>
 
+          <article className="path path--wide">
+            <div className="peek peek--fig" aria-hidden="true">
+              <Image className={PRATHOSH.portraitClass} src={PRATHOSH.portrait} alt="" fill sizes="(max-width: 680px) 100vw, 940px" />
+              <span className="peek-k">Teaching methodology</span>
+            </div>
+            <div className="path-b">
+              <h2>What {PRATHOSH.firstName}’s twin learns from</h2>
+              <p>See how the twin was built from {PRATHOSH.firstName}’s lectures, layer by layer.</p>
+              <div className="row">
+                <Link href="/prathosh/methodology" className="btn btn--strong">See how it learns</Link>
+              </div>
+            </div>
+          </article>
         </div>
         <TrustFooter twin={PRATHOSH} />
       </div>

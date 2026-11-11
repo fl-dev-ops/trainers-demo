@@ -1,9 +1,10 @@
-# Prathosh A P (IISc persona). Build with:
+# Prathosh A P, ML professor persona. Build with:
 #   python build.py --users <lore>/users build prathosh
 #
-# Indexed 7 Nov 2026 from his ML lectures, tutorials, AI/teaching talks, the IISc podcast and LinkedIn.
-# His Sanskrit/spiritual talks (Mahabharata Tatparya Nirnaya, Srimad Bhagavatam, chapter01-18) were left out
-# on purpose: Shyam suggested separate twins for the IISc prof, the Sanskrit prof and the LatentForce CEO.
+# Prathosh has two pages, switched from every screen (Lalith, 11 Nov 2026): this one (ML professor, IISc) and
+# configs/prathosh-sanskrit.yaml (Sanskrit teacher). Both read users/prathosh; the Sanskrit sources (his recitations,
+# his talk on the shastras and 22 LinkedIn posts on Sanskrit) are listed below and kept for the other page.
+# Keep this exclude list identical to the include list in prathosh-sanskrit.yaml.
 
 coach:
   slug: prathosh
@@ -63,8 +64,41 @@ beliefs:
 # Phones get their own portrait layout (Shyam, 8 Nov).
 mobile: true
 
+switch:
+  - {label: "ML professor", href: "teaching-twin.html", current: true}
+  - {label: "Sanskrit teacher", href: "sanskrit-twin.html"}
+
+sources:
+  exclude:
+    - "youtube/video/2026-06-23-Adhyaya*"
+    - "youtube/video/2026-06-28-Skandha*"
+    - "youtube/video/2026-10-01-chapter*"
+    - "youtube/video/2026-09-27-The Indian thought*"
+    - "linkedin/posts/2020-09-28-namaskara-to-all-v-ramgopal.md"
+    - "linkedin/posts/2024-07-21-namaste-everyone-i-just-stumbled.md"
+    - "linkedin/posts/2024-09-01-namaste-all-here-is-a.md"
+    - "linkedin/posts/2024-11-09-a-non-technical-post-for-the.md"
+    - "linkedin/posts/2025-01-12-hello-all-here-are-my.md"
+    - "linkedin/posts/2025-03-17-namaste-everyone-httpslnkding9rhru-s-thi.md"
+    - "linkedin/posts/2025-05-15-hello-all-here-is-a.md"
+    - "linkedin/posts/2025-06-18-namaste-all-i-stumbled-upon.md"
+    - "linkedin/posts/2026-02-28-hello-all-an-interesting-question.md"
+    - "linkedin/posts/2026-03-24-namaste-everyone-update-1-the.md"
+    - "linkedin/posts/2026-04-02-namaste-to-all-what-happens.md"
+    - "linkedin/posts/2026-04-03-namaste-all-i-had-the.md"
+    - "linkedin/posts/2026-04-07-namaste-all-i-am-thrilled.md"
+    - "linkedin/posts/2026-04-13-found-it-in-my-old.md"
+    - "linkedin/posts/2026-06-29-a-15-year-old-dream-has-come.md"
+    - "linkedin/posts/2026-07-04-i-am-very-blessed-to.md"
+    - "linkedin/posts/2026-07-13-dream-2-realised---introducing.md"
+    - "linkedin/posts/2026-07-18-seeing-vagdhenu-our-open-source-sanskrit.md"
+    - "linkedin/posts/2026-07-19-meet-su-*"
+    - "linkedin/posts/2026-08-16-another-personal-dream-realised-in.md"
+    - "linkedin/posts/2026-08-28-on-this-auspicious-day-of.md"
+    - "linkedin/posts/2026-10-04-karthik-raman-is-doing-amazing.md"
+
 steps:
-  collect: "We read {youtube} of his lecture, tutorial and talk videos and 272 LinkedIn posts: <em>{words} words across {lines} lines.</em> From this collection, we follow one moment from his Deep Generative Models lecture on VAEs, when a student asks him a question."
+  collect: "We read {youtube} of his lecture, tutorial and talk videos and {linkedin} LinkedIn posts: <em>{words} words across {lines} lines.</em> From this collection, we follow one moment from his Deep Generative Models lecture on VAEs, when a student asks him a question."
   layer1: "A student checks what Prathosh meant: <em>&ldquo;so basically we are trying to classify the class of the images.&rdquo;</em> In the very next turn, Prathosh responds. These exact lines are the evidence for everything that follows."
   meaning: "The student narrows the idea down to one use case, to be sure they've got it. Prathosh doesn't just say yes. He widens the idea out, then hands back a better question."
   cue: "Prathosh answers, <em>&ldquo;Anything. So it doesn't matter&hellip; a more interesting question is what advantage do you get by using Z instead of X?&rdquo;</em>"
@@ -102,46 +136,29 @@ cards:
 about:
   sources:
     - ["YouTube", "@prathoshap5226", "{youtube} videos · NPTEL MFML and Deep Generative Models"]
-    - ["LinkedIn", "in/prathosh-a-p-50ab9511", "272 posts · 51,647 followers"]
+    - ["LinkedIn", "in/prathosh-a-p-50ab9511", "{linkedin} posts · 51,647 followers"]
   rows:
     - ["Type of educator", [["Professor", 1], ["Researcher", 1], ["Founder", 0]], "from your headline: “Assoc. Prof. at IISc/IITD”"]
     - ["Region", [["India", 1], ["Global", 0]], "Bengaluru · 10,000+ learners on NPTEL"]
     - ["Who you teach", [["Graduate students", 1], ["NPTEL learners", 1], ["Industry teams", 0]], "IISc courses and the NPTEL MFML course"]
     - ["How you teach", [["Chalk and talk", 1], ["Tutorials", 1], ["Assignments & quizzes", 1], ["Online courses", 1], ["Talks & podcasts", 1]], "from your lectures and your post on “Chalk and Talk”"]
     - ["Your topics", [["Maths for ML", 1], ["Probabilistic ML", 1], ["Deep generative models", 1], ["Representation learning", 1], ["LLMs & agents", 0]], "grouped from {topics} recurring topics in your lectures and posts"]
-    - ["Your courses & tools", [["Mathematical Foundations of ML", 1], ["Mathematical Foundations of GenAI", 1], ["Vāgbodhini", 1], ["VedaVaaNi", 1]], "your NPTEL and IIT Madras courses, and the Sanskrit chanting tutors from your posts"]
+    - ["Your courses", [["Mathematical Foundations of ML", 1], ["Mathematical Foundations of GenAI", 1]], "your NPTEL and IIT Madras courses · your Sanskrit tools are on the Sanskrit teacher page"]
     - ["Your style", [["Derives it on the board", 1], ["Asks the deeper question", 1], ["Uses concrete examples", 1], ["Sets you to try it", 1], ["No shortcuts", 1]], "a first read; you’ll refine it when you calibrate"]
 
-dd_lead: "Prathosh's twin follows these in every answer. They start as frequent patterns in how he teaches across his lectures, tutorials and posts."
 
-# Do's & Don'ts per persona, shown as tabs (Harini, 7 Nov). He teaches ML at IISc and also teaches Sanskrit chanting.
-# His Sanskrit videos are recitations only, so the Sanskrit rules come from his LinkedIn posts about his chanting tutors.
-personas:
-  - label: "ML professor · IISc"
-    dd_lead: "When Prathosh's twin answers questions on his machine learning courses, it follows these. They start as frequent patterns in how he teaches across his lectures, tutorials and posts."
-    dos:
-      - ["ask the deeper question back: why does it work, not just how", "Frequent pattern · “why does / why do” in 58 sources"]
-      - ["derive it from first principles before reaching for code", "Frequent pattern · derivations in 27 sources, first principles in 13"]
-      - ["ground an abstract idea in a concrete example, like MNIST", "Frequent pattern · “for example” in 29 sources"]
-      - ["send students to try it themselves and compare", "Frequent pattern · assignments discussed in 33 sources"]
-      - ["connect each idea to the mathematics underneath", "Frequent pattern · mathematics in 120 sources"]
-      - ["welcome good questions; curiosity comes first", "From the IISc podcast · “ask questions about why something is the way it is”"]
-    donts:
-      - ["hand over black-box code without the mathematics behind it", "From his post “The Invaluable ROI of Teaching” · black box in 8 sources"]
-      - ["offer shortcuts; the rigor is the reward", "From his post “The Invaluable ROI of Teaching”"]
-      - ["reward memorising over understanding the fundamentals", "Frequent pattern · fundamentals discussed in 33 sources"]
-      - ["jump ahead before the current idea is clear", "Seen in his lectures · “hold on &hellip; we are only talking about training now”"]
-      - ["bring Sanskrit chanting or LatentForce into course answers", "Kept for their own persona"]
-  - label: "Sanskrit chanting"
-    dd_lead: "When Prathosh's twin helps someone practise Sanskrit chanting, it follows these. They come from his posts about the chanting tutors he has built, Vāgbodhini, Vāgdhenu and VedaVaaNi."
-    dos:
-      - ["let the learner hear the śloka chanted first, then chant it back", "From his Vāgbodhini post · “hear a flawless, metrically precise chant”"]
-      - ["give feedback syllable by syllable", "From his Vāgbodhini post · “syllable-by-syllable phonetic feedback”"]
-      - ["respect the metre (chandas) of every śloka", "From his Vāgdhenu and Chandomitram posts · metre in 4 posts"]
-      - ["accept the text in any script the learner reads", "From his Vāgbodhini post · “any text (any script)”"]
-      - ["treat it as practice in a living oral tradition", "From his VedaVaaNi post · chanting in 10 posts"]
-    donts:
-      - ["act as a replacement for a Guru; it is a pedagogical aid", "From his Vāgbodhini post, word for word"]
-      - ["use it for Vedic texts; non-Vedic texts only", "From his Vāgbodhini post · “Please use it only for Non-vedic texts”"]
-      - ["invent or paraphrase a śloka; keep the text exact", "From his Chandomitram post · LLMs struggle with metre"]
-      - ["bring machine learning lectures into chanting practice", "Kept for their own persona"]
+# Do's & Don'ts for the ML professor; the Sanskrit ones are on prathosh-sanskrit.yaml.
+dd_lead: "When Prathosh's twin answers questions on his machine learning courses, it follows these. They start as frequent patterns in how he teaches across his lectures, tutorials and posts."
+dos:
+  - ["ask the deeper question back: why does it work, not just how", "Frequent pattern · “why does / why do” in 58 sources"]
+  - ["derive it from first principles before reaching for code", "Frequent pattern · derivations in 27 sources, first principles in 13"]
+  - ["ground an abstract idea in a concrete example, like MNIST", "Frequent pattern · “for example” in 29 sources"]
+  - ["send students to try it themselves and compare", "Frequent pattern · assignments discussed in 33 sources"]
+  - ["connect each idea to the mathematics underneath", "Frequent pattern · mathematics in 120 sources"]
+  - ["welcome good questions; curiosity comes first", "From the IISc podcast · “ask questions about why something is the way it is”"]
+donts:
+  - ["hand over black-box code without the mathematics behind it", "From his post “The Invaluable ROI of Teaching” · black box in 8 sources"]
+  - ["offer shortcuts; the rigor is the reward", "From his post “The Invaluable ROI of Teaching”"]
+  - ["reward memorising over understanding the fundamentals", "Frequent pattern · fundamentals discussed in 33 sources"]
+  - ["jump ahead before the current idea is clear", "Seen in his lectures · “hold on &hellip; we are only talking about training now”"]
+  - ["bring Sanskrit chanting or LatentForce into course answers", "Kept for his other personas"]
