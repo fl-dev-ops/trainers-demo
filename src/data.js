@@ -129,6 +129,22 @@ export const FLO_AKINBIYI = {
   },
 }
 
+export const GOPAL_RAJGURU = {
+  id: 'gopal-rajguru',
+  name: 'Gopal RajGuru',
+  // The agent answers the welcome-page starter as the first message (needs starter_reply in agents.json).
+  starterInRoom: true,
+  firstName: 'Gopal',
+  initials: 'GR',
+  face: '/media/gopal-rajguru-headshot.jpg',
+  portrait: '/media/gopal-rajguru-portrait.jpg',
+  room: {
+    kind: 'Ask me anything · Demo',
+    title: 'Ask about selling, negotiating and leading',
+    scenario: 'Gopal’s AI twin will help you with B2B selling, the customer’s buying journey, negotiation and giving feedback as a leader. It was made only for this demo and is not a replacement for Gopal.',
+  },
+}
+
 export const TONY_LATIMER = {
   id: 'tony-latimer',
   name: 'Tony Latimer',
@@ -364,5 +380,24 @@ FLO_AKINBIYI.sources = [
   ]],
   ['Website', '56 pages', [
     ['flo-akinbiyi.com', 'Service pages and 35 blog posts'],
+  ]],
+]
+
+GOPAL_RAJGURU.sourceSummary = '7 YouTube videos · 16 LinkedIn posts · 22 website pages'
+GOPAL_RAJGURU.sources = [
+  ['YouTube', '7 videos', [
+    ['The Art and Science of Selling', 'Beecon Elite masterclass'],
+    ['AVL Keynote: creating customer value in the digital selling age', 'Keynote'],
+    ['Speaker Sourcing Contest Final: the teabag effect', 'Nordic Business Forum talk'],
+    ['World-Class Negotiator: top 3 tips', 'Aalto EE video'],
+    ['Expert Keynote Speaker on sales, leadership and negotiation', 'Oration Speakers interview'],
+    ['Pod_Bacula Ep 04', 'Podcast interview'],
+    ['Executive Interview', 'NO FEAR community'],
+  ]],
+  ['LinkedIn', '16 posts', [
+    ['Gopal RajGuru on LinkedIn', 'His own posts, 2018 to 2026'],
+  ]],
+  ['Website', '22 pages', [
+    ['innovateandgrow.com', 'His own posts and his team’s programme pages'],
   ]],
 ]

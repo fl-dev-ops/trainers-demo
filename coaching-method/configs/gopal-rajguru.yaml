@@ -1,0 +1,133 @@
+# Gopal RajGuru. Build with:
+#   python build.py build gopal-rajguru
+# Source: lore 6bacd5e9: 7 YouTube videos (keynotes, Beecon Elite masterclass, Nordic Business Forum talk, negotiation tips,
+# and interviews with Oration Speakers 2020, Pod_Bacula 2024, NO FEAR 2011), 16 LinkedIn posts, innovateandgrow.com
+# (his own posts plus company service pages).
+# No coaching calls exist and no listener brings him a personal problem anywhere in his public content, so the page follows
+# the deepest real exchange: the Oration Speakers interview (youtube.com/watch?v=tv7ct1vJCJg), where the host asks what
+# salespeople should do in turbulent times (2020), then about leadership and negotiation. Only Gopal's lines are used as his ideas.
+# Pronouns he/him: the interviewers say "he is the Managing Director" (Oration) and "He's also a consultant" (NO FEAR).
+
+coach:
+  slug: gopal-rajguru
+  name: Gopal
+  full_name: Gopal RajGuru
+  pronouns: [he, him, his]
+
+mobile: true
+
+session:
+  file: youtube/video/2020-04-21-gopal-rajguru-expert-keynote-speaker-on-sales-leadership-and-tv7ct1vJCJg.md
+  kind: YouTube · Oration Speakers interview
+  start: These turbulent times
+  coach_speaker: speaker_2
+  other: Rachel
+  other_role: Interviewer
+  cue: 0
+  move: 1
+  frames:
+    - ["question", "asking what pointers he has for salespeople in turbulent times"]
+    - ["reframe", "saying personal relationships are still personal relationships, so keep caring for customers"]
+    - ["question", "asking why leadership is so critical right now"]
+    - ["statement", "saying many leaders hide in difficult times, and he teaches the how, not just the what"]
+    - ["question", "asking which topics he is most passionate about"]
+    - ["statement", "naming sales, leadership and negotiation: people negotiate with people"]
+    - ["acknowledgment", "thanking him"]
+    - ["acknowledgment", "thanking her"]
+    - ["acknowledgment", "closing the interview"]
+    - ["statement", "urging everyone not to wait for things to get better"]
+    - ["acknowledgment", "thanking him"]
+    - ["statement", "saying make it better now: engage, show courage, calm and direction"]
+
+thread:
+  situation: turbulent-business-conditions
+  topic: client-relationship-management
+  phase: 2
+  belief: 0
+
+default_phase: 1
+phases:
+  - title: Understand the buying journey
+    keywords: [buying, journey, process, research, internet, digital, rfp, requirements, information, social, linkedin]
+  - title: Help the customer buy
+    keywords: [customer, customers, value, help, needs, solution, proposition, sell, selling, salespeople, sales]
+  - title: Build trust and relationships
+    keywords: [trust, relationship, relationships, care, caring, credibility, reliability, people, personal, listen, questions]
+  - title: Negotiate value for value
+    keywords: [negotiation, negotiate, negotiating, deal, price, concessions, agreement, purchasing, prepare, goals, ego]
+  - title: Coach and give feedback
+    keywords: [feedback, praise, coach, coaching, performance, excellence, teabag, skills, hire, hiring, team]
+  - title: Lead through change
+    keywords: [leader, leaders, leadership, change, crisis, turbulent, courage, communicate, vision, direction, future]
+
+beliefs:
+  - {title: People buy from people they trust, text: 'People buy from the people they trust.', phases: [2, 1]}
+  - {title: Help customers buy, text: 'Great salespeople never sell because everyone hates to be sold to. What they do is they help their customers to buy.', phases: [1, 0]}
+  - {title: Sell for a high price, text: 'Any fool can sell for the lowest price. It takes talent to sell for a high price.', phases: [3, 1]}
+  - {title: People negotiate with people, text: 'Companies don’t negotiate with companies. People negotiate with people.', phases: [3, 2]}
+  - {title: Be the teabag, text: 'Be the teabag.', phases: [4, 5]}
+  - {title: Make it better now, text: 'Make it better now.', phases: [5, 2]}
+
+steps:
+  collect: "We read {youtube} of his YouTube videos, including keynotes, a masterclass and three interviews, {linkedin} of his LinkedIn posts and {web} pages from his website: <em>{words} words across {lines} lines.</em> In interviews we only use Gopal’s own lines, never the host’s views as his. From this collection, we follow one interview with Oration Speakers."
+  layer1: "The interviewer asks, <em>&ldquo;These turbulent times we’re finding ourselves in, what kind of guidelines and what kind of pointers would you have for salespeople?&rdquo;</em> In the very next turn, Gopal responds. These exact lines are the evidence for everything that follows."
+  meaning: "She asks for new rules for a new crisis. Gopal doesn’t give a crisis playbook. He tells salespeople to keep doing what matters most."
+  cue: "Asked for pointers in turbulent times, Gopal answers, <em>&ldquo;Try not to forget that personal relationships are still personal relationships.&rdquo;</em>"
+  layer2: "The channel changes, from meetings to phone and video, but the customer’s needs don’t. Keep caring for them as people: <em>&ldquo;the less you change the more it actually works.&rdquo;</em> The response stays linked to the exact exchange."
+  layer3: "Salespeople can’t meet their customers, and business feels uncertain. In Gopal’s material this shows up as <em>turbulent business conditions</em>."
+  layer4: "Gopal keeps coming back to people over tools: customers, relationships and trust run through his talks, interviews and his team’s programmes."
+  layer5: "The purpose is to move salespeople from &ldquo;how do I sell in a crisis?&rdquo; to &ldquo;keep caring for my customers, whatever the channel&rdquo;."
+  layer6: "<em>People buy from the people they trust.</em> This is the principle behind Gopal’s answer."
+
+cards:
+  layer1:
+    cue: These turbulent times we’re finding ourselves in, what kind of guidelines and what kind of pointers would you have for salespeople?
+    move: Certainly. I mean, I’d say, you know, try not to forget that personal relationships are still personal relationships &hellip;
+    foot: Two exact lines &middot; two speakers &middot; consecutive turns
+  layer2:
+    cue: Asks for pointers for salespeople in a crisis
+    move: Keep caring for customers as people, whatever the channel
+  layer3:
+    title: Selling when you can’t meet the customer
+    text: Meetings move online and business is uncertain, so salespeople look for new rules.
+    foot: Situation in {his} material &middot; &ldquo;turbulent business conditions&rdquo;
+  layer4:
+    title: People over tools
+    text: Gopal keeps coming back to the people behind every sale, negotiation and team.
+    foot: Recurring pattern &middot; customers in 20 sources, relationships in 11
+  layer5:
+    title: Keep caring, whatever the channel
+    text: Bring customers calm, organisation and a genuine sense of caring, in person or online.
+    starts: '&ldquo;How do I sell in a crisis?&rdquo;'
+    moves_to: '&ldquo;I keep caring for my customers&rdquo;'
+  layer6:
+    quote: People buy from the people they trust.
+    text: 'The same idea runs through his work: <em>&ldquo;Companies don’t negotiate with companies. People negotiate with people.&rdquo;</em>'
+
+about:
+  sources:
+    - ["YouTube", "Talks and interviews", "{youtube} videos · keynotes, masterclass, interviews"]
+    - ["LinkedIn", "in/gopal-rajguru", "{linkedin} posts · since 2018"]
+    - ["Website", "innovateandgrow.com", "{web} pages · his posts and his team’s programmes"]
+  rows:
+    - ["Type of coach", [["Sales trainer", 1], ["Leadership coach", 1], ["Negotiation trainer", 1], ["Keynote speaker", 1]], "the interviewer’s intro: “an expert keynote speaker on sales, leadership and negotiation”"]
+    - ["Region", [["Switzerland", 1], ["Europe", 1], ["Global", 1], ["US", 0]], "based in Switzerland, with a virtual team around Europe, Asia and America"]
+    - ["Who you coach", [["Individuals", 0], ["Corporate teams", 1], ["Both", 0]], "B2B sales teams, sales leaders and purchasing teams · from your talks and Innovate+Grow’s programmes"]
+    - ["How you deliver", [["Workshops", 1], ["Keynotes", 1], ["Coaching", 1], ["Masterclasses", 1]], "“in our speeches, in our workshops, in our coaching, our mentoring” · Oration Speakers interview"]
+    - ["Your topics", [["B2B sales", 1], ["Negotiation", 1], ["Sales leadership", 1], ["Feedback", 1], ["Digital selling", 1]], "grouped from {topics} recurring topics in your talks, posts and website"]
+    - ["Named frameworks", [["The teabag effect", 1], ["Feedback formula", 1], ["N.E.W.S.™ model", 1], ["Lighthouse Leadership", 1]], "your Nordic Business Forum talk and Innovate+Grow’s programmes"]
+    - ["Your style", [["Plain analogies", 1], ["Focuses on the how", 1], ["Backs ideas with research", 1], ["1:1 coaching: not enough data yet", 0]], "tea, tango, karate and tai chi in your talks · “focus on the how” · buyer research you quote in 2 talks · no recorded coaching sessions yet, so start calibration to see how you coach 1:1"]
+
+dd_lead: Gopal's twin follows these in every answer. They come from patterns that run through his talks, interviews and posts.
+dos:
+  - ["help the customer to buy instead of selling to them", "Masterclass · “they help their customers to buy”"]
+  - ["engage early in the customer's buying journey", "Keynote · most of the journey happens before first contact"]
+  - ["ask more questions, then wait five seconds", "Masterclass · the five golden rules of silence"]
+  - ["prepare, then add a little more time", "Video · top three tips for negotiators"]
+  - ["praise with an emotion, “when you” and “because”", "Nordic Business Forum talk · the feedback formula"]
+  - ["keep caring for customers in turbulent times", "Oration Speakers interview"]
+donts:
+  - ["compete on the lowest price", "Masterclass · “any fool can sell for the lowest price”"]
+  - ["give concessions without getting something back", "Innovate+Grow · value-for-value deals"]
+  - ["bring your ego to the negotiation", "Video · “check your ego at the door”"]
+  - ["use “but” when giving feedback", "Nordic Business Forum talk · “no buts here”"]

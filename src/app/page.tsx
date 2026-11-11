@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ANTONI, BEVAN_BROADBENT, DARREN_MITCHELL, FLO_AKINBIYI, JAMEEL, JOHNNY_DANIELE, MARCUS_CAUCHI, PRATHOSH, TONY_LATIMER, TWIN } from '../data.js'
+import { ANTONI, BEVAN_BROADBENT, DARREN_MITCHELL, FLO_AKINBIYI, GOPAL_RAJGURU, JAMEEL, JOHNNY_DANIELE, MARCUS_CAUCHI, PRATHOSH, TONY_LATIMER, TWIN } from '../data.js'
 
 export const metadata: Metadata = {
   title: 'Trainer demos · TrainerTwin',
@@ -185,6 +185,24 @@ export default function Home() {
               <div className="row">
                 <Link href="/flo-akinbiyi" className="btn btn--strong">
                   Explore Flo’s demo
+                </Link>
+              </div>
+            </div>
+          </article>
+          <article className="path">
+            <div className="path-b">
+              <Image
+                src={GOPAL_RAJGURU.face}
+                alt={GOPAL_RAJGURU.name}
+                width={76}
+                height={76}
+                style={{ borderRadius: '50%', objectFit: 'cover' }}
+              />
+              <h2>{GOPAL_RAJGURU.name}</h2>
+              <p>Ask Gopal’s AI twin about B2B selling, negotiation and leading your team.</p>
+              <div className="row">
+                <Link href="/gopal-rajguru" className="btn btn--strong">
+                  Explore Gopal’s demo
                 </Link>
               </div>
             </div>
