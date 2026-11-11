@@ -236,25 +236,44 @@ def build_story(cfg, C):
     if not turns:
         die(f"session.file '{sess_cfg['file']}' has no speaker_N: turns (or is not in index.json).")
     start = sess_cfg['start'].lower()
-    w0 = next((i for i, t in enumerate(turns) if t['text'].lower().startswith(start)), None)
-    if w0 is None:
-        die(f"session.start text not found at the start of any turn in {sess_cfg['file']}. "
-            f"Use: build.py window {C.slug} {sess_cfg['file']}")
     frames_cfg = sess_cfg['frames']
-    win = turns[w0:w0 + len(frames_cfg)]
-    if len(win) < len(frames_cfg):
-        die('session.frames has more entries than turns left in the transcript.')
+    segs = sess_cfg.get('segments')   # monologue: one long turn, split where each of these phrases begins
+    if segs:
+        if len(segs) != len(frames_cfg):
+            die('session.segments and session.frames need the same number of entries.')
+        w0 = next((i for i, t in enumerate(turns) if segs[0].lower() in t['text'].lower()), None)
+        if w0 is None:
+            die(f"session.segments[0] not found in {sess_cfg['file']}.")
+        t0, low = turns[w0], turns[w0]['text'].lower()
+        cuts = []
+        for p in segs + [sess_cfg['end']]:
+            i = low.find(p.lower(), cuts[-1] + 1 if cuts else 0)
+            if i < 0:
+                die(f'session segment not found after the previous one: {p}')
+            cuts.append(i)
+        win = [dict(t0, text=t0['text'][a:b].strip(), part=k) for k, (a, b) in enumerate(zip(cuts, cuts[1:]))]
+        for t in win:
+            t['w'] = len(t['text'].split())
+    else:
+        w0 = next((i for i, t in enumerate(turns) if t['text'].lower().startswith(start)), None)
+        if w0 is None:
+            die(f"session.start text not found at the start of any turn in {sess_cfg['file']}. "
+                f"Use: build.py window {C.slug} {sess_cfg['file']}")
+        win = turns[w0:w0 + len(frames_cfg)]
+        if len(win) < len(frames_cfg):
+            die('session.frames has more entries than turns left in the transcript.')
     other = sess_cfg['other']
 
     def clip(t, n=235):
         return t if len(t) <= n else t[:n].rsplit(' ', 1)[0] + ' …'
-    sess_lines = [{'id': f"t{t['ln']:04d}", 'ts': f'¶{w0 + k + 1}', 'raw': t['spk'], 'coach': t['coach'],
+    sess_lines = [{'id': f"t{t['ln']:04d}" + (f"-{t['part']}" if 'part' in t else ''),
+                   'ts': f"¶{w0 + 1}.{t['part'] + 1}" if 'part' in t else f'¶{w0 + k + 1}', 'raw': t['spk'], 'coach': t['coach'],
                    'who': cfg['coach']['name'] if t['coach'] else other, 'text': clip(t['text'])}
                   for k, t in enumerate(win)]
     frames = [{'id': f'f-{k:02d}', 'span': s, 'kind': kd, 'from': [sess_lines[k]['id']]}
               for k, (kd, s) in enumerate(frames_cfg)]
     cue_k, move_k = sess_cfg['cue'], sess_cfg['move']
-    if not win[move_k]['coach'] or win[cue_k]['coach']:
+    if not segs and (not win[move_k]['coach'] or win[cue_k]['coach']):
         print(f"warning: cue (turn {cue_k}) should be {other}'s line and move (turn {move_k}) the coach's. "
               f"Check session.coach_speaker.", file=sys.stderr)
 
@@ -452,8 +471,8 @@ def cmd_build(a):
     C = Corpus(a.slug, cfg['coach']['name'], s['file'], s.get('coach_speaker'))
     story = build_story(cfg, C)
     turns = C.transcripts[s['file']]
-    w0 = int(story['session']['lines'][0]['ts'][1:]) - 1
-    story['session']['lines_full'] = turns[w0:w0 + len(s['frames'])]
+    w0 = int(story['session']['lines'][0]['ts'][1:].split('.')[0]) - 1
+    story['session']['lines_full'] = turns[w0:w0 + (1 if s.get('segments') else len(s['frames']))]
     check_quotes(cfg, story)
     story['session'].pop('lines_full')
     conf = resolve(cfg, story)

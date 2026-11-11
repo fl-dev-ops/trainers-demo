@@ -3,10 +3,11 @@
 # Source: lore 6bacd5e9: 7 YouTube videos (keynotes, Beecon Elite masterclass, Nordic Business Forum talk, negotiation tips,
 # and interviews with Oration Speakers 2020, Pod_Bacula 2024, NO FEAR 2011), 16 LinkedIn posts, innovateandgrow.com
 # (his own posts plus company service pages).
-# No coaching calls exist and no listener brings him a personal problem anywhere in his public content, so the page follows
-# the deepest real exchange: the Oration Speakers interview (youtube.com/watch?v=tv7ct1vJCJg), where the host asks what
-# salespeople should do in turbulent times (2020), then about leadership and negotiation. Only Gopal's lines are used as his ideas.
-# Pronouns he/him: the interviewers say "he is the Managing Director" (Oration) and "He's also a consultant" (NO FEAR).
+# No coaching calls exist and no listener brings him a personal problem anywhere in his public content, and his interviews
+# don't touch his core ideas, so the page follows a monologue (session.segments): the Beecon Elite masterclass
+# "The Art and Science of Selling" (youtube.com/watch?v=1rrtbi7Qu7Q, about 30:50-32:50), where Gopal raises the salesperson's
+# question himself ("why not just give them a discount?") and answers it. Ties to his twin's starter question and the
+# procurement role play. Pronouns he/him: the interviewers say "he is the Managing Director" (Oration).
 
 coach:
   slug: gopal-rajguru
@@ -17,31 +18,40 @@ coach:
 mobile: true
 
 session:
-  file: youtube/video/2020-04-21-gopal-rajguru-expert-keynote-speaker-on-sales-leadership-and-tv7ct1vJCJg.md
-  kind: YouTube · Oration Speakers interview
-  start: These turbulent times
-  coach_speaker: speaker_2
-  other: Rachel
-  other_role: Interviewer
-  cue: 0
-  move: 1
+  file: youtube/video/2021-12-16-the-art-and-science-of-selling-beecon-elite-1rrtbi7Qu7Q.md
+  kind: YouTube · Beecon Elite masterclass
+  start: Now who can help us in this process
+  coach_speaker: speaker_1
+  other: The question
+  other_role: The question
+  cue: 1
+  move: 2
+  # a talk is one long turn: it is split where each of these phrases begins, and the last part ends at `end`
+  segments:
+    - Now who can help us in this process
+    - So why all of this work
+    - Well my idea is any fool
+    - So the question that begs
+    - So how do you build trust Well
+    - So what does C mean
+    - And then the I this is intimacy
+    - Now all of these 3 things
+    - Remember the situation has changed
+  end: How do you do this
   frames:
-    - ["question", "asking what pointers he has for salespeople in turbulent times"]
-    - ["reframe", "saying personal relationships are still personal relationships, so keep caring for customers"]
-    - ["question", "asking why leadership is so critical right now"]
-    - ["statement", "saying many leaders hide in difficult times, and he teaches the how, not just the what"]
-    - ["question", "asking which topics he is most passionate about"]
-    - ["statement", "naming sales, leadership and negotiation: people negotiate with people"]
-    - ["acknowledgment", "thanking him"]
-    - ["acknowledgment", "thanking her"]
-    - ["acknowledgment", "closing the interview"]
-    - ["statement", "urging everyone not to wait for things to get better"]
-    - ["acknowledgment", "thanking him"]
-    - ["statement", "saying make it better now: engage, show courage, calm and direction"]
+    - ["statement", "describing the coach inside the buying team who helps find the real decision makers"]
+    - ["question", "raising the salesperson's question himself: why not skip the work and just give a discount?"]
+    - ["reframe", "answering that anyone can sell cheap, selling high takes talent, and people buy from people they trust"]
+    - ["question", "asking how you build trust, and calling it an emotion, not a fact"]
+    - ["statement", "introducing his trust equation: credibility, reliability and intimacy over self-orientation"]
+    - ["statement", "explaining credibility and reliability: know the customer's business and keep your promises"]
+    - ["statement", "explaining intimacy: understand how the customer communicates and decides"]
+    - ["statement", "warning that talking about your products and your company lowers trust"]
+    - ["statement", "concluding that it's all about the customer, so reduce self-orientation"]
 
 thread:
-  situation: turbulent-business-conditions
-  topic: client-relationship-management
+  situation: difficult-negotiations
+  topic: value-based-selling
   phase: 2
   belief: 0
 
@@ -69,37 +79,40 @@ beliefs:
   - {title: Make it better now, text: 'Make it better now.', phases: [5, 2]}
 
 steps:
-  collect: "We read {youtube} of his YouTube videos, including keynotes, a masterclass and three interviews, {linkedin} of his LinkedIn posts and {web} pages from his website: <em>{words} words across {lines} lines.</em> In interviews we only use Gopal’s own lines, never the host’s views as his. From this collection, we follow one interview with Oration Speakers."
-  layer1: "The interviewer asks, <em>&ldquo;These turbulent times we’re finding ourselves in, what kind of guidelines and what kind of pointers would you have for salespeople?&rdquo;</em> In the very next turn, Gopal responds. These exact lines are the evidence for everything that follows."
-  meaning: "She asks for new rules for a new crisis. Gopal doesn’t give a crisis playbook. He tells salespeople to keep doing what matters most."
-  cue: "Asked for pointers in turbulent times, Gopal answers, <em>&ldquo;Try not to forget that personal relationships are still personal relationships.&rdquo;</em>"
-  layer2: "The channel changes, from meetings to phone and video, but the customer’s needs don’t. Keep caring for them as people: <em>&ldquo;the less you change the more it actually works.&rdquo;</em> The response stays linked to the exact exchange."
-  layer3: "Salespeople can’t meet their customers, and business feels uncertain. In Gopal’s material this shows up as <em>turbulent business conditions</em>."
-  layer4: "Gopal keeps coming back to people over tools: customers, relationships and trust run through his talks, interviews and his team’s programmes."
-  layer5: "The purpose is to move salespeople from &ldquo;how do I sell in a crisis?&rdquo; to &ldquo;keep caring for my customers, whatever the channel&rdquo;."
+  collect: "We read {youtube} of his YouTube videos, including keynotes, a masterclass and three interviews, {linkedin} of his LinkedIn posts and {web} pages from his website: <em>{words} words across {lines} lines.</em> From this collection, we follow one masterclass. Gopal speaks alone here, so he raises the salesperson’s question himself, and then answers it."
+  transcript: ["A recording becomes text", "His talk is transcribed word for word. At first, it is simply a record of what he said."]
+  trace: ["One answer becomes a principle", "We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the exact moment Gopal answered his own question."]
+  speakers: ["Who said what", "This is a talk, so every line is Gopal’s. We mark the moment he puts the salesperson’s question into words, and the moment he answers it."]
+  layer1: "Gopal raises the question every salesperson has asked: <em>&ldquo;So why not just give them a discount? Seems a lot easier, right?&rdquo;</em> In the very next line, he answers it himself. These exact lines are the evidence for everything that follows."
+  meaning: "He has just described all the work of mapping the buying team. A discount looks like the easy way out. Gopal doesn’t take it: selling at a high price is the skill, and trust is how you do it."
+  cue: "Asked why not just discount, Gopal answers, <em>&ldquo;Any fool can sell for the lowest price. It takes talent to sell for a high price.&rdquo;</em>"
+  layer2: "He turns a price question into a trust question, then shows how to build trust with his trust equation. The response stays linked to the exact moment."
+  layer3: "A salesperson under price pressure is tempted to discount instead of doing the work. In Gopal’s material this shows up as <em>difficult negotiations</em>."
+  layer4: "Gopal keeps coming back to value over price: value comes up in 17 of his sources and negotiation in 12, across his talks and his team’s programmes."
+  layer5: "The purpose is to move salespeople from &ldquo;just give them a discount&rdquo; to &ldquo;earn the price by building trust&rdquo;."
   layer6: "<em>People buy from the people they trust.</em> This is the principle behind Gopal’s answer."
 
 cards:
   layer1:
-    cue: These turbulent times we’re finding ourselves in, what kind of guidelines and what kind of pointers would you have for salespeople?
-    move: Certainly. I mean, I’d say, you know, try not to forget that personal relationships are still personal relationships &hellip;
-    foot: Two exact lines &middot; two speakers &middot; consecutive turns
+    cue: So why not just give them a discount? Seems a lot easier, right?
+    move: Any fool can sell for the lowest price. It takes talent to sell for a high price &hellip; people buy from the people they trust.
+    foot: Two exact lines &middot; one speaker &middot; back to back
   layer2:
-    cue: Asks for pointers for salespeople in a crisis
-    move: Keep caring for customers as people, whatever the channel
+    cue: Raises the temptation to just give a discount
+    move: Answers that the price is earned through trust, not cut
   layer3:
-    title: Selling when you can’t meet the customer
-    text: Meetings move online and business is uncertain, so salespeople look for new rules.
-    foot: Situation in {his} material &middot; &ldquo;turbulent business conditions&rdquo;
+    title: Pressure to cut the price
+    text: The buying team is complex and the deal is hard work, so a discount looks like the easy way to close.
+    foot: Situation in {his} material &middot; &ldquo;difficult negotiations&rdquo;
   layer4:
-    title: People over tools
-    text: Gopal keeps coming back to the people behind every sale, negotiation and team.
-    foot: Recurring pattern &middot; customers in 20 sources, relationships in 11
+    title: Value over price
+    text: Gopal keeps coming back to selling on value and trading value for value, never on the lowest price.
+    foot: Recurring pattern &middot; value in 17 sources, negotiation in 12
   layer5:
-    title: Keep caring, whatever the channel
-    text: Bring customers calm, organisation and a genuine sense of caring, in person or online.
-    starts: '&ldquo;How do I sell in a crisis?&rdquo;'
-    moves_to: '&ldquo;I keep caring for my customers&rdquo;'
+    title: Earn the price with trust
+    text: Build credibility, reliability and intimacy, and talk less about yourself, so the customer pays for the value.
+    starts: '&ldquo;Why not just give them a discount?&rdquo;'
+    moves_to: '&ldquo;I earn my price by building trust&rdquo;'
   layer6:
     quote: People buy from the people they trust.
     text: 'The same idea runs through his work: <em>&ldquo;Companies don’t negotiate with companies. People negotiate with people.&rdquo;</em>'
