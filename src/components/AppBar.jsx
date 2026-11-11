@@ -41,7 +41,7 @@ export default function AppBar({ children }) {
     <>
       <header className="app-head" ref={headRef}>
         <div className="in">
-          <Link href={trainerHome} className="lockup"><Logo />TrainerTwin</Link>
+          <Link href="/" className="lockup"><Logo />TrainerTwin</Link>
           <div className="head-r">
             {!['/jameel', '/prathosh', '/antoni', '/johnny-daniele', '/darren-mitchell', '/tony-latimer', '/marcus-cauchi', '/bevan-broadbent', '/flo-akinbiyi', '/gopal-rajguru'].includes(trainerHome) && TWIN.demo && (
               <a className="btn btn--secondary" href={TWIN.demo} target="_blank" rel="noopener noreferrer">
