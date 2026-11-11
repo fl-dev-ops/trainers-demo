@@ -11,7 +11,7 @@ const QUESTIONS = [
 
 const ROLEPLAY_URL = 'https://dash.roleplay.foreverlearning.in/agents/hold-your-price-with-procurement'
 
-const SITUATION = 'Peter is an AI persona. He is Head of Procurement at a mid-sized Swiss machine manufacturer, running the final negotiation for a new software contract. The person talking to him is the account manager. Their proposal is 15 percent above two cheaper offers, and Peter opens by asking them to bring the price down so he can sign this week. Finance wants him to show savings this year.'
+const SITUATION = 'Peter is an AI persona. He is Procurement Manager at a mid-sized construction contractor that has bought standard ready-mix concrete from the same supplier for years. For a new office building, the supplier’s account manager has proposed a low-carbon concrete, 15 percent above two offers for standard concrete. This is the final negotiation before Peter places the order, and he wants that gap closed.'
 
 export default function Welcome() {
   return (
@@ -90,7 +90,7 @@ export default function Welcome() {
             </div>
             <div className="path-b">
               <h2>Practise holding your price</h2>
-              <p>Negotiate with Peter, a procurement head who wants 15 percent off, and hold your price by asking questions and trading value for value.</p>
+              <p>Negotiate with Peter, a procurement manager who wants a 15 percent gap closed, and hold your price by asking questions and trading value for value.</p>
               <div className="row">
                 <a href={ROLEPLAY_URL} target="_blank" rel="noopener noreferrer" className="btn btn--strong">Start the role play</a>
                 <span className="meta">Opens the role-play app</span>
