@@ -103,7 +103,7 @@ sources:
     - "linkedin/posts/2026-10-04-karthik-raman-is-doing-amazing.md"
 
 steps:
-  collect: "We read {youtube} of his lecture, tutorial and talk videos and {linkedin} LinkedIn posts: <em>{words} words across {lines} lines.</em> From this collection, we follow one moment from his Deep Generative Models lecture on VAEs, when a student asks him a question."
+  collect: "We read {linkedin} of his LinkedIn posts, 22 YouTube videos (his Deep Generative Models course and talks) and 89 lectures and tutorials from his NPTEL course, Mathematical Foundations of Machine Learning: <em>{words} words across {lines} lines.</em> From this collection, we follow one moment from his Deep Generative Models lecture on VAEs, when a student asks him a question."
   layer1: "A student checks what Prathosh meant: <em>&ldquo;so basically we are trying to classify the class of the images.&rdquo;</em> In the very next turn, Prathosh responds. These exact lines are the evidence for everything that follows."
   meaning: "The student narrows the idea down to one use case, to be sure they've got it. Prathosh doesn't just say yes. He widens the idea out, then hands back a better question."
   cue: "Prathosh answers, <em>&ldquo;Anything. So it doesn't matter&hellip; a more interesting question is what advantage do you get by using Z instead of X?&rdquo;</em>"
