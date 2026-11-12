@@ -145,6 +145,22 @@ export const GOPAL_RAJGURU = {
   },
 }
 
+export const SEAN_WEAFER = {
+  id: 'sean-weafer',
+  name: 'Seán Weafer',
+  // The agent answers the welcome-page starter as the first message (needs starter_reply in agents.json).
+  starterInRoom: true,
+  firstName: 'Seán',
+  initials: 'SW',
+  face: '/media/sean-weafer-headshot.jpg',
+  portrait: '/media/sean-weafer-portrait.jpg',
+  room: {
+    kind: 'Ask me anything · Demo',
+    title: 'Ask about selling as a trusted advisor',
+    scenario: 'Seán’s AI twin will help you with business development, client conversations, building trust and leading a sales team. It was made only for this demo and is not a replacement for Seán.',
+  },
+}
+
 export const TONY_LATIMER = {
   id: 'tony-latimer',
   name: 'Tony Latimer',
@@ -399,5 +415,25 @@ GOPAL_RAJGURU.sources = [
   ]],
   ['Website', '22 pages', [
     ['innovateandgrow.com', 'His own posts and his team’s programme pages'],
+  ]],
+]
+
+SEAN_WEAFER.sourceSummary = '54 videos and podcasts · 182 LinkedIn posts · 22 website pages'
+SEAN_WEAFER.sources = [
+  ['YouTube', '53 videos', [
+    ['SalesMentor Pro channel', '46 of his own videos, keynotes to short tips'],
+    ['The Highly Trusted Advisor', 'Life’s a Pitch podcast'],
+    ['Sales Alchemy: The Power to Influence', 'The Inner Entrepreneur podcast'],
+    ['Why Technical Experts Fail at Sales', 'FailCraft podcast'],
+    ['What Great Sales Communicators Do Differently', 'Ideas on Stage podcast'],
+  ]],
+  ['Podcast', '1 episode', [
+    ['Interview with Sean Weafer', 'Entrepreneurs Visiting Victor'],
+  ]],
+  ['LinkedIn', '182 posts', [
+    ['Seán Weafer on LinkedIn', 'His own posts, Nov 2024 to 2026'],
+  ]],
+  ['Website', '22 pages', [
+    ['salesmentor.pro and seanweafer.com', 'His programme pages and blog posts'],
   ]],
 ]
