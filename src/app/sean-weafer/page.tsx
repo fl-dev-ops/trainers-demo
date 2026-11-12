@@ -2,7 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { SEAN_WEAFER } from '@/data.js'
 import TrustFooter from '@/components/TrustFooter.jsx'
-import { LinkedIn, Play, Sparkle, YouTube } from '@/components/Icons.jsx'
+import { RoleplayPair, TwinNotebook } from '@/components/ProfileCards.jsx'
+import { LinkedIn, Sparkle, YouTube } from '@/components/Icons.jsx'
 
 const QUESTIONS = [
   'My clients like me, but they don’t give me all their work. Why?',
@@ -11,7 +12,6 @@ const QUESTIONS = [
 
 const ROLEPLAY_URL = 'https://dash.roleplay.foreverlearning.in/agents/we-already-have-an-accountant'
 
-const SITUATION = 'Niamh is an AI persona. She is Managing Director of a family-owned food distribution business in Dublin with about 40 staff. She met the accountant briefly at a business breakfast and agreed to a 20-minute coffee. She already has an accountant and doesn’t see why she would need another one.'
 
 export default function Welcome() {
   return (
@@ -33,52 +33,24 @@ export default function Welcome() {
           </div>
         </div>
         <div className="paths">
-          <article className="path">
-            <div className="peek peek--rps peek--wrap">
-              <span className="peek-k">Ask a question</span>
-              <div className="rprows">
-                <Link href={{ pathname: '/sean-weafer/live', query: { mode: 'ama' } }} className="rprow" aria-label="Ask me anything">
-                  <span className="cl" aria-hidden="true">Y</span>
-                  <span className="q">Ask me anything</span>
-                  <img className="tw" src={SEAN_WEAFER.face} alt="" />
-                  <span className="pl" aria-hidden="true"><Play /></span>
-                </Link>
-                {QUESTIONS.map((q) => (
-                  <Link key={q} href={{ pathname: '/sean-weafer/live', query: { q } }} className="rprow" aria-label={'Ask: ' + q}>
-                    <span className="cl" aria-hidden="true">Y</span>
-                    <span className="q">“{q}”</span>
-                    <img className="tw" src={SEAN_WEAFER.face} alt="" />
-                    <span className="pl" aria-hidden="true"><Play /></span>
-                  </Link>
-                ))}
-              </div>
-            </div>
+          <article className="path path--wide">
+            <TwinNotebook trainer={SEAN_WEAFER} livePath="/sean-weafer/live" questions={QUESTIONS} />
             <div className="path-b">
               <h2>Ask {SEAN_WEAFER.firstName}’s twin live</h2>
-              <p>Talk to {SEAN_WEAFER.firstName}’s twin using your mic and camera, and ask about a client, a deal or a conversation you find awkward.</p>
+              <p>Pick a post-it to start a conversation, or ask your own question.</p>
               <div className="row">
                 <Link href="/sean-weafer/live" className="btn btn--strong">Start asking</Link>
                 <span className="meta">{SEAN_WEAFER.room.kind}</span>
               </div>
             </div>
           </article>
-          <article className="path">
-            <div className="peek peek--wrap peek--scn">
-              <span className="peek-k">Role play</span>
-              <div className="scn">
-                <h3 className="scn-t">We already have an accountant</h3>
-                <span className="scn-k">Client persona</span>
-                <div className="scn-p">
-                  <img src="/media/sean-roleplay-niamh.jpg" alt="" />
-                  <span>Niamh Kelly (Demo for Sean)</span>
-                </div>
-                <span className="scn-k">Situation</span>
-                <p>{SITUATION}</p>
-              </div>
-            </div>
+          <article className="path path--wide">
+            <RoleplayPair
+              coachee={{ role: 'Accountant', text: 'A partner at a small accounting firm, meeting a business owner for coffee after a business breakfast.', practises: ['Raising the pain first', 'Shaping the next step together'] }}
+              persona={{ role: 'Managing Director', name: 'Niamh Kelly', photo: '/media/sean-roleplay-niamh.jpg', behaviour: ['Skeptical & Reserved'], speaking: ['Casual', 'Short answers'], voice: 'Charlotte', text: 'Managing Director of a family-owned food distribution business in Dublin with about 40 staff. Already has an accountant, and has been oversold by advisers before.' }}
+            />
             <div className="path-b">
-              <h2>Practise turning a coffee into a client</h2>
-              <p>Meet Niamh, a business owner who already has an accountant, and win a next step by raising her pain with a question and shaping the solution with her.</p>
+              <h2>We already have an accountant</h2>
               <div className="row">
                 <a href={ROLEPLAY_URL} target="_blank" rel="noopener noreferrer" className="btn btn--strong">Start the role play</a>
                 <span className="meta">Opens the role-play app</span>
