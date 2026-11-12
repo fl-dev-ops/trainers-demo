@@ -29,6 +29,14 @@ svg#wires{position:absolute;inset:0;width:1600px;height:900px;overflow:visible}
 header{position:absolute;left:60px;right:60px;top:34px;display:flex;align-items:center;justify-content:space-between;
   font:500 11px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
 header b{color:var(--l1);font-weight:600}
+/* persona switch (config `switch`): one page per persona, on every screen */
+#psw{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line2);border-radius:999px;letter-spacing:normal;text-transform:none}
+#psw[hidden],#hdr[hidden]{display:none!important}
+#stage #psw,#stage #psw *{pointer-events:auto}
+#psw .ptab{white-space:nowrap;font:500 13px/1 var(--serif);color:var(--dim);padding:9px 16px;border-radius:999px;border:0;background:transparent;cursor:pointer;transition:all .2s}
+#psw .ptab:hover{color:var(--ink)}
+#psw .ptab small{margin-left:8px;font:500 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+#psw .ptab[aria-selected=true]{color:#1b1712;background:var(--l1);font-weight:600;cursor:default}
 #rail{display:flex;gap:28px}
 #rail .ch{display:flex;flex-direction:column;gap:9px;align-items:flex-start;transition:color .5s}
 #rail .ch.on{color:var(--ink)}
@@ -138,7 +146,7 @@ header b{color:var(--l1);font-weight:600}
 .txt .c{display:none}.doc.clean .txt .r{display:none}.doc.clean .txt .c{display:inline}
 .doc.clean .rh{max-height:0;opacity:0}
 .doc.clean .ts{width:46px;opacity:1}
-.doc.clean .who{width:54px;opacity:1}
+.doc.clean .who{width:var(--who,54px);opacity:1}
 .doc.clean .txt{font:13.4px/1.4 var(--sys);color:#ece8e2}
 .doc.focus .ln{opacity:.32}
 .doc.focus .ln.key{opacity:1;box-shadow:inset 0 0 0 1px rgba(226,169,59,.75);background:rgba(226,169,59,.1)}
@@ -290,6 +298,10 @@ body.m #stage{width:100%;height:100%;transform:none!important;padding:0 18px;dis
 body.m #vis{display:block;grid-area:vis}
 body.m header{grid-area:hd;position:relative;left:auto;right:auto;top:auto;padding:max(16px,env(safe-area-inset-top)) 0 12px;font-size:10px}
 body.m #hdr{display:none}
+body.m header{flex-wrap:wrap}
+body.m #psw{order:2;display:flex;width:100%;margin-top:12px}
+body.m #psw .ptab{flex:1;padding:10px 8px;font-size:13px}
+body.m #psw .ptab small{display:block;margin:5px 0 0;font-size:9px}
 body.m #rail{gap:12px;width:100%;justify-content:space-between}
 body.m #rail .ch{gap:7px}
 body.m #rail .ch>span:first-child{display:none}
@@ -330,7 +342,7 @@ body.m .doc{padding:12px 12px}
 body.m .doc .txt{font-size:11.5px}
 body.m .doc.clean .txt{font-size:12.5px}
 body.m .doc.clean .ts{width:0;opacity:0}
-body.m .doc.clean .who{width:56px}
+body.m .doc.clean .who{width:var(--who,56px)}
 /* frames */
 body.m #wires{display:none}
 body.m .rpanel{transform:translateY(16px)}
@@ -352,7 +364,7 @@ body.m #legend .plabel{grid-column:1 / -1;margin-bottom:6px}
 body.m .lg{padding:8px 0;gap:9px}
 body.m .lg span{font-size:9px;letter-spacing:.1em;line-height:1.3}
 /* about you, do's & don'ts: scrolling pages */
-body.m #ab,body.m #fd{position:absolute;left:0;right:0;top:44px;bottom:0;display:block;overflow-y:auto;background:var(--bg);padding:0 18px max(40px,env(safe-area-inset-bottom));touch-action:pan-y;-webkit-overflow-scrolling:touch}
+body.m #ab,body.m #fd{position:absolute;left:0;right:0;top:var(--hdh,44px);bottom:0;display:block;overflow-y:auto;background:var(--bg);padding:0 18px max(40px,env(safe-area-inset-bottom));touch-action:pan-y;-webkit-overflow-scrolling:touch}
 body.m #ab{bottom:52px;padding-bottom:28px}
 body.m #ab .kick,body.m #fd .kick{margin:18px 0 14px}
 body.m #ab .lead h1,body.m #fd .lead h1{font-size:30px}
@@ -383,7 +395,7 @@ body.rot #rot{display:flex;position:fixed;inset:0;z-index:9;background:var(--bg)
 <div id="rot"><b>Turn your phone upright</b><span>This page reads best in portrait</span></div>
 <div id="stage">
   <div id="vis"></div>
-  <header><div id="hdr"></div><nav id="rail" class="hit"></nav></header>
+  <header><div id="hdr"></div><div id="psw" class="hit" role="tablist" hidden></div><nav id="rail" class="hit"></nav></header>
 
   <div id="hero">
     <div class="kick">One real exchange, followed all the way through</div>
@@ -476,7 +488,13 @@ const ST_FR = ST_L1 + 1, ST_CUE = ST_L1 + 2;
 
 /* ================= build the DOM ================= */
 document.title = `How ${NM}'s Twin Learns`;
+// long speaker names (more than 7 letters) get a wider column; shorter ones keep the 54px one
+{ const n = Math.max(...L.map(l => l.who.length)); if (n > 7) document.documentElement.style.setProperty('--who', Math.ceil(n * 7.8) + 'px'); }
 $('#hdr').innerHTML = `Twin-memory · <b>From ${esc(NM)}'s words to a ${WD.coaching} principle</b>`;
+if (CF.switch && CF.switch.length > 1) {
+  $('#psw').hidden = false; $('#hdr').hidden = true;   // the switch takes the strapline's place
+  $('#psw').innerHTML = CF.switch.map(q => `<button type="button" class="ptab" role="tab" data-href="${esc(q.href)}" aria-selected="${!!q.current}">${esc(q.label)}${q.count ? `<small>${esc(q.count)}</small>` : ''}</button>`).join('');
+}
 $('#hero-h').innerHTML = `How ${esc(NM)}'s twin<br><i>learns</i>`;
 $('#hero-p').textContent = `Start with what was said. Follow what ${NM} does next, the situation ${HE} recognizes, and the principle behind ${HIS} response.`;
 
@@ -614,6 +632,8 @@ function fit() {
   cv.width = W * DPR; cv.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   $('#hint').innerHTML = M ? '<span id="mback" class="hit">← Back</span><span>Tap to continue</span>' : HINT;
   $('#go').textContent = M ? 'Tap to begin →' : 'Click to begin →';
+  // with a persona switch the phone header is taller: the About and Do's pages start below it
+  if (M && CF.switch) document.documentElement.style.setProperty('--hdh', document.querySelector('header').getBoundingClientRect().height + 'px');
   if (M) { camM(0); wiresLeft = 0; return; }
   KS = Math.min(W / 1600, H / 900); KD = KS; OX = (W - 1600 * KS) / 2; OY = (H - 900 * KS) / 2;
   stage.style.transform = `translate(${OX}px,${OY}px) scale(${KS})`;
@@ -900,6 +920,8 @@ addEventListener('pointerup', e => {
   const dot = e.target.closest && e.target.closest('#rail i');
   if (dot) { go(+dot.dataset.i); return; }
   if (e.target.closest && e.target.closest('#mback, #fd .keys')) { go(cur - 1); return; }
+  const sw = e.target.closest && e.target.closest('#psw .ptab');
+  if (sw) { if (sw.getAttribute('aria-selected') !== 'true') location.replace(sw.dataset.href + '#' + Math.max(0, cur)); return; }
   const ptab = e.target.closest && e.target.closest('#fd .ptab');
   if (ptab) { showPersona(+ptab.dataset.p); return; }
   const chip = e.target.closest && e.target.closest('#ab .chip');
