@@ -105,6 +105,8 @@ svg{flex:none}
 .prathosh-avatar{position:relative;display:block;width:76px;height:76px;flex:none;border-radius:50%;overflow:hidden}
 .prathosh-avatar img{object-fit:cover}
 .peek--fig img.prathosh-portrait,.rtile-slot img.prathosh-portrait{object-position:50% 10%}
+.peek--pyr{background:#14120f}
+.peek--fig.peek--pyr img{object-fit:contain;object-position:50% 50%;filter:none;transform:none;padding:14px 18px 10px}
 .peek--fig .peek-k{position:absolute;top:16px;left:18px;z-index:2;background:var(--surface);padding:4px 10px;border-radius:999px}
 .peek--fig .tag{position:absolute;right:16px;bottom:16px;z-index:2;display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:4px 12px;font-weight:500}
 .peek--fig .tag svg{width:12px;height:12px}
@@ -272,3 +274,33 @@ svg{flex:none}
 @media (max-width:760px){.room{height:auto}.rtiles{grid-template-rows:220px 150px}.chatp{height:420px}}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* Profile card redesign (12 Nov 2026): twin notebook with post-its, and the coachee + AI persona role-play pair. */
+.peek--nb{padding:18px 20px;justify-content:center;background:var(--sunken)}
+.nb{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);min-height:204px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--e1);position:relative;overflow:hidden}
+.nb::after{content:"";position:absolute;top:10px;bottom:10px;left:45%;width:2px;background:repeating-linear-gradient(to bottom,var(--field) 0 6px,transparent 6px 12px);opacity:.7}
+.nb-page{padding:16px 18px;min-width:0}
+.nb-page--right{display:flex;flex-direction:column;gap:9px;justify-content:center;background:repeating-linear-gradient(to bottom,transparent 0 23px,var(--border) 23px 24px)}
+.nb-photo{display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:center}
+.nb-photo img{width:104px;height:104px;object-fit:cover;border-radius:6px;border:4px solid #fff;box-shadow:var(--e2);transform:rotate(-3deg)}
+.nb-cap{font-size:13px;font-weight:600;color:var(--text-2)}
+.note{display:block;padding:8px 11px;border-radius:3px;font-size:13px;line-height:17px;color:#2b2416;box-shadow:0 1px 2px rgb(0 0 0/.12),0 4px 10px rgb(0 0 0/.08);transition:transform .15s var(--ease),box-shadow .15s var(--ease);text-decoration:none}
+.note:nth-child(odd){transform:rotate(-1.2deg)}
+.note:nth-child(even){transform:rotate(1deg)}
+.note:hover,.note:focus-visible{transform:rotate(0) translateY(-1px) scale(1.02);box-shadow:0 2px 4px rgb(0 0 0/.15),0 8px 18px rgb(0 0 0/.12)}
+.note:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.note--ama{font-weight:700}
+.note--yellow{background:#FFE98A}.note--pink{background:#FFC7D6}.note--blue{background:#BFE3FF}.note--green{background:#C9F0C2}
+
+.peek--pair{gap:14px}
+.pair{display:flex;justify-content:center;align-items:stretch;gap:14px}
+.pair-mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--text-3);font-size:11px;letter-spacing:.06em;text-transform:uppercase;text-align:center;width:76px;flex:none}
+.pc{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:10px;width:260px;min-height:390px;padding:22px 20px 24px;background:var(--surface);border:1px solid var(--border);border-radius:18px;min-width:0}
+.pc-role{position:absolute;top:14px;right:14px;font-size:12px;padding:4px 11px;border-radius:999px;background:var(--fill);color:var(--text-2);max-width:62%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-av{width:72px;height:72px;border-radius:999px;object-fit:cover;flex:none;box-shadow:0 0 0 3px var(--surface),0 2px 8px rgb(0 0 0/.12)}
+.pc-name{font-size:20px;line-height:26px;font-weight:600;color:var(--text);margin-top:4px}
+.pc-tags{display:flex;flex-wrap:wrap;gap:6px}
+.pc-tag{font-size:12px;padding:5px 10px;border-radius:999px;background:var(--fill);color:var(--text-2)}
+.pc-voice{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--text)}
+.pc-text{font-size:13px;line-height:19px;color:var(--text-2);margin:0}
+@media (max-width:680px){.pair{flex-direction:column;align-items:center}.pc{width:100%;max-width:300px;min-height:0}.pair-mid{flex-direction:row;width:auto}.pair-mid svg{transform:rotate(90deg)}.nb{grid-template-columns:1fr}.nb::after{display:none}}
