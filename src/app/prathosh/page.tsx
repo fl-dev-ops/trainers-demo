@@ -3,7 +3,8 @@ import Link from 'next/link'
 import { PRATHOSH } from '@/data.js'
 import MadeFrom from '@/components/MadeFrom.jsx'
 import TrustFooter from '@/components/TrustFooter.jsx'
-import { Eye, Play, Sparkle } from '@/components/Icons.jsx'
+import { TwinNotebook } from '@/components/ProfileCards.jsx'
+import { Eye, Sparkle } from '@/components/Icons.jsx'
 
 const DOUBTS = [
   'Why do we minimise empirical risk instead of the true risk?',
@@ -41,22 +42,10 @@ export default function Welcome() {
           </article>
 
           <article className="path">
-            <div className="peek peek--rps">
-              <span className="peek-k">{DOUBTS.length} doubts from the course</span>
-              <div className="rprows">
-                {DOUBTS.map((q) => (
-                  <Link key={q} href="/prathosh/live" className="rprow" aria-label={'Ask the twin: ' + q}>
-                    <span className="cl" aria-hidden="true">S</span>
-                    <span className="q">“{q}”</span>
-                    <img className="tw" src={PRATHOSH.face} alt="" />
-                    <span className="pl" aria-hidden="true"><Play /></span>
-                  </Link>
-                ))}
-              </div>
-            </div>
+            <TwinNotebook trainer={PRATHOSH} livePath="/prathosh/live" questions={DOUBTS} />
             <div className="path-b">
               <h2>Meet the interactive twin</h2>
-              <p>Where students clear their doubts and get pointed to the right lecture.</p>
+              <p>Pick a post-it to ask a doubt, or ask your own.</p>
               <div className="row">
                 <Link href="/prathosh/live" className="btn btn--strong">Ask a doubt</Link>
                 <span className="meta">Mathematical Foundations of ML · NPTEL</span>
@@ -65,13 +54,14 @@ export default function Welcome() {
           </article>
 
           <article className="path path--wide">
-            <div className="peek peek--fig" aria-hidden="true">
-              <Image className={PRATHOSH.portraitClass} src={PRATHOSH.portrait} alt="" fill sizes="(max-width: 680px) 100vw, 940px" />
+            <div className="peek peek--fig peek--pyr peek--pyr2" aria-hidden="true">
               <span className="peek-k">Teaching methodology</span>
+              <figure><img src="/media/prathosh-pyramid.jpg" alt="" /><figcaption>ML professor · 362 sources</figcaption></figure>
+              <figure><img src="/media/prathosh-sanskrit-pyramid.jpg" alt="" /><figcaption>Sanskrit teacher · 115 sources</figcaption></figure>
             </div>
             <div className="path-b">
-              <h2>What {PRATHOSH.firstName}’s twin learns from</h2>
-              <p>See how the twin was built from {PRATHOSH.firstName}’s lectures, layer by layer.</p>
+              <h2>Your teaching method, which the twin learns from</h2>
+              <p>Two personas, two pyramids: switch between the ML professor and the Sanskrit teacher on every screen.</p>
               <div className="row">
                 <Link href="/prathosh/methodology" className="btn btn--strong">See how it learns</Link>
               </div>

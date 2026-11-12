@@ -30,8 +30,8 @@ export default function Welcome() {
         </div>
         <div className="paths">
           <article className="path">
-            <div className="peek peek--fig" aria-hidden="true">
-              <Image src={DARREN_MITCHELL.portrait} alt="" fill sizes="(max-width: 680px) 100vw, 460px" />
+            <div className="peek peek--fig peek--pyr" aria-hidden="true">
+              <img src="/media/darren-mitchell-pyramid.jpg" alt="" />
               <span className="peek-k">Coaching methodology</span>
             </div>
             <div className="path-b">

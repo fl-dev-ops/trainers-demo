@@ -35,6 +35,7 @@ header b{color:var(--l1);font-weight:600}
 #stage #psw,#stage #psw *{pointer-events:auto}
 #psw .ptab{white-space:nowrap;font:500 13px/1 var(--serif);color:var(--dim);padding:9px 16px;border-radius:999px;border:0;background:transparent;cursor:pointer;transition:all .2s}
 #psw .ptab:hover{color:var(--ink)}
+#psw .ptab small{margin-left:8px;font:500 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.75}
 #psw .ptab[aria-selected=true]{color:#1b1712;background:var(--l1);font-weight:600;cursor:default}
 #rail{display:flex;gap:28px}
 #rail .ch{display:flex;flex-direction:column;gap:9px;align-items:flex-start;transition:color .5s}
@@ -300,6 +301,7 @@ body.m #hdr{display:none}
 body.m header{flex-wrap:wrap}
 body.m #psw{order:2;display:flex;width:100%;margin-top:12px}
 body.m #psw .ptab{flex:1;padding:10px 8px;font-size:13px}
+body.m #psw .ptab small{display:block;margin:5px 0 0;font-size:9px}
 body.m #rail{gap:12px;width:100%;justify-content:space-between}
 body.m #rail .ch{gap:7px}
 body.m #rail .ch>span:first-child{display:none}
@@ -491,7 +493,7 @@ document.title = `How ${NM}'s Twin Learns`;
 $('#hdr').innerHTML = `Twin-memory · <b>From ${esc(NM)}'s words to a ${WD.coaching} principle</b>`;
 if (CF.switch && CF.switch.length > 1) {
   $('#psw').hidden = false; $('#hdr').hidden = true;   // the switch takes the strapline's place
-  $('#psw').innerHTML = CF.switch.map(q => `<button type="button" class="ptab" role="tab" data-href="${esc(q.href)}" aria-selected="${!!q.current}">${esc(q.label)}</button>`).join('');
+  $('#psw').innerHTML = CF.switch.map(q => `<button type="button" class="ptab" role="tab" data-href="${esc(q.href)}" aria-selected="${!!q.current}">${esc(q.label)}${q.count ? `<small>${esc(q.count)}</small>` : ''}</button>`).join('');
 }
 $('#hero-h').innerHTML = `How ${esc(NM)}'s twin<br><i>learns</i>`;
 $('#hero-p').textContent = `Start with what was said. Follow what ${NM} does next, the situation ${HE} recognizes, and the principle behind ${HIS} response.`;

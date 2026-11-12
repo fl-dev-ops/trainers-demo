@@ -77,8 +77,8 @@ beliefs:
 mobile: true
 
 switch:
-  - {label: "ML professor", href: "teaching-twin.html"}
-  - {label: "Sanskrit teacher", href: "sanskrit-twin.html", current: true}
+  - {label: "ML professor", count: "362 sources", href: "teaching-twin.html"}
+  - {label: "Sanskrit teacher", count: "115 sources", href: "sanskrit-twin.html", current: true}
 
 sources:
   include:
