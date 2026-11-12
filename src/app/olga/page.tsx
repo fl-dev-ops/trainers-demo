@@ -48,8 +48,8 @@ export default function Welcome() {
 
         <div className="paths">
           <article className="path">
-            <div className="peek peek--fig" aria-hidden="true">
-              <img src={TWIN.poster} alt="" />
+            <div className="peek peek--fig peek--pyr" aria-hidden="true">
+              <img src="/media/olga-pyramid.jpg" alt="" />
               <span className="peek-k">Coaching methodology</span>
             </div>
             <div className="path-b">
