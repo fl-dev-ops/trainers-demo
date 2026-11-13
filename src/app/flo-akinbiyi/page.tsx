@@ -40,7 +40,7 @@ export default function Welcome() {
               <h2>What {FLO_AKINBIYI.firstName}’s twin learns from</h2>
               <p>See how the twin was built from {FLO_AKINBIYI.firstName}’s coaching, layer by layer.</p>
               <div className="row">
-                <Link href="/flo-akinbiyi/methodology" className="btn btn--strong">See how it learns</Link>
+                <Link href="/flo-akinbiyi/methodology" className="btn btn--strong card-link">See how it learns</Link>
               </div>
             </div>
           </article>
@@ -68,7 +68,7 @@ export default function Welcome() {
               <h2>Ask {FLO_AKINBIYI.firstName}’s twin live</h2>
               <p>Talk to {FLO_AKINBIYI.firstName}’s twin using your mic and camera, and ask about your next presentation, your nerves or how to connect with an audience.</p>
               <div className="row">
-                <Link href="/flo-akinbiyi/live" className="btn btn--strong">Start asking</Link>
+                <Link href="/flo-akinbiyi/live" className="btn btn--strong card-link">Start asking</Link>
                 <span className="meta">{FLO_AKINBIYI.room.kind}</span>
               </div>
             </div>
@@ -91,7 +91,7 @@ export default function Welcome() {
               <h2>Practise presenting to a distracted CEO</h2>
               <p>Present to Karim, a CEO who is short on time and attention, and win his support with energy, clarity and human connection.</p>
               <div className="row">
-                <a href={ROLEPLAY_URL} target="_blank" rel="noopener noreferrer" className="btn btn--strong">Start the role play</a>
+                <a href={ROLEPLAY_URL} target="_blank" rel="noopener noreferrer" className="btn btn--strong card-link">Start the role play</a>
                 <span className="meta">Opens the role-play app</span>
               </div>
             </div>

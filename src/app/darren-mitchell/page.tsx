@@ -38,7 +38,7 @@ export default function Welcome() {
               <h2>What {DARREN_MITCHELL.firstName}’s twin learns from</h2>
               <p>See how the twin was built from {DARREN_MITCHELL.firstName}’s coaching, layer by layer.</p>
               <div className="row">
-                <Link href="/darren-mitchell/methodology" className="btn btn--strong">See how it learns</Link>
+                <Link href="/darren-mitchell/methodology" className="btn btn--strong card-link">See how it learns</Link>
               </div>
             </div>
           </article>
@@ -60,7 +60,7 @@ export default function Welcome() {
               <h2>Ask {DARREN_MITCHELL.firstName}’s twin live</h2>
               <p>Talk to {DARREN_MITCHELL.firstName}’s twin using your mic and camera, and ask whatever is on your mind about leading your team.</p>
               <div className="row">
-                <Link href="/darren-mitchell/live" className="btn btn--strong">Start asking</Link>
+                <Link href="/darren-mitchell/live" className="btn btn--strong card-link">Start asking</Link>
                 <span className="meta">{DARREN_MITCHELL.room.kind}</span>
               </div>
             </div>
