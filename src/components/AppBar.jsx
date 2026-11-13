@@ -2,9 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { TWIN } from '../data.js'
-import { Lock, Logo, Moon, Play, Sun } from './Icons.jsx'
+import { Lock, Logo, Moon, Sun } from './Icons.jsx'
 
 function readTheme() {
   try {
@@ -15,8 +13,6 @@ function readTheme() {
 }
 
 export default function AppBar({ children }) {
-  const pathname = usePathname()
-  const trainerHome = pathname.match(/^\/[^/]+/)?.[0] ?? '/'
   const [theme, setTheme] = useState(readTheme)
   const headRef = useRef(null)
 
@@ -43,11 +39,6 @@ export default function AppBar({ children }) {
         <div className="in">
           <Link href="/" className="lockup"><Logo />TrainerTwin</Link>
           <div className="head-r">
-            {!['/jameel', '/prathosh', '/antoni', '/johnny-daniele', '/darren-mitchell', '/tony-latimer', '/marcus-cauchi', '/bevan-broadbent', '/flo-akinbiyi', '/gopal-rajguru', '/sean-weafer'].includes(trainerHome) && TWIN.demo && (
-              <a className="btn btn--secondary" href={TWIN.demo} target="_blank" rel="noopener noreferrer">
-                <Play /><span className="hide-sm">Watch demo of Olga</span><span className="show-sm">Watch demo</span>
-              </a>
-            )}
             <span className="badge hide-sm"><Lock />Private preview</span>
             <button
               type="button"
