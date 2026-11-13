@@ -1,0 +1,135 @@
+# Tony Latimer. Build with:
+#   python build.py build tony-latimer
+# Source: lore users/tony-latimer: 14 YouTube videos (coaching demonstrations, ICF talks, teleclasses), 500 LinkedIn posts,
+# 49 Instagram posts, 45 pages from profitableleadership.com.
+# Exchange: a real coaching demonstration, "Coaching a breakthrough corporate decision" (Moore Master Coaching teleclass,
+# recorded October 2021, youtube.com/watch?v=IICwktf7a_A). The client (Ellie, 25 years in logistics) is torn between
+# resigning now to start an art business and waiting two years. After hearing the dilemma, Tony asks:
+# "So I hear the decision you're trying to make. What exactly is your problem?", and the real problem surfaces:
+# "I don't want to wait 2 years... I want to be free". Pronouns he/him: the host introduces him ("introduce him to you").
+
+coach:
+  slug: tony-latimer
+  name: Tony
+  full_name: Tony Latimer
+  pronouns: [he, him, his]
+
+mobile: true
+
+session:
+  file: youtube/video/2024-04-18-coaching-a-breakthrough-corporate-decision-IICwktf7a_A.md
+  kind: YouTube · live coaching demonstration
+  start: So you said just no I cant do it
+  coach_speaker: speaker_3
+  other: Client
+  other_role: Client
+  cue: 5
+  move: 6
+  frames:
+    - ["question", "asking what she is afraid of"]
+    - ["statement", "naming her fears: running out of money and making a mistake"]
+    - ["question", "noticing she is trying to make a decision, and asking what the decision is"]
+    - ["statement", "framing it as a choice: wait two years in her job, or resign now with no plan"]
+    - ["acknowledgment", "playing back both options in her own terms"]
+    - ["statement", "saying she sees a bright future in two years, then asking whether she can wait that long"]
+    - ["question", "asking what exactly her problem is"]
+    - ["question", "checking what he means"]
+    - ["question", "repeating: your problem"]
+    - ["statement", "naming the real problem: she doesn't want to wait two years, because she doesn't feel free"]
+
+thread:
+  situation: career-transition
+  topic: coaching-mastery
+  phase: 0
+  belief: 0
+
+default_phase: 5
+phases:
+  - title: Get absolute clarity
+    keywords: [clarity, problem, decision, decisions, goal, goals, outcome, awareness, question, questions, listening, thinking]
+  - title: Coach for behavioural change
+    keywords: [coaching, coach, coaches, mastery, mcc, competency, icf, energy, presence, subconscious, session, certification]
+  - title: Step into the CEO role
+    keywords: [ceo, transition, new, first, promotion, appointment, role, board, career, planning, hiring, interview]
+  - title: Build the leadership team
+    keywords: [team, teams, functional, heads, multicultural, global, cross, cultural, language, diverse, multilingual, organizational]
+  - title: Lead at the speed of thought
+    keywords: [ai, tools, bots, digital, mentoring, personalized, learning, insights, speed, thought, demand, hyper]
+  - title: Get results through others
+    keywords: [leader, leaders, leadership, management, manager, motivation, culture, values, performance, development, charity, marathon]
+
+beliefs:
+  - {title: Coaching makes people think, text: 'Coaching is the process of making people think.', phases: [0, 1]}
+  - {title: Leadership is a state of being, text: 'Leadership is a state of being. Manager is the Role. Leadership is the Style.', phases: [5, 2]}
+  - {title: Change yourself first, text: 'You cannot change anyone, except yourself. Yet when you change yourself, others change.', phases: [5, 1]}
+  - {title: Most leadership teams aren't teams, text: 'Most leadership teams aren’t teams. They’re a group of people who happen to share a CEO.', phases: [3, 2]}
+  - {title: Join the 30% who succeed, text: '70% of new CEOs fail. I help you join the 30% who succeed.', phases: [2, 3]}
+  - {title: You can't motivate anyone, text: 'You cannot motivate anyone, and as a leader you can create an atmosphere and environment in which people will become motivated.', phases: [5, 0]}
+
+steps:
+  collect: "We read {youtube} of his YouTube videos, including live coaching demonstrations, {linkedin} of his LinkedIn posts, {instagram} Instagram posts and {web} pages from his website: <em>{words} words across {lines} lines.</em> From this collection, we follow one live coaching session, where a client brings him a decision she can’t make."
+  transcript: ["A recording becomes text", "The session is transcribed word for word. At first, it is simply a record of who said what."]
+  trace: ["One answer becomes a principle", "We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the exact moment Tony asked his question."]
+  speakers: ["Who said what", "We separate the client’s words from Tony’s questions, and mark the moment she lays out her dilemma."]
+  layer1: "The client lays out her dilemma and ends: <em>&ldquo;So it’s basically, can I wait 2 years feeling dying?&rdquo;</em> Tony’s question comes straight after. These exact lines are the evidence for everything that follows."
+  meaning: "She has explained the decision in detail: wait two years, or resign now. Tony doesn’t help her weigh the options. He asks what the problem actually is, and the real issue comes out: she doesn’t feel free."
+  cue: "After hearing the dilemma, Tony asks, <em>&ldquo;So I hear the decision you’re trying to make. What exactly is your problem?&rdquo;</em>"
+  layer2: "He separates the decision from the problem behind it, and lets the client find it herself. The response stays linked to the exact moment."
+  layer3: "A senior professional is torn between staying in a safe career and leaving for something new. In Tony’s material this shows up as <em>career transition</em>."
+  layer4: "Tony keeps coming back to coaching mastery and clarity: the Simplicity of Mastery programme comes up in 91 of his sources, and clarity in 34."
+  layer5: "The purpose is to move a client from &ldquo;which option should I pick?&rdquo; to &ldquo;this is what’s really in my way&rdquo;."
+  layer6: "<em>Coaching is the process of making people think.</em> This is the principle behind Tony’s question."
+
+cards:
+  layer1:
+    cue: So it’s basically, can I wait 2 years feeling dying?
+    move: So I hear the decision you’re trying to make. What exactly is your problem?
+    foot: Two exact lines &middot; two speakers &middot; back to back
+  layer2:
+    cue: Lays out a decision she can’t make
+    move: Asks what exactly the problem is, so she names it herself
+  layer3:
+    title: Stay or go
+    text: A safe, well-paid career on one side, something she really wants on the other, and fear of getting it wrong.
+    foot: Situation in {his} material &middot; &ldquo;career transition&rdquo;
+  layer4:
+    title: Clarity before options
+    text: Tony keeps getting to absolute clarity on where the person is now before anyone talks about what to do.
+    foot: Recurring pattern &middot; clarity in 34 sources
+  layer5:
+    title: Find the real problem
+    text: Separate the decision from the problem behind it, and let the client say it in their own words.
+    starts: '&ldquo;Should I wait or resign?&rdquo;'
+    moves_to: '&ldquo;I don’t want to wait. I want to be free.&rdquo;'
+  layer6:
+    quote: Coaching is the process of making people think.
+    text: 'The same idea runs through his work: <em>&ldquo;You cannot change anyone, except yourself. Yet when you change yourself, others change.&rdquo;</em>'
+
+about:
+  sources:
+    - ["YouTube", "Coaching demonstrations and talks", "{youtube} videos"]
+    - ["LinkedIn", "in/tonylatimer", "{linkedin} posts"]
+    - ["Instagram", "Short videos and posts", "{instagram} posts"]
+    - ["Website", "profitableleadership.com", "{web} pages"]
+  rows:
+    - ["Type of coach", [["Executive coach", 1], ["CEO transition coach", 1], ["Master coach (MCC)", 1], ["Keynote speaker", 1]], "your LinkedIn headline: “Executive Coach to CEOs | Keynote: Leadership at the Speed of Thought”"]
+    - ["Region", [["Singapore", 1], ["Asia-Pacific", 1], ["Global", 1], ["US", 0]], "LinkedIn: Singapore · “across Asia-Pacific and globally” (your LinkedIn About)"]
+    - ["Who you coach", [["New CEOs", 1], ["Leadership teams", 1], ["Coaches", 1]], "“new CEOs and senior leaders stepping into larger roles” · coaches through Simplicity of Mastery"]
+    - ["How you deliver", [["1:1 coaching", 1], ["Team coaching", 1], ["Keynotes", 1], ["Coach training", 1]], "your coaching programmes page and Simplicity of Mastery"]
+    - ["Your topics", [["CEO transition", 1], ["Leadership teams", 1], ["Coaching mastery", 1], ["AI in leadership", 1], ["Leading across cultures", 1]], "grouped from {topics} recurring topics in your videos, posts and website"]
+    - ["Named frameworks", [["Leadership at the Speed of Thought", 1], ["Simplicity of Mastery", 1], ["Profitable Leadership", 1], ["Join the 30% who succeed", 1]], "your LinkedIn headline and website · speed of thought in 27 sources, Simplicity of Mastery in 91"]
+    - ["Your style", [["Plays back their words", 1], ["Asks short, direct questions", 1], ["Clarity before advice", 1], ["1:1 coaching: recorded", 1]], "“if I’m hearing correctly” and “so I hear” in 6 recorded sessions · “What exactly is your problem?” · your live demonstrations on YouTube"]
+
+dd_lead: Tony's twin follows these in every answer. They come from patterns that run through his coaching sessions, posts and website.
+dos:
+  - ["play back what you heard before you ask", "Coaching demonstrations · 6 sessions"]
+  - ["ask what exactly the problem is", "Live session · “What exactly is your problem?”"]
+  - ["get absolute clarity on where they are now", "Website · “absolute clarity on where they are now”"]
+  - ["ask what it looks like when the problem is solved", "Live session · the future picture"]
+  - ["treat the first 90 days as runway, not a grace period", "Posts and website · new CEO transition in 26 sources"]
+  - ["build a team that runs the business, not a group", "LinkedIn · “most leadership teams aren’t teams”"]
+donts:
+  - ["solve the problem for the client", "Website · “it is not to be the problem solver”"]
+  - ["jump to options before the real problem is clear", "Live session · decision vs problem"]
+  - ["try to motivate people", "Website · “you cannot motivate anyone”"]
+  - ["try to change others before yourself", "Website · leadership is a state of being"]

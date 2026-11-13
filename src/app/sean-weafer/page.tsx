@@ -33,7 +33,20 @@ export default function Welcome() {
           </div>
         </div>
         <div className="paths">
-          <article className="path path--wide">
+          <article className="path">
+            <div className="peek peek--fig peek--pyr" aria-hidden="true">
+              <img src="/media/sean-weafer-pyramid.jpg" alt="" />
+              <span className="peek-k">Coaching methodology</span>
+            </div>
+            <div className="path-b">
+              <h2>Your coaching method, which the twin learns from</h2>
+              <p>See how the twin was built from {SEAN_WEAFER.firstName}’s coaching, layer by layer.</p>
+              <div className="row">
+                <Link href="/sean-weafer/methodology" className="btn btn--strong card-link">See how it learns</Link>
+              </div>
+            </div>
+          </article>
+          <article className="path">
             <TwinNotebook trainer={SEAN_WEAFER} livePath="/sean-weafer/live" questions={QUESTIONS} />
             <div className="path-b">
               <h2>Ask {SEAN_WEAFER.firstName}’s twin live</h2>

@@ -1,0 +1,132 @@
+# Seán Weafer. Build with:
+#   python build.py build sean-weafer
+# Source: lore a826c017: 54 YouTube transcripts (his channel 2014-2026 plus guest shows, webinars and the
+# Entrepreneurs Visiting Victor podcast), 182 LinkedIn posts since Nov 2024, 22 pages from salesmentor.pro and seanweafer.com.
+# Exchange (Lalith's pick, 13 Nov 2026): MILE webinar "How Experts Become Influencers" (2017, youtube.com/watch?v=HCpOxau_Mqw,
+# Q&A from about 45:36). The moderator reads an attendee's question: at a networking event, why not just be candid and
+# share business cards? Seán answers that you'd be seen as intrusive and haven't qualified the person, then teaches
+# "raise the pain and position the gain" with his accountant example. Ties to his twin's "what do I say when people ask
+# what I do" post-it and the Niamh role play. Pronouns he/him: podcast hosts say "he's the creator of the G2S Coaching System".
+
+coach:
+  slug: sean-weafer
+  name: Seán
+  full_name: Seán Weafer
+  pronouns: [he, him, his]
+
+mobile: true
+
+session:
+  file: youtube/video/2017-01-03-how-experts-become-influencers-by-sean-weafer-mile-webinar-HCpOxau_Mqw.md
+  kind: YouTube · MILE webinar Q&amp;A
+  start: you Well thank you very much Mr Sean Weafer
+  coach_speaker: speaker_1
+  other: Moderator
+  other_role: Attendee
+  cue: 0
+  move: 1
+  frames:
+    - ["question", "reading an attendee's question: at a networking event, why not be candid, keep it short and just share business cards?"]
+    - ["reframe", "answering that you'd come across as intrusive, then teaching how to qualify people with a question about their pain"]
+    - ["question", "asking how to cut short a prospect who asks lots of questions about your business"]
+    - ["question", "suggesting you ask what areas specifically they are most challenged by"]
+    - ["question", "asking how to catch the attention of buyers"]
+    - ["statement", "separating what's on your website from what you say in the networking room"]
+    - ["question", "asking what cultural differences he sees when meeting people"]
+    - ["statement", "saying the main difference is how people first connect with each other"]
+
+thread:
+  situation: attending-a-networking-event
+  topic: networking-strategy
+  phase: 1
+  belief: 0
+
+default_phase: 4
+phases:
+  - title: Capture attention
+    keywords: [attention, emotion, emotional, compelling, message, messaging, pitch, elevator, presentation, presentations, capturing, story]
+  - title: Make the right connections
+    keywords: [networking, network, event, events, connect, connection, contact, contacts, introduction, referrals, linkedin, social]
+  - title: Have great conversations
+    keywords: [question, questions, questioning, conversation, conversations, listen, listening, consultative, pain, rapport, objection, objections]
+  - title: Become a highly trusted advisor
+    keywords: [trust, trusted, advisor, relationship, relationships, client, clients, retention, credibility, influence, value, expert]
+  - title: Win the business
+    keywords: [sales, selling, closing, deals, deal, business, development, acquisition, pipeline, prospect, revenue, growth]
+  - title: Lead the team
+    keywords: [leader, leaders, leadership, manager, managers, team, collaborative, coaching, mentoring, motivation, time, focus, goal]
+
+beliefs:
+  - {title: Raise the pain, position the gain, text: 'We call it raise the pain and position the gain.', phases: [1, 2]}
+  - {title: Nobody cares, text: 'Well, let me share some bad news with you: nobody cares.', phases: [0, 1]}
+  - {title: Personable, not just professional, text: 'It’s important to not just be professional but to be personable.', phases: [3, 2]}
+  - {title: It's about the other person, text: 'The key thing about networking is always about the other person. It’s not about you.', phases: [1, 3]}
+  - {title: Lead with emotion, text: 'Points of compelling relevance are points that lead with emotion and justify with logic.', phases: [0, 4]}
+  - {title: Attention is the new currency, text: 'Attention is the new currency.', phases: [0, 3]}
+
+steps:
+  collect: "We read {youtube} of his YouTube videos, including talks, webinars, podcasts and interviews, {linkedin} of his LinkedIn posts and {web} pages from his two websites: <em>{words} words across {lines} lines.</em> From this collection, we follow one webinar Q&amp;A, where an attendee asks him about networking."
+  transcript: ["A recording becomes text", "The webinar is transcribed word for word. At first, it is simply a record of who said what."]
+  trace: ["One answer becomes a principle", "We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the exact moment Seán answered the attendee."]
+  speakers: ["Who said what", "We separate the moderator, who reads out the attendees’ questions, from Seán’s answers, and mark the question we follow."]
+  layer1: "An attendee asks: <em>&ldquo;Why not be candid and short and just share the business cards?&rdquo;</em> Seán’s answer comes straight after. These exact lines are the evidence for everything that follows."
+  meaning: "The attendee wants to skip the small talk and get to business. Seán doesn’t agree: if you lead with your card, you haven’t found out whether the person is worth your time, and they haven’t seen any value in you."
+  cue: "Asked why not just share business cards, Seán answers, <em>&ldquo;You haven’t qualified if that person is of value to you in the first place.&rdquo;</em>"
+  layer2: "He turns a question about speed into a question about qualifying, then gives the exact words to use instead. The response stays linked to the exact moment."
+  layer3: "Someone at a networking event wants to get straight to business without seeming fake. In Seán’s material this shows up as <em>attending a networking event</em>."
+  layer4: "Seán keeps coming back to networking and raising the pain: networking comes up in 58 of his sources and pain in 26, across his talks, posts and websites."
+  layer5: "The purpose is to move experts from &ldquo;here’s my card&rdquo; to &ldquo;a question that makes the right people say tell me more&rdquo;."
+  layer6: "<em>Raise the pain, position the gain.</em> This is the principle behind Seán’s answer."
+
+cards:
+  layer1:
+    cue: Why not be candid and short and just share the business cards?
+    move: If you’re immediately just trying to sell your business, first of all you haven’t qualified if that person is of value to you in the first place &hellip; We call it raise the pain and position the gain.
+    foot: Two exact lines &middot; two speakers &middot; back to back
+  layer2:
+    cue: Wants to skip to swapping business cards
+    move: Shows how to qualify the person with a question about their pain
+  layer3:
+    title: First contact at a networking event
+    text: The expert wants to get to business quickly, but leading with a title and a card makes people switch off.
+    foot: Situation in {his} material &middot; &ldquo;attending a networking event&rdquo;
+  layer4:
+    title: Lead with their pain, not your title
+    text: Seán keeps coming back to opening with the other person’s problem and earning the right to talk about yours.
+    foot: Recurring pattern &middot; networking in 58 sources, pain in 26
+  layer5:
+    title: Qualify with one question
+    text: Ask about the universal pain point, wait for the nod, then say how you solve it, so the right people ask to hear more.
+    starts: '&ldquo;I’m an accountant, here’s my card&rdquo;'
+    moves_to: '&ldquo;Do you know the way most small businesses&hellip;?&rdquo;'
+  layer6:
+    quote: Raise the pain, position the gain.
+    text: 'The same idea runs through his work: <em>&ldquo;The key thing about networking is always about the other person. It’s not about you.&rdquo;</em>'
+
+about:
+  sources:
+    - ["YouTube", "@seanweafer and guest shows", "{youtube} videos · talks, webinars, podcasts"]
+    - ["LinkedIn", "in/seanweafer", "{linkedin} posts · since November 2024"]
+    - ["Website", "salesmentor.pro · seanweafer.com", "{web} pages"]
+  rows:
+    - ["Type of coach", [["Sales mentor", 1], ["Leadership coach", 1], ["Conference speaker", 1], ["Author", 1]], "your LinkedIn headline: “Founder, SalesMentor Pro | Conference Speaker | Author ‘The Highly Trusted Advisor’”"]
+    - ["Region", [["Ireland", 1], ["UK", 1], ["Europe", 1], ["Global", 0]], "LinkedIn: Dublin, County Dublin, Ireland"]
+    - ["Who you coach", [["Individuals", 0], ["Sales teams", 1], ["Both", 1]], "“Sales Teams, SME Owners and Practice Professionals” · your LinkedIn About"]
+    - ["How you deliver", [["Mentoring", 1], ["Webinars", 1], ["Keynotes", 1], ["Group programmes", 1]], "SalesMentor Pro: a 90-day mentoring programme “not traditional sales training”, plus talks and webinars"]
+    - ["Your topics", [["Networking", 1], ["Trusted advisor", 1], ["Communicating value", 1], ["Sales leadership", 1], ["Focus and time", 1]], "grouped from {topics} recurring topics in your talks, posts and websites"]
+    - ["Named frameworks", [["The Highly Trusted Advisor", 1], ["Raise the pain, position the gain", 1], ["Points of compelling relevance", 1], ["G2S Coaching System", 1], ["CIA: control, influence, accept", 1], ["Growth Mapping Session", 1]], "your book, talks and SalesMentor Pro pages · G2S in 14 sources, points of compelling relevance in 6"]
+    - ["Your style", [["Gives the exact words", 1], ["Simple examples", 1], ["Challenges beliefs", 1], ["1:1 mentoring: not enough data yet", 0]], "“may I ask why specifically” in 6 sources · “for example” in 20 talks · “the reality is” in 17 · no recorded mentoring sessions yet, so start calibration to see how you mentor 1:1"]
+
+dd_lead: Seán's twin follows these in every answer. They come from patterns that run through his talks, webinars, posts and websites.
+dos:
+  - ["open with the other person's pain, then position the gain", "MILE webinar · “raise the pain and position the gain”"]
+  - ["research them first, then ask what matters most in the next 12 months", "Frequent pattern · 12 months discussed in 10 sources"]
+  - ["give the exact words to say, then explain why they work", "Talks · “may I ask why specifically” in 6 sources"]
+  - ["be personable, not just professional", "MILE webinar · closing remarks"]
+  - ["thank them, then ask why specifically, when they say no", "Talks and webinars · 6 sources"]
+  - ["act on what you own", "Talks · CIA: control, influence, accept, in 4 sources"]
+donts:
+  - ["lead with your title and your business card", "MILE webinar · “I’m an accountant, here’s my card”"]
+  - ["open a meeting with “tell me about your business”", "Talks · 4 sources"]
+  - ["pitch at people who haven't shown interest", "Talks · “nobody cares” in 10 sources"]
+  - ["sound salesy", "Frequent pattern · salesy discussed in 52 sources"]
