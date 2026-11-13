@@ -306,3 +306,16 @@ svg{flex:none}
 .pc-text{font-size:13px;line-height:19px;color:var(--text-2);margin:0}
 @media (max-width:680px){.pair{flex-direction:column;align-items:center}.pc{width:100%;max-width:300px;min-height:0}.pair-mid{flex-direction:row;width:auto}.pair-mid svg{transform:rotate(90deg)}.nb{grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr)}.nb::after{left:37%}.nb-page{padding:14px 12px}.nb-photo img{width:80px;height:80px}.note{font-size:12.5px;padding:7px 9px}}
 .path--wide .nb{width:100%;max-width:640px;margin:0 auto}
+
+/* Two pyramids side by side (Prathosh: ML professor and Sanskrit teacher). */
+.peek--pyr2{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:44px 14px 10px}
+.peek--pyr2 figure{position:relative;margin:0;min-width:0}
+.peek--fig.peek--pyr2 img{position:static;width:100%;height:100%;max-height:170px;object-fit:contain;padding:0}
+.peek--pyr2 figcaption{position:absolute;left:50%;bottom:2px;transform:translateX(-50%);white-space:nowrap;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#E8E2D6;background:rgb(255 255 255/.08);border:1px solid rgb(255 255 255/.14);padding:3px 10px;border-radius:999px}
+@media (max-width:680px){.peek--pyr2{grid-template-columns:1fr;height:auto}.peek--fig.peek--pyr2 img{max-height:200px}}
+
+/* Whole card is clickable (Lalith, 13 Nov 2026): the card's main button stretches over the card.
+   Post-its, question rows and other buttons sit above it and keep their own links. */
+.path{position:relative}
+.card-link::after{content:"";position:absolute;inset:0;z-index:1;border-radius:16px}
+.path .rprow,.path .note,.path .linkbtn,.path .scn a,.path .btn:not(.card-link){position:relative;z-index:2}

@@ -40,7 +40,7 @@ export default function Welcome() {
               <h2>What {BEVAN_BROADBENT.firstName}’s twin learns from</h2>
               <p>See how the twin was built from {BEVAN_BROADBENT.firstName}’s coaching, layer by layer.</p>
               <div className="row">
-                <Link href="/bevan-broadbent/methodology" className="btn btn--strong">See how it learns</Link>
+                <Link href="/bevan-broadbent/methodology" className="btn btn--strong card-link">See how it learns</Link>
               </div>
             </div>
           </article>
@@ -68,7 +68,7 @@ export default function Welcome() {
               <h2>Ask {BEVAN_BROADBENT.firstName}’s twin live</h2>
               <p>Talk to {BEVAN_BROADBENT.firstName}’s twin using your mic and camera, and ask about your team, your doubts or what keeps not happening.</p>
               <div className="row">
-                <Link href="/bevan-broadbent/live" className="btn btn--strong">Start asking</Link>
+                <Link href="/bevan-broadbent/live" className="btn btn--strong card-link">Start asking</Link>
                 <span className="meta">{BEVAN_BROADBENT.room.kind}</span>
               </div>
             </div>
@@ -91,7 +91,7 @@ export default function Welcome() {
               <h2>Practise the one-to-one you keep putting off</h2>
               <p>Talk to Liam, a lead engineer who has stopped taking initiative, and help him own his work again.</p>
               <div className="row">
-                <a href={ROLEPLAY_URL} target="_blank" rel="noopener noreferrer" className="btn btn--strong">Start the role play</a>
+                <a href={ROLEPLAY_URL} target="_blank" rel="noopener noreferrer" className="btn btn--strong card-link">Start the role play</a>
                 <span className="meta">Opens the role-play app</span>
               </div>
             </div>

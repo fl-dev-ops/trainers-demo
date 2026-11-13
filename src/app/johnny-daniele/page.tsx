@@ -23,7 +23,7 @@ export default function Welcome() {
               <p>He is trained on Daniele’s method, from 500+ of his YouTube videos and 1,000+ LinkedIn posts, including his HACK framework and his core rule: lead with the point, one sentence, one idea.</p>
               <p>Johnny is an AI assistant, not Daniele.</p>
               <div className="row">
-                <Link href="/johnny-daniele/live" className="btn btn--strong">Start practising</Link>
+                <Link href="/johnny-daniele/live" className="btn btn--strong card-link">Start practising</Link>
                 <span className="meta">{JOHNNY_DANIELE.room.kind}</span>
               </div>
             </div>

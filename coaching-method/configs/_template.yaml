@@ -21,6 +21,16 @@ coach:
 # Optional: a portrait layout for phones (stacked, readable type). Leave out to keep the scaled-down slide.
 # mobile: true
 
+# Optional: one page per persona when a coach has two sides (e.g. Prathosh: ML professor and Sanskrit teacher).
+# Each persona gets its own config; a switch on every screen opens the other page at the same step.
+# user: prathosh            # the lore folder when this config's name differs from it
+# sources:                  # keep only these sources (globs on paths under data/); use exclude: on the other page
+#   include: ["youtube/video/2026-06-*", "linkedin/posts/2026-07-13-*"]
+# switch:
+#   - {label: "ML professor", href: "teaching-twin.html", current: true}
+#   - {label: "Sanskrit teacher", href: "sanskrit-twin.html"}
+# paragraphs: true          # transcripts (Sarvam) that put a speaker's paragraphs on their own lines
+
 session:                   # the one real exchange the page follows (find one with: build.py scout <slug> --grep ...)
   file: ""                 # path under users/<slug>/data/ of a transcript with speaker_N: turns
   kind: ""                 # status-bar label, e.g. "YouTube · <Show name>" or "Loom · coaching call"
@@ -28,6 +38,10 @@ session:                   # the one real exchange the page follows (find one wi
   coach_speaker: ""        # speaker_1 / speaker_2 ... for the coach in this file
   other: ""                # the other speaker's name as shown, e.g. "St John", "Client"
   other_role: ""           # their label on the layer-2 card, e.g. "Guest", "Client", "Agent"
+  # A talk with no second speaker: split one long turn where each phrase begins, and end at `end`
+  # (Gopal, Prathosh's Sanskrit page). Set other/other_role to "The question".
+  # segments: ["", ""]
+  # end: ""
   cue: 0                   # index in frames of the other person's line we follow
   move: 1                  # index in frames of the coach's reply (normally cue + 1)
   frames:                  # 8–12 turns from `start`, one per turn: ["kind", "what the line was doing"]
@@ -35,6 +49,7 @@ session:                   # the one real exchange the page follows (find one wi
 
 thread:
   situation: ""            # a key in workspace/taxonomy.json "situation" that names the cue's situation
+  # situation_label: ""    # only when the indexer found no situation in this source: names the one the coach describes
   topic: ""                # a key in workspace/taxonomy.json "topic" for the recurring pattern
   phase: 0                 # which phase below this exchange belongs to
   belief: 0                # which belief below it expresses

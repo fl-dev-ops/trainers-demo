@@ -66,7 +66,8 @@ def fm_field(fm, key):
 
 # ---------------------------------------------------------------- corpus
 class Corpus:
-    def __init__(self, slug, first_name=None, session_file=None, session_speaker=None):
+    def __init__(self, slug, first_name=None, session_file=None, session_speaker=None, sources=None, paragraphs=False):
+        self.paragraphs = paragraphs
         self.slug, self.root = slug, os.path.join(USERS, slug)
         self.data = os.path.join(self.root, 'data')
         ws = os.path.join(self.root, 'workspace')
@@ -75,6 +76,8 @@ class Corpus:
                 die(f'users/{slug}/workspace/{f} is missing. Run the indexing pipeline for this coach first (see README.md).')
         self.ix = json.load(open(os.path.join(ws, 'index.json'), encoding='utf-8'))
         self.tax = json.load(open(os.path.join(ws, 'taxonomy.json'), encoding='utf-8'))
+        if sources:
+            self._keep_only(sources)
         self.scenarios = sorted(glob.glob(os.path.join(ws, 'scenarios', '*.md')))
         self.items_by_src = defaultdict(list)
         for it in self.ix['items']:
@@ -84,6 +87,28 @@ class Corpus:
         for sid, s in self.ix['sources'].items():
             self._read(sid, s['path'], first_name, session_file, session_speaker)
         self.files.sort(key=lambda f: (f['d'], f['n']))
+
+    def _keep_only(self, f):
+        """Optional per-persona split of one coach's lore (config `sources: {include: [globs], exclude: [globs]}`).
+        Topic and situation counts are recounted on the kept sources, so layers 3-6 only show this persona."""
+        from fnmatch import fnmatchcase
+        inc, exc = f.get('include'), f.get('exclude') or []
+        keep = lambda p: (not inc or any(fnmatchcase(p, g) for g in inc)) and not any(fnmatchcase(p, g) for g in exc)
+        self.ix = {'sources': {k: v for k, v in self.ix['sources'].items() if keep(v['path'])},
+                   'items': [it for it in self.ix['items'] if keep(it['path'])]}
+        alias = {}
+        for facet, d in self.tax.items():
+            for key, v in d.items():
+                for a in [v['preferred'], *v.get('aliases', []), key]:
+                    alias[(facet, a.lower())] = key
+        n = Counter()
+        for it in self.ix['items']:
+            for t in it['tags']:
+                k = alias.get((t['facet'], t['label'].lower()))
+                if k:
+                    n[(t['facet'], k)] += 1
+        self.tax = {facet: {k: dict(v, count=n[(facet, k)]) for k, v in d.items() if n[(facet, k)]}
+                    for facet, d in self.tax.items()}
 
     def _read(self, sid, path, first_name, session_file, session_speaker):
         fp = os.path.join(self.data, path)
@@ -106,6 +131,9 @@ class Corpus:
             m = SPEAKER.match(raw)
             if m:
                 turns.append({'src': sid, 'ln': pre + j + 1, 'spk': m.group(1), 'text': m.group(2)})
+            elif self.paragraphs and raw and turns and not raw.startswith(('#', '---')):
+                # config `paragraphs: true`: transcripts (Sarvam) that keep a speaker's paragraphs on their own lines
+                turns.append({'src': sid, 'ln': pre + j + 1, 'spk': turns[-1]['spk'], 'text': raw, 'cont': True})
         if turns:
             coach = session_speaker if (path == session_file and session_speaker) else guess_coach(turns, first_name)
             for t in turns:
@@ -192,6 +220,11 @@ def build_story(cfg, C):
         return m
     TOPIC, SITU = lookup('topic'), lookup('situation')
 
+    if thr.get('situation_label') and thr['situation'] not in tax.get('situation', {}):
+        # the indexer found no situation in this source (e.g. one long talk): the config names the one the coach describes
+        tax.setdefault('situation', {})[thr['situation']] = {'id': thr['situation'], 'preferred': thr['situation_label'],
+                                                            'aliases': [], 'count': 1}
+        print(f"note: situation '{thr['situation']}' comes from the config (thread.situation_label), not the index", file=sys.stderr)
     for facet, key in (('situation', thr['situation']), ('topic', thr['topic'])):
         if key not in tax.get(facet, {}):
             close = [k for k in tax.get(facet, {}) if tok(key) & tok(k)][:12]
@@ -244,7 +277,13 @@ def build_story(cfg, C):
         w0 = next((i for i, t in enumerate(turns) if segs[0].lower() in t['text'].lower()), None)
         if w0 is None:
             die(f"session.segments[0] not found in {sess_cfg['file']}.")
-        t0, low = turns[w0], turns[w0]['text'].lower()
+        t0 = dict(turns[w0])
+        for t in turns[w0 + 1:]:                    # a paragraph on its own line continues the same turn
+            if not t.get('cont'):
+                break
+            t0['text'] += ' ' + t['text']
+        low = t0['text'].lower()
+        sess_full = [t0]
         cuts = []
         for p in segs + [sess_cfg['end']]:
             i = low.find(p.lower(), cuts[-1] + 1 if cuts else 0)
@@ -262,6 +301,7 @@ def build_story(cfg, C):
         win = turns[w0:w0 + len(frames_cfg)]
         if len(win) < len(frames_cfg):
             die('session.frames has more entries than turns left in the transcript.')
+        sess_full = win
     other = sess_cfg['other']
 
     def clip(t, n=235):
@@ -359,7 +399,8 @@ def build_story(cfg, C):
     return {
         'files': files, 'totals': totals,
         'session': {'title': sess_cfg.get('title') or fm_field(fm, 'title') or '', 'date': fm_field(fm, 'date') or '',
-                    'kind': sess_cfg.get('kind', ''), 'turns': len(turns), 'other': other, 'lines': sess_lines},
+                    'kind': sess_cfg.get('kind', ''), 'turns': len(turns), 'other': other, 'lines': sess_lines,
+                    'lines_full': sess_full},
         'frames': frames,
         'thread': {'cue': frames[cue_k]['id'], 'move': frames[move_k]['id'],
                    'cueLine': sess_lines[cue_k]['id'], 'moveLine': sess_lines[move_k]['id']},
@@ -433,7 +474,8 @@ def resolve(cfg, story):
         if body is None:
             die(f'steps.{key} needs a caption (see configs/darren-mitchell.yaml).')
         steps[key] = {'t': fmt(title), 'b': fmt(body)}
-    return {'coach': {'name': co['name'], 'full_name': co['full_name'], 'slug': co['slug'], 'pronouns': [he, him, his]},
+    extra = {'switch': fmt(cfg['switch'])} if cfg.get('switch') else {}  # optional: [{label, href, current}] one page per persona, switched from every screen
+    return {**extra, 'coach': {'name': co['name'], 'full_name': co['full_name'], 'slug': co['slug'], 'pronouns': [he, him, his]},
             'session': {'other_role': cfg['session'].get('other_role', cfg['session']['other'])},
             'steps': steps, 'cards': fmt(cfg['cards']), 'about': fmt(cfg['about']),
             'dos': fmt(cfg.get('dos') or cfg['personas'][0]['dos']),
@@ -468,11 +510,10 @@ def load_cfg(slug):
 def cmd_build(a):
     cfg = load_cfg(a.slug)
     s = cfg['session']
-    C = Corpus(a.slug, cfg['coach']['name'], s['file'], s.get('coach_speaker'))
+    # `user`: the lore folder, when one coach has several pages (e.g. prathosh-sanskrit reads users/prathosh)
+    C = Corpus(cfg.get('user', a.slug), cfg['coach']['name'], s['file'], s.get('coach_speaker'), cfg.get('sources'),
+               cfg.get('paragraphs', False))
     story = build_story(cfg, C)
-    turns = C.transcripts[s['file']]
-    w0 = int(story['session']['lines'][0]['ts'][1:].split('.')[0]) - 1
-    story['session']['lines_full'] = turns[w0:w0 + (1 if s.get('segments') else len(s['frames']))]
     check_quotes(cfg, story)
     story['session'].pop('lines_full')
     conf = resolve(cfg, story)
@@ -481,7 +522,7 @@ def cmd_build(a):
     html = tpl.replace('/*__STORY__*/null', js(story)).replace('/*__CONFIG__*/null', js(conf))
     out_dir = a.out or os.getcwd()
     os.makedirs(out_dir, exist_ok=True)
-    out = os.path.join(out_dir, f"{cfg['coach']['full_name']} - Coaching Twin.html")
+    out = os.path.join(out_dir, f"{cfg['coach']['full_name']} - Coaching Twin" + (f' ({a.slug})' if 'user' in cfg else '') + '.html')
     open(out, 'w', encoding='utf-8').write(html)
     T = story['totals']
     print(f"wrote {os.path.relpath(out, os.getcwd())} ({len(html) / 1e6:.1f} MB)\n"

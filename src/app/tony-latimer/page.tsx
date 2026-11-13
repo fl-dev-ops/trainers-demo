@@ -42,7 +42,7 @@ export default function Welcome() {
               <h2>Ask {TONY_LATIMER.firstName}’s twin live</h2>
               <p>Talk to {TONY_LATIMER.firstName}’s twin using your mic and camera, and ask about your role or transition.</p>
               <div className="row">
-                <Link href="/tony-latimer/live" className="btn btn--strong">Start asking</Link>
+                <Link href="/tony-latimer/live" className="btn btn--strong card-link">Start asking</Link>
                 <span className="meta">{TONY_LATIMER.room.kind}</span>
               </div>
             </div>

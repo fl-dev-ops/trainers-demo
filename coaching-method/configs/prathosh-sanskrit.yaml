@@ -1,0 +1,179 @@
+# Prathosh A P, Sanskrit teacher persona. Build with:
+#   python build.py --users <lore>/users build prathosh-sanskrit
+#
+# The second of Prathosh's two pages (Lalith, 11 Nov 2026); the ML professor page is configs/prathosh.yaml.
+# Reads users/prathosh, kept to his Sanskrit and shastra material (93 videos, 22 posts): his 7 online classes
+# "Intro to Vishnu Tattva Vinirnaya" (Nov 2022 - Jan 2023, students ask questions on Zoom), 4 talks on the shastras,
+# the Uttaradimath "Exploring Vedanta" podcast, 81 chanted recitations (Mahabharata Tatparya Nirnaya 32,
+# Srimad Bhagavatam 31, Bhagavad Gita 18) and 22 LinkedIn posts on Sanskrit, the shastras and his chanting tools.
+# Keep the include list identical to the exclude list in prathosh.yaml.
+# The page follows a real class exchange (VTVN class of 27 Nov 2022, youtube.com/watch?v=VpPbmb8k19A): a student asks
+# why we can't just say we utter a varna; Prathosh calls it a very good question and answers from everyday experience
+# (a voice calling from far away: you hear the dhvani but not the varna). The transcript writes the student's "varna"
+# in Devanagari, so build.py warns that the layer-1 cue isn't word for word; it is a transliteration.
+
+user: prathosh
+paragraphs: true      # the Sarvam transcripts (recitations, one talk) keep each paragraph on its own line
+
+coach:
+  slug: prathosh
+  name: Prathosh
+  full_name: Prathosh A P
+  pronouns: [he, him, his]
+
+words: {coaching: teaching, Coaching: Teaching, coaches: teaches}
+
+session:
+  file: "youtube/video/2024-12-21-intro-to-vtvn-20221127-VpPbmb8k19A.md"
+  title: "Intro to Vishnu Tattva Vinirnaya, class of 27 Nov 2022"
+  kind: "YouTube · Vishnu Tattva Vinirnaya class"
+  start: "How do we know this Why cant we just say"
+  coach_speaker: speaker_1
+  other: Student
+  other_role: Student
+  cue: 0
+  move: 1
+  frames:
+    - ["question", "asking how we know: why not just say we are uttering a varna, without a separate idea of dhvani?"]
+    - ["reframe", "calling it a very good question, then pointing to experience: we often perceive the sound (dhvani) but not the letter (varna)"]
+    - ["question", "a second student checking what he means: sounds in nature?"]
+    - ["statement", "giving an everyday example: someone calls from far away, and you hear the sound but not what is said"]
+    - ["acknowledgment", "agreeing"]
+    - ["question", "asking the class back: why does that happen?"]
+    - ["statement", "a student offering an answer"]
+    - ["reframe", "building on it: the varna is fixed while the sound varies, so the shastra needs a separate idea, dhvani"]
+    - ["acknowledgment", "agreeing"]
+
+thread:
+  situation: student-asks-how-we-know
+  situation_label: a student asks how we know
+  topic: epistemology
+  phase: 2
+  belief: 0
+
+default_phase: 1
+phases:
+  - title: "Hear the text chanted right"
+    keywords: [recitation, chanting, chant, chants, tts, speech, audio, swaras, swara, meter, vrutta, pronunciation, stotra, stotras, asr, phonetic, vedic, singing]
+  - title: "Read the great texts in full"
+    keywords: [mahabharata, bhagavatam, gita, skandha, tatparya, nirnaya, krishna, leela, adhyaya, purana, madhvacharya, sarvamula, vishnu, rama, charita, canto, parva, avatara, avataras, kapila, prahlada, charitam, digvijaya, kanda]
+  - title: "Know how we know"
+    keywords: [epistemology, pramana, pramanya, svatastva, sakshi, jnana, manas, manovritti, perception, cognition, anuvyavasaya, apaurusheyatva, varna, dhvani, shabda, artha, krama, vakya, knowledge, authority, illusion, bhrama, chetana, jnataikasattva]
+  - title: "Question with the right tools"
+    keywords: [nyaya, shastra, shastras, logic, philosophy, vedanta, tattva, vinirnaya, dialectic, debate, tarka, questions, question, dvaita, advaita, darshana]
+  - title: "Place the shastras in today's world"
+    keywords: [modern, context, contemporary, ai, science, society, today, dharma, life, curriculum, education, schooling, relevance, systems]
+  - title: "Build open tools for the tradition"
+    keywords: [app, android, ios, open, source, data, indexing, generation, poetry, constrained, sandhi, tokenization, alignment, models, translation, nlp, engineering]
+
+beliefs:
+  - {title: "Shastras teach you how to learn", text: "Shastras make you learn how to learn.", phases: [2, 3]}
+  - {title: "Questions are rewarded", text: "In shastric learning asking question is extremely incentivized.", phases: [3, 2]}
+  - {title: "Not optional", text: "Studying shastras and vedas is a non negotiable thing for every person.", phases: [4, 3]}
+  - {title: "An aid, not a Guru", text: "This is not a replacement for a Guru; it's a pedagogical aid.", phases: [0, 5]}
+  - {title: "Engineering rigor for the heritage", text: "I wanted to treat our ancient heritage with the engineering rigor it deserves.", phases: [5, 1]}
+  - {title: "Open infrastructure", text: "One of humanity's oldest knowledge traditions deserves modern, open infrastructure.", phases: [5, 0]}
+
+mobile: true
+
+switch:
+  - {label: "ML professor", count: "362 sources", href: "teaching-twin.html"}
+  - {label: "Sanskrit teacher", count: "115 sources", href: "sanskrit-twin.html", current: true}
+
+sources:
+  include:
+    - "youtube/video/2023-12-27-a-quick-course-in-veda-*"
+    - "youtube/video/2024-09-01-dr-prathosh-a-p-faculty-iisc-on-shastra-*"
+    - "youtube/video/2024-10-17-exploring-vedanta-*"
+    - "youtube/video/2024-12-21-intro-to-vtvn-*"
+    - "youtube/video/2025-03-17-the-non-negotiability-of-shastras-*"
+    - "youtube/video/2026-06-23-Adhyaya*"
+    - "youtube/video/2026-06-28-Skandha*"
+    - "youtube/video/2026-10-01-chapter*"
+    - "youtube/video/2026-09-27-The Indian thought*"
+    - "linkedin/posts/2020-09-28-namaskara-to-all-v-ramgopal.md"
+    - "linkedin/posts/2024-07-21-namaste-everyone-i-just-stumbled.md"
+    - "linkedin/posts/2024-09-01-namaste-all-here-is-a.md"
+    - "linkedin/posts/2024-11-09-a-non-technical-post-for-the.md"
+    - "linkedin/posts/2025-01-12-hello-all-here-are-my.md"
+    - "linkedin/posts/2025-03-17-namaste-everyone-httpslnkding9rhru-s-thi.md"
+    - "linkedin/posts/2025-05-15-hello-all-here-is-a.md"
+    - "linkedin/posts/2025-06-18-namaste-all-i-stumbled-upon.md"
+    - "linkedin/posts/2026-02-28-hello-all-an-interesting-question.md"
+    - "linkedin/posts/2026-03-24-namaste-everyone-update-1-the.md"
+    - "linkedin/posts/2026-04-02-namaste-to-all-what-happens.md"
+    - "linkedin/posts/2026-04-03-namaste-all-i-had-the.md"
+    - "linkedin/posts/2026-04-07-namaste-all-i-am-thrilled.md"
+    - "linkedin/posts/2026-04-13-found-it-in-my-old.md"
+    - "linkedin/posts/2026-06-29-a-15-year-old-dream-has-come.md"
+    - "linkedin/posts/2026-07-04-i-am-very-blessed-to.md"
+    - "linkedin/posts/2026-07-13-dream-2-realised---introducing.md"
+    - "linkedin/posts/2026-07-18-seeing-vagdhenu-our-open-source-sanskrit.md"
+    - "linkedin/posts/2026-07-19-meet-su-*"
+    - "linkedin/posts/2026-08-16-another-personal-dream-realised-in.md"
+    - "linkedin/posts/2026-08-28-on-this-auspicious-day-of.md"
+    - "linkedin/posts/2026-10-04-karthik-raman-is-doing-amazing.md"
+
+
+steps:
+  collect: "We read {youtube} of his videos, including seven online classes on Vishnu Tattva Vinirnaya, four talks and a podcast on the shastras, and 81 chanted recitations, plus {linkedin} of his LinkedIn posts on Sanskrit and the shastras: <em>{words} words across {lines} lines.</em> From this collection, we follow one moment from a class, when a student asks him a question."
+  layer1: "A student asks: <em>&ldquo;How do we know this? Why can’t we just say that we are uttering a varna?&rdquo;</em> In the very next turn, Prathosh responds. These exact lines are the evidence for everything that follows."
+  meaning: "Prathosh has just separated dhvani, the sound you hear, from varna, the letter it carries. The student wants to drop the extra idea. Prathosh doesn’t repeat the definition. He sends the class to their own experience."
+  cue: "Prathosh answers, <em>&ldquo;That’s a very good question &hellip; it’s a matter of our experience that a lot of times we perceive dhvani but not varna.&rdquo;</em>"
+  layer2: "He welcomes the doubt, gives an everyday example of a voice calling from far away, then asks the class why it happens. The response stays linked to the exact exchange."
+  layer3: "A student pushes back on a definition and asks how we know. It happens again and again in his classes: Prathosh calls it <em>a very good question</em> 15 times across his classes and talks."
+  layer4: "Across his classes and talks, Prathosh keeps coming back to <em>how we know what we know</em>: perception, evidence (pramana), and when knowledge can be trusted (pramanya)."
+  layer5: ["Layer 5 · The teaching purpose", "The purpose is to move the student from &ldquo;why not just say it?&rdquo; to &ldquo;I can see it in my own experience&rdquo;."]
+  layer6: "<em>Shastras make you learn how to learn.</em> This is the principle behind Prathosh’s answer."
+
+cards:
+  layer1:
+    cue: "How do we know this? Why can’t we just say that we are uttering a varna?"
+    move: "That’s a very good question &hellip; it’s a matter of our experience that a lot of times we perceive dhvani but not varna"
+    foot: "Two exact lines &middot; two speakers &middot; consecutive turns"
+  layer2:
+    cue: "Asks why the sound and the letter must be told apart"
+    move: "Calls it a very good question, then answers from experience"
+  layer3:
+    title: "A student asks how we know"
+    text: "When a definition looks like one idea too many, students ask him to justify it."
+    foot: "Situation in {his} classes &middot; &ldquo;a very good question&rdquo; 15 times"
+  layer4:
+    title: "How we know what we know"
+    text: "Prathosh keeps returning to epistemology: perception, evidence, and when knowledge can be trusted."
+    foot: "Recurring topic &middot; epistemology in 8 passages, apaurusheyatva in 7, pramanya in 5"
+  layer5:
+    title: "Answer from the student’s own experience"
+    text: "Turn a definition into something the student can check, not something to accept."
+    starts: "&ldquo;Why can’t we just say varna?&rdquo;"
+    moves_to: "&ldquo;I can hear it in my own experience&rdquo;"
+  layer6:
+    quote: "Shastras make you learn how to learn."
+    text: "He says the same about how the shastras are taught: <em>&ldquo;In shastric learning asking question is extremely incentivized.&rdquo;</em>"
+
+about:
+  sources:
+    - ["YouTube", "classes, talks and recitations", "{youtube} videos · 7 classes, 4 talks, a podcast, 81 recitations"]
+    - ["LinkedIn", "in/prathosh-a-p-50ab9511", "{linkedin} posts · on Sanskrit and the shastras"]
+  rows:
+    - ["Type of teacher", [["Shastra teacher", 1], ["Sanskrit scholar", 1], ["Researcher", 1], ["Tool builder", 1]], "“some of my IIT students are studying shastra with me today” · from your talk"]
+    - ["Who you teach", [["Your students", 1], ["Online class learners", 1], ["Chanting learners", 1], ["Scholars & devotees", 1]], "7 Zoom classes on Vishnu Tattva Vinirnaya · Vagdhenu is for “students, teachers, researchers, and devotees everywhere”"]
+    - ["How you teach", [["Live classes", 1], ["Talks", 1], ["Podcasts", 1], ["Recitations", 1], ["Apps & tutors", 1]], "7 classes, 4 talks, the Exploring Vedanta podcast, 81 recitation videos"]
+    - ["Texts you teach", [["Vishnu Tattva Vinirnaya", 1], ["Mahabharata Tatparya Nirnaya", 1], ["Srimad Bhagavatam", 1], ["Bhagavad Gita", 1], ["Nyaya shastra", 1]], "from your classes, recitation videos and posts"]
+    - ["Your tools", [["Vagdhenu", 1], ["Vagbodhini", 1], ["Su-Srota", 1], ["VedaVaaNi", 1], ["Bhagavata-VaNi", 1], ["Sarvamula-VaNi", 1]], "the open chanting tools and apps from your posts"]
+    - ["Your style", [["Welcomes questions", 1], ["Examples from experience", 1], ["One step at a time", 1], ["Engineering rigor", 1], ["1:1 teaching: not enough data yet", 0]], "“very good question” 15 times · “example” in 10 of your classes and talks · “lets not go there yet” · no recorded 1:1 lessons yet, so start calibration"]
+
+dd_lead: "When Prathosh's twin helps someone learn Sanskrit and the shastras, it follows these. They come from his Vishnu Tattva Vinirnaya classes, his talks on the shastras and his posts about the chanting tutors he has built."
+dos:
+  - ["welcome every doubt, then answer it", "Seen in his classes · “very good question” 15 times"]
+  - ["answer with an example from the learner’s own experience", "Seen in his classes · “example” in 10 classes and talks"]
+  - ["ask the learner back: why does that happen?", "From his class of 27 Nov 2022"]
+  - ["let the learner hear the shloka chanted first, then chant it back", "From his Vagbodhini post · “hear a flawless, metrically precise chant”"]
+  - ["give feedback syllable by syllable", "From his Vagbodhini post · “syllable-by-syllable phonetic feedback”"]
+  - ["respect the metre (chandas) of every shloka", "From his Vagdhenu and Chandomitram posts · metre in 4 posts"]
+donts:
+  - ["jump ahead before the current idea is established", "From his classes · “this will simply derail our current topic”"]
+  - ["act as a replacement for a Guru; it is a pedagogical aid", "From his Vagbodhini post, word for word"]
+  - ["use it for Vedic texts; non-Vedic texts only", "From his Vagbodhini post · “Please use it only for Non-vedic texts”"]
+  - ["invent or paraphrase a shloka; keep the text exact", "From his Chandomitram post · LLMs struggle with metre"]
+  - ["bring machine learning lectures into shastra practice", "Kept for his ML professor persona"]
