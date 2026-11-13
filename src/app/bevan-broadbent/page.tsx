@@ -2,7 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { BEVAN_BROADBENT } from '@/data.js'
 import TrustFooter from '@/components/TrustFooter.jsx'
-import { LinkedIn, Play, Sparkle } from '@/components/Icons.jsx'
+import { RoleplayPair, TwinNotebook } from '@/components/ProfileCards.jsx'
+import { LinkedIn, Sparkle } from '@/components/Icons.jsx'
 
 const QUESTIONS = [
   'I know I should delegate more, but I just don’t. Why?',
@@ -11,7 +12,6 @@ const QUESTIONS = [
 
 const ROLEPLAY_URL = 'https://dash.roleplay.foreverlearning.in/agents/the-one-to-one-you-keep-putting-off-liam-team-lead-bevan-bro'
 
-const SITUATION = 'Liam is an AI persona. He is the lead engineer at a 15-person software startup and one of its first hires. The person he is talking to is the founder. For months, the founder has been re-checking Liam’s work and quietly redoing parts of it. Because of this, Liam has stopped taking initiative and now waits to be told what to do. One decision Liam could have made himself has been on hold until the founder got round to it. Today is their weekly one-to-one. Liam starts by saying everything is fine.'
 
 export default function Welcome() {
   return (
@@ -37,7 +37,7 @@ export default function Welcome() {
               <span className="peek-k">Coaching methodology</span>
             </div>
             <div className="path-b">
-              <h2>What {BEVAN_BROADBENT.firstName}’s twin learns from</h2>
+              <h2>Your coaching method, which the twin learns from</h2>
               <p>See how the twin was built from {BEVAN_BROADBENT.firstName}’s coaching, layer by layer.</p>
               <div className="row">
                 <Link href="/bevan-broadbent/methodology" className="btn btn--strong card-link">See how it learns</Link>
@@ -45,28 +45,10 @@ export default function Welcome() {
             </div>
           </article>
           <article className="path">
-            <div className="peek peek--rps peek--wrap">
-              <span className="peek-k">Ask a question</span>
-              <div className="rprows">
-                <Link href={{ pathname: '/bevan-broadbent/live', query: { mode: 'ama' } }} className="rprow" aria-label="Ask me anything">
-                  <span className="cl" aria-hidden="true">Y</span>
-                  <span className="q">Ask me anything</span>
-                  <img className="tw" src={BEVAN_BROADBENT.face} alt="" />
-                  <span className="pl" aria-hidden="true"><Play /></span>
-                </Link>
-                {QUESTIONS.map((q) => (
-                  <Link key={q} href={{ pathname: '/bevan-broadbent/live', query: { q } }} className="rprow" aria-label={'Ask: ' + q}>
-                    <span className="cl" aria-hidden="true">Y</span>
-                    <span className="q">“{q}”</span>
-                    <img className="tw" src={BEVAN_BROADBENT.face} alt="" />
-                    <span className="pl" aria-hidden="true"><Play /></span>
-                  </Link>
-                ))}
-              </div>
-            </div>
+            <TwinNotebook trainer={BEVAN_BROADBENT} livePath="/bevan-broadbent/live" questions={QUESTIONS} />
             <div className="path-b">
               <h2>Ask {BEVAN_BROADBENT.firstName}’s twin live</h2>
-              <p>Talk to {BEVAN_BROADBENT.firstName}’s twin using your mic and camera, and ask about your team, your doubts or what keeps not happening.</p>
+              <p>Pick a post-it to start a conversation, or ask your own question.</p>
               <div className="row">
                 <Link href="/bevan-broadbent/live" className="btn btn--strong card-link">Start asking</Link>
                 <span className="meta">{BEVAN_BROADBENT.room.kind}</span>
@@ -74,22 +56,12 @@ export default function Welcome() {
             </div>
           </article>
           <article className="path path--wide">
-            <div className="peek peek--wrap peek--scn">
-              <span className="peek-k">Role play</span>
-              <div className="scn">
-                <h3 className="scn-t">Help Liam take ownership again</h3>
-                <span className="scn-k">Client persona</span>
-                <div className="scn-p">
-                  <img src="/media/bevan-roleplay-liam.jpg" alt="" />
-                  <span>Liam Walsh (Demo for Bevan)</span>
-                </div>
-                <span className="scn-k">Situation</span>
-                <p>{SITUATION}</p>
-              </div>
-            </div>
+            <RoleplayPair
+              coachee={{ role: 'Founder', text: 'A startup founder who keeps re-checking the lead engineer’s work, and has their weekly one-to-one today.', practises: ['Letting go', 'Handing back ownership'] }}
+              persona={{ role: 'Lead engineer', name: 'Liam Walsh', photo: '/media/bevan-roleplay-liam.jpg', text: 'Lead engineer at a 15-person software startup and one of its first hires. Lately he waits to be told what to do, and says everything is fine.' }}
+            />
             <div className="path-b">
-              <h2>Practise the one-to-one you keep putting off</h2>
-              <p>Talk to Liam, a lead engineer who has stopped taking initiative, and help him own his work again.</p>
+              <h2>Help Liam take ownership again</h2>
               <div className="row">
                 <a href={ROLEPLAY_URL} target="_blank" rel="noopener noreferrer" className="btn btn--strong card-link">Start the role play</a>
                 <span className="meta">Opens the role-play app</span>

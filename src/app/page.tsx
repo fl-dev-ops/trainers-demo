@@ -27,7 +27,7 @@ export default function Home() {
                 style={{ borderRadius: '50%', objectFit: 'cover' }}
               />
               <h2>{TWIN.name}</h2>
-              <p>Meet Olga’s video twin and practise with her interactive twin.</p>
+              <p>Ask Olga’s twin about objections and practise role plays with her AI clients.</p>
               <div className="row">
                 <Link href="/olga" className="btn btn--strong">
                   Explore Olga’s demo

@@ -53,7 +53,7 @@ export default function Welcome() {
               <span className="peek-k">Coaching methodology</span>
             </div>
             <div className="path-b">
-              <h2>What your twin learns from</h2>
+              <h2>Your coaching method, which the twin learns from</h2>
               <p>See how your twin was built from your coaching, layer by layer.</p>
               <div className="row">
                 <Link href="/olga/methodology" className="btn btn--strong card-link">See how it learns</Link>
