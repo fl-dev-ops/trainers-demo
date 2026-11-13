@@ -75,7 +75,7 @@ export default function Welcome() {
             </div>
           </article>
           <article className="path">
-            <TwinNotebook trainer={SEAN_WEAFER} livePath="/sean-weafer/live" questions={QUESTIONS} />
+            <TwinNotebook trainer={{ ...SEAN_WEAFER, portrait: SEAN_WEAFER.face }} livePath="/sean-weafer/live" questions={QUESTIONS} />
             <div className="path-b">
               <h2>Ask {SEAN_WEAFER.firstName}’s twin live</h2>
               <p>Pick a post-it to start a conversation, or ask your own question.</p>
