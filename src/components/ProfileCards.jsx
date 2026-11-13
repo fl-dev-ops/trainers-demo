@@ -5,8 +5,12 @@ import Link from 'next/link'
 const NOTE_COLOURS = ['note--yellow', 'note--pink', 'note--blue', 'note--green']
 
 // The twin in a notebook, with coloured post-its. Each post-it starts a conversation with the twin in that context.
-export function TwinNotebook({ trainer, livePath, questions }) {
-  const notes = [{ label: 'Ask me anything', query: { mode: 'ama' } }, ...questions.map((q) => ({ label: q, query: { q } }))]
+// `notes` (optional) replaces the default post-its with explicit ones: [{ label, query }], the first being Ask me anything.
+/**
+ * @param {{ trainer: any, livePath: string, questions?: string[], notes?: { label: string, query: Record<string, string> }[] }} props
+ */
+export function TwinNotebook({ trainer, livePath, questions, notes: custom }) {
+  const notes = custom ?? [{ label: 'Ask me anything', query: { mode: 'ama' } }, ...(questions ?? []).map((q) => ({ label: q, query: { q } }))]
   return (
     <div className="peek peek--nb">
       <div className="nb">
