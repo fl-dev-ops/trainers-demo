@@ -305,6 +305,7 @@ svg{flex:none}
 .pc-voice{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--text)}
 .pc-text{font-size:13px;line-height:19px;color:var(--text-2);margin:0}
 @media (max-width:680px){.pair{flex-direction:column;align-items:center}.pc{width:100%;max-width:300px;min-height:0}.pair-mid{flex-direction:row;width:auto}.pair-mid svg{transform:rotate(90deg)}.nb{grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr)}.nb::after{left:37%}.nb-page{padding:14px 12px}.nb-photo img{width:80px;height:80px}.note{font-size:12.5px;padding:7px 9px}}
+.path--wide .nb{width:100%;max-width:640px;margin:0 auto}
 
 /* Two pyramids side by side (Prathosh: ML professor and Sanskrit teacher). */
 .peek--pyr2{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:44px 14px 10px}
