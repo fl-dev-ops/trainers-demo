@@ -4,7 +4,7 @@ import { JAMEEL } from '@/data.js'
 import MadeFrom from '@/components/MadeFrom.jsx'
 import TrustFooter from '@/components/TrustFooter.jsx'
 import { Sparkle } from '@/components/Icons.jsx'
-import { TwinNotebook } from '@/components/ProfileCards.jsx'
+import { RoleplayPair, TwinNotebook } from '@/components/ProfileCards.jsx'
 
 export default function Welcome() {
   return (
@@ -47,6 +47,19 @@ export default function Welcome() {
               <p>A live Demand Planner mock interview, with feedback in {JAMEEL.firstName}’s style.</p>
               <div className="row">
                 <Link href="/jameel/live" className="btn btn--strong card-link">Start the interview</Link>
+              </div>
+            </div>
+          </article>
+          <article className="path path--wide">
+            <RoleplayPair
+              coachee={{ role: 'Demand Planner', text: 'A demand planner presenting the consensus forecast in the monthly S&OP meeting.', practises: ['Questions before positions', 'Data over opinion'] }}
+              persona={{ role: 'Sales Director', name: 'Mark Reynolds', photo: '/media/jameel-roleplay-mark.jpg', behaviour: ['Direct & Challenging'], speaking: ['Neutral', 'Interrupts often'], voice: 'Ethan', text: 'Runs key-account sales at a consumer goods company in Toronto. Wants the forecast for a big retailer promotion raised by 30 percent. Confident, pushy and light on numbers.' }}
+            />
+            <div className="path-b">
+              <h2>Defend your forecast in the S&OP meeting</h2>
+              <div className="row">
+                <a href="https://dash.roleplay.foreverlearning.in/agents/defend-your-forecast-in-the-s-op-meeting" target="_blank" rel="noopener noreferrer" className="btn btn--strong card-link">Start the role play</a>
+                <span className="meta">Opens the role-play app</span>
               </div>
             </div>
           </article>

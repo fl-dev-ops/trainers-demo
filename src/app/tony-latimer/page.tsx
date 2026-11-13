@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { TONY_LATIMER } from '@/data.js'
 import MadeFrom from '@/components/MadeFrom.jsx'
 import TrustFooter from '@/components/TrustFooter.jsx'
-import { TwinNotebook } from '@/components/ProfileCards.jsx'
+import { RoleplayPair, TwinNotebook } from '@/components/ProfileCards.jsx'
 import { Sparkle } from '@/components/Icons.jsx'
 
 const QUESTIONS = [
@@ -46,6 +46,19 @@ export default function Welcome() {
               <div className="row">
                 <Link href="/tony-latimer/live" className="btn btn--strong card-link">Start asking</Link>
                 <span className="meta">{TONY_LATIMER.room.kind}</span>
+              </div>
+            </div>
+          </article>
+          <article className="path path--wide">
+            <RoleplayPair
+              coachee={{ role: 'New CEO', text: 'A newly appointed CEO, three weeks in, meeting the CFO one-to-one for the first time.', practises: ['Asking, not directing', 'Building the leadership team'] }}
+              persona={{ role: 'Chief Financial Officer', name: 'Nadia Rahman', photo: '/media/tony-roleplay-nadia.jpg', behaviour: ['Skeptical & Reserved'], speaking: ['Formal', 'Medium answers'], voice: 'Olivia', text: 'CFO in Singapore with twelve years at the company. Composed, precise and guarded. Has prepared the numbers the new CEO asked for, and answers what is asked and no more.' }}
+            />
+            <div className="path-b">
+              <h2>Your first one-to-one as the new CEO</h2>
+              <div className="row">
+                <a href="https://dash.roleplay.foreverlearning.in/agents/your-first-one-to-one-as-the-new-ceo" target="_blank" rel="noopener noreferrer" className="btn btn--strong card-link">Start the role play</a>
+                <span className="meta">Opens the role-play app</span>
               </div>
             </div>
           </article>

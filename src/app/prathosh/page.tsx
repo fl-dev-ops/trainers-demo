@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { PRATHOSH } from '@/data.js'
 import MadeFrom from '@/components/MadeFrom.jsx'
 import TrustFooter from '@/components/TrustFooter.jsx'
-import { TwinNotebook } from '@/components/ProfileCards.jsx'
+import { RoleplayPair, TwinNotebook } from '@/components/ProfileCards.jsx'
 import { Eye, Sparkle } from '@/components/Icons.jsx'
 
 const DOUBTS = [
@@ -64,6 +64,19 @@ export default function Welcome() {
               <p>Two personas, two pyramids: switch between the ML professor and the Sanskrit teacher on every screen.</p>
               <div className="row">
                 <Link href="/prathosh/methodology" className="btn btn--strong card-link">See how it learns</Link>
+              </div>
+            </div>
+          </article>
+          <article className="path path--wide">
+            <RoleplayPair
+              coachee={{ role: 'M.Tech student', text: 'A student defending a project on generative models in front of the viva panel.', practises: ['The why behind the how', 'Intuition before equations'] }}
+              persona={{ role: 'Viva Examiner', name: 'Dr Suresh Iyer', photo: '/media/prathosh-roleplay-suresh.jpg', behaviour: ['Curious & Probing'], speaking: ['Formal', 'Short answers'], voice: 'Oliver', text: 'Professor and external examiner on an M.Tech viva panel in Bengaluru. Has read the report on generative models. Calm, precise and patient, and keeps asking why.' }}
+            />
+            <div className="path-b">
+              <h2>Defend your project in the viva</h2>
+              <div className="row">
+                <a href="https://dash.roleplay.foreverlearning.in/agents/defend-your-project-in-the-viva" target="_blank" rel="noopener noreferrer" className="btn btn--strong card-link">Start the role play</a>
+                <span className="meta">Opens the role-play app</span>
               </div>
             </div>
           </article>
