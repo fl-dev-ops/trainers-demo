@@ -6,8 +6,8 @@ import { RoleplayPair, TwinNotebook } from '@/components/ProfileCards.jsx'
 import { LinkedIn, Sparkle, YouTube } from '@/components/Icons.jsx'
 
 const QUESTIONS = [
-  'My clients like me, but they don’t give me all their work. Why?',
-  'How do I answer “what do you do?” without sounding salesy?',
+  'I’m a new partner meeting a prospective client tonight. I’m not a seller. How do I become a trusted advisor?',
+  'I freeze when people ask what I do. What do I say?',
 ]
 
 const ROLEPLAY_URL = 'https://dash.roleplay.foreverlearning.in/agents/we-already-have-an-accountant'
