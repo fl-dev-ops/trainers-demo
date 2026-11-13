@@ -1,0 +1,957 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How a Coach's Twin Learns</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#151310; --ink:#ece5d8; --dim:#a89e8c; --faint:#6f6759; --line:#37322a; --line2:#4a443a;
+  --l1:#e2a93b; --l2:#4fa9a0; --l3:#d4746a; --l4:#9a86c9; --l5:#8fae62; --l6:#c94f33;
+  --ease:cubic-bezier(.65,0,.25,1);
+  --serif:'Fraunces',Georgia,serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --sys:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--serif)}
+body{cursor:pointer;user-select:none;-webkit-user-select:none}
+body.final{cursor:grab}
+canvas#cv{position:fixed;inset:0;width:100vw;height:100vh;display:block}
+#stage{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0;pointer-events:none}
+#stage *{pointer-events:none}
+#stage .hit{pointer-events:auto}
+svg#wires{position:absolute;inset:0;width:1600px;height:900px;overflow:visible}
+
+/* ---------- header & chapter rail */
+header{position:absolute;left:60px;right:60px;top:34px;display:flex;align-items:center;justify-content:space-between;
+  font:500 11px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+header b{color:var(--l1);font-weight:600}
+/* persona switch (config `switch`): one page per persona, on every screen */
+#psw{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line2);border-radius:999px;letter-spacing:normal;text-transform:none}
+#psw[hidden],#hdr[hidden]{display:none!important}
+#stage #psw,#stage #psw *{pointer-events:auto}
+#psw .ptab{white-space:nowrap;font:500 13px/1 var(--serif);color:var(--dim);padding:9px 16px;border-radius:999px;border:0;background:transparent;cursor:pointer;transition:all .2s}
+#psw .ptab:hover{color:var(--ink)}
+#psw .ptab small{margin-left:8px;font:500 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+#psw .ptab[aria-selected=true]{color:#1b1712;background:var(--l1);font-weight:600;cursor:default}
+#rail{display:flex;gap:28px}
+#rail .ch{display:flex;flex-direction:column;gap:9px;align-items:flex-start;transition:color .5s}
+#rail .ch.on{color:var(--ink)}
+#rail .ch.done{color:var(--dim)}
+#rail .dots{display:flex;gap:5px}
+#rail .dots i{width:6px;height:6px;border-radius:50%;background:var(--line2);transition:background .4s,transform .4s}
+#rail .dots i.done{background:var(--dim)}
+#rail .dots i.on{background:var(--l1);transform:scale(1.35)}
+#hint{position:absolute;left:60px;bottom:34px;font:500 10.5px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--faint);transition:opacity .6s}
+#hint kbd{font:inherit;color:var(--dim);border:1px solid var(--line2);border-radius:4px;padding:3px 6px;margin:0 2px}
+
+/* ---------- narrative column */
+#cap{position:absolute;left:60px;top:150px;width:390px;transition:opacity .45s}
+#cap.out{opacity:0}
+#cap .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin-bottom:22px}
+#cap h1{font-weight:380;font-size:38px;line-height:1.12;letter-spacing:-.01em;margin-bottom:22px;font-variation-settings:'opsz' 96}
+#cap p{font-size:18px;line-height:1.55;color:var(--dim);font-weight:330}
+#cap p em{color:var(--ink);font-style:italic}
+#stat{position:absolute;left:60px;bottom:96px;width:390px;transition:opacity .5s}
+#stat .num{font:300 64px/1 var(--serif);letter-spacing:-.02em;font-variation-settings:'opsz' 144;font-variant-numeric:tabular-nums}
+#stat .unit{font:500 11px/1.6 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-top:12px}
+#stat.hide{opacity:0}
+
+/* hero */
+#hero{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:opacity .8s,transform 1.1s var(--ease)}
+#hero .kick{font:500 12px/1 var(--mono);letter-spacing:.3em;text-transform:uppercase;color:var(--l1);margin-bottom:30px}
+#hero h1{font-weight:320;font-size:88px;line-height:1.02;letter-spacing:-.025em;font-variation-settings:'opsz' 144}
+#hero h1 i{color:var(--l1);font-weight:300}
+#hero p{margin-top:30px;font-size:21px;line-height:1.55;color:var(--dim);max-width:640px;font-weight:330}
+#hero .go{margin-top:46px;font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--faint)}
+#hero.out{opacity:0;transform:translateY(-30px) scale(.98)}
+
+/* ---------- the window: Finder -> transcript */
+#win{position:absolute;left:540px;top:120px;width:1000px;height:660px;border-radius:12px;background:#1d1c1b;
+  border:1px solid #3a3835;box-shadow:0 40px 90px rgba(0,0,0,.55),0 0 0 .5px rgba(255,255,255,.04) inset;
+  overflow:hidden;font-family:var(--sys);color:#e6e3de;
+  transition:left 1s var(--ease),top 1s var(--ease),width 1s var(--ease),height 1s var(--ease),opacity .7s,transform 1.1s var(--ease);
+  opacity:0;transform:translateY(40px) scale(.96)}
+#win.show{opacity:1;transform:none}
+#win.narrow{left:500px;top:96px;width:570px;height:772px}
+#win.gone{opacity:0;transition:opacity .35s}
+.tbar{height:46px;display:flex;align-items:center;gap:16px;padding:0 16px;background:#2a2927;border-bottom:1px solid #3a3835}
+.lights{display:flex;gap:8px}.lights i{width:12px;height:12px;border-radius:50%;background:#ff5f57}
+.lights i:nth-child(2){background:#febc2e}.lights i:nth-child(3){background:#28c840}
+.navb{color:#77736d;font-size:17px;letter-spacing:10px}
+.wtitle{font-weight:600;font-size:13.5px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.views{display:flex;gap:2px;background:#353330;border-radius:6px;padding:2px}
+.views i{width:28px;height:20px;border-radius:4px;display:block;position:relative}
+.views i.on{background:#55524d}
+.views i::after{content:'';position:absolute;left:9px;top:5px;width:10px;height:10px;border:1.5px solid #aaa49c;border-radius:2px}
+.views i:nth-child(2)::after{border-width:1.5px 0;height:3px;top:5px;box-shadow:0 4px 0 0 #aaa49c}
+.wbody{position:absolute;top:46px;bottom:26px;left:0;right:0;display:flex}
+.side{width:190px;flex:none;background:#242321;border-right:1px solid #33312e;padding:14px 10px;font-size:12.5px;transition:width .9s var(--ease),padding .9s var(--ease),opacity .5s;overflow:hidden;white-space:nowrap}
+.side h6{font-size:10.5px;font-weight:600;color:#7c7872;margin:6px 8px 6px}
+.side div{padding:5px 8px;border-radius:6px;display:flex;align-items:center;gap:8px;color:#d8d4ce;transition:background .4s}
+.side div.on{background:#3a3835}
+.side .fi{width:15px;height:11px;border-radius:2px;background:#5da6ec;position:relative;flex:none}
+.side .fi::before{content:'';position:absolute;left:0;top:-2px;width:6px;height:3px;border-radius:2px 2px 0 0;background:#5da6ec}
+.pane{flex:1;position:relative;overflow:hidden}
+.pane>section{position:absolute;inset:0;transition:opacity .6s,transform .8s var(--ease);opacity:0;transform:translateY(12px)}
+.pane>section.on{opacity:1;transform:none}
+.status{position:absolute;bottom:0;left:0;right:0;height:26px;border-top:1px solid #33312e;background:#242321;font-size:11px;color:#8b8780;display:flex;align-items:center;justify-content:center}
+
+/* icon view */
+.icons{display:flex;gap:70px;padding:120px 60px;justify-content:center}
+.folder{width:150px;text-align:center;font-size:14px;opacity:0;transform:translateY(16px) scale(.9);transition:opacity .6s,transform .7s var(--ease)}
+.on .folder{opacity:1;transform:none}
+.on .folder:nth-child(2){transition-delay:.15s}
+.ficon{width:130px;height:100px;margin:0 auto 14px;position:relative}
+.ficon::before{content:'';position:absolute;left:0;top:0;width:54px;height:18px;border-radius:8px 8px 0 0;background:#4b8fd6}
+.ficon::after{content:'';position:absolute;left:0;top:10px;right:0;bottom:0;border-radius:5px 9px 9px 9px;background:linear-gradient(#78b8f5,#5a9ee6)}
+.ficon i{position:absolute;z-index:1;left:50%;top:50px;transform:translateX(-50%)}
+.folder small{display:block;color:#8b8780;font-size:12px;margin-top:5px}
+
+/* list view */
+.lhead,.lrow{display:grid;grid-template-columns:1fr 130px 110px 70px;gap:12px;padding:0 18px;align-items:center}
+.lhead{height:30px;font-size:11px;font-weight:600;color:#8b8780;border-bottom:1px solid #33312e;background:#1d1c1b;position:relative;z-index:1}
+.lrows{position:absolute;top:30px;left:0;right:0;will-change:transform}
+.lrow{height:26px;font-size:12.5px;white-space:nowrap;transition:background .4s,color .4s}
+.lrow:nth-child(even){background:#232220}
+.lrow .nm{overflow:hidden;text-overflow:ellipsis;display:flex;gap:9px;align-items:center}
+.lrow .kd,.lrow .dt,.lrow .sz{color:#8b8780;font-size:11.5px}
+.lrow .sz{text-align:right}
+.badge{width:16px;height:12px;border-radius:3px;flex:none;position:relative;display:block}
+.badge.yt{background:#e5443b}.badge.yt::after{content:'';position:absolute;left:6px;top:3px;border-left:5px solid #fff;border-top:3px solid transparent;border-bottom:3px solid transparent}
+.badge.lm{background:#7a5af5}.badge.lm::after{content:'';position:absolute;left:4px;top:3px;width:6px;height:6px;border-radius:50%;border:1.5px solid #fff}
+.ficon .badge{width:30px;height:22px;border-radius:5px}
+.ficon .badge.yt::after{left:11px;top:6px;border-left-width:9px;border-top-width:5px;border-bottom-width:5px}
+.ficon .badge.lm::after{left:8px;top:4px;width:11px;height:11px;border-width:2px}
+.badge.li{background:#0a66c2}.badge.li::after{content:'in';position:absolute;left:3px;top:0;font:700 8px/12px var(--sys);color:#fff}
+.badge.wb{background:#6c8a5a}.badge.wb::after{content:'';position:absolute;left:4px;top:2px;width:6px;height:6px;border-radius:50%;border:1.5px solid #fff}
+.lrow.sel{background:#2f5fb3!important;color:#fff}
+.lrow.sel .kd,.lrow.sel .dt,.lrow.sel .sz{color:#dfe8fa}
+
+/* document view */
+.doc{padding:16px 22px 16px 18px;font-size:13.5px;line-height:1.42}
+.fm{font:12px/1.6 var(--mono);color:#8b8780;white-space:pre;overflow:hidden;max-height:120px;transition:max-height .9s var(--ease),opacity .6s,margin .9s var(--ease);margin-bottom:12px}
+.doc.clean .fm{max-height:0;opacity:0;margin:0}
+.ln{position:relative;padding:4px 8px 4px 8px;border-radius:7px;transition:background .5s,box-shadow .5s,opacity .5s;margin-bottom:2px}
+.rh{font:12px/1.5 var(--mono);color:#9a958d;max-height:20px;overflow:hidden;transition:max-height .8s var(--ease),opacity .5s}
+.rh .h{color:#6c6862}
+.row{display:flex;gap:10px;align-items:baseline}
+.ts{font:11px/1 var(--mono);color:#77736d;width:0;overflow:hidden;opacity:0;flex:none;transition:width .8s var(--ease),opacity .6s}
+.who{font:600 10.5px/1 var(--sys);letter-spacing:.04em;text-transform:uppercase;width:0;overflow:hidden;opacity:0;flex:none;transition:width .8s var(--ease),opacity .6s;padding-top:1px}
+.who.o{color:var(--l1)}.who{white-space:nowrap}.who.s{color:#9fb8d6}
+.txt{flex:1;font:12.5px/1.5 var(--mono);color:#cfcac2}
+.txt .c{display:none}.doc.clean .txt .r{display:none}.doc.clean .txt .c{display:inline}
+.doc.clean .rh{max-height:0;opacity:0}
+.doc.clean .ts{width:46px;opacity:1}
+.doc.clean .who{width:var(--who,54px);opacity:1}
+.doc.clean .txt{font:13.4px/1.4 var(--sys);color:#ece8e2}
+.doc.focus .ln{opacity:.32}
+.doc.focus .ln.key{opacity:1;box-shadow:inset 0 0 0 1px rgba(226,169,59,.75);background:rgba(226,169,59,.1)}
+
+/* ---------- right column panels */
+.rpanel{position:absolute;left:1120px;top:110px;width:420px;opacity:0;transform:translateX(30px);transition:opacity .6s,transform .9s var(--ease)}
+.rpanel.on{opacity:1;transform:none}
+.plabel{font:500 10.5px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin-bottom:16px}
+
+/* frames */
+#frames{top:100px;height:760px}
+#frames .plabel{position:absolute;top:-28px}
+.fc{position:absolute;left:0;width:420px;padding:6px 11px 7px 12px;border-radius:8px;background:#1b211f;border:1px solid rgba(79,169,160,.35);
+  font-size:12.8px;line-height:1.32;color:#dbeee9;font-weight:340;opacity:0;transform:translateX(24px);transition:opacity .5s,transform .7s var(--ease),border-color .5s,background .5s,box-shadow .5s}
+.fc .k{display:inline;font:600 9px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--l2);margin-right:8px}
+.fc .k em{font-style:normal;color:var(--l1);margin-left:8px}
+#frames.on .fc{opacity:1;transform:none}
+#frames.focus .fc{opacity:.25}
+#frames.focus .fc.key{opacity:1;border-color:var(--l2);background:#1d2a27;box-shadow:0 0 30px rgba(79,169,160,.18)}
+.wire{fill:none;stroke:var(--l2);stroke-width:1.2;opacity:0;transition:opacity .6s}
+.wire.on{opacity:.45}
+.wire.dim{opacity:.08}
+.wire.key{opacity:.95;stroke-width:1.8}
+
+/* layer cards */
+#cards{top:150px}
+.card{position:absolute;left:0;top:0;width:420px;padding:22px 24px 22px;border-radius:12px;background:rgba(32,29,24,.94);border:1px solid var(--line2);
+  opacity:0;transform:translateY(16px);transition:opacity .55s,transform .8s var(--ease);backdrop-filter:blur(6px)}
+.card.on{opacity:1;transform:none;transition-delay:.35s}
+.card .lv{font:600 10px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;margin-bottom:14px}
+.card h3{font-weight:400;font-size:23px;line-height:1.22;margin-bottom:12px;font-variation-settings:'opsz' 72}
+.card p{font-size:15px;line-height:1.5;color:var(--dim);font-weight:330}
+.card .pair{display:grid;grid-template-columns:62px 1fr;gap:10px 12px;margin-top:6px}
+.card .pair dt{font:600 9.5px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.card .pair dd{font-size:15px;line-height:1.45;color:var(--ink);font-weight:340}
+.card .pair dd.q{font-style:italic}
+.card .foot{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font:500 10px/1.6 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.card blockquote{font-size:20px;line-height:1.38;font-weight:360;color:var(--ink);margin:4px 0 14px;font-style:italic}
+
+/* finale legend */
+#legend{top:170px;left:1270px;width:290px}
+.lg{display:grid;grid-template-columns:14px 1fr auto;gap:12px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line);opacity:0;transform:translateX(14px);transition:opacity .5s,transform .7s var(--ease)}
+#legend.on .lg{opacity:1;transform:none}
+.lg i{width:9px;height:9px;border-radius:50%;display:block;transform:translateY(-1px)}
+.lg span{font:500 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.lg b{font:300 26px/1 var(--serif);font-variant-numeric:tabular-nums}
+#tip{position:fixed;max-width:360px;padding:9px 12px;border-radius:8px;background:rgba(21,19,16,.95);border:1px solid var(--line2);font-size:14px;line-height:1.4;color:var(--ink);pointer-events:none;opacity:0;transition:opacity .15s;z-index:5}
+#tip small{display:block;font:600 9.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px}
+/* ---------- findings: a docs page, one layer per page */
+#fd{position:absolute;left:60px;right:60px;top:96px;bottom:34px;display:grid;grid-template-columns:280px 1fr;gap:56px;
+  opacity:0;visibility:hidden;transform:translateY(16px);transition:opacity .6s,transform .9s var(--ease),visibility 0s .6s;cursor:default}
+#fd.on{opacity:1;visibility:visible;transform:none;transition:opacity .6s .2s,transform .9s var(--ease) .2s,visibility 0s}
+#stage #fd,#stage #fd *{pointer-events:auto}
+#fd .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin:24px 0 20px}
+#fd .lead h1{font-weight:380;font-size:32px;line-height:1.14;margin-bottom:16px;font-variation-settings:'opsz' 96}
+#fd .lead p{font-size:15px;line-height:1.55;color:var(--dim);font-weight:330}
+#fd nav{margin-top:30px;border-top:1px solid var(--line)}
+#fd nav a{display:grid;grid-template-columns:12px 1fr;gap:12px;align-items:center;padding:14px 10px;border-bottom:1px solid var(--line);
+  cursor:pointer;color:var(--dim);transition:background .3s,color .3s}
+#fd nav a:hover{background:rgba(255,255,255,.03);color:var(--ink)}
+#fd nav a.on{background:rgba(255,255,255,.05);color:var(--ink)}
+#fd nav a i{width:9px;height:9px;border-radius:50%}
+#fd nav a span{font:500 11px/1.35 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+#fd nav a b{font:600 9px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:5px 7px;border-radius:4px;border:1px solid currentColor;opacity:.85}
+#fd .keys{margin-top:18px;font:500 10px/1.6 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+#fd .page{overflow-y:auto;padding:24px 36px 40px 0;scrollbar-width:thin;scrollbar-color:var(--line2) transparent}
+#fd article{display:none;max-width:920px}
+#fd article.on{display:block;animation:fdin .5s var(--ease)}
+@keyframes fdin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#fd .lv{font:600 10.5px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;margin-bottom:16px}
+#fd h2{font-weight:380;font-size:40px;line-height:1.1;margin-bottom:14px;font-variation-settings:'opsz' 120;display:flex;align-items:center;gap:18px}
+#fd h2 b{font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;padding:7px 10px;border-radius:5px;border:1px solid currentColor}
+#fd .what{font-size:19px;line-height:1.5;color:var(--dim);font-weight:330;max-width:760px}
+#fd .what em{color:var(--ink)}
+#fd .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:30px 0 8px}
+#fd .nums div{border-top:1px solid var(--line2);padding-top:14px}
+#fd .nums strong{display:block;font:300 40px/1 var(--serif);font-variant-numeric:tabular-nums;font-variation-settings:'opsz' 144}
+#fd .nums small{display:block;margin-top:10px;font:500 10px/1.5 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+#fd h4{font:600 10.5px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--faint);margin:38px 0 14px}
+#fd .how{font-size:16px;line-height:1.6;color:var(--ink);font-weight:340;max-width:800px}
+#fd .how code,#fd li code,#fd .ex code{font:12.5px var(--mono);color:var(--l1);background:rgba(226,169,59,.08);padding:1px 5px;border-radius:4px}
+#fd .exs{display:grid;gap:12px}
+#fd .ex{padding:16px 18px;border-radius:10px;background:rgba(32,29,24,.9);border:1px solid var(--line2);border-left-width:3px}
+#fd .ex.good{border-left-color:var(--l5)}#fd .ex.bad{border-left-color:var(--l6)}
+#fd .ex .tag{font:600 9.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;margin-bottom:10px}
+#fd .ex.good .tag{color:var(--l5)}#fd .ex.bad .tag{color:#e0715a}
+#fd .ex q{display:block;font-size:17px;line-height:1.42;font-style:italic;color:var(--ink);font-weight:350;quotes:'“' '”'}
+#fd .ex p{margin-top:9px;font-size:14px;line-height:1.5;color:var(--dim);font-weight:330}
+#fd .ex p q{display:inline;font-size:14px;color:#d8d0c2}
+#fd ul{list-style:none;display:grid;gap:10px;max-width:820px}
+#fd li{position:relative;padding-left:22px;font-size:16px;line-height:1.5;color:var(--ink);font-weight:340}
+#fd li::before{content:'';position:absolute;left:2px;top:10px;width:7px;height:7px;border-radius:50%;background:#e0715a}
+#fd li strong{font-weight:560}
+#fd .todo{margin-top:34px;padding:18px 20px;border-radius:10px;border:1px dashed var(--line2);font-size:16px;line-height:1.55;color:var(--ink);font-weight:340}
+#ab{position:absolute;left:60px;right:60px;top:96px;bottom:34px;display:grid;grid-template-columns:280px 1fr;gap:56px;
+  opacity:0;visibility:hidden;transform:translateY(16px);transition:opacity .6s,transform .9s var(--ease),visibility 0s .6s;cursor:default}
+#ab.on{opacity:1;visibility:visible;transform:none;transition:opacity .6s .2s,transform .9s var(--ease) .2s,visibility 0s}
+#stage #ab,#stage #ab *{pointer-events:auto}
+#ab .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin:24px 0 20px}
+#ab .lead h1{font-weight:380;font-size:32px;line-height:1.14;margin-bottom:16px;font-variation-settings:'opsz' 96}
+#ab .lead p{font-size:15px;line-height:1.55;color:var(--dim);font-weight:330}
+#ab .found{margin-top:26px;border-top:1px solid var(--line)}
+#ab .found div{padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;line-height:1.35}
+#ab .found b{font-weight:520}#ab .found em{font-style:normal;color:var(--l5);float:right}
+#ab .found small{display:block;margin-top:4px;font:500 9.5px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+#ab .page{padding-top:24px}
+#ab h2{font-weight:380;font-size:40px;line-height:1.1;margin-bottom:10px;font-variation-settings:'opsz' 120}
+#ab .what{font-size:17px;line-height:1.5;color:var(--dim);font-weight:330}
+#ab .sheet{max-width:1080px;margin-top:22px;padding:4px 24px;border-radius:12px;border:1px solid var(--line2);background:rgba(32,29,24,.9)}
+#ab .row{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--line)}
+#ab .row:last-child{border-bottom:0}
+#ab .row>span{font:600 10px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+#ab .chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#ab .chip{font:400 14px/1 var(--serif);color:var(--dim);padding:8px 13px;border-radius:999px;border:1px solid var(--line2);background:transparent;cursor:pointer;transition:all .2s}
+#ab .chip:hover{color:var(--ink);border-color:var(--dim)}
+#ab .chip[aria-pressed=true]{color:#1b1712;background:var(--l1);border-color:var(--l1);font-weight:500}
+#ab .ev{flex-basis:100%;margin-top:4px;font:500 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+#fd .todo span{display:block;font:600 10px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--l5);margin-bottom:10px}
+
+/* ---------- source badges for the other kinds */
+.badge.ig{background:#c13584}.badge.ig::after{content:'';position:absolute;left:4px;top:2px;width:6px;height:6px;border-radius:2px;border:1.5px solid #fff}
+.badge.tw{background:#3a3a3a}.badge.tw::after{content:'X';position:absolute;left:4px;top:0;font:700 8px/12px var(--sys);color:#fff}
+/* ---------- do's & don'ts page */
+#fd .principle-count{margin-top:20px;border-top:1px solid var(--line);padding-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#fd .principle-count b{display:block;font:300 56px/1 var(--serif);color:var(--ink)}
+#fd .principle-count span{display:block;margin-top:10px;font:500 10px/1.5 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+#fd .ptabs{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line2);border-radius:999px;margin:2px 0 4px}
+#fd .ptab{font:500 13px/1 var(--serif);color:var(--dim);padding:9px 16px;border-radius:999px;border:0;background:transparent;cursor:pointer;transition:all .2s}
+#fd .ptab:hover{color:var(--ink)}
+#fd .ptab[aria-selected=true]{color:#1b1712;background:var(--l1);font-weight:600}
+#fd .dd-cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:18px;max-width:1080px}
+#fd .dd-head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;font-size:19px;font-weight:450}
+#fd .dd-head small{font-size:13.5px;color:var(--dim);font-weight:330}
+#fd .dd-head.do i{color:var(--l5);font-style:normal}#fd .dd-head.dont i{color:#e0715a;font-style:normal}
+#fd .dd-row{display:grid;grid-template-columns:22px 1fr;gap:12px;padding:10px 16px;margin-bottom:8px;border:1px solid var(--line2);border-radius:10px;background:rgba(32,29,24,.9)}
+#fd .dd-row>i{font-style:normal;font-size:15px;line-height:1.4}
+#fd .dd-row.do>i{color:var(--l5)}#fd .dd-row.dont>i{color:#e0715a}
+#fd .dd-row p{font-size:15.5px;line-height:1.4;color:var(--ink);font-weight:340}
+#fd .dd-row p b{font-weight:600}
+#fd .dd-row small{display:block;margin-top:6px;font:500 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+#fd .keys{cursor:pointer}
+
+/* ---------- phones (config `mobile: true`): one portrait column instead of the scaled 16:9 slide */
+#vis,#mback,#rot{display:none}
+body.m{touch-action:none}
+body.m canvas#cv{width:100%;height:100%}
+body.m #stage{width:100%;height:100%;transform:none!important;padding:0 18px;display:grid;grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto minmax(0,1fr) auto auto auto;grid-template-areas:'hd' 'vis' 'st' 'cap' 'ft'}
+body.m #vis{display:block;grid-area:vis}
+body.m header{grid-area:hd;position:relative;left:auto;right:auto;top:auto;padding:max(16px,env(safe-area-inset-top)) 0 12px;font-size:10px}
+body.m #hdr{display:none}
+body.m header{flex-wrap:wrap}
+body.m #psw{order:2;display:flex;width:100%;margin-top:12px}
+body.m #psw .ptab{flex:1;padding:10px 8px;font-size:13px}
+body.m #psw .ptab small{display:block;margin:5px 0 0;font-size:9px}
+body.m #rail{gap:12px;width:100%;justify-content:space-between}
+body.m #rail .ch{gap:7px}
+body.m #rail .ch>span:first-child{display:none}
+body.m #rail .dots{gap:6px}
+body.m #rail .dots i{width:7px;height:7px}
+body.m header{min-height:44px}
+/* hero */
+body.m #hero{padding:0 26px}
+body.m #hero .kick{font-size:10px;letter-spacing:.24em;margin-bottom:22px;line-height:1.6}
+body.m #hero h1{font-size:52px}
+body.m #hero p{font-size:17px;margin-top:22px}
+body.m #hero .go{margin-top:34px}
+/* narrative */
+body.m #cap{grid-area:cap;position:relative;left:auto;top:auto;width:auto;padding:12px 0 4px}
+body.m #cap .kick{font-size:10px;margin-bottom:10px}
+body.m #cap h1{font-size:24px;line-height:1.15;margin-bottom:9px}
+body.m #cap p{font-size:15px;line-height:1.5}
+body.m #stat{grid-area:st;position:relative;left:auto;bottom:auto;width:auto;display:flex;align-items:baseline;gap:12px;padding-top:14px}
+body.m #stat .num{font-size:34px}
+body.m #stat .unit{margin-top:0;font-size:10px;line-height:1.4}
+body.m #hint{grid-area:ft;position:relative;left:auto;bottom:auto;display:flex;justify-content:space-between;align-items:center;
+  padding:14px 0 max(18px,env(safe-area-inset-bottom));font-size:10px}
+body.m #mback{display:inline-block;padding:8px 12px 8px 0;margin:-8px 0;color:var(--dim)}
+/* the window */
+body.m #win{grid-area:vis;position:relative;left:auto;top:auto;width:auto;height:auto;min-height:0;margin-top:4px}
+body.m #win.narrow{opacity:0;transform:translateY(20px) scale(.97)}
+body.m .side{display:none}
+body.m .tbar{height:38px;gap:10px;padding:0 12px}
+body.m .lights i{width:10px;height:10px}
+body.m .navb,body.m .views{display:none}
+body.m .wtitle{font-size:12px}
+body.m .wbody{top:38px;bottom:22px}
+body.m .status{height:22px;font-size:10px}
+body.m .lhead,body.m .lrow{grid-template-columns:minmax(0,1fr) 78px;padding:0 12px}
+body.m .lhead span:nth-child(2),body.m .lhead span:nth-child(4),body.m .lrow .kd,body.m .lrow .sz{display:none}
+body.m .lrow{font-size:12px}
+body.m .doc{padding:12px 12px}
+body.m .doc .txt{font-size:11.5px}
+body.m .doc.clean .txt{font-size:12.5px}
+body.m .doc.clean .ts{width:0;opacity:0}
+body.m .doc.clean .who{width:var(--who,56px)}
+/* frames */
+body.m #wires{display:none}
+body.m .rpanel{transform:translateY(16px)}
+body.m .rpanel.on{transform:none}
+body.m #frames{grid-area:vis;position:relative;left:auto;top:auto;height:auto;width:auto;min-height:0;overflow:hidden;padding-top:8px}
+body.m #frames .plabel{position:static;margin-bottom:10px}
+body.m .fc{position:relative;width:auto;top:auto!important;margin-bottom:6px;font-size:12px;transform:translateY(12px)}
+/* layer cards and the legend sit under the layered space */
+body.m #cards,body.m #legend{grid-area:vis;align-self:end;position:relative;left:auto;top:auto;width:auto}
+body.m .card{position:absolute;left:0;right:0;top:auto;bottom:0;width:auto;padding:16px 18px}
+body.m .card.on{position:relative}
+body.m .card .lv{margin-bottom:10px}
+body.m .card h3{font-size:19px;margin-bottom:8px}
+body.m .card p,body.m .card .pair dd{font-size:14px}
+body.m .card blockquote{font-size:18px}
+body.m .card .foot{margin-top:12px;padding-top:10px}
+body.m #legend{display:grid;grid-template-columns:1fr 1fr;column-gap:16px}
+body.m #legend .plabel{grid-column:1 / -1;margin-bottom:6px}
+body.m .lg{padding:8px 0;gap:9px}
+body.m .lg span{font-size:9px;letter-spacing:.1em;line-height:1.3}
+/* about you, do's & don'ts: scrolling pages */
+body.m #ab,body.m #fd{position:absolute;left:0;right:0;top:var(--hdh,44px);bottom:0;display:block;overflow-y:auto;background:var(--bg);padding:0 18px max(40px,env(safe-area-inset-bottom));touch-action:pan-y;-webkit-overflow-scrolling:touch}
+body.m #ab{bottom:52px;padding-bottom:28px}
+body.m #ab .kick,body.m #fd .kick{margin:18px 0 14px}
+body.m #ab .lead h1,body.m #fd .lead h1{font-size:30px}
+body.m #ab .page,body.m #fd .page{overflow:visible;padding:30px 0 0}
+body.m #ab h2,body.m #fd h2{font-size:30px;flex-wrap:wrap}
+body.m #ab .what,body.m #fd .what{font-size:16px}
+body.m #ab .sheet{padding:2px 16px}
+body.m #ab .row{grid-template-columns:1fr;gap:10px}
+body.m #ab .chip{font-size:13.5px;padding:8px 12px}
+body.m #fd .lead .principle-count b{font-size:44px}
+body.m #fd .keys{display:inline-block;margin-top:16px;padding:8px 0;font-size:11px;color:var(--dim)}
+body.m #fd .ptabs{display:flex;width:100%;margin:6px 0 2px}
+body.m #fd .ptab{flex:1;padding:10px 8px;font-size:13px}
+body.m #fd .dd-cols{grid-template-columns:1fr;gap:26px}
+body.m #fd .dd-row{padding:10px 14px}
+body.m #fd .dd-row p{font-size:15px}
+body.m #tip{display:none}
+/* a phone turned sideways */
+body.rot #stage,body.rot #cv{display:none}
+body.rot #rot{display:flex;position:fixed;inset:0;z-index:9;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px}
+#rot b{font-weight:330;font-size:30px;font-variation-settings:'opsz' 96}
+#rot span{font:500 10.5px/1.6 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="tip"></div>
+<div id="rot"><b>Turn your phone upright</b><span>This page reads best in portrait</span></div>
+<div id="stage">
+  <div id="vis"></div>
+  <header><div id="hdr"></div><div id="psw" class="hit" role="tablist" hidden></div><nav id="rail" class="hit"></nav></header>
+
+  <div id="hero">
+    <div class="kick">One real exchange, followed all the way through</div>
+    <h1 id="hero-h"></h1>
+    <p id="hero-p"></p>
+    <div class="go" id="go">Click to begin →</div>
+  </div>
+
+  <div id="cap" class="out"><div class="kick" id="kick"></div><h1 id="title"></h1><p id="body"></p></div>
+  <div id="stat" class="hide"><div class="num" id="num">0</div><div class="unit" id="unit"></div></div>
+
+  <div id="win">
+    <div class="tbar"><span class="lights"><i></i><i></i><i></i></span><span class="navb">‹ ›</span><span class="wtitle" id="wtitle"></span><span class="views"><i class="on" id="v1"></i><i id="v2"></i></span></div>
+    <div class="wbody">
+      <div class="side" id="side"></div>
+      <div class="pane">
+        <section id="list"><div class="lhead"><span>Name</span><span>Kind</span><span>Date</span><span style="text-align:right">Size</span></div><div class="lrows" id="lrows"></div></section>
+        <section id="docs"><div class="doc" id="doc"></div></section>
+      </div>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <svg id="wires"></svg>
+  <div class="rpanel" id="frames"></div>
+  <div class="rpanel" id="cards"></div>
+  <div class="rpanel" id="legend"></div>
+  <div id="ab"></div>
+  <div id="fd">
+    <div class="lead">
+      <div class="kick">06 · Do’s &amp; Don’ts</div>
+      <h1>Do’s &amp; Don’ts</h1>
+      <p id="dd-lead"></p>
+      <div class="principle-count" id="dd-count"></div>
+      <div class="keys">← back</div>
+    </div>
+    <div class="page" id="fdpage"></div>
+  </div>
+  <div id="hint">Click or <kbd>→</kbd> to continue · <kbd>←</kbd> back</div>
+</div>
+
+<script>
+/* Filled in by build.py: STORY is the data, CONFIG is the written copy (configs/<slug>.yaml). */
+const STORY = {"files":[{"n":"KEYNOTE SPEECH AT PSA SOUTH AFRICA 'Sheep Wolves & Dragons","d":"2014-02-25","s":18932,"k":"youtube"},{"n":"SEÁN WEAFER - CLOSING KEYNOTE AT GLOBAL SPEAKERS SUMMIT VANCOUVER, 2013: REBEL IN A BUSINESS SUIT","d":"2014-02-25","s":30032,"k":"youtube"},{"n":"SEÁN WEAFER - REBELS VERSUS THE 'SUITS","d":"2014-03-05","s":5372,"k":"youtube"},{"n":"FEMININE-CENTRED LEADERSHIP","d":"2015-08-19","s":29079,"k":"youtube"},{"n":"How Experts Become Influencers by Sean Weafer | MILE Webinar","d":"2017-01-03","s":63075,"k":"youtube","sel":1},{"n":"HOW G2S COACHING MAXIMISES LEADERSHIP & BUSINESS DEVELOPMENT.","d":"2020-05-05","s":6419,"k":"youtube"},{"n":"Sean Weafer: Time Management Tip 1; Why Time ''Management'' Doesn''t Work!","d":"2020-05-05","s":7171,"k":"youtube"},{"n":"Sean Weafer: Time Management Tip 2: CIA: Manage Your Professional Stakeholders","d":"2020-05-05","s":4536,"k":"youtube"},{"n":"Sean Weafer: Why Influence is More Important Than Just Expertise Today","d":"2020-05-05","s":4404,"k":"youtube"},{"n":"Sean Weafer: How to Build Rapport and Influence","d":"2020-05-06","s":4729,"k":"youtube"},{"n":"Sean Weafer: Professional Networking Tip 1/7: What''s Your Objective","d":"2020-05-08","s":4017,"k":"youtube"},{"n":"Sean Weafer: Professional Networking Tip 2/7: How to Chose the Right Event","d":"2020-05-08","s":4404,"k":"youtube"},{"n":"Sean Weafer: Professional Networking Tip 5/7: How to Get a Coffee","d":"2020-05-08","s":3907,"k":"youtube"},{"n":"Sean Weafer: Professional Networking Tip 7/7: Always Follow-Up a Contact","d":"2020-05-08","s":4271,"k":"youtube"},{"n":"Sales Leadership Coaching Skills | Webinar for Executives","d":"2020-05-10","s":69566,"k":"youtube"},{"n":"INTERVIEW ON COACHING WITH SOUTH AFRICA FUTURIST DR. GRAME CODRINGTON","d":"2020-06-28","s":39120,"k":"youtube"},{"n":"Sean Weafer | Around the World in 240 Minutes | Speakers Corner","d":"2020-07-18","s":22256,"k":"youtube"},{"n":"25. What Great Sales Communicators Do Differently (Sean Weafer)","d":"2021-11-17","s":43330,"k":"youtube"},{"n":"THE POWER OF THE GLOBAL TO SPECIFIC (G2S) COACHING SYSTEM: MEASURED. ACCOUNTABLE. RESULTS FOCUSED.","d":"2022-08-06","s":4814,"k":"youtube"},{"n":"TECHNIQUES TO MANAGE YOUR PROFESSIONAL TIME: FULL WEBINAR","d":"2023-10-26","s":48443,"k":"youtube"},{"n":"SPEAKER REEL SEAN WEAFER: OPENING KEYNOTE AT GLOBAL SPEAKERS SUMMIT Dublin, 2022. ''Fire and Magic''","d":"2024-03-01","s":19862,"k":"youtube"},{"n":"THE PAUL LANIGAN PODCAST; SEAN WEAFER","d":"2024-03-26","s":58656,"k":"youtube"},{"n":"Time Management Tips for CEOs, New Business Owner & Entrepreneurs | Sean Weafer | CIA Method","d":"2024-07-06","s":7167,"k":"youtube"},{"n":"HOW TO DEAL WITH A 'NO' RESPONSE; ON THE ANDREA PACINI PODCAST","d":"2024-07-08","s":6213,"k":"youtube"},{"n":"THE FUTURE OF AI AND LEADERSHIP COMMUNICATIONS: ON THE ADREA PACINI PODCAST","d":"2024-07-08","s":5298,"k":"youtube"},{"n":"Introverts in Sales: How to Excel in Business Development","d":"2024-08-09","s":26547,"k":"youtube"},{"n":"The 4 New Rules of Selling in the AI Era | Boost Your Sales Today","d":"2024-09-11","s":31787,"k":"youtube"},{"n":"HOW TO INTRODUCE YOURSELF WHEN NETWORKING","d":"2024-09-25","s":11312,"k":"youtube"},{"n":"How to COMMUNICATE TECHNICAL OR COMPLEX INFORMATION","d":"2024-09-25","s":5945,"k":"youtube"},{"n":"WHERE SHOULD I GO TO NETWORK?","d":"2024-09-25","s":6550,"k":"youtube"},{"n":"3 Reasons WHY PROFESSIONALS ADVISORS OFTEN HATE TO 'SELL","d":"2024-10-23","s":6619,"k":"youtube"},{"n":"The Highly Trusted Advisor: Sales & Leadership Laws Uncovered - Sean Weafer | Ep 35","d":"2024-10-23","s":52318,"k":"youtube"},{"n":"Step Up Your Client Conversations | Real Sales Examples","d":"2024-11-20","s":21373,"k":"youtube"},{"n":"Why sales is the primary business discipline and undervalued in organisations","d":"2024-11-22","s":395,"k":"linkedin"},{"n":"Discussion and Feedback Prompt","d":"2024-11-25","s":274,"k":"linkedin"},{"n":"LinkedIn Update","d":"2024-11-26","s":166,"k":"linkedin"},{"n":"Post update metadata","d":"2024-11-26","s":166,"k":"linkedin"},{"n":"What is ‘Perceived Threat’ in a Sales Meeting? – Understanding why some prospects put their guard up.","d":"2024-11-26","s":1317,"k":"linkedin"},{"n":"LinkedIn Update Metadata","d":"2024-11-27","s":166,"k":"linkedin"},{"n":"Making prospects feel comfortable, not cornered","d":"2024-11-27","s":768,"k":"linkedin"},{"n":"Minimising perceived threats in sales conversations and building rapport","d":"2024-11-27","s":768,"k":"linkedin"},{"n":"Post update metadata","d":"2024-11-27","s":166,"k":"linkedin"},{"n":"The EASIEST WAY To SELL ANYTHING to ANYONE (According to Neuroscience) #business #sales #shorts","d":"2024-11-27","s":4366,"k":"youtube"},{"n":"HOW TO MINIMISE PERCEIVED THREAT IN A SALES CONVERSATION","d":"2024-11-28","s":315,"k":"linkedin"},{"n":"Keeping language simple during sales conversations increases impact","d":"2024-12-02","s":608,"k":"linkedin"},{"n":"LinkedIn Post 7269305019747766272","d":"2024-12-02","s":166,"k":"linkedin"},{"n":"LinkedIn Update Overview","d":"2024-12-02","s":166,"k":"linkedin"},{"n":"LinkedIn Update 7269653746752655360","d":"2024-12-03","s":166,"k":"linkedin"},{"n":"LinkedIn Update Overview","d":"2024-12-03","s":166,"k":"linkedin"},{"n":"Share your reasoning in the poll comments","d":"2024-12-03","s":300,"k":"linkedin"},{"n":"Focus on connections rather than pitching.","d":"2024-12-04","s":1270,"k":"linkedin"},{"n":"LinkedIn Post Overview","d":"2024-12-04","s":166,"k":"linkedin"},{"n":"Mastering The Networking Conversation – Small Talk","d":"2024-12-04","s":1271,"k":"linkedin"},{"n":"Post update with metadata","d":"2024-12-04","s":166,"k":"linkedin"},{"n":"LinkedIn Update","d":"2024-12-05","s":166,"k":"linkedin"},{"n":"LinkedIn post metadata","d":"2024-12-05","s":166,"k":"linkedin"},{"n":"The Impact of Empathy, Engagement, and Influence in Sales Conversion","d":"2024-12-05","s":641,"k":"linkedin"},{"n":"The Networking Conversation – Small Talk","d":"2024-12-05","s":1270,"k":"linkedin"},{"n":"Developing a Growth Mindset and Client Acquisition Skills for Emerging Leaders","d":"2024-12-09","s":473,"k":"linkedin"},{"n":"Involving clients in solution creation to reduce walkaways and price resistance","d":"2024-12-09","s":851,"k":"linkedin"},{"n":"LinkedIn Update 7271833324325683200","d":"2024-12-09","s":166,"k":"linkedin"},{"n":"Post update metadata","d":"2024-12-11","s":166,"k":"linkedin"},{"n":"Post update metadata","d":"2024-12-11","s":166,"k":"linkedin"},{"n":"Why Set a Goal?","d":"2024-12-11","s":1452,"k":"linkedin"},{"n":"Sales Language: Words to Avoid. Words to Use.","d":"2024-12-12","s":691,"k":"linkedin"},{"n":"Why setting goals matters for focus and accountability","d":"2024-12-12","s":853,"k":"linkedin"},{"n":"LinkedIn Update 7273240643584380928","d":"2024-12-13","s":166,"k":"linkedin"},{"n":"LinkedIn Update Metadata","d":"2024-12-13","s":166,"k":"linkedin"},{"n":"The Power of Tonality in Sales Conversations","d":"2024-12-16","s":673,"k":"linkedin"},{"n":"Embrace Challenges As Opportunities in Sales","d":"2024-12-23","s":350,"k":"linkedin"},{"n":"Mentorship and Recommendation of Denis Waitley's Work","d":"2025-01-04","s":371,"k":"linkedin"},{"n":"Consistent Sales Through Training and Mentorship","d":"2025-01-10","s":690,"k":"linkedin"},{"n":"Handling unlisted or non-sectioned content indexing","d":"2025-01-10","s":166,"k":"linkedin"},{"n":"Clarifying the actual objection when getting a 'NO'","d":"2025-01-17","s":516,"k":"linkedin"},{"n":"LinkedIn post activity update","d":"2025-01-17","s":166,"k":"linkedin"},{"n":"Call for audience thoughts and comments","d":"2025-01-20","s":276,"k":"linkedin"},{"n":"LinkedIn Update 7287063706641838080","d":"2025-01-20","s":166,"k":"linkedin"},{"n":"What is Success?","d":"2025-01-21","s":1140,"k":"linkedin"},{"n":"Successful Goal Setting Session","d":"2025-01-22","s":811,"k":"linkedin"},{"n":"HOW TO DEFINE YOUR GOAL: One Easy Way to LEAD Your Sales Team to SUCCESS! |","d":"2025-01-27","s":7011,"k":"youtube"},{"n":"Post update","d":"2025-01-28","s":166,"k":"linkedin"},{"n":"Share your thoughts in the comment section","d":"2025-01-28","s":256,"k":"linkedin"},{"n":"How to get real outcomes from your networking efforts.","d":"2025-01-29","s":980,"k":"linkedin"},{"n":"The Objective of Networking","d":"2025-01-29","s":1201,"k":"linkedin"},{"n":"Update 7290314896062230528","d":"2025-01-29","s":166,"k":"linkedin"},{"n":"Using storytelling to give a competitive edge in sales meetings","d":"2025-01-29","s":627,"k":"linkedin"},{"n":"LinkedIn Update 7292121495630196737","d":"2025-02-03","s":166,"k":"linkedin"},{"n":"Turning Professional Expertise into Sales Impact and Influence","d":"2025-02-03","s":1361,"k":"linkedin"},{"n":"Mastering The Networking Conversation – Small Talk","d":"2025-02-04","s":1269,"k":"linkedin"},{"n":"Post update metadata","d":"2025-02-04","s":166,"k":"linkedin"},{"n":"Why the growth in AI will make human-to-human skills even more important","d":"2025-02-13","s":623,"k":"linkedin"},{"n":"Starting a new position as Founder and CEO at SellingIs.Life","d":"2025-02-14","s":332,"k":"linkedin"},{"n":"Coaching for Sales Leaders","d":"2025-02-18","s":1014,"k":"linkedin"},{"n":"Coaching sales teams through goal setting and understanding motivation","d":"2025-02-18","s":713,"k":"linkedin"},{"n":"Please select the option that best reflects your view","d":"2025-02-18","s":268,"k":"linkedin"},{"n":"The Real Objective of Attending a Networking Event","d":"2025-02-21","s":632,"k":"linkedin"},{"n":"Why sales leaders become dictatorial and the lack of sales management training","d":"2025-02-24","s":1562,"k":"linkedin"},{"n":"Value of Sales Coaching by a Sales Leader","d":"2025-02-25","s":631,"k":"linkedin"},{"n":"Why Expert Professionals Fail to Turn Knowledge into Profitable Client Relationships","d":"2025-02-27","s":604,"k":"linkedin"},{"n":"Supporting small independent music and entertainment venues with a new podcast","d":"2025-03-06","s":1004,"k":"linkedin"},{"n":"Bringing More Love and Light into the World","d":"2025-03-08","s":306,"k":"linkedin"},{"n":"The objective of networking is never to pitch or sell, it's to get a cup of coffee","d":"2025-04-01","s":650,"k":"linkedin"},{"n":"Sales Alchemy: The Power To Influence with Sean Weafer IE#85","d":"2025-04-18","s":57384,"k":"youtube"},{"n":"Sessions on personal contact networking and influential languaging skills","d":"2025-04-23","s":489,"k":"linkedin"},{"n":"Monday Motivator: Start Your Week Strong","d":"2025-05-12","s":430,"k":"linkedin"},{"n":"Explaining what you do while maintaining attention and engagement","d":"2025-06-24","s":598,"k":"linkedin"},{"n":"Scaling Business Attendance for Quarterly 90-Day Planning Workshops","d":"2025-06-24","s":935,"k":"linkedin"},{"n":"Accountability as the Secret Sauce in Successful Coaching","d":"2025-06-26","s":775,"k":"linkedin"},{"n":"Speaking at the MyBusiness Coach event in Sheffield","d":"2025-06-27","s":346,"k":"linkedin"},{"n":"Why we network to build business opportunities","d":"2025-07-01","s":749,"k":"linkedin"},{"n":"6 Questions to Help Manage Your Professional Boundaries","d":"2025-07-12","s":1884,"k":"web"},{"n":"Transitioning from sales player to sales coach and leader","d":"2025-07-28","s":835,"k":"linkedin"},{"n":"The Impact of GenAI on Workplace Soft Skills and In-Person Communication","d":"2025-09-03","s":1282,"k":"linkedin"},{"n":"Introverts CAN Sell","d":"2025-09-05","s":549,"k":"linkedin"},{"n":"First principles for a winning pitch or business proposal","d":"2025-09-10","s":691,"k":"linkedin"},{"n":"Overcoming \"I don't know\" responses in conversations","d":"2025-09-25","s":795,"k":"linkedin"},{"n":"Scalable Up-skilling Solution for Sales and Client Retention","d":"2025-10-01","s":720,"k":"linkedin"},{"n":"The Referral Renaissance. Why Referrals Are the Future.","d":"2025-10-02","s":604,"k":"linkedin"},{"n":"Scalable professional up-skilling for closing deals and client retention","d":"2025-10-03","s":564,"k":"linkedin"},{"n":"Scalable skill-building to close deals and retain clients for professional services and sales teams","d":"2025-10-04","s":719,"k":"linkedin"},{"n":"Upskilling Professionals and Sales Teams to Close Deals and Retain Clients","d":"2025-10-05","s":603,"k":"linkedin"},{"n":"Developing rainmaker skills with time freed up by AI","d":"2025-10-06","s":409,"k":"linkedin"},{"n":"Discovering the Right Reason to Network","d":"2025-10-06","s":876,"k":"linkedin"},{"n":"Advanced Questioning and Influencing Skills for Sales and Management","d":"2025-10-07","s":724,"k":"linkedin"},{"n":"Finding, closing and retaining clients is what business is about","d":"2025-10-08","s":308,"k":"linkedin"},{"n":"The 6C Model for a High Trust Culture","d":"2025-10-08","s":10863,"k":"web"},{"n":"Transform Your Expertise: Become a Trusted Advisor Globally","d":"2025-10-08","s":3204,"k":"web"},{"n":"Communicating value to win and retain clients with ExpertToInfluence.pro","d":"2025-10-09","s":1001,"k":"linkedin"},{"n":"Communicating value to win and retain clients","d":"2025-10-10","s":859,"k":"linkedin"},{"n":"Finding, closing and retaining clients is what business is about","d":"2025-10-11","s":307,"k":"linkedin"},{"n":"Communicating value to win and retain clients","d":"2025-10-12","s":1000,"k":"linkedin"},{"n":"Strategies to Overcome the Fear of Selling","d":"2025-10-13","s":941,"k":"linkedin"},{"n":"Communicating value to win and retain clients","d":"2025-10-14","s":1058,"k":"linkedin"},{"n":"Professional challenges impacting teams","d":"2025-10-15","s":336,"k":"linkedin"},{"n":"ExpertToInfluence.pro 6-Month Membership and Coaching Program Launch","d":"2025-10-17","s":1168,"k":"linkedin"},{"n":"Communicating Value Clearly to Win and Retain Clients","d":"2025-10-18","s":1000,"k":"linkedin"},{"n":"Communicating Value and Influence for Professionals and SMBs","d":"2025-10-19","s":940,"k":"linkedin"},{"n":"Staying motivated after the weekend","d":"2025-10-20","s":681,"k":"linkedin"},{"n":"Psychology of Winning Presentations Workshop","d":"2025-10-21","s":520,"k":"linkedin"},{"n":"Unlock Leadership Potential with SeanWeafer Coaching Dublin","d":"2025-10-21","s":1360,"k":"linkedin"},{"n":"Identifying the Biggest Sales Skills Challenge in Q4","d":"2025-10-22","s":308,"k":"linkedin"},{"n":"New Business Growth Academy","d":"2025-10-23","s":626,"k":"linkedin"},{"n":"Using Questions to Gently Influence Conversations","d":"2025-10-24","s":508,"k":"linkedin"},{"n":"Staying motivated after the weekend","d":"2025-10-25","s":680,"k":"linkedin"},{"n":"Business Growth Academy and Live Coaching","d":"2025-10-26","s":625,"k":"linkedin"},{"n":"Human Ingenuity Over AI Surveillance and Control","d":"2025-10-27","s":461,"k":"linkedin"},{"n":"Overcoming Self-Imposed Limits to Success","d":"2025-10-27","s":595,"k":"linkedin"},{"n":"Moving from Expert to Highly Trusted Advisor","d":"2025-10-29","s":453,"k":"linkedin"},{"n":"Integrating feminine values and spiritual principles into personal and business leadership","d":"2025-10-30","s":431,"k":"linkedin"},{"n":"Coaching As a Side-Hustle","d":"2025-10-31","s":587,"k":"linkedin"},{"n":"How to Build Leadership and Executive Presence Online","d":"2025-10-31","s":12589,"k":"web"},{"n":"Introverts CAN Sell","d":"2025-10-31","s":5746,"k":"web"},{"n":"Simple Steps to Building Executive Presence and Stakeholder Influence for Experts and Professionals.","d":"2025-10-31","s":8285,"k":"web"},{"n":"Taking the ‘Cringe’ Out of Selling","d":"2025-10-31","s":13588,"k":"web"},{"n":"The 12 Virtues of Leadership","d":"2025-10-31","s":3739,"k":"web"},{"n":"The Referral Renaissance","d":"2025-10-31","s":4011,"k":"web"},{"n":"Belief Powers Change","d":"2025-11-03","s":681,"k":"linkedin"},{"n":"Leadership Capability Coaching Program Overview","d":"2025-11-03","s":601,"k":"linkedin"},{"n":"To Manage or to Coach?","d":"2025-11-14","s":458,"k":"linkedin"},{"n":"To Manage or to Coach?","d":"2025-11-14","s":7627,"k":"web"},{"n":"Practical Coaching Skills Session for Sales Managers","d":"2025-11-19","s":467,"k":"linkedin"},{"n":"Time for hot coffees, not cold calls","d":"2025-11-25","s":322,"k":"linkedin"},{"n":"How to Close A Deal","d":"2025-11-28","s":448,"k":"linkedin"},{"n":"How to Close A Deal","d":"2025-11-28","s":5924,"k":"web"},{"n":"Monday Coaching Challenge","d":"2025-12-01","s":607,"k":"linkedin"},{"n":"Business Development Challenges for Professional Advisors","d":"2025-12-04","s":623,"k":"linkedin"},{"n":"Leadership and Business Development Capability Coaching","d":"2025-12-10","s":16045,"k":"web"},{"n":"Transformative Coaching for Global Business Leaders","d":"2025-12-10","s":21995,"k":"web"},{"n":"Sean Weafer: Global Leadership & Business Development Coach","d":"2025-12-11","s":4582,"k":"web"},{"n":"Revolut Fraud Update: €10,000 Gone — Still No Accountability","d":"2025-12-12","s":2610,"k":"linkedin"},{"n":"A different perspective on Thomas Edison and the electric lightbulb","d":"2025-12-13","s":553,"k":"linkedin"},{"n":"Global Leadership Coaching for Expert Business Growth","d":"2025-12-15","s":15788,"k":"web"},{"n":"Leadership and human-to-human communication on the Executive Success show","d":"2025-12-17","s":605,"k":"linkedin"},{"n":"Christmas and holiday greetings","d":"2025-12-24","s":372,"k":"linkedin"},{"n":"Developing a trusted advisor growth mindset and emotional focus for client success","d":"2026-01-05","s":1651,"k":"linkedin"},{"n":"Challenging hesitation and taking action to build momentum","d":"2026-01-12","s":727,"k":"linkedin"},{"n":"Leadership Beyond Expertise: Redefining Executive Success Through Trust, Influence, and Relationships","d":"2026-01-16","s":826,"k":"linkedin"},{"n":"Speaker Hall of Fame luncheon","d":"2026-01-16","s":381,"k":"linkedin"},{"n":"Redefining Executive Success Through Trust, Influence, and Relationships","d":"2026-01-17","s":1082,"k":"linkedin"},{"n":"Sales and Business Development Insights","d":"2026-01-23","s":283,"k":"linkedin"},{"n":"Review your value and the difference what you do makes","d":"2026-01-26","s":480,"k":"linkedin"},{"n":"What is Sales?","d":"2026-01-29","s":519,"k":"linkedin"},{"n":"Managing Time in Meetings","d":"2026-02-04","s":582,"k":"linkedin"},{"n":"The New Rules of Selling in the AI and Hybrid Age","d":"2026-02-05","s":494,"k":"linkedin"},{"n":"Sales and Leadership Coaching by Sean Weafer Expert","d":"2026-02-09","s":2627,"k":"web"},{"n":"The Impact of Bi-Weekly Live Mentoring on Sales Team Performance","d":"2026-02-15","s":3331,"k":"web"},{"n":"Overcoming Small Challenges to Regain Sales Momentum","d":"2026-02-16","s":588,"k":"linkedin"},{"n":"Closer Or Convincer Question","d":"2026-03-03","s":597,"k":"linkedin"},{"n":"In-person networking sustains business success in uncertain times","d":"2026-03-06","s":445,"k":"linkedin"},{"n":"The difference between 'try' and 'triumph' is a little 'umph'","d":"2026-03-16","s":509,"k":"linkedin"},{"n":"How to Use an Exploratory Question","d":"2026-03-24","s":474,"k":"linkedin"},{"n":"The person who asks the questions, controls the process","d":"2026-04-01","s":335,"k":"linkedin"},{"n":"Why Non-Sales Professionals Already Influence Revenue and Must Sell","d":"2026-04-01","s":1581,"k":"linkedin"},{"n":"Positioning Your Value with Effective Elevator Pitches","d":"2026-04-13","s":533,"k":"linkedin"},{"n":"Podcast Interview with Warren Kucker on Sales Perspectives","d":"2026-04-14","s":421,"k":"linkedin"},{"n":"Comparing Sales and Leadership: Two Sides of the Same Coin","d":"2026-04-21","s":632,"k":"linkedin"},{"n":"Entrepreneurs Visiting Victor: Interview with Sean Weafer (podcast, ep 201)","d":"2026-04-21","s":28100,"k":"youtube"},{"n":"Transform Your Team with Continuous B2B Sales Mentoring","d":"2026-04-23","s":3753,"k":"web"},{"n":"Positioning Your Value","d":"2026-04-28","s":538,"k":"linkedin"},{"n":"Timeless Presenter Book Launch and Presentation Skills for Leaders","d":"2026-05-01","s":921,"k":"linkedin"},{"n":"Emotional buying decisions and the human role in high-trust B2B sales","d":"2026-05-02","s":623,"k":"linkedin"},{"n":"Where to Network","d":"2026-05-05","s":556,"k":"linkedin"},{"n":"Leadership and Management Styles","d":"2026-05-12","s":642,"k":"linkedin"},{"n":"Presenting to Camera","d":"2026-05-17","s":522,"k":"linkedin"},{"n":"How to Read a Room Using Group Psychology in Networking","d":"2026-05-20","s":676,"k":"linkedin"},{"n":"Sean Weafer First Principles of Making Presentations","d":"2026-05-23","s":10746,"k":"youtube"},{"n":"Seán Weafer and The Edison Story: Why Sales Matter","d":"2026-05-23","s":7761,"k":"youtube"},{"n":"Seán Weafer: How to ''Read'' the Networking Room for Opportunities","d":"2026-05-23","s":10497,"k":"youtube"},{"n":"Seán Weafer: Managing Time in Meetings","d":"2026-05-23","s":8231,"k":"youtube"},{"n":"Seán Weafer: What Sales Coaching Delivers","d":"2026-05-23","s":8901,"k":"youtube"},{"n":"Seán Weafer: What to Say When People Asked ''What Do You Do?","d":"2026-05-23","s":8114,"k":"youtube"},{"n":"Seán Weafer; Building Alignment in Sales Teams","d":"2026-05-23","s":7681,"k":"youtube"},{"n":"Question of Consequence & Using Stories to Capture Audience Attention","d":"2026-05-27","s":671,"k":"linkedin"},{"n":"Effective Delegation","d":"2026-06-09","s":503,"k":"linkedin"},{"n":"Understanding Group Psychology at Networking Events","d":"2026-06-17","s":520,"k":"linkedin"},{"n":"Introverts CAN Sell","d":"2026-07-03","s":708,"k":"linkedin"},{"n":"9 Reasons That Hinder Sales Success Part 1","d":"2026-07-08","s":678,"k":"linkedin"},{"n":"9 Reasons That Hinder Your Sales Success Part 2","d":"2026-07-10","s":528,"k":"linkedin"},{"n":"9 Reasons That Hinder Sales Part 3","d":"2026-07-14","s":591,"k":"linkedin"},{"n":"Boost Your Sales Success with ExpertToAdvisor.pro's Coaching","d":"2026-07-14","s":4884,"k":"web"},{"n":"Leadership & Management Styles","d":"2026-07-22","s":676,"k":"linkedin"},{"n":"Boost Your Sales Confidence with SalesMentor Pro Today!","d":"2026-07-27","s":3566,"k":"web"},{"n":"Why competent experts fail to close deals and win business","d":"2026-07-29","s":663,"k":"linkedin"},{"n":"Summary of ExpertToAdvisor: Boost Your Sales Performance","d":"2026-07-31","s":4000,"k":"web"},{"n":"Understanding the 6 Points of Sales for Stress-Free Selling","d":"2026-08-05","s":677,"k":"linkedin"},{"n":"Difference between a salesperson and a Highly Trusted Advisor","d":"2026-08-12","s":585,"k":"linkedin"},{"n":"Build Your Sales Routine: Discipline Always Wins Over Motivation","d":"2026-08-17","s":545,"k":"linkedin"},{"n":"Why traditional sales training fails","d":"2026-08-19","s":631,"k":"linkedin"},{"n":"Become the most commercially effective version of you","d":"2026-08-26","s":528,"k":"linkedin"},{"n":"Sales Person v Highly Trusted Advisor","d":"2026-08-30","s":3881,"k":"youtube"},{"n":"The 6 Points of Sales","d":"2026-08-30","s":7395,"k":"youtube"},{"n":"The SalesMentor Pro Growth Mapping Session","d":"2026-08-30","s":3785,"k":"youtube"},{"n":"The SalesMentor Pro Transformation","d":"2026-08-30","s":3995,"k":"youtube"},{"n":"Why Experts Struggle With Sales","d":"2026-08-30","s":3920,"k":"youtube"},{"n":"Why Traditional Sales Training Fails","d":"2026-08-30","s":3871,"k":"youtube"},{"n":"The sale is never made in the approach, it's made in the follow-up","d":"2026-08-31","s":571,"k":"linkedin"},{"n":"What is SalesMentor Pro?","d":"2026-08-31","s":3835,"k":"youtube"},{"n":"Universal Pain Points for Expert Business Owners, Founders and Sales Teams That Limit Their Potential for Sales and Revenue Growth","d":"2026-09-02","s":633,"k":"linkedin"},{"n":"Unacknowledged extraordinary achievements","d":"2026-09-13","s":351,"k":"linkedin"},{"n":"Building an effective and engaged network challenge","d":"2026-09-14","s":583,"k":"linkedin"},{"n":"Joining Personally Speaking Speaker Bureau for Networking, Communications, and Sales Speaking Engagements","d":"2026-09-16","s":864,"k":"linkedin"},{"n":"The Growth Code book recommendation for leaders","d":"2026-09-23","s":625,"k":"linkedin"},{"n":"Speaking engagement for the Venture network","d":"2026-09-29","s":459,"k":"linkedin"},{"n":"Advisory Selling for Professionals Without Being 'Salesy'","d":"2026-10-08","s":936,"k":"linkedin"},{"n":"Why Technical Experts Fail at Sales: Pain Over Benefits & Advisory Psychology - Sean Weafer","d":"2026-10-09","s":20685,"k":"youtube"},{"n":"Launch of Enso Enterprise Solutions Brand","d":"2026-10-12","s":559,"k":"linkedin"},{"n":"Speaking at Upcoming Event","d":"2026-10-14","s":266,"k":"linkedin"},{"n":"Travelling Home from the Professional Speaking Association Conference","d":"2026-10-18","s":402,"k":"linkedin"},{"n":"Seán Weafer and SalesMentor Pro for Individual Professionals","d":"2026-10-21","s":6062,"k":"youtube"},{"n":"Seán Weafer and SalesMentor Pro: Working With Sales Teams","d":"2026-10-21","s":5637,"k":"youtube"},{"n":"The Power of Mastermind Groups for Professional and Personal Growth","d":"2026-10-22","s":629,"k":"linkedin"},{"n":"Psychology, strategy and skills of effective selling for designers and entrepreneurs","d":"2026-10-23","s":503,"k":"linkedin"},{"n":"Boost Sales Success with Expert Mentoring and Training","d":"2026-10-25","s":4170,"k":"web"},{"n":"The Networking Conversation","d":"2026-10-29","s":651,"k":"linkedin"},{"n":"Happy Samhain! (Halloween)","d":"2026-10-30","s":234,"k":"linkedin"},{"n":"Optimising sales potential of individuals and teams","d":"2026-11-01","s":457,"k":"linkedin"},{"n":"How to Start a Great Sales Conversation","d":"2026-11-06","s":592,"k":"linkedin"},{"n":"Podcast interview with Ian Selbie","d":"2026-11-09","s":262,"k":"linkedin"}],"totals":{"conversations":258,"actions":2108,"frames":1445,"tactics":138,"scenes":44,"phases":6,"beliefs":6,"words":170281},"session":{"title":"How Experts Become Influencers by Sean Weafer | MILE Webinar","date":"2017-01-03","kind":"YouTube · MILE webinar Q&amp;A","turns":23,"other":"Moderator","lines":[{"id":"t0019","ts":"¶2","raw":"speaker_2","coach":false,"who":"Moderator","text":"you Well thank you very much Mr Sean Weafer Folks we are now open for questions and answers If you have any questions you could either put it in the question box or you could equally raise your hand Theres a hand icon available on the …"},{"id":"t0021","ts":"¶3","raw":"speaker_1","coach":true,"who":"Seán","text":"Yep I think thats a good question I think the problem is that if you havent built a relationship with that person then effectively they will see you as intrusive So in other words if youre immediately just trying to sell your business …"},{"id":"t0023","ts":"¶4","raw":"speaker_2","coach":false,"who":"Moderator","text":"Thank you very much We have another one from Brother Muhammad Rafiq The question is what can be done if the person on the other side asks many questions regarding the business that you are in How could you cut short the conversation …"},{"id":"t0025","ts":"¶5","raw":"speaker_1","coach":true,"who":"Seán","text":"I think thats a very good question I think if the person whos talking to you is genuinely interested in what you do one of the questions you might ask is so you might say what areas specifically are you most challenged by So what …"},{"id":"t0027","ts":"¶6","raw":"speaker_2","coach":false,"who":"Moderator","text":"Thank you very much And we have another one from Brother Mir Mustafa Ali Hashmi The question is when you are working for sales how would you catch the attention of buyers What questions do you raise A bit general"},{"id":"t0029","ts":"¶7","raw":"speaker_1","coach":true,"who":"Seán","text":"Well when were okay theres 2 areas there One there is whats on your websites and whats on your marketing material and then theres what you do when youre in the networking room So the first one is in terms of your or indeed your …"},{"id":"t0031","ts":"¶8","raw":"speaker_2","coach":false,"who":"Moderator","text":"Okay thank you very much We have another one from Mr Paul Gracely The question is thank you for a most practical presentation As a person of global influence what cultural differences do you see in meeting people and connecting with …"},{"id":"t0033","ts":"¶9","raw":"speaker_1","coach":true,"who":"Seán","text":"I think thats a very good question and Id have to say Im not a specialist in cultural change although Ive done a fair bit of work in places such as Doha and Dubai and various other places and out in as far as the Far East as far as …"}]},"frames":[{"id":"f-00","span":"reading an attendee's question: at a networking event, why not be candid, keep it short and just share business cards?","kind":"question","from":["t0019"]},{"id":"f-01","span":"answering that you'd come across as intrusive, then teaching how to qualify people with a question about their pain","kind":"reframe","from":["t0021"]},{"id":"f-02","span":"asking how to cut short a prospect who asks lots of questions about your business","kind":"question","from":["t0023"]},{"id":"f-03","span":"suggesting you ask what areas specifically they are most challenged by","kind":"question","from":["t0025"]},{"id":"f-04","span":"asking how to catch the attention of buyers","kind":"question","from":["t0027"]},{"id":"f-05","span":"separating what's on your website from what you say in the networking room","kind":"statement","from":["t0029"]},{"id":"f-06","span":"asking what cultural differences he sees when meeting people","kind":"question","from":["t0031"]},{"id":"f-07","span":"saying the main difference is how people first connect with each other","kind":"statement","from":["t0033"]}],"thread":{"cue":"f-00","move":"f-01","cueLine":"t0019","moveLine":"t0021"},"labels":{"tactics":["attending a networking event","fear of selling","checking prospective contacts","introvert in sales","prospect says no","prospect has their guard up","minimising perceived threats","losing clients despite expertise","gearing up after a weekend","prospect rejection","prospect says no to sales pitch","prospect puts guard up","triggering resistance","networking events feeling like pitching marathons","client price resistance","struggling to hit sales targets","facing sales challenges","growth in AI","networking events that feel like pitching marathons","promoted sales reps lacking leadership support","failing to monetize expertise","starting the work week","sales rep promoted to manager","young professionals struggling with in-person communication","someone answers \"I don't know\"","losing clients due to poor communication","AI freeing up time","experienced professionals struggling","losing clients due to poor value communication","moving through Q4","military experiment defeating AI","bank refuses fraud reimbursement citing customer authorization","questioning yourself","negative stereotype of sales","closing a deal or securing commitment","uncertain times","never-ending meetings and daily interruptions","losing momentum over small challenges","non-sales professionals avoiding sounding salesy","competition with AI in B2B sales","increasing audience distractions","introversion holding back sales success","failing to turn knowledge into profitable client relationships","experts failing to win business","stressful or anxious sales process","investing in sales training workshops","limiting potential for sales and revenue growth","achievements ignored by others","turning client conversations into sales without being salesy","stuck with what to say when meeting someone at an event","meeting all objections","managers lack time to develop salespeople","salespeople returning to old habits","lacking confidence in sales fundamentals","stalled deals and lost opportunities","few top performers carrying team numbers","focusing on transactions over relationship building","balancing team coaching with revenue delivery","pushing back on a request","handing control back to requester","protecting current priorities","leading with an action suggestion","redirecting to qualified person","declining due to lack of resources","hesitating client","business owners developing business","converting expertise to opportunity","consultants winning work","sales professionals improving results","career progression in commercial roles","pre-meeting preparation","during a digital meeting","facilitating meetings","post-meeting","facing rejection","client objections","digital networking","role transitions","fear of networking","reactive environment and boundary management","choosing networking events","clients feel pressured by questions","entering a networking event","meeting a contact at a networking event","remote work management","adapting to virtual presentations","managing multi-generational teams","experts being overlooked due to weak communication","fear of rejection and low status in sales","initial COVID-19 pandemic restrictions","transitioning into remote and blended work","technical experts becoming leaders","managing distributed employees","resolving conflict remotely","burnout in remote workforces","prospect indifference","positioning value","selling in the AI era","communicating complex information to an audience","approaching strangers at networking events","starting a sales meeting","fear of being seen as salesy or pushy","professional advisors avoiding sales and networking","professionals assuming selling requires constant talking","capturing buyer attention in a distracted market","moving away from command-and-control management","overcoming imposter syndrome","processing personal trauma","lack of clarity in team roles and responsibilities","entering a networking room","colleague asking for five minutes","meeting running over time","technical experts relying solely on logic","pitching to internal stakeholders","handling rejected pitches","cross-departmental silos","differentiating commoditized USPs","reluctant salesperson transition","remote and hybrid sales environments","high-stakes decision making","declining meeting conversion ratios","executive underinvestment in sales","career reflection","asked what do you do","returning to old habits after training","experts struggling to sell services","fear of rejection","receiving no","remote selling after trauma","entering client or team meetings","experts struggling to sell knowledge","plateauing on technical knowledge","co-creating client solutions","information dumps","short prospect attention spans","automated bots damaging trust","extended sales cycles over video","directive pitching"],"scenes":["social media update","communicating value","consultative selling","time management","client retention","building rapport","goal setting","networking strategy","sales mindset","networking","closing deals","handling objections","elevator pitch","sales motivation","business development","sales enablement","collaborative leadership","principles of value","capturing attention","post metadata","networking objective","personal contact networking","client acquisition and retention","presentation skills","sales psychology","leadership communication","professional boundaries","questioning techniques","trusted advisor status","introverted selling","trusted advisor","sales communication","audience engagement","sales conversion","influence","client acquisition","social media metadata","networking mindset","icebreakers","sales accountability","sales coaching","motivation","sales training","client relationship building"],"phases":["Capture attention","Make the right connections","Have great conversations","Become a highly trusted advisor","Win the business","Lead the team"],"beliefs":["Raise the pain: We call it raise the pain and position the gain.","Nobody cares: Well, let me share some bad news with you: nobody cares.","Personable: It’s important to not just be professional but to be personable.","It's about the other person: The key thing about networking is always about the other person. It’s not about you.","Lead with emotion: Points of compelling relevance are points that lead with emotion and justify with logic.","Attention is the new currency: Attention is the new currency."]},"floors":{"1":[455,308,305,274,521,276,534,494,368,269,-34,-697,225,845,79,-608,-639,116,-336,308,-163,-460,506,450,-669,316,-245,-816,-303,102,78,333,63,-167,-705,183,-684,192,-124,-354,182,653,-97,581,-294,364,-822,-149,-479,529,-531,166,251,-511,-225,-177,-579,84,-391,712,-589,137,-5,773,330,9,-559,60,359,703,-19,184,124,470,814,53,119,-629,-708,-214,259,-413,-232,-194,-74,-315,13,241,202,556,-24,-2,0,-572,18,505,437,-21,686,401,-735,205,58,299,-143,-114,202,181,64,215,204,158,233,-460,395,100,-72,815,-37,247,403,-125,-13,186,694,312,415,-39,-493,-212,205,-466,-985,-318,272,546,-260,177,84,-478,-297,-280,26,620,8,780,615,-309,-115,-140,-55,-545,-35,575,171,149,-6,571,-608,-160,566,23,-46,231,-66,-128,464,24,74,11,939,21,159,-567,441,-143,-37,673,219,-85,241,-565,-95,-4,-268,-153,560,-56,509,420,643,427,29,372,-332,43,-60,405,-110,493,517,126,215,-702,448,780,-483,-24,203,127,-10,74,14,475,114,389,-242,-133,399,600,621,-33,-714,-85,769,-213,16,160,624,562,-228,75,180,-615,130,423,229,-347,-6,-106,-532,331,277,-666,-500,192,-149,-160,-376,-388,-71,50,-487,-552,-692,-1,-171,154,-315,14,-128,490,550,357,-17,593,771,269,-235,162,235,-7,-117,-90,198,-372,176,-275,166,83,785,-73,62,-126,20,-66,-25,520,511,-218,24,-342,157,42,419,601,156,685,-186,461,678,422,-604,378,636,506,74,7,305,591,181,542,340,597,259,-571,153,84,302,590,-108,23,-617,142,-302,302,-383,184,355,-486,-172,-217,-459,311,-735,-166,-12,413,-836,90,-356,10,-6,342,39,214,526,350,-351,-425,246,-453,61,-22,-758,299,60,677,-394,-99,-5,-418,-393,182,171,155,-293,-650,41,698,34,267,447,537,424,-21,-624,-81,-396,211,284,-205,156,-79,474,-400,-335,-409,-109,270,573,158,-84,517,298,135,302,113,126,308,90,179,138,-397,45,-396,-88,-353,124,-385,-361,-531,-587,253,-626,5,189,-455,-65,614,139,185,-31,301,-579,-130,-898,330,93,244,16,662,594,-11,24,224,432,-457,501,-1,539,673,186,204,-58,-646,-217,-13,-281,505,483,-619,-894,-174,-523,237,-328,148,122,31,390,454,-338,-57,-252,-82,-340,83,133,-396,-193,-71,231,-722,45,375,100,-556,-514,166,-259,478,-180,850,-143,-82,123,322,-339,110,-586,80,-350,343,875,-281,-545,115,-638,340,-392,-265,-11,-109,-295,-202,-499,282,-85,0,-575,2,209,18,111,259,547,619,5,-69,-428,235,-190,30,509,59,84,553,-341,125,-54,453,261,267,-389,264,880,-337,-326,604,-54,378,-779,266,406,465,-437,198,524,570,35,-531,-731,-398,212,-38,-345,136,772,-390,418,-658,108,451,-248,-652,-304,304,423,-275,134,486,587,430,436,194,-627,300,736,486,-692,13,40,293,62,-370,680,-584,385,510,-31,405,62,543,746,324,730,-52,177,125,-10,-562,609,537,518,-303,-257,-274,307,-206,-260,-85,375,20,491,509,-419,92,-440,119,244,-487,119,-281,-388,-310,147,528,539,-546,-514,173,-57,597,-231,-176,-371,152,-24,599,575,249,463,306,486,-517,6,-238,-32,728,-243,116,46,488,266,-220,-64,-245,442,-513,-5,-161,-364,231,-488,253,-792,-16,399,583,312,-36,34,-506,-628,-194,-151,-70,151,227,-783,-197,-326,186,21,629,188,668,80,-587,64,-416,86,264,88,483,7,-28,137,-351,-454,-260,-27,834,176,222,929,-133,-689,13,659,412,-412,203,9,-341,475,122,186,-369,293,-479,-76,505,253,-409,794,334,476,78,568,-409,231,-793,-322,-246,-392,101,438,55,-152,562,-344,-281,-3,593,197,337,599,-408,-777,-238,-70,-47,481,130,-168,121,-38,-737,46,145,-211,-538,92,710,41,173,-675,451,-286,183,253,-509,289,489,267,282,-662,7,-239,-818,337,-576,-579,156,-98,-229,159,643,889,-295,-94,-120,-53,-756,538,252,-79,68,590,-382,499,97,269,348,329,126,570,-117,441,-202,125,-833,136,683,-155,441,-115,-139,93,765,256,650,1,654,492,401,-177,-457,32,495,12,368,-62,352,184,-130,180,416,190,425,-456,236,-504,352,-809,421,-312,37,-193,-308,-290,34,-454,487,107,557,-322,158,-852,-94,5,-692,10,652,318,387,-356,211,16,-204,-318,5,-320,-282,-942,-214,44,581,23,-439,-74,586,15,630,4,531,-2,287,649,303,144,-724,460,120,-207,-161,234,-126,639,463,619,-532,50,216,357,6,-108,113,141,-311,442,691,201,-239,-144,244,584,9,-291,96,56,-481,-53,116,403,341,-292,-629,123,576,-525,54,-90,-246,-596,106,105,352,-563,304,510,404,399,362,494,-22,-509,88,405,406,330,274,-351,-71,179,613,597,319,484,120,243,571,-495,275,-79,587,599,400,59,-371,-380,150,-62,-480,102,496,-460,282,470,152,832,-292,3,14,-522,-23,335,535,151,711,-270,132,600,-194,278,341,-506,129,-264,455,26,76,-164,496,84,518,97,-607,-321,581,407,274,288,340,457,446,-282,170,247,397,-259,295,118,207,-616,-637,-654,-823,87,737,-7,602,337,17,194,292,90,-303,582,230,19,-364,548,221,366,85,21,185,-112,548,520,542,16,591,-223,-308,494,-434,82,-286,-330,97,55,139,-714,-159,-579,147,-252,62,617,-203,-337,-249,232,203,76,-51,-487,182,-123,-75,379,422,158,-194,-648,250,570,42,-292,-200,-82,436,-9,694,458,206,223,-396,-403,283,237,463,297,428,374,330,-235,-130,251,628,-223,-381,-200,291,151,618,-48,-507,-187,-548,4,441,-627,468,-96,566,63,-294,-222,166,-497,-128,91,289,-59,-590,-276,269,483,596,213,358,316,316,716,378,-755,298,210,3,416,596,-569,121,-313,171,-301,14,-158,-9,-548,142,-856,-309,-344,123,82,382,127,-345,379,461,-540,-59,263,-349,350,484,589,-116,79,512,348,504,-646,77,-606,-296,-1,318,466,-320,-568,155,-320,-334,636,20,54,267,-398,-298,-34,219,-446,247,-5,-249,-18,102,-577,166,-344,502,512,-103,-49,-137,646,88,-84,442,224,457,227,72,-452,-202,358,661,99,111,500,402,-341,200,27,-318,397,-341,221,-300,249,-248,455,-160,-125,298,117,-177,55,195,562,270,76,350,12,643,127,-524,-774,-16,394,130,451,-93,-168,77,716,-189,145,-343,-18,172,676,-181,-388,242,487,398,-502,401,-134,-265,-258,-309,409,344,238,189,-94,127,83,462,-333,221,64,410,240,599,486,208,243,-31,-528,224,665,112,598,149,202,454,716,-434,575,-51,6,-92,-48,-322,65,-126,189,127,-331,-542,-135,732,744,-5,671,-84,170,-209,62,348,-446,-220,85,130,-18,-411,-569,-45,-286,-357,-70,-300,183,614,-183,375,369,557,548,-40,402,-301,833,16,223,596,-7,521,124,-246,-5,328,-366,-90,-274,260,573,433,-107,-368,169,703,647,100,-313,-482,-20,728,-246,88,21,-270,34,538,-207,-271,156,-371,254,-106,695,-66,-345,289,-200,260,69,-391,-291,-274,765,-266,-182,-316,673,-190,-542,-471,-368,321,-491,346,-18,365,305,573,228,199,633,-106,60,-664,356,303,-34,311,121,-253,386,380,147,-428,16,698,154,-581,-109,-88,-62,217,307,735,-221,417,-455,-130,-518,-188,-88,-369,-305,267,78,620,-254,147,521,404,-12,294,17,-156,101,312,123,-504,-295,286,-563,253,-401,-1,-340,308,-517,260,-563,-66,354,-566,-372,-701,-71,-351,-634,12,175,330,312,60,-348,345,666,384,-683,192,-570,85,393,210,89,167,1,-98,195,72,24,-180,-299,254,764,348,-641,371,7,84,89,-342,-12,682,495,147,-319,187,-332,269,875,-394,561,-375,-169,-142,84,-513,-29,587,-278,-423,-96,-476,-20,-166,-8,-337,353,323,-335,-303,-58,277,209,435,-741,-263,28,337,295,543,300,-219,644,-202,-350,257,354,156,-130,-406,698,-44,-470,-57,597,-45,70,-30,121,-121,-12,225,-46,359,87,370,-59,-63,-177,-30,513,381,-745,-308,715,86,100,-4,102,-457,40,-520,-307,601,-365,-61,-431,752,435,-229,263,605,436,-108,-361,92,-434,134,-445,234,-725,206,122,751,-168,-263,-499,-88,-414,180,-714,144,83,-493,-921,-113,-247,633,750,440,405,-378,-542,137,-199,305,387,-475,159,-193,-51,510,-226,263,424,202,-437,-79,637,312,203,465,497,-638,-122,-250,-125,-103,746,280,-94,-98,-328,188,158,229,247,429,-105,-109,-541,143,132,509,-239,293,-101,392,-51,606,-331,-651,194,194,194,-530,-658,-419,484,-370,576,376,-144,-241,43,471,300,342,569,15,-55,105,28,598,-598,137,461,-34,-174,-306,430,478,126,-215,-46,-267,-51,-724,-742,-184,-378,217,-484,86,344,501,46,594,51,-402,-310,-170,-170,565,-4,214,409,178,64,296,191,675,-533,272,-114,-528,-162,43,473,190,-74,-420,479,-189,665,434,132,-302,-14,563,-242,-315,131,-313,-12,579,-59,577,176,502,-686,139,-486,171,166,629,-550,217,-35,500,-314,-527,574,173,-487,-356,667,455,-30,567,415,-239,76,19,-50,215,-1,180,-10,98,547,-315,62,-267,-270,436,155,-445,435,686,-588,241,612,337,783,403,286,202,-129,-266,507,237,378,354,-121,-93,416,439,491,57,-438,166,402,300,17,174,-809,195,598,-38,-178,117,-32,-91,176,-214,-255,-54,-210,6,285,508,431,672,61,225,-33,-352,40,723,145,-371,362,441,-34,203,80,-221,-459,128,-51,467,-87,-211,-63,722,326,-56,553,374,-552,137,710,-397,609,-12,241,216,292,315,438,432,185,-500,-136,-632,-214,743,95,-22,-636,-50,-355,26,235,250,-592,332,583,-52,169,44,267,304,447,25,772,-313,-443,158,674,132,241,164,-207,249,127,282,71,222,539,367,194,721,100,-415,398,115,165,171,43,339,-691,268,-336,225,102,585,109,366,271,-227,-497,143,634,-121,-284,-258,409,-265,606,-42,-518,162,-155,71,-64,135,-591,-47,-368,210,-383,345,190,612,477,479,-569,447,-32,576,-514,-32,103,-249,-601,-408,222,-610,-442,339,-85,-260,56,448,538,199,-8,198,375,8,42,701,-128,-279,657,180,-599,166,-28,62,175,-455,-572,390,-469,-661,714,10,3,129,-99,596,695,85,426,464,-44,177,582,-300,559,-344,207,690,94,-511,237,515,-164,-24,-509,14,8,-402,237,571,270,391,-605,22,124,204,430,439,482,-510,197,-481,93,-207,188,-209,-76,-335,-428,349,378,-340,550,337,255,-231,-32,-409,-634,-202,78,7,-568,39,168,-424,-418,153,-53,-177,72,356,-17,356,94,23,517,8,504,-357,-240,-721,-77,570,698,245,319,604,-481,300,51,-195,458,403,-353,-15,-592,-37,716,373,400,-477,23,420,170,227,312,391,0,179,56,-196,-199,-410,-18,-276,48,582,238,363,285,284,181,609,118,106,-738,-365,73,353,-93,-280,-68,17,-291,-346,812,297,153,-310,-302,478,512,444,-282,-2,-582,90,80,629,-25,-230,-371,-197,-114,-131,-500,189,-451,548,-160,343,-322,477,-885,-174,-176,-196,-131,-868,858,7,-64,699,-47,132,-78,443,-67,363,578,-125,-31,-387,565,361,103,-233,561,-196,331,-587,-516,524,669,257,-228,145,-6,56,-484,-409,70,-229,-142,91,-551,-137,-77,-217,-109,-94,-195,-198,-257,298,554,447,450,404,606,-118,-339,-277,513,316,837,-70,-235,-120,-813,-34,243,191,740,-63,-502,191,-57,-93,-814,-109,100,-23,-722,151,-66,384,-112,133,519,193,281,212,77,464,101,95,439,376,-144,238,-443,158,-210,170,502,60,641,10,-485,270,-13,-199,106,136,229,-348,342,-623,259,491,-184,245,-281,580,169,474,-759,-169,-37,400,20,-306,-141,301,17,-134,151,635,-54,-541,22,667,582,-263,-189,297,-469,261,163,516,-400,344,176,-343,552,48,463,-244,-218,-167,115,-434,-22,510,370,207,6,617,305,414,83,-444,693,-176,-536,64,70,674,189,-493,-78,-68,564,349,-69,519,521,-649,38,-326,18,-117,-271,627,666,-65,225,538,-150,-486,-384,323,-373,234,-104,-236,-134,-298,340,-150,-372,381,413,290,327,461,-306,-82,-177,-348,358,148,-124,115,-456,128,-198,-206,-118,438,331,-455,168,612,-363,-164,517,626,466,659,-162,-593,813,10,-257,-184,-168,-117,-590,-106,495,-107,651,36,114,673,-382,217,-566,63,196,151,710,-53,401,316,512,300,-88,598,-64,-111,-394,319,-521,-252,131,-263,464,7,471,264,-30,-555,45,-539,312,570,577,36,600,135,-288,-558,-546,276,101,-375,653,473,-4,636,174,-14,-3,473,-610,167,-179,-267,31,287,-405,-395,278,-570,541,-220,76,578,-985,82,-15,-130,-223,901,-722,68,-936,-39,-432,130,767,245,62,330,-488,93,-187,335,573,-23,-187,310,151,401,-299,569,-162,-554,-198,702,491,-131,-1,183,-195,536,-45,-41,-263,-483,-34,11,436,-455,168,-154,-805,-57,12,331,-202,919,-151,-933,87,14,0,148,-33,333,90,420,-412,90,-470,-315,560,148,697,118,847,3,16,299,114,546,480,413,-550,364,252,571,540,-384,143,487,472,-340,72,-284,420,-134,-512,-497,512,-501,11,308,-707,382,-3,414,-494,238,211,-73,-62,759,921,364,-623,48,-492,365,367,-268,-463,365,-290,265,-422,298,142,320,377,131,250,146,77,-110,135,-93,71,-39,-216,305,-282,525,424,-441,-712,312,206,269,-557,80,241,401,-559,-169,20,-65,91,-27,186,167,255,430,-734,43,285,92,584,395,636,-261,-290,-254,-489,176,552,77,-613,-41,118,9,313,482,-109,615,-130,-749,-615,90,-237,-190,383,-674,-131,339,-117,25,-321,-10,745,405,143,-470,-40,110,-201,84,-17,-114,-90,287,555,461,-330,439,324,-739,-90,-313,-68,-240,-192,67,-635,452,213,635,-261,-470,-17,-226,-446,-49,195,-257,-79,-116,216,563,231,590,372,365,-65,-93,779,302,510,360,24,723,-567,336,-563,253,43,-116,86,150,387,467,-682,-569,-159,-133,-515,-22,-205,520,51,283,147,451,293,581,33,610,-473,277,-218,-145,185,424,345,-82,52,526,-74,121,-504,241,355,429,96,641,334,-309,77,256,-371,497,-646,479,130,-328,56,643,713,-333,158,205,-367,-206,502,-8,-318,-56,524,499,86,-265,392,135,470,151,8,-92,179,554,601,434,523,378,35,-6,348,141,-345,-821,633,2,18,214,399,-215,-471,219,-5,756,554,212,-300,292,407,-526,516,-241,557,-286,-62,520,-68,788,7,-215,353,501,747,7,-113,65,-274,-124,569,259,-88,-6,-424,183,-150,287,-651,-224,872,20,-99,-409,225,55,-18,-567,-183,292,635,112,219,570,-177,-247,-844,25,64,413,6,473,-345,590,432,406,202,-15,153,382,6,397,197,-256,-508,242,-422,519,-761,274,-440,-150,42,-613,4,-87,615,-225,496,560,242,513,-611,189,-366,-445,-206,-556,323,374,-62,311,236,-652,-424,-555,236,-70,296,672,53,747,-436,-58,409,-604,195,-81,55,-723,767,40,-74,-97,-349,282,-303,406,-146,-512,31,428,538,-506,-422,-347,-116,502,13,-302,417,-525,470,155,271,218,99,-638,-159,493,133,156,-457,468,-348,-218,74,636,136,677,-118,197,-443,-872,-562,208,239,-569,253,529,273,258,-400,264,50,-481,441,-115,197,-427,226,-611,-7,273,-512,124,103,70,421,273,229,281,535,480,-53,298,116,131,122,-242,113,-339,3,-570,-412,261,91,550,-463,-37,677,15,-174,696,-89,708,154,-538,-28,625,8,-554,330,-310,35,-272,288,482,-90,153,22,137,-367,-614,-446,292,40,149,-107,-707,228,-492,-445,381,44,697,-376,148,318,485,-251,252,-256,-44,-405,-260,414,578,-234,-399,-323,232,397,113,186,-63,155,-123,470,-411,-103,396,370,-532,61,-169,290,294,237,441,18,598,94,-307,71,652,166,206,461,-607,120,696,301,307,6,26,121,324,544,32,547,193,521,-48,-62,-334,-107,-96,423,300,555,187,193,-609,-22,386,301,110,242,90,88,-77,351,-83,-383,274,368,2,304,278,-7,688,70,871,76,-197,274,320,186,480,-741,351,-114,-55,2,25,133,-118,130,-305,454,326,-300,333,-60,-240,-513,86,80,511,414,154,248,634,-429,329,113,778,441,-492,-544,184,516,-44,106,504,-102,286,197,321,209,250,-5,365,575,-171,510,415,-72,438,88,-194,551,107,-668,34,187,370,-578,73,45,516,77,-224,-2,194,-559,275,794,149,-100,-246,-118,235,449,557,-561,119,-485,-384,-102,-526,-704,53,-562,170,639,141,639,-348,-4,728,-40,464,-303,756,-102,-271,231,369,-864,-7,702,419,-614,-30,3,-218,-188,538,46,-617,311,819,-275,-265,-285,-149,248,267,14,693,-298,-7,-212,48,-92,-44,-383,626,-101,772,8,-379,105,189,666,-137,332,-543,-197,-75,373,445,-467,196,-429,82,-188,-317,-405,480,-679,148,103,671,366,-466,-108,-79,-602,-154,41,-179,198,9,-260,-536,-387,319,586,43,640,175,185,123,-712,-279,69,144,68,170,281,455,467,595,365,525,488,368,-433,-289,-444,196,305,-491,485,-69,43,586,-675,-71,-717,218,86,234,345,458,-1,-18,481,58,453,163,-76,-443,567,28,-194,620,740,185,-354,252,-330,240,-266,163,-25,-490,-745,-227,236,-551,447,-7,10,371,178,155,84,-471,38,84,232,-382,370,442,-821,-166,-652,390,-187,-159,405,458,-454,486,53,265,160,433,575,335,300,449,-95,-562,-371,-51,158,660,301,405,-83,713,-110,-290,278,-39,-554,242,399,316,-183,-241,-2,534,-130,-101,-513,307,309,-254,436,300,89,190,608,-2,241,-411,333,66,55,493,286,-600,-21,-550,741,-160,212,612,-30,-105,-64,795,-157,490,-15,132,157,-383,-543,-160,-511,-311,447,335,685,383,22,75,10,-374,-202,454,133,378,512,-80,132,-139,35,699,-296,-234,326,-199,-129,-422,33,781,-252,-76,-140,-380,111,-240,52,433,-635,78,192,268,-270,330,-469,418,-119,-205,-45,-496,143,478,-2,269,-124,-89,-542,88,282,-52,18,-488,614,-129,550,432,502,204,-97,512,422,60,-175,688,45,92,-446,-706,-202,554,83,240,-148,-393,-646,-18,-478,64,-120,22,-19,208,647,67,33,381,42,-584,-197,-47,62,141,-498,10,833,375,-21,485,373,280,-393,142,623,345,-103,-82,122,-318,-609,333,-361,285,247,517,379,108,-31,410,-19,439,170,440,139,347,-202,-538,-469,127,323,69,214,-369,-6,618,-215,277,603,442,552,37,-574,217,-165,-650,-315,-177,331,-564,138,527,-266,392,-361,147,105,776,643,-201,219,460,-48,179,-21,-731,-11,265,592,-313,36,-364,366,-585,13,-351,-543,548,221,-364,81,611,137,423,-365,531,177,-223,-12,-195,792,-127,-7,-562,57,-519,-398,539,27,579,508,-140,57,738,122,-50,418,363,540,-214,104,183,-313,105,493,382,203,-717,209,435,780,544,-115,200,-375,-38,132,-376,503,-247,626,-217,-54,662,-165,-519,336,-142,268,190,-367,-365,661,-318,624,-37,-141,-224,-5,617,-25,570,175,-199,-293,528,261,195,-108,-105,-400,283,-52,482,-354,127,801,155,-176,5,709,72,-568,-301,62,336,122,273,364,-408,505,116,431,371,-204,477,-792,-88,-376,-370,310,455,-43,-44,-264,192,640,-456,667,288,523,405,-758,314,233,-317,238,581,-100,504,-182,524,-682,-348,171,270,605,189,-105,124,140,-423,-356,131,837,234,-444,517,-55,699,43,-198,475,114,784,-113,84,-358,420,564,399,328,200,-104,181,-558,485,-681,-496,161,97,74,302,-459,-221,-779,-833,240,516,-43,-291,-553,-507,272,364,719,599,-144,23,-359,-649,190,-685,182,-684,1,-67,231,164,212,-336,94,-68,-741,-436,-425,115,561,-550,52,-124,526,-434,-49,-444,13,-493,188,-105,-121,-112,481,-136,-508,-735,-229,85,509,-777,112,-557,637,-436,233,-266,-161,292,497,-68,40,-504,155,272,-534,-542,63,-657,564,670,-126,-328,411,327,-666,376,121,-380,268,-164,508,198,546,-13,215,-330,403,82,192,145,100,114,-1,373,-493,313,133,285,402,331,174,-460,273,-9,665,40,175,58,660,828,-130,8,-874,-108,-752,-107,526,-191,203,-17,485,711,272,-76,-106,-280,481,-666,212,-447,255,-424,113,-223,-31,-347,258,-50,519,375,-503,356,-191,199,246,29,-525,-597,159,545,379,-92,-32,463,-213,-745,-147,-583,7,193,613,-260,-9,515,468,-405,613,-351,272,250,-209,-311,354,686,67,-285,390,-88,457,-504,382,558,-142,366,552,603,-383,396,457,129,331,-78,174,239,-71,-514,184,-78,-42,-235,556,359,233,36,430,188,-276,566,383,522,-263,514,-93,-27,53,-374,-68,186,-59,-415,-435,-496,190,-506,173,657,28,277,348,511,477,421,471,-592,-172,162,524,462,429,249,-381,673,298,36,696,-712,286,507,-19,376,-285,-495,310,728,416,-820,-52,-338,516,-33,96,144,651,100,28,259,-397,506,-321,347,-516,417,-522,339,549,449,449,43,-260,-106,139,291,706,433,95,10,190,119,764,-336,-351,7,612,602,-86,-401,130,148,-660,465,430,-447,-465,-14,-119,76,383,459,-83,365,300,118,186,41,301,-32,643,470,54,157,443,156,626,79,-142,-127,577],"2":[454,316,338,257,466,286,549,492,368,284,-55,-718,187,841,60,-612,521,146,310,-592,174,646,-937,347,320,-565,497,364,-623,1,664,-117,605,-42,236,651,-483,-306,-54,-513,9,128,162,-311,398,-600,-30,-125,102,180,-224,-100,-427,-447,-14,787,-606,37,-404,141,-148,223,262,-346,-26,568,-54,707,123,218,30,-369,-47,350,-464,303,215,508,-223,425,-75,580,63,-59,67,-419,100,77,485,468,66,168,-643,190,760,75,-45,-407,611,-349,187,-236,906,-406,-65,-320,-538,258,455,452,-255,-353,345,-449,188,196,204,-389,509,362,-90,289,342,-246,719,407,-17,-558,-321,424,119,-364,-624,132,-174,-414,-34,279,71,219,-81,434,63,263,266,220,-424,133,-16,-348,222,-70,680,258,135,151,575,-307,-129,-161,60,-571,-494,-627,-222,294,74,382,-279,-36,-362,200,-226,-143,380,505,174,660,-313,-152,-2,652,508,536,284,269,610,-387,327,-277,-448,-135,-271,0,383,-464,-127,32,37,36,124,309,38,-405,-90,669,418,336,46,708,-12,113,-5,-78,-326,290,583,-144,339,278,6,-230,502,483,187,117,-29,183,382,703,-405,326,774,-175,-173,-93,-346,424,358,494,502,-35,-732,254,-42,33,134,678,-2,211,87,505,-19,366,-74,-560,268,163,115,-547,391,-168,243,191,269,-506,-401,149,334,-529,-64,-500,-50,-777,-694,-18,-135,-488,702,223,199,377,-280,-269,-416,-220,-333,-20,116,89,452,171,-599,143,-56,-324,125,-439,-94,-383,625,86,303,-664,-262,524,45,187,77,711,-757,-209,-216,510,344,460,-523,171,-90,-645,-92,-290,279,205,17,577,174,595,-420,-155,-136,-82,207,303,126,-332,-295,544,50,-623,-434,274,-497,185,412,237,103,-93,-128,65,318,430,-140,279,20,-536,-93,-54,-9,-576,-358,105,707,-17,489,-473,-128,469,-717,307,-549,-261,-467,210,200,-374,-71,766,-27,-325,-718,-281,81,-479,-59,26,448,-524,-43,646,-405,619,781,256,-388,216,525,643,98,718,227,456,45,703,197,-509,-153,-4,437,-209,-268,-22,740,435,88,515,-103,-299,538,-39,178,-503,48,627,-257,-129,-477,-372,-735,401,-74,122,690,-388,192,390,212,236,-410,104,-139,-127,-417,-41,666,502,-161,57,-2,232,63,171,70,-144,451,69,529,-240,328,601,240,580,4,603,-593,80,-251,-339,-772,-230,225,38,357,35,-584,-186,-631,443,-1,448,-142,513,-283,-267,755,-289,-289,264,13,638,-481,152,440,108,723,41,771,333,-541,165,-582,-131,64,-745,503,450,-136,-284,-559,49,-334,121,-203,-35,547,-297,6,58,-399,227,69,250,-472,284,412,300,436,-16,171,-550,-268,-51,-520,479,-111,-699,98,-344,62,-508,-214,82,438,-494,513,-425,167,-557,185,196,-563,-125,38,726,-584,-598,-27,228,599,18,150,647,367,475,-630,383,143,-218,85,-507,397,459,-437,287,-797,401,287,-400,667,-549,224,291,207,580,783,445,501,387,204,342,412,57,-8,-569,509,189,318,180,-98,63,230,-140,449,-88,582,371,-112,426,-94,96,531,339,421,443,292,463,-773,260,-90,-103,1,-315,531,309,-194,144,-8,126,-102,-290,342,502,161,716,-322,310,-541,242,-294,-1,214,-726,-20,-274,258,-735,-473,207,481,158,195,-730,-325,153,138,40,75,-198,-175,739,422,-237,48,147,169,412,223,261,231,481,185,493,65,450,783,319,-120,-222,474,585,224,171,-745,-175,-125,448,191,115,-22,693,-141,504,398,271,406,100,128,540,20,643,466,449,689,-117,573,46,-273,273,485,-53,527,40,4,-2,-19,-552,-501,179,-686,-6,306,214,-536,322,36,369,476,227,342,420,-16,252,-24,235,281,-516,522,-99,-138,159,484,366,-573,139,-415,332,-128,-456,-440,335,563,114,98,-316,102,-270,536,320,-389,371,-100,494,424,85,-5,286,278,561,419,143,407,561,15,-315,560,48,-401,290,-171,-127,165,-232,340,355,538,-639,31,-486,18,299,62,499,645,-176,28,-622,-40,212,-334,494,-695,32,247,483,436,343,755,-238,-587,-33,496,590,762,162,77,-235,629,42,88,49,60,362,58,-505,-728,63,-56,123,-249,244,549,455,102,-122,-156,-50,-750,43,179,-22,424,406,500,31,672,278,-465,284,423,499,556,-61,397,-478,425,-14,-234,421,492,-100,321,-163,124,-603,-612,172,181,241,-171,-323,-233,305,-493,159,340,6,-418,465,-285,-440,-605,205,507,409,-132,550,19,-395,75,385,-548,56,-390,-392,-4,389,-653,165,-629,142,-557,84,152,431,-40,-146,182,-435,-45,69,304,748,649,85,-605,593,-530,-461,370,350,-469,-344,-568,-30,121,144,-578,-47,288,466,-233,-176,-57,759,596,-194,139,-729,50,647,-697,159,-533,-174,-41,382,-167,-519,422,490,-787,239,50,-105,510,-512,-31,718,552,698,-517,-262,-69,374,312,-572,-395,242,148,486,547,323,-542,479,164,-154,134,486,-188,-145,-468,127,-410,-303,469,459,451,393,761,-410,188,-257,-636,7,726,267,660,408,-445,140,-566,204,-393,-20,29,219,656,-126,186,440,-521,168,174,282,592,178,-46,598,-357,-132,-288,584,-34,529,194,624,407,-373,-556,192,382,-714,-437,161,-226,8,25,494,25,-249,-32,221,583,-1,150,453,22,-1,381,235,74,344,125,659,-585,59,466,-453,532,152,-81,354,-729,22,693,268,-304,37,-183,517,93,74,-308,232,-295,-529,-301,226,-586,293,266,-404,-509,301,107,-115,-296,-2,109,378,-781,204,130,-621,456,101,342,97,317,550,-616,-23,78,339,-288,310,-562,-18,412,573,-144,839,172,-292,-199,340,332,150,-367,-32,251,-453,63,-354,317,-268,84,-3,-89,30,554,415,-301,-236,-128,-745,711,418,-310,-200,-421,484,517,-281,-240,0,78,-243,389,-314,544,174,-77,11,-334,123,715,498,-325,-290,450,-121,-134,-328,181,-625,320,-158,500,-542,218,-424,-387,130,119,521,-14,685,-365,294,-879,29,65,144,742,-11,384,533,37,333,-418,10,129,531,-649,98,-678,-87,75,-243,325,-565,403,804,90,-171,-111,389,-79,556,599,-7,482,-584,586,-284,215,-374,-507,-46,-804,-38,278,-49,-89,-273,65,-339,56,759,413,418,3,234,-289,435,17,508,155,231,-143,551,-605,124,61,383,-86,-311,240,430,9,343,-300,175,220,-225,-71,734,569,-384,-418,362,82,188,114,-327,460,-10,394,180,634,-377,-374,-517,108,-203,-64,113,-443,-236,-541,24,-430,187,-76,-207,337,478,232,676,61,-166,-387,-382,86,227,-693,147,-53,420,199,-69,-19,-215,-144,-111,300,123,-757,-192,567,-183,570,-361,-201,10,84,-477,-47,-57,90,-13,-290,584,517,448,-72,566,657,-41,-674,31,79,-408,55,497,-250,-387,-479,-392,-679,306,868,-37,482,407,676,-184,819,-106,-124,-85,-96,616,-575,-182,175,-501,-892,-1,203,663,-65,275,-54,-335,-329,612,196,-627,-184,-181,-331,258,532,-674,-244,-16,-537,-29,-24,421,594,-421,517,543,-315,-416,128,355,-187,-943,-591,-32,-507,226,-452,396,-472,196,402,585,-360,-616,-21,-713,51,188,-418,745,-138,-16,-457,-854,-236,287,-42,252,-335,-63,250,-560,-68,809,-481,-89,150,-375,159,-210,-14,163,400,210,-317,-343,565,85,-402,-43,26,540,350,481,-146,706,-293,142,565,211,14,-422,-360,289,250,563,101,447,-185,279,270,325,660,51,791,290,205,-38,-11,609,-191,919,165,298,219,-244,224,444,-333,327,223,405,-119,36,36,388,-67,-190,17,-425,-220,-134,405,-301,181,478,200,157,-321,101,-501,168,87,593,-376,164,74,261,-118,-482,205,-28,95,313,-155,268,-287,-356,87,303,-392,195,-522,68,-233,-119,-829,-191,522,-392,-266,-845,-516,161,536,293,-755,-134,5,372,-202,-522,97,691,-688,-20,409,189,447,169,-502,100,-249,73,607,448,-1,-216,73,-396,-552,58,22,160,497,-110,12,97,-721,370,2,-56,121,521,-22,14,138,319,413,-529,-195,700,-203,-193,-513,328,-378,720,-104,-249,-67,64,75,-12,-6,606,667,137,-140,447,279,-210,454,-435,120,496,-751,222,-745,-217,921,29,385,282,124,-16,-49,469,-985,85,-46,541,248,-348,608,290,-484,250,52,751,-254,-388,-410,-92,481,63,898,39,491,133,-459,318,-25,-210,-60,515,-387,213,-446,228,586,446,522,205,220,270,742,-85,-553,48,-587,129,-596,301,-11,524,-96,314,-747,-236,-680,-50,-549,184,-341,518,-321,-4,-312,369,-787,224,629,-141,-79,519,-144,515,449,33,300,-63,-27,463,-60,510,29,711,35,-9,197,-230,-109,-246,57,211,-31,-259,657,98,651,-25,-60,153,1,755,-307,209,-9,379,-236,302,196,-418,133,-74,311,358,-284,304,187,-263,-445,-32,238,503,262,-526,-287,-330,537,466,144,-366,23,-132,-866,93,-431,-464,-151,-193,-518,355,-75,-548,-362,201,-197,268,41,-405,-638,-118,-317,231,-3,511,-382,207,-6,-88,172,-292,-515,174,578,435,-404,128,-470,247,178,-182,592,-146,909,-284,-634,29,177,285,-586,427,-33,545,-13,449,223,-188,-134,-125,91,-49,45,601,-16,-188,1,-233,-413,-88,71,369,468,-352,589,433,81,-537,-346,147,-1,636,-459,220,-114,-378,146,374,97,-84,17,355,105,-417,819,-83,-589,83,524,-12,-22,-266,313,-572,477,-162,-311,-449,388,111,-305,-191,-117,-848,117,-512,-121,115,679,-78,-527,239,-97,599,483,-404,-5,-208,227,-230,819,144,-115,705,376,398,-686,-372,687,-322,-334,1,824,-117,208,-570,199,453,-553,117,360,499,-355,276,614,-53,-62,-255,-450,-163,-196,235,147,217,-464,279,-361,-216,383,-648,-922,-102,-606,323,-475,-328,49,276,-408,-197,-385,145,-236,254,47,207,63,398,-1,-55,287,598,626,30,-467,-29,-230,-164,-784,-64,-102,-397,285,627,73,-114,-401,-346,389,-129,583,-63,390,439,477,77,-67,-56,-507,-24,-23,495,-318,566,4,-180,478,-511,-77,626,-13,115,329,459,-215,-328,122,199,-173,-62,410,354,-610,-213,277,326,-432,-146,262,218,200,-12,-655,76,389,323,-331,-542,54,294,559,154,221,446,545,229,409,-29,539,368,-650,131,372,669,410,134,177,452,-354,-390,-155,-508,-262,178,228,-427,483,317,-302,249,240,-618,387,-413,61,135,503,72,335,496,202,-499,279,-333,-718,-279,626,-47,-414,-305,-343,428,-730,29,-520,-7,-340,-827,586,159,167,-512,-22,240,808,102,90,0,-738,337,-482,430,-264,475,-733,134,106,-252,150,511,-438,230,44,-34,-65,648,170,-609,254,-488,53,550,453,-626,9,-347,9,177,423,-249,369,443,224,615,48,96,257,619,527,149,-50,137,-824,-174,-29,166,-488,188,-301,461,-512,-89,-723,142,41,90,389,676,-354,244,-19,571,624,527,-342,329,-368,547,-140,94,684,70,365,430,-465,136,-247,-187,222,605,436,-421,-456,468,-308,25,-545,257,71,250,341,-73,13,-83,527,-318,509,542,545,-176,-37,-577,-797,-58,-71,-22,-79,-306,34,614,-348,147,-410,45,209,694,385,109,455,-350,147,347,-34,152,1,-110,41,310,-70,185,-334,409,24,237,308,-586,91,452,651,-162,-117,-568,390,121,-127,-6,711,38,634,22,148,75,74,551,654,-565,-504,64,-558,-391,-133,-251,-510,-405,97,121,-940,-44,75,180,475,-231,-368,-45,110,-334,-11,-720,-559,156,740,231,-40,69,227,587,-43,129,100,218,500,-65,-595,337,-451,111,100,386,-513,-14,534,13,459,-357,162,363,603,-110,9,-33,21,600,-177,617,578,-370,11,608,-375,233,259,-148,175,179,-260,84,-36,-349,-102,-754,-308,771,202,709,367,-600,382,628,-697,238,162,-388,594,363,-133,394,160,-315,43,207,-135,-563,40,-187,-588,232,-724,-321,493,-264,422,143,268,-503,573,-52,179,398,296,-572,280,314,228,374,860,407,671,87,89,242,-238,615,-19,310,0,396,259,-285,-647,82,-27,-86,-16,-129,-955,-327,-452,-485,150,-137,234,-92,611,-229,335,-161,34,-65,712,396,-259,-229,465,72,390,-180,192,444,85,-161,-923,-222,-18,559,120,304,-808,-222,187,531,90,475,400,424,4,-341,173,466,132,260,-870,-319,-5,-576,31,554,-77,468,-39,-348,82,-461,132,-207,105,-383,83,-239,725,-8,160,724,73,-289,139,-298,-643,362,164,91,651,415,77,171,-389,289,-382,629,469,445,134,156,89,-511,46,594,-120,533,497,-245,-739,-299,-23,366,412,117,650,453,54,-585,-655,-812,-223,558,-437,508,-241,-102,394,342,-120,659,199,714,-107,244,792,278,529,-175,452,-74,-634,386,266,597,336,267,151,509,513,495,-190,576,-57,61,598,433,-116,-97,451,31,625,-200,-286,428,-320,503,-446,349,495,361,-129,-122,-432,540,-616,419,223,-398,-731,211,-126,-283,-440,141,192,523,117,-530,-733,-382,316,-445,73,371,465,357,-143,-300,-399,301,176,166,151,-376,86,738,78,-301,207,147,124,501,-636,310,97,-259,-446,-580,464,110,-255,673,-396,229,407,-243,662,172,-114,427,404,-668,504,11,416,-124,-400,255,-43,-706,-138,301,-865,-83,-109,-317,-429,156,32,-592,534,-563,-1,205,664,-133,-319,-264,-668,75,36,508,-554,186,378,-330,485,58,-85,-278,54,436,-310,290,141,-38,-468,-37,323,682,486,105,-173,729,41,-132,163,499,-353,142,491,-375,32,58,-197,-257,725,-211,-12,214,-15,488,2,191,-368,-365,399,38,-372,88,86,-411,-304,-254,-882,-170,253,-518,294,148,300,-582,607,33,217,587,-383,571,595,223,833,-279,235,384,-57,-36,11,-79,58,248,-60,-105,116,548,-678,444,-229,-235,753,28,248,295,-88,-253,244,525,191,-40,-26,485,19,396,-118,-112,674,-219,620,-116,517,-672,674,415,410,122,490,248,-280,269,-123,-73,90,610,254,398,173,156,166,-258,35,-102,437,-101,117,176,-522,52,689,293,395,351,243,-636,-60,547,560,269,530,-138,417,304,-789,-62,-806,228,-218,134,228,-668,-199,491,467,380,233,-485,394,611,-334,-113,122,-377,-563,27,519,402,353,561,900,-327,-333,-281,527,442,-4,-582,-191,319,-605,226,98,-535,187,654,821,26,392,269,334,629,298,-257,-222,-180,387,-494,-545,-165,-177,-553,-55,805,126,-420,-25,523,439,386,-140,-669,-643,-206,-100,634,191,-564,577,611,-339,125,-319,-260,-134,154,394,325,-161,-269,378,-210,-89,774,-479,81,88,410,221,-267,-820,-138,-361,88,348,174,640,-19,558,-162,647,-209,501,383,-446,-65,-47,741,-12,814,316,289,-126,-479,-477,254,503,-26,-697,-404,-503,248,775,-304,239,129,278,-228],"3":[-326,-466,-80,-170,-433,142,194,-34,287,420,172,-104,223,-515,-268,256,626,-327,211,340,161,515,-232,-742,-429,702,-410,162,-103,-121,-16,550,668,-382,112,-407,-416,248,686,138,-503,621,-255,-560,106,209,-16,-524,-158,484,-293,299,168,-533,-368,397,-263,227,109,-459,52,-412,-365,-326,395,562,205,108,42,-255,-465,271,35,236,637,-458,-226,-244,-795,279,453,-248,566,361,-774,-84,159,-160,95,159,573,117,435,-38,-565,130,-78,-223,488,90,161,-297,28,262,697,78,-555,-399,-67,-624,633,243,-377,413,-342,387,586,-137,748,-33,51,236,411,496,825,8,180,622,93,-330,379,356,358,348,-309,229,764,301,-82,-498,107,-688,14,-526,-516,-589,-662,393,-59,425,321,139,-534,163,506,547,-449,102,452,127,-248,-408,-38,33,-283,-401,-294,-344,-373,-641,548,-61,49,340,-695,-174,767,398,-747,174,41,269,459,432,47,185,433,66,-372,192,613,-119,545,-12,591,31,-66,637,-398,151,698,83,-441,532,519,-304,30,-62,250,277,549,452,106,-102,145,-308,310,532,-334,260,106,320,46,278,-236,-254,-622,-387,201,338,175,-499,-636,-96,-11,-170,-204,-681,-439,417,627,83,-114,-537,407,117,-412,-309,646,98,-319,236,285,533,775,-70,441,-187,599,-34,-299,283,144,650,-152,520,94,535,-749,-223,-193,-143,10,-261,563,9],"4":[425,-78,-271,261,-92,-196,32,234,-137,-66,154,-128,-46,453,-289,-347,185,157,-439,168,129,-330,251,354,-434,-298,642,-348,-397,423,-41,-582,504,381,-311,-63,511,-250,-79,770,-534,-519,461,116,-646,430,85,-485,319,538,-756,-159,707,-104,-273,625,-133,-626,630,324,-554,147,310,-524,168,678,-610,-355,561,-88,-461,601,105,-754,397,423,-619,-77,503,-523,42,558,-302,-641,670,139,-723,230],"5":[68,-321,62,-205,53,178,-400,82,83,89,-143,116],"6":[23,23,-56,-349,-147,140,-200,-66,69,-86,-150,-136]},"edges":[0,2108,1,2109,2,2110,3,2111,4,2112,5,2113,6,2114,7,2115,1423,2121,1979,2123,489,2145,848,2148,1326,2149,345,2150,668,2158,768,2159,221,2165,1650,2170,74,2187,1017,2189,830,2190,1555,2192,1514,2200,827,2205,645,2211,219,2228,631,2237,1552,2241,1656,2249,1413,2250,1450,2257,1403,2265,1076,2270,1618,2274,2017,2285,137,2295,184,2309,1660,2313,2068,2317,1038,2318,368,2327,1832,2339,889,2341,1900,2355,212,2358,1117,2366,214,2368,1205,2370,713,2382,1806,2386,940,2393,883,2405,2033,2411,918,2422,593,2423,2042,2431,1500,2432,1930,2436,113,2439,167,2449,57,2455,71,2457,887,2484,717,2490,783,2491,1705,2492,1465,2498,1192,2500,1667,2504,1119,2515,1770,2524,1339,2526,1115,2530,706,2542,1729,2559,2051,2562,708,2566,324,2574,220,2587,1839,2590,250,2599,1626,2604,897,2608,1353,2623,910,2627,1856,2630,1734,2634,1384,2647,40,2648,793,2650,1905,2655,712,2657,231,2667,1727,2678,19,2689,709,2697,171,2702,744,2708,1566,2710,999,2712,1831,2716,335,2719,43,2724,500,2725,1988,2739,1695,2749,1440,2751,1801,2755,17,2756,1048,2768,703,2774,767,2794,2037,2799,379,2810,522,2832,1250,2841,657,2846,1433,2847,1122,2851,1267,2869,628,2875,959,2880,1599,2892,1434,2897,176,2904,1538,2905,529,2909,925,2914,1814,2916,1259,2917,903,2918,179,2924,1449,2926,1699,2943,966,2952,492,2957,385,2966,846,2968,1878,2969,75,2985,1016,3004,1418,3033,700,3038,719,3046,613,3052,825,3053,1820,3065,585,3072,108,3077,1909,3082,1722,3085,1037,3092,908,3094,235,3098,1868,3099,2101,3108,420,3117,65,3129,589,3130,1812,3136,911,3145,1969,3146,2024,3160,913,3172,869,3173,92,3182,1406,3188,1926,3199,1962,3200,1303,3203,992,3205,906,3208,1152,3218,650,3242,1321,3246,449,3254,1412,3255,1557,3262,1700,3263,1354,3266,1175,3267,1680,3270,1081,3272,1464,3286,66,3291,1312,3294,78,3305,375,3307,1596,3322,1441,3323,95,3329,1435,3338,902,3342,1653,3345,1776,3347,1583,3348,1026,3350,1086,3352,1621,3353,785,3365,1011,3375,1481,3393,280,3400,1414,3401,714,3412,1494,3420,1483,3424,358,3425,1765,3431,1885,3437,1871,3439,1772,3441,226,3442,989,3446,384,3457,723,3466,1788,3474,1689,3481,2065,3483,525,3486,1231,3489,1943,3491,238,3509,2014,3516,728,3517,1233,3525,1888,3532,58,3534,943,3535,2035,3542,1844,3543,476,3548,880,3550,852,3552,2385,3557,2744,3557,2645,3557,3082,3557,3557,3715,3557,3702,2269,3558,2742,3558,3388,3558,2959,3558,2985,3558,3549,3558,2623,3558,2205,3558,3558,3697,3558,3726,3020,3559,3498,3559,3559,3704,3441,3560,2497,3560,2149,3560,3422,3560,3560,3699,3560,3700,3110,3561,2326,3561,3561,3706,2183,3562,2485,3562,3562,3700,3015,3563,2576,3563,3563,3726,2660,3564,2284,3564,3564,3696,2201,3565,2585,3565,3565,3708,2415,3566,3110,3566,3566,3706,3074,3567,2549,3567,3567,3706,2175,3568,2814,3568,3568,3736,3448,3569,2618,3569,3569,3730,3396,3570,2598,3570,3570,3704,2664,3571,2150,3571,2895,3571,2378,3571,3571,3705,3571,3699,2444,3572,2816,3572,3572,3701,2159,3573,2186,3573,3573,3708,2377,3574,3124,3574,3574,3718,3076,3575,2357,3575,3575,3704,2530,3576,2393,3576,2344,3576,2483,3576,3576,3711,3576,3737,3448,3577,3372,3577,3577,3730,3137,3578,3393,3578,3578,3736,3216,3579,3268,3579,3579,3698,2377,3580,2721,3580,3580,3718,2437,3581,3332,3581,3581,3722,2394,3582,2660,3582,3582,3696,2377,3583,3518,3583,3583,3718,3039,3584,3149,3584,3584,3709,2865,3585,2543,3585,3585,3696,2766,3586,2969,3586,3586,3718,3526,3587,2287,3587,3587,3718,2272,3588,2293,3588,3588,3707,2927,3589,3505,3589,3589,3732,3444,3590,2915,3590,2306,3590,2338,3590,3590,3703,3590,3719,3311,3591,2318,3591,3591,3705,2279,3592,2266,3592,3592,3704,2768,3593,2811,3593,3593,3698,2186,3594,3245,3594,3594,3708,3248,3595,2853,3595,3595,3697,2229,3596,2653,3596,3596,3738,2335,3597,2365,3597,3597,3713,3369,3598,3281,3598,3598,3724,2989,3599,3165,3599,3599,3720,2710,3600,3257,3600,3600,3705,3150,3601,3385,3601,3601,3703,3300,3602,3244,3602,3602,3737,2691,3603,3033,3603,3603,3695,2948,3604,2531,3604,3604,3725,3196,3605,2206,3605,3605,3697,2655,3606,2432,3606,3606,3716,2786,3607,2295,3607,3607,3705,2185,3608,3097,3608,3608,3698,3282,3609,3141,3609,3609,3737,3379,3610,2982,3610,3610,3728,3549,3611,2359,3611,3611,3710,3281,3612,2356,3612,3612,3724,2507,3613,2928,3613,3613,3709,2998,3614,3149,3614,3614,3709,3193,3615,2355,3615,3615,3721,2679,3616,2289,3616,3616,3721,3140,3617,3481,3617,3617,3698,2927,3618,3101,3618,3618,3732,2355,3619,2679,3619,3619,3721,2879,3620,2231,3620,3620,3727,2209,3621,3152,3621,3621,3705,2152,3622,3544,3622,3622,3732,2478,3623,3544,3623,3623,3732,2284,3624,3070,3624,3624,3696,2170,3625,2770,3625,3625,3724,3035,3626,3258,3626,3626,3710,3232,3627,3627,3731,2501,3628,2539,3628,3628,3718,3292,3629,2134,3629,3629,3715,3457,3630,2395,3630,3630,3717,3336,3631,3024,3631,3631,3735,3484,3632,2838,3632,3632,3706,2137,3633,2181,3633,3633,3704,2933,3634,2640,3634,3634,3711,3271,3635,3205,3635,3635,3704,2964,3636,2844,3636,3471,3636,2615,3636,3636,3698,3636,3716,3032,3637,2776,3637,3637,3702,2193,3638,3173,3638,2133,3638,2273,3638,3638,3704,3638,3699,3504,3639,3082,3639,3639,3702,2460,3640,2116,3640,3529,3640,2126,3640,3640,3716,3640,3702,2803,3641,2814,3641,3641,3736,2511,3642,2317,3642,3642,3729,3361,3643,2177,3643,3643,3698,3304,3644,2989,3644,3644,3720,2605,3645,3483,3645,3645,3724,2917,3646,2594,3646,3646,3738,2877,3647,2861,3647,3647,3698,2510,3648,3106,3648,3648,3711,2138,3649,3334,3649,3649,3698,2564,3650,2492,3650,3650,3716,2974,3651,2578,3651,3651,3725,2906,3652,2781,3652,3652,3729,2936,3653,2409,3653,3653,3729,3338,3654,2317,3654,3654,3729,3513,3655,2315,3655,3655,3735,3550,3656,2266,3656,3656,3704,2514,3657,2445,3657,3657,3737,3372,3658,2618,3658,3658,3730,3397,3659,3273,3659,3659,3713,2793,3660,3228,3660,3660,3699,3150,3661,2824,3661,3661,3703,2314,3662,2996,3662,3662,3711,3219,3663,3142,3663,3663,3700,2418,3664,2255,3664,3664,3705,3128,3665,2211,3665,3665,3719,3069,3666,2749,3666,3666,3704,2382,3667,2185,3667,3667,3698,2517,3668,2771,3668,3668,3698,3206,3669,2160,3669,3669,3697,3078,3670,3379,3670,3670,3728,2239,3671,2742,3671,3671,3703,2969,3672,3443,3672,3672,3718,3538,3673,3200,3673,3673,3733,2929,3674,2753,3674,3674,3697,2810,3675,3107,3675,3675,3723,3149,3676,2369,3676,3676,3709,3418,3677,3541,3677,3677,3737,2923,3678,2359,3678,3678,3710,2656,3679,2460,3679,3679,3716,2568,3680,2349,3680,3680,3707,2483,3681,3323,3681,3681,3737,2794,3682,2394,3682,3682,3696,2808,3683,3308,3683,3683,3719,2741,3684,2504,3684,3684,3721,2438,3685,2202,3685,3685,3713,2317,3686,2799,3686,3686,3729,2931,3687,2987,3687,3687,3696,2337,3688,2114,3688,3688,3727,3426,3689,3332,3689,3689,3722,3340,3690,2991,3690,3690,3735,3314,3691,3047,3691,3691,3720,2407,3692,2674,3692,3692,3699,3363,3693,2753,3693,3693,3697,2459,3694,2514,3694,3694,3737,3695,3740,3696,3742,3697,3741,3698,3744,3699,3742,3700,3741,3701,3744,3702,3740,3703,3743,3704,3740,3705,3743,3706,3741,3707,3739,3708,3743,3709,3743,3710,3743,3711,3744,3712,3742,3713,3739,3714,3743,3715,3740,3716,3740,3717,3742,3718,3739,3719,3743,3720,3744,3721,3743,3722,3741,3723,3742,3724,3743,3725,3742,3726,3743,3727,3743,3728,3743,3729,3742,3730,3742,3731,3740,3732,3740,3733,3743,3734,3743,3735,3743,3736,3744,3737,3743,3738,3742,3740,3745,3741,3745,3739,3746,3740,3746,3742,3747,3741,3747,3740,3748,3742,3748,3739,3749,3743,3749,3739,3750,3742,3750,0,3557,1,3557],"sessNodes":[0,1,2,3,4,5,6,7],"sessFrameNodes":{"f-00":2108,"f-01":2109,"f-02":2110,"f-03":2111,"f-04":2112,"f-05":2113,"f-06":2114,"f-07":2115},"threadNodes":[0,1,2108,2109,3557,3702,3740,3745]};
+const CONFIG = {"coach":{"name":"Seán","full_name":"Seán Weafer","slug":"sean-weafer","pronouns":["he","him","his"]},"session":{"other_role":"Attendee"},"steps":{"collect":{"t":"258 sources, gathered in one place","b":"We read 54 of his YouTube videos, including talks, webinars, podcasts and interviews, 182 of his LinkedIn posts and 22 pages from his two websites: <em>170,281 words across 2,108 lines.<\/em> From this collection, we follow one webinar Q&amp;A, where an attendee asks him about networking."},"transcript":{"t":"A recording becomes text","b":"The webinar is transcribed word for word. At first, it is simply a record of who said what."},"speakers":{"t":"Who said what","b":"We separate the moderator, who reads out the attendees’ questions, from Seán’s answers, and mark the question we follow."},"layer1":{"t":"Layer 1 · What was said","b":"An attendee asks: <em>&ldquo;Why not be candid and short and just share the business cards?&rdquo;<\/em> Seán’s answer comes straight after. These exact lines are the evidence for everything that follows."},"meaning":{"t":"What happened next?","b":"The attendee wants to skip the small talk and get to business. Seán doesn’t agree: if you lead with your card, you haven’t found out whether the person is worth your time, and they haven’t seen any value in you."},"cue":{"t":"What Seán does in response","b":"Asked why not just share business cards, Seán answers, <em>&ldquo;You haven’t qualified if that person is of value to you in the first place.&rdquo;<\/em>"},"layer2":{"t":"Layer 2 · Seán’s response","b":"He turns a question about speed into a question about qualifying, then gives the exact words to use instead. The response stays linked to the exact moment."},"layer3":{"t":"Layer 3 · The situation","b":"Someone at a networking event wants to get straight to business without seeming fake. In Seán’s material this shows up as <em>attending a networking event<\/em>."},"layer4":{"t":"Layer 4 · The recurring pattern","b":"Seán keeps coming back to networking and raising the pain: networking comes up in 58 of his sources and pain in 26, across his talks, posts and websites."},"layer5":{"t":"Layer 5 · The coaching purpose","b":"The purpose is to move experts from &ldquo;here’s my card&rdquo; to &ldquo;a question that makes the right people say tell me more&rdquo;."},"layer6":{"t":"Layer 6 · The principle","b":"<em>Raise the pain, position the gain.<\/em> This is the principle behind Seán’s answer."},"trace":{"t":"One answer becomes a principle","b":"We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the exact moment Seán answered the attendee."}},"cards":{"layer1":{"cue":"Why not be candid and short and just share the business cards?","move":"If you’re immediately just trying to sell your business, first of all you haven’t qualified if that person is of value to you in the first place &hellip; We call it raise the pain and position the gain.","foot":"Two exact lines &middot; two speakers &middot; back to back"},"layer2":{"cue":"Wants to skip to swapping business cards","move":"Shows how to qualify the person with a question about their pain"},"layer3":{"title":"First contact at a networking event","text":"The expert wants to get to business quickly, but leading with a title and a card makes people switch off.","foot":"Situation in his material &middot; &ldquo;attending a networking event&rdquo;"},"layer4":{"title":"Lead with their pain, not your title","text":"Seán keeps coming back to opening with the other person’s problem and earning the right to talk about yours.","foot":"Recurring pattern &middot; networking in 58 sources, pain in 26"},"layer5":{"title":"Qualify with one question","text":"Ask about the universal pain point, wait for the nod, then say how you solve it, so the right people ask to hear more.","starts":"&ldquo;I’m an accountant, here’s my card&rdquo;","moves_to":"&ldquo;Do you know the way most small businesses&hellip;?&rdquo;"},"layer6":{"quote":"Raise the pain, position the gain.","text":"The same idea runs through his work: <em>&ldquo;The key thing about networking is always about the other person. It’s not about you.&rdquo;<\/em>"}},"about":{"sources":[["YouTube","@seanweafer and guest shows","54 videos · talks, webinars, podcasts"],["LinkedIn","in/seanweafer","182 posts · since November 2024"],["Website","salesmentor.pro · seanweafer.com","22 pages"]],"rows":[["Type of coach",[["Sales mentor",1],["Leadership coach",1],["Conference speaker",1],["Author",1]],"your LinkedIn headline: “Founder, SalesMentor Pro | Conference Speaker | Author ‘The Highly Trusted Advisor’”"],["Region",[["Ireland",1],["UK",1],["Europe",1],["Global",0]],"LinkedIn: Dublin, County Dublin, Ireland"],["Who you coach",[["Individuals",0],["Sales teams",1],["Both",1]],"“Sales Teams, SME Owners and Practice Professionals” · your LinkedIn About"],["How you deliver",[["Mentoring",1],["Webinars",1],["Keynotes",1],["Group programmes",1]],"SalesMentor Pro: a 90-day mentoring programme “not traditional sales training”, plus talks and webinars"],["Your topics",[["Networking",1],["Trusted advisor",1],["Communicating value",1],["Sales leadership",1],["Focus and time",1]],"grouped from 44 recurring topics in your talks, posts and websites"],["Named frameworks",[["The Highly Trusted Advisor",1],["Raise the pain, position the gain",1],["Points of compelling relevance",1],["G2S Coaching System",1],["CIA: control, influence, accept",1],["Growth Mapping Session",1]],"your book, talks and SalesMentor Pro pages · G2S in 14 sources, points of compelling relevance in 6"],["Your style",[["Gives the exact words",1],["Simple examples",1],["Challenges beliefs",1],["1:1 mentoring: not enough data yet",0]],"“may I ask why specifically” in 6 sources · “for example” in 20 talks · “the reality is” in 17 · no recorded mentoring sessions yet, so start calibration to see how you mentor 1:1"]]},"dos":[["open with the other person's pain, then position the gain","MILE webinar · “raise the pain and position the gain”"],["research them first, then ask what matters most in the next 12 months","Frequent pattern · 12 months discussed in 10 sources"],["give the exact words to say, then explain why they work","Talks · “may I ask why specifically” in 6 sources"],["be personable, not just professional","MILE webinar · closing remarks"],["thank them, then ask why specifically, when they say no","Talks and webinars · 6 sources"],["act on what you own","Talks · CIA: control, influence, accept, in 4 sources"]],"donts":[["lead with your title and your business card","MILE webinar · “I’m an accountant, here’s my card”"],["open a meeting with “tell me about your business”","Talks · 4 sources"],["pitch at people who haven't shown interest","Talks · “nobody cares” in 10 sources"],["sound salesy","Frequent pattern · salesy discussed in 52 sources"]],"personas":[],"mobile":true,"words":{},"about_lead":"","dd_lead":"Seán's twin follows these in every answer. They come from patterns that run through his talks, webinars, posts and websites."};
+</script>
+<script>
+(() => {
+const S = STORY, CF = CONFIG, T = S.totals, TH = S.thread, sess = S.session, L = sess.lines;
+const NM = CF.coach.name, [HE, HIM, HIS] = CF.coach.pronouns;
+const WD = Object.assign({coaching: 'coaching', Coaching: 'Coaching', coaches: 'coaches'}, CF.words || {});
+const $ = s => document.querySelector(s);
+const fmt = n => n.toLocaleString('en-US');
+const css = getComputedStyle(document.documentElement);
+const C = {}; for (let l = 1; l <= 6; l++) C[l] = css.getPropertyValue('--l' + l).trim();
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const day = d => d ? `${+d.slice(8, 10)} ${MON[+d.slice(5, 7) - 1]} ${d.slice(0, 4)}` : '—';
+const kb = b => Math.max(1, Math.round(b / 1e3)) + ' KB';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const lineOf = id => L.find(l => l.id === id);
+const cueL = lineOf(TH.cueLine), moveL = lineOf(TH.moveLine);
+const NAMES = ['', 'Lines', 'Moves', 'Situations', 'Topics', 'Phases', 'Beliefs'];
+const KIND = {youtube: ['YouTube video', 'yt', 'YouTube'], linkedin: ['LinkedIn post', 'li', 'LinkedIn'], web: ['Web page', 'wb', 'Website'],
+  medium: ['Medium article', 'wb', 'Medium'], doc: ['Document', 'wb', 'Documents'], recording: ['Recording', 'lm', 'Recordings'],
+  instagram: ['Instagram post', 'ig', 'Instagram'], twitter: ['Post on X', 'tw', 'X']};
+
+/* ================= the states ================= */
+const P = CF.steps;
+const CH = ['Collect', 'Read', 'Follow', 'Understand', 'About you', 'Do’s & Don’ts'];
+const STATES = [
+  {ch: -1},
+  {ch: 0, ...P.collect, stat: [T.conversations, `sources · ${(T.words / 1e6).toFixed(1)}m words`]},
+  {ch: 1, ...P.transcript},
+  {ch: 1, ...P.speakers},
+  {ch: 1, ...P.layer1, stat: [T.actions, 'lines spoken or written'], lvl: 1},
+  {ch: 2, ...P.meaning, stat: [S.frames.length, `frames from these ${L.length} lines`]},
+  {ch: 2, ...P.cue},
+  {ch: 3, ...P.layer2, stat: [T.frames, `substantive lines by ${NM}`], lvl: 2},
+  {ch: 3, ...P.layer3, stat: [T.tactics, 'situations'], lvl: 3},
+  {ch: 3, ...P.layer4, stat: [T.scenes, 'recurring topics'], lvl: 4},
+  {ch: 3, ...P.layer5, stat: [T.phases, WD.coaching + ' purposes'], lvl: 5},
+  {ch: 3, ...P.layer6, stat: [T.beliefs, 'principles'], lvl: 6},
+  {ch: 3, ...P.trace, lvl: 7},
+  {ch: 4, ab: true},
+  {ch: 5, fd: true},
+];
+const N = STATES.length, ST_L1 = STATES.findIndex(s => s.lvl === 1), ST_L2 = STATES.findIndex(s => s.lvl === 2);
+const ST_FR = ST_L1 + 1, ST_CUE = ST_L1 + 2;
+
+/* ================= build the DOM ================= */
+document.title = `How ${NM}'s Twin Learns`;
+// long speaker names (more than 7 letters) get a wider column; shorter ones keep the 54px one
+{ const n = Math.max(...L.map(l => l.who.length)); if (n > 7) document.documentElement.style.setProperty('--who', Math.ceil(n * 7.8) + 'px'); }
+$('#hdr').innerHTML = `Twin-memory · <b>From ${esc(NM)}'s words to a ${WD.coaching} principle</b>`;
+if (CF.switch && CF.switch.length > 1) {
+  $('#psw').hidden = false; $('#hdr').hidden = true;   // the switch takes the strapline's place
+  $('#psw').innerHTML = CF.switch.map(q => `<button type="button" class="ptab" role="tab" data-href="${esc(q.href)}" aria-selected="${!!q.current}">${esc(q.label)}${q.count ? `<small>${esc(q.count)}</small>` : ''}</button>`).join('');
+}
+$('#hero-h').innerHTML = `How ${esc(NM)}'s twin<br><i>learns</i>`;
+$('#hero-p').textContent = `Start with what was said. Follow what ${NM} does next, the situation ${HE} recognizes, and the principle behind ${HIS} response.`;
+
+const stage = $('#stage');
+const rail = $('#rail');
+CH.forEach((name, c) => {
+  const el = document.createElement('div'); el.className = 'ch';
+  el.innerHTML = `<span>${pad(c + 1)} ${name}</span><span class="dots">${
+    STATES.map((s, i) => s.ch === c ? `<i data-i="${i}" class="hit"></i>` : '').join('')}</span>`;
+  rail.appendChild(el);
+});
+
+// finder list: every source, oldest first; the session is selected
+const files = S.files;
+const selIdx = files.findIndex(f => f.sel);
+const kinds = [...new Set(files.map(f => f.k))];
+$('#side').innerHTML = `<h6>Favourites</h6><div class="on"><i class="fi"></i>${esc(CF.coach.slug)}</div>
+  <h6 style="margin-top:14px">Sources</h6>${kinds.map(k => `<div><i class="fi"></i>${(KIND[k] || KIND.doc)[2]}</div>`).join('')}`;
+$('#lrows').innerHTML = files.map(f => { const K = KIND[f.k] || KIND.doc;
+  return `<div class="lrow"><span class="nm"><i class="badge ${K[1]}"></i>${esc(f.n)}</span><span class="kd">${K[0]}</span><span class="dt">${day(f.d)}</span><span class="sz">${kb(f.s)}</span></div>`; }).join('');
+
+// transcript
+const keyLines = new Set([TH.cueLine, TH.moveLine]);
+$('#doc').innerHTML = `<div class="fm">---\ntitle: '${esc(sess.title)}'\ndate: '${sess.date}'\nturns: ${sess.turns}\n---</div>` +
+  L.map(l => `<div class="ln${keyLines.has(l.id) ? ' key' : ''}" data-id="${l.id}">
+    <div class="rh"><span class="h">### </span>${l.ts} · ${l.raw}</div>
+    <div class="row"><span class="ts">${l.ts}</span><span class="who ${l.coach ? 'o' : 's'}">${esc(l.who)}</span><span class="txt"><span class="r">${esc(l.text)}</span><span class="c">${esc(l.text)}</span></span></div></div>`).join('');
+
+// frames
+$('#frames').innerHTML = `<div class="plabel">Frames · <b style="color:var(--l2)">what each line meant</b></div>` +
+  S.frames.map(f => `<div class="fc${f.id === TH.cue || f.id === TH.move ? ' key' : ''}"><span class="k">${f.kind}${f.id === TH.cue ? '<em>cue</em>' : f.id === TH.move ? `<em>${esc(NM)}’s move</em>` : ''}</span>${esc(f.span)}</div>`).join('');
+
+// layer cards (copy is trusted HTML from the config)
+const K = CF.cards;
+$('#cards').innerHTML = `
+  <div class="card" id="c1"><div class="lv" style="color:var(--l1)">Layer 1 · What was said</div>
+    <dl class="pair"><dt>${esc(sess.other)}</dt><dd class="q">“${K.layer1.cue}”</dd><dt>${esc(NM)}</dt><dd class="q">“${K.layer1.move}”</dd></dl>
+    <div class="foot">${K.layer1.foot || `${day(sess.date)} · ${cueL.ts} and ${moveL.ts} · stored word for word`}</div></div>
+  <div class="card" id="c2"><div class="lv" style="color:var(--l2)">Layer 2 · What ${esc(NM)} does</div>
+    <dl class="pair"><dt>${esc(CF.session.other_role)}</dt><dd>${K.layer2.cue}</dd><dt>${esc(NM)}</dt><dd>${K.layer2.move}</dd></dl>
+    <div class="foot">The response stays linked to the exact exchange</div></div>
+  <div class="card" id="c3"><div class="lv" style="color:var(--l3)">Layer 3 · The situation</div><h3>${K.layer3.title}</h3><p>${K.layer3.text}</p>
+    <div class="foot">${K.layer3.foot}</div></div>
+  <div class="card" id="c4"><div class="lv" style="color:var(--l4)">Layer 4 · The recurring pattern</div><h3>${K.layer4.title}</h3><p>${K.layer4.text}</p>
+    <div class="foot">${K.layer4.foot}</div></div>
+  <div class="card" id="c5"><div class="lv" style="color:var(--l5)">Layer 5 · The ${WD.coaching} purpose</div><h3>${K.layer5.title}</h3><p>${K.layer5.text}</p>
+    <dl class="pair" style="margin-top:14px"><dt>Starts</dt><dd>${K.layer5.starts}</dd><dt>Moves to</dt><dd>${K.layer5.moves_to}</dd></dl>
+    <div class="foot">Why ${esc(NM)}’s reply matters</div></div>
+  <div class="card" id="c6"><div class="lv" style="color:var(--l6)">Layer 6 · The ${WD.coaching} principle</div><blockquote>“${K.layer6.quote}”</blockquote><p>${K.layer6.text}</p>
+    <div class="foot">Derived from the recorded pattern</div></div>`;
+
+const LG = ['What was said', `What ${NM} does`, 'The situation', 'Recurring pattern', WD.Coaching + ' purpose', 'Derived principle'];
+$('#legend').innerHTML = `<div class="plabel">This exchange, layer by layer</div>` + [6, 5, 4, 3, 2, 1].map((l, i) =>
+  `<div class="lg" style="transition-delay:${.1 + i * .08}s"><i style="background:${C[l]}"></i><span>L${l} ${esc(LG[l - 1])}</span></div>`).join('');
+
+// about you
+const A = CF.about;
+$('#ab').innerHTML = `<div class="lead">
+    <div class="kick">05 · About you</div>
+    <h1>Where we found you</h1>
+    <p>${CF.about_lead || 'Your twin starts from what you have already shared in public.'}</p>
+    <div class="found">${A.sources.map(([k, where, meta]) => `<div><b>${k}</b> ${where}<em>✓</em><small>${meta}</small></div>`).join('')}</div>
+  </div>
+  <div class="page">
+    <h2>Here’s who we think you are</h2>
+    <p class="what">From your ${(n => n.length > 1 ? n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1] : n[0])(A.sources.map(s => s[0]))}. Tap to correct anything.</p>
+    <div class="sheet">${A.rows.map(([label, opts, ev]) => `<div class="row"><span>${label}</span><div class="chips">${
+      opts.map(([v, on]) => `<button type="button" class="chip" aria-pressed="${!!on}">${v}</button>`).join('')}<span class="ev">${ev}</span></div></div>`).join('')}</div>
+  </div>`;
+
+// do's & don'ts (optionally one set per persona, e.g. a professor who also teaches Sanskrit chanting)
+const PERS = (CF.personas && CF.personas.length) ? CF.personas : [{label: '', dd_lead: CF.dd_lead, dos: CF.dos, donts: CF.donts}];
+const ddRow = (kind, [text, meta]) => `<div class="dd-row ${kind}"><i>${kind === 'do' ? '✓' : '✕'}</i><div><p><b>${kind === 'do' ? 'Do' : 'Don’t'}</b> ${text}</p><small>${meta}</small></div></div>`;
+function showPersona(k) {
+  const P = PERS[k];
+  $('#dd-lead').innerHTML = P.dd_lead || CF.dd_lead;
+  $('#dd-count').innerHTML = `<div><b>${P.dos.length}</b><span>Do’s</span></div><div><b>${P.donts.length}</b><span>Don’ts</span></div>`;
+  const tabs = PERS.length > 1 ? `<div class="ptabs" role="tablist">${PERS.map((q, n) =>
+    `<button type="button" class="ptab" role="tab" data-p="${n}" aria-selected="${n === k}">${esc(q.label)}</button>`).join('')}</div>` : '';
+  $('#fdpage').innerHTML = `<article class="on">
+  <h2>How ${esc(NM)} ${WD.coaches}</h2>${tabs}
+  <div class="dd-cols">
+    <section><div class="dd-head do"><i>✓</i> Do’s <small>how ${HIS} twin behaves</small></div>${P.dos.map(x => ddRow('do', x)).join('')}</section>
+    <section><div class="dd-head dont"><i>✕</i> Don’ts <small>lines ${HIS} twin never crosses</small></div>${P.donts.map(x => ddRow('dont', x)).join('')}</section>
+  </div>
+</article>`;
+}
+showPersona(0);
+
+/* ================= the layered space ================= */
+const FLOOR = {1: 1.0, 2: .84, 3: .68, 4: .52, 5: .36, 6: .2}, FY = l => -1 + (l - 1) * .4;
+const counts = {}, off = {}; let NN = 0;
+for (let l = 1; l <= 6; l++) { counts[l] = S.floors[l].length / 2; off[l] = NN; NN += counts[l]; }
+const X = new Float32Array(NN), Y = new Float32Array(NN), Z = new Float32Array(NN), LAY = new Uint8Array(NN);
+for (let l = 1; l <= 6; l++) {
+  const f = S.floors[l], w = FLOOR[l];
+  for (let k = 0; k < counts[l]; k++) { const i = off[l] + k; X[i] = f[2 * k] / 1000 * w; Z[i] = f[2 * k + 1] / 1000 * w; Y[i] = FY(l); LAY[i] = l; }
+}
+// draw order: a shuffle per layer, so a floor fills evenly as it appears
+const ORDER = {};
+for (let l = 1; l <= 6; l++) {
+  const a = new Uint32Array(counts[l]); for (let k = 0; k < a.length; k++) a[k] = off[l] + k;
+  for (let k = a.length - 1; k > 0; k--) { const j = (Math.random() * (k + 1)) | 0; const t = a[k]; a[k] = a[j]; a[j] = t; }
+  ORDER[l] = a;
+}
+const EDGE = {};                               // links grouped by the upper layer they reach
+for (let k = 0; k < S.edges.length; k += 2) { const a = S.edges[k], b = S.edges[k + 1], l = LAY[b]; (EDGE[l] ||= []).push(a, b); }
+const SN = S.sessNodes;                        // the lines we followed, in transcript order
+const SF = S.frames.map(f => ({node: S.sessFrameNodes[f.id], from: SN[L.findIndex(l => l.id === f.from.at(-1))]}));
+const thr = S.threadNodes;                     // [line cue, line move, frame cue, frame move, situation, topic, phase, belief]
+const thrEdges = [[thr[0], thr[2]], [thr[1], thr[3]], [thr[2], thr[4]], [thr[3], thr[4]], [thr[4], thr[5]], [thr[5], thr[6]], [thr[6], thr[7]]];
+const PX = new Float32Array(NN), PYs = new Float32Array(NN);
+const LBL = i => { const l = LAY[i], k = i - off[l]; return l === 3 ? S.labels.tactics[k] : l === 4 ? S.labels.scenes[k] : l === 5 ? S.labels.phases[k] : l === 6 ? S.labels.beliefs[k] : ''; };
+
+/* ================= animated values ================= */
+const V = {}, TG = {};
+const val = (k, v) => { V[k] = TG[k] = v; };
+[['ry', .55], ['rx', .62], ['zoom', .82], ['ty', -1], ['cx', 790], ['cy', 520], ['spin', 0], ['thrA', 0]].forEach(([k, v]) => val(k, v));
+for (let l = 1; l <= 6; l++) { val('L' + l, 0); val('E' + l, 0); }
+let rot = 0, drag = 0, cur = -1, thrUpTo = 0, cardLevel = 0, fly = null, flyF = null, wiresLeft = 0;
+
+/* ================= layout ================= */
+const cv = $('#cv'), ctx = cv.getContext('2d');
+let W = 0, H = 0, DPR = 1, KS = 1, OX = 0, OY = 0, KD = 1, M = false;
+const sx = x => OX + x * KS, sy = y => OY + y * KS;
+const HINT = $('#hint').innerHTML;
+// media queries, not innerWidth: a phone zooms out to fit the 1600px slide, which inflates innerWidth
+const MQ = matchMedia('(orientation: portrait) and (max-width: 899px)'), MQR = matchMedia('(orientation: landscape) and (max-height: 499px)');
+function fit() {
+  // phones: a portrait column (opt-in per coach); a phone held sideways is asked to turn upright
+  M = !!CF.mobile && MQ.matches;
+  document.body.classList.toggle('m', M);
+  document.body.classList.toggle('rot', !!CF.mobile && MQR.matches);
+  W = innerWidth; H = innerHeight; DPR = Math.min(2, devicePixelRatio || 1);
+  cv.width = W * DPR; cv.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  $('#hint').innerHTML = M ? '<span id="mback" class="hit">← Back</span><span>Tap to continue</span>' : HINT;
+  $('#go').textContent = M ? 'Tap to begin →' : 'Click to begin →';
+  // with a persona switch the phone header is taller: the About and Do's pages start below it
+  if (M && CF.switch) document.documentElement.style.setProperty('--hdh', document.querySelector('header').getBoundingClientRect().height + 'px');
+  if (M) { camM(0); wiresLeft = 0; return; }
+  KS = Math.min(W / 1600, H / 900); KD = KS; OX = (W - 1600 * KS) / 2; OY = (H - 900 * KS) / 2;
+  stage.style.transform = `translate(${OX}px,${OY}px) scale(${KS})`;
+  wiresLeft = 30;
+}
+// phones: fit the layered space into the free part of the visual area (above a card or the legend), easing as it changes
+function camM(dt) {
+  const v = $('#vis').getBoundingClientRect(), panel = ['#cards', '#legend'].map(s => $(s)).find(el => el.classList.contains('on'));
+  const top = v.top + 6, bottom = panel ? panel.getBoundingClientRect().top - 10 : v.bottom - 6, h = Math.max(120, bottom - top);
+  const ks = Math.min(W / 860, h / 560), ox = W / 2 - 800 * ks, oy = top + h / 2 - 470 * ks;
+  const k = dt ? 1 - Math.exp(-dt * 5) : 1;
+  KS += (ks - KS) * k; OX += (ox - OX) * k; OY += (oy - OY) * k; KD = Math.max(KS, .62);
+}
+
+/* ================= state application ================= */
+const cls = (sel, c, on) => $(sel).classList.toggle(c, !!on);
+// camera per layer: start low and close on the dense floors, rise with each layer, end on the whole
+const CAM = {1: [.62, .82, -1.0, 790, 520], 2: [.44, .8, -.78, 790, 530], 3: [.4, .78, -.52, 790, 520], 4: [.37, .76, -.28, 790, 505],
+             5: [.4, .76, -.05, 790, 490], 6: [.44, .74, .12, 790, 470], 7: [.5, .7, 0, 840, 470]};
+function go(i) {
+  i = Math.max(0, Math.min(N - 1, i)); if (i === cur) return;
+  const prev = cur; cur = i; const st = STATES[i], now = performance.now();
+  // the lines drop from the transcript onto the floor
+  fly = null;
+  if (i === ST_L1 && prev === ST_L1 - 1)
+    fly = {t0: now, from: [...document.querySelectorAll('.ln')].map(el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r.width, r.height]; })};
+  flyF = null;
+  if (i === ST_L2 && prev === ST_CUE)
+    flyF = {t0: now, from: [...document.querySelectorAll('.fc')].map(el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r.width, r.height]; })};
+
+  cls('#hero', 'out', i > 0);
+  const cap = $('#cap');
+  cap.classList.add('out');
+  if (i > 0 && !st.fd && !st.ab) setTimeout(() => {
+    if (cur !== i) return;
+    $('#kick').textContent = `${pad(st.ch + 1)} · ${CH[st.ch]}`;
+    $('#title').innerHTML = st.t; $('#body').innerHTML = st.b; cap.classList.remove('out');
+  }, 380);
+  if (st.stat) { countTo(st.stat[0]); $('#unit').textContent = st.stat[1]; }
+  cls('#stat', 'hide', !st.stat);
+  $('#hint').style.opacity = i === N - 1 ? 0 : 1;
+  document.body.classList.toggle('final', st.lvl === 7);
+  cls('#fd', 'on', st.fd);
+  cls('#ab', 'on', st.ab);
+  document.querySelectorAll('#rail .ch').forEach((el, c) => { el.classList.toggle('on', c === st.ch); el.classList.toggle('done', c < st.ch); });
+  document.querySelectorAll('#rail i').forEach(el => { const k = +el.dataset.i; el.classList.toggle('on', k === i); el.classList.toggle('done', k < i); });
+
+  // ----- the window
+  const win = $('#win');
+  const shown = i >= 1 && i < ST_L1 || i === ST_FR || i === ST_CUE;
+  win.classList.toggle('show', shown);
+  win.classList.toggle('gone', !shown && i > 0);
+  win.classList.toggle('narrow', i === ST_FR || i === ST_CUE);
+  $('#side').style.cssText = i <= 1 ? '' : 'width:0;padding:14px 0;opacity:0';
+  cls('#list', 'on', i === 1); cls('#docs', 'on', i >= 2);
+  $('#wtitle').textContent = i <= 1 ? CF.coach.slug : `${sess.date} · ${sess.title}.md`;
+  $('#status').textContent = i >= 2 ? `${sess.kind} · ${day(sess.date)}` : '';
+  if (i === 1) runList(); else listAnim++;
+  const doc = $('#doc');
+  doc.classList.toggle('clean', i >= 3); doc.classList.toggle('focus', i === ST_CUE);
+
+  // ----- right panels
+  cls('#frames', 'on', i === ST_FR || i === ST_CUE); cls('#frames', 'focus', i === ST_CUE);
+  for (let l = 1; l <= 6; l++) cls('#c' + l, 'on', st.lvl === l);
+  cls('#cards', 'on', st.lvl >= 1 && st.lvl <= 6);
+  cls('#legend', 'on', st.lvl === 7);
+  wiresLeft = 100;
+
+  // ----- canvas targets
+  const lv = st.lvl || 0, t = TG;
+  for (let l = 1; l <= 6; l++) { t['L' + l] = lv && l <= lv ? 1 : 0; t['E' + l] = lv && l <= lv && l > 1 ? 1 : 0; }
+  t.thrA = lv ? 1 : 0; thrUpTo = Math.min(lv, 6); cardLevel = lv >= 1 && lv <= 6 ? lv : 0;
+  t.spin = lv === 7 ? .07 : lv ? .02 : 0;
+  if (lv) { const [rx, zoom, ty, cx, cy] = CAM[lv]; Object.assign(t, {rx, zoom, ty, cx, cy}); }
+}
+
+let numCur = 0, numAnim = 0;
+function countTo(v) {
+  const from = numCur, t0 = performance.now(), id = ++numAnim;
+  const tick = now => {
+    if (id !== numAnim) return;
+    const p = Math.min(1, (now - t0) / 1100), e = 1 - Math.pow(1 - p, 3);
+    numCur = Math.round(from + (v - from) * e); $('#num').textContent = fmt(numCur);
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* the list scrolls through every source, then selects our session */
+let listAnim = 0;
+function runList() {
+  const rows = $('#lrows'), id = ++listAnim, t0 = performance.now();
+  rows.querySelectorAll('.sel').forEach(r => r.classList.remove('sel'));
+  const target = Math.max(0, Math.min(selIdx * 26 - 300, files.length * 26 - 556)), dur = 3600;
+  rows.style.transform = 'translateY(0)';
+  const tick = now => {
+    if (id !== listAnim || cur !== 1) return;
+    const p = Math.min(1, (now - t0) / dur), e = p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+    rows.style.transform = `translateY(${-e * target}px)`;
+    if (p < 1) requestAnimationFrame(tick);
+    else setTimeout(() => id === listAnim && rows.children[selIdx].classList.add('sel'), 250);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* wires: transcript lines -> frame cards */
+function wires() {
+  const svg = $('#wires'), fr = $('#frames'), on = cur === ST_FR || cur === ST_CUE;
+  const lineBox = {};
+  document.querySelectorAll('.ln').forEach(el => { const r = el.getBoundingClientRect(); lineBox[el.dataset.id] = ((r.top + r.bottom) / 2 - OY) / KS; });
+  const cards = [...fr.querySelectorAll('.fc')], frTop = 100;
+  let y = 0;
+  const pos = cards.map((el, k) => {
+    const h = el.offsetHeight || 54, a = lineBox[S.frames[k].from.at(-1)];
+    const want = a !== undefined ? a - frTop - h / 2 : y;
+    y = Math.max(want, y); const top = y; y += h + 6; return {top, h};
+  });
+  const over = y - 765;
+  if (over > 0) pos.forEach((p, k) => p.top -= over * k / Math.max(1, pos.length - 1));
+  cards.forEach((el, k) => { el.style.top = pos[k].top + 'px'; el.style.transitionDelay = (on && cur === ST_FR ? .25 + k * .1 : 0) + 's'; });
+  if (!svg.childElementCount) S.frames.forEach(f => f.from.forEach(() => svg.appendChild(document.createElementNS('http://www.w3.org/2000/svg', 'path'))));
+  let n = 0;
+  cards.forEach((el, k) => {
+    const f = S.frames[k], key = f.id === TH.cue || f.id === TH.move, ty = frTop + pos[k].top + pos[k].h / 2, tx = 1120;
+    f.from.forEach(id => {
+      const p = svg.children[n++], a = lineBox[id]; if (a === undefined) return;
+      const x0 = 1072, mx = (x0 + tx) / 2;
+      p.setAttribute('d', `M${x0},${a} C${mx},${a} ${mx},${ty} ${tx},${ty}`);
+      p.setAttribute('class', `wire${on ? ' on' : ''}${cur === ST_CUE ? (key ? ' key' : ' dim') : ''}`);
+      p.style.transitionDelay = (on && cur === ST_FR ? .35 + k * .1 : 0) + 's';
+    });
+  });
+}
+
+/* ================= canvas ================= */
+function project(x, y, z, out) {
+  const ry = rot + V.ry + drag, rx = V.rx, s = KS * 380 * V.zoom;
+  y -= V.ty;
+  const cy = Math.cos(ry), sy_ = Math.sin(ry), cx = Math.cos(rx), sx_ = Math.sin(rx);
+  const x1 = x * cy + z * sy_, z1 = -x * sy_ + z * cy;
+  const y2 = y * cx - z1 * sx_, z2 = y * sx_ + z1 * cx;
+  const p = 3.4 / (3.4 + z2);
+  out[0] = sx(V.cx) + x1 * p * s; out[1] = sy(V.cy) - y2 * p * s;
+  return out;
+}
+const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${n >> 8 & 255},${n & 255},${a})`; };
+const ease = t => t <= 0 ? 0 : t >= 1 ? 1 : t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const pt = [0, 0];
+const DOT = {1: 1.1, 2: 1.3, 3: 2.3, 4: 4, 5: 5.4, 6: 6};
+const ALPHA = {1: .5, 2: .55, 3: .8, 4: .9, 5: .9, 6: .95};
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  for (const k in TG) {
+    const rate = k[0] === 'L' ? 1.1 : k[0] === 'E' ? 1.4 : 2.6;
+    V[k] += (TG[k] - V[k]) * (1 - Math.exp(-dt * rate));
+  }
+  rot += dt * V.spin;
+  if (M) camM(dt);
+  else if (wiresLeft > 0) { wiresLeft--; wires(); }
+  ctx.clearRect(0, 0, W, H);
+  if ([1, 2, 3, 4, 5, 6].some(l => V['L' + l] > .005)) drawLayers(now);
+  requestAnimationFrame(frame);
+}
+
+function drawLayers(now) {
+  for (let l = 1; l <= 6; l++) {
+    if (V['L' + l] < .005) continue;
+    for (let i = off[l], e = off[l] + counts[l]; i < e; i++) { project(X[i], Y[i], Z[i], pt); PX[i] = pt[0]; PYs[i] = pt[1]; }
+  }
+  // floors
+  for (let l = 1; l <= 6; l++) {
+    const a = Math.min(1, V['L' + l] * 1.5); if (a < .01) continue;
+    const w = FLOOR[l], y = FY(l), cs = [[-w, -w], [w, -w], [w, w], [-w, w]].map(([x, z]) => project(x, y, z, [0, 0]));
+    ctx.beginPath(); cs.forEach((p, k) => k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath();
+    ctx.fillStyle = rgba(C[l], .04 * a); ctx.fill(); ctx.strokeStyle = rgba(C[l], .28 * a); ctx.lineWidth = 1; ctx.stroke();
+    const right = cs.reduce((m, p) => p[0] > m[0] ? p : m);
+    ctx.fillStyle = rgba(C[l], .9 * a); ctx.font = `600 ${M ? 9 : 10.5 * KS}px 'IBM Plex Mono',monospace`;
+    const lbl = `L${l} · ${NAMES[l].toUpperCase()}`, lx = right[0] + 12 * KD;
+    ctx.fillText(lbl, M ? Math.min(lx, W - 4 - ctx.measureText(lbl).width) : lx, right[1] + 4 * KD);
+  }
+  // links up into each layer, one path per layer
+  for (let l = 2; l <= 6; l++) {
+    const a = V['E' + l] * Math.min(V['L' + l], V['L' + (l - 1)]); if (a < .01 || !EDGE[l]) continue;
+    const E = EDGE[l], n = Math.floor(E.length / 2 * Math.min(1, a * 1.2));
+    ctx.strokeStyle = rgba(C[l], (l >= 5 ? .2 : l === 4 ? .13 : .07) * a); ctx.lineWidth = l >= 4 ? .8 : .5;
+    ctx.beginPath();
+    for (let k = 0; k < n; k++) { const p = E[2 * k], q = E[2 * k + 1]; ctx.moveTo(PX[p], PYs[p]); ctx.lineTo(PX[q], PYs[q]); }
+    ctx.stroke();
+  }
+  // atoms: each floor fills in as it appears
+  for (let l = 1; l <= 6; l++) {
+    const v = V['L' + l]; if (v < .005) continue;
+    const ord = ORDER[l], n = Math.floor(ord.length * Math.min(1, v * 1.15)), r = DOT[l] * KD;
+    ctx.fillStyle = rgba(C[l], ALPHA[l] * (cardLevel && cardLevel - l >= 2 ? .45 : 1));
+    if (l <= 3) for (let k = 0; k < n; k++) { const i = ord[k]; ctx.fillRect(PX[i] - r / 2, PYs[i] - r / 2, r, r); }
+    else {
+      ctx.strokeStyle = rgba(C[l], .3);
+      for (let k = 0; k < n; k++) {
+        const i = ord[k]; ctx.beginPath(); ctx.arc(PX[i], PYs[i], r, 0, 6.283); ctx.fill();
+        ctx.beginPath(); ctx.arc(PX[i], PYs[i], r + 3 * KD, 0, 6.283); ctx.stroke();
+      }
+    }
+  }
+  drawSession(now);
+  drawThread(now);
+}
+
+// the session's lines (and their frames) stay lit, so the eye can follow them
+function drawSession(now) {
+  const a1 = V.L1; if (a1 < .01) return;
+  SN.forEach((i, k) => {
+    let x = PX[i], y = PYs[i];
+    if (fly) {
+      const p = ease((now - fly.t0 - k * 55) / 1500), f = fly.from[k];
+      if (p < 1) {
+        x = f[0] + (x - f[0]) * p; y = f[1] + (y - f[1]) * p;
+        const w = f[2] + (5 * KD - f[2]) * p, h = f[3] + (5 * KD - f[3]) * p;
+        ctx.fillStyle = rgba(C[1], .16 + .5 * p); ctx.strokeStyle = rgba(C[1], .8); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(x - w / 2, y - h / 2, w, h, Math.min(7, h / 2)); ctx.fill(); ctx.stroke();
+        return;
+      }
+    }
+    ctx.fillStyle = rgba('#f6d48a', a1); ctx.beginPath(); ctx.arc(x, y, 2.6 * KD, 0, 6.283); ctx.fill();
+  });
+  if (V.L2 < .01) return;
+  SF.forEach((f, k) => {
+    let x = PX[f.node], y = PYs[f.node];
+    if (flyF) {
+      const p = ease((now - flyF.t0 - k * 55) / 1500), r = flyF.from[k];
+      if (p < 1) {
+        x = r[0] + (x - r[0]) * p; y = r[1] + (y - r[1]) * p;
+        const w = r[2] + (5 * KD - r[2]) * p, h = r[3] + (5 * KD - r[3]) * p;
+        ctx.fillStyle = rgba(C[2], .16 + .5 * p); ctx.strokeStyle = rgba(C[2], .85); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(x - w / 2, y - h / 2, w, h, Math.min(8, h / 2)); ctx.fill(); ctx.stroke();
+        return;
+      }
+    }
+    ctx.strokeStyle = rgba(C[2], .6 * V.L2); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(PX[f.from], PYs[f.from]); ctx.lineTo(x, y); ctx.stroke();
+    ctx.fillStyle = rgba('#9fe3da', V.L2); ctx.beginPath(); ctx.arc(x, y, 2.6 * KD, 0, 6.283); ctx.fill();
+  });
+}
+
+function drawThread(now) {
+  if (V.thrA < .02) return;
+  const pulse = .75 + .25 * Math.sin(now / 420), flying = (fly && now - fly.t0 < 2300) || (flyF && now - flyF.t0 < 2300);
+  ctx.lineWidth = 2 * KD;
+  for (const [a, b] of thrEdges) {
+    const lb = LAY[b]; if (lb > thrUpTo) continue;
+    const al = Math.min(V['L' + LAY[a]], V['L' + lb]) * V.thrA * (flyF && lb >= 2 ? ease((now - flyF.t0 - 1500) / 700) : 1);
+    ctx.strokeStyle = rgba('#f3ead9', .85 * al);
+    ctx.beginPath(); ctx.moveTo(PX[a], PYs[a]); ctx.lineTo(PX[b], PYs[b]); ctx.stroke();
+  }
+  for (const i of thr) {
+    const l = LAY[i]; if (l > thrUpTo || (flying && l === thrUpTo)) continue;
+    const al = V['L' + l] * V.thrA, big = l >= 4;
+    ctx.fillStyle = rgba(C[l], al); ctx.beginPath(); ctx.arc(PX[i], PYs[i], (big ? 7 : 4.5) * KD, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = rgba('#f3ead9', .95 * al); ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(PX[i], PYs[i], (big ? 11 : 9) * KD * pulse, 0, 6.283); ctx.stroke();
+  }
+  // leaders from this layer's thread atoms to its card
+  if (cardLevel && !flying) {
+    const r = $('#c' + cardLevel).getBoundingClientRect();
+    ctx.strokeStyle = rgba(C[cardLevel], .75 * V.thrA); ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+    thr.filter(i => LAY[i] === cardLevel).forEach((i, k) => {
+      ctx.beginPath(); ctx.moveTo(PX[i] + (M ? 0 : 10 * KS), PYs[i] + (M ? 10 * KD : 0));
+      if (M) ctx.lineTo(r.left + r.width * (.3 + k * .4), r.top - 6); else ctx.lineTo(r.left - 8, r.top + (cardLevel <= 2 ? 56 + k * 74 : 26) * KS);
+      ctx.stroke();
+    });
+    ctx.setLineDash([]);
+  }
+}
+
+/* ================= input ================= */
+let down = null, moved = false;
+addEventListener('pointerdown', e => { down = {x: e.clientX, d: drag}; moved = false; });
+addEventListener('pointermove', e => {
+  if (down && Math.abs(e.clientX - down.x) > 5 && STATES[cur].lvl) { moved = true; drag = down.d + (e.clientX - down.x) * .006; }
+  hover(e);
+});
+addEventListener('pointerup', e => {
+  const was = down; down = null;
+  if (!was || moved) return;
+  const dot = e.target.closest && e.target.closest('#rail i');
+  if (dot) { go(+dot.dataset.i); return; }
+  if (e.target.closest && e.target.closest('#mback, #fd .keys')) { go(cur - 1); return; }
+  const sw = e.target.closest && e.target.closest('#psw .ptab');
+  if (sw) { if (sw.getAttribute('aria-selected') !== 'true') location.replace(sw.dataset.href + '#' + Math.max(0, cur)); return; }
+  const ptab = e.target.closest && e.target.closest('#fd .ptab');
+  if (ptab) { showPersona(+ptab.dataset.p); return; }
+  const chip = e.target.closest && e.target.closest('#ab .chip');
+  if (chip) { chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true')); return; }
+  if (STATES[cur].fd) return;                  // reading the last page: clicks do not advance
+  go(cur + 1);
+});
+addEventListener('keydown', e => {
+  if (['ArrowRight', ' ', 'Enter', 'PageDown'].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+  if (['ArrowLeft', 'Backspace', 'PageUp'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+  if (e.key === 'Home') go(0);
+});
+const tip = $('#tip');
+function hover(e) {
+  if (M || STATES[cur].lvl !== 7 || down) { tip.style.opacity = 0; return; }
+  let best = -1, bd = 12 * 12;
+  for (let i = off[3]; i < NN; i++) { const dx = PX[i] - e.clientX, dy = PYs[i] - e.clientY, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = i; } }
+  if (best < 0) { tip.style.opacity = 0; return; }
+  const l = LAY[best];
+  tip.innerHTML = `<small style="color:${C[l]}">L${l} · ${NAMES[l]}</small>${esc(LBL(best))}`;
+  tip.style.left = Math.min(W - 380, e.clientX + 16) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; tip.style.opacity = 1;
+}
+addEventListener('resize', fit);
+MQ.addEventListener && MQ.addEventListener('change', fit);
+fit(); requestAnimationFrame(fit);
+go(+location.hash.slice(1) || 0);
+addEventListener('hashchange', () => go(+location.hash.slice(1) || 0));
+requestAnimationFrame(frame);
+if (document.fonts) document.fonts.ready.then(() => { wiresLeft = 30; });
+})();
+</script>
+</body>
+</html>
