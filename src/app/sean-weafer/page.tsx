@@ -39,7 +39,7 @@ export default function Welcome() {
               <h2>Ask {SEAN_WEAFER.firstName}’s twin live</h2>
               <p>Pick a post-it to start a conversation, or ask your own question.</p>
               <div className="row">
-                <Link href="/sean-weafer/live" className="btn btn--strong">Start asking</Link>
+                <Link href="/sean-weafer/live" className="btn btn--strong card-link">Start asking</Link>
                 <span className="meta">{SEAN_WEAFER.room.kind}</span>
               </div>
             </div>
@@ -52,7 +52,7 @@ export default function Welcome() {
             <div className="path-b">
               <h2>We already have an accountant</h2>
               <div className="row">
-                <a href={ROLEPLAY_URL} target="_blank" rel="noopener noreferrer" className="btn btn--strong">Start the role play</a>
+                <a href={ROLEPLAY_URL} target="_blank" rel="noopener noreferrer" className="btn btn--strong card-link">Start the role play</a>
                 <span className="meta">Opens the role-play app</span>
               </div>
             </div>
