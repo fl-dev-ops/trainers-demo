@@ -24,7 +24,20 @@ export default function Welcome() {
           <p>Ask {TONY_LATIMER.firstName}’s AI twin about stepping into a CEO or senior leadership role, building a leadership team and coaching.</p>
           <MadeFrom x={false} />
         </div>
-        <div className="paths" style={{ gridTemplateColumns: 'minmax(0, 1fr)', maxWidth: 460 }}>
+        <div className="paths">
+          <article className="path">
+            <div className="peek peek--fig peek--pyr" aria-hidden="true">
+              <img src="/media/tony-latimer-pyramid.jpg" alt="" />
+              <span className="peek-k">Coaching methodology</span>
+            </div>
+            <div className="path-b">
+              <h2>Your coaching method, which the twin learns from</h2>
+              <p>See how the twin was built from {TONY_LATIMER.firstName}’s coaching, layer by layer.</p>
+              <div className="row">
+                <Link href="/tony-latimer/methodology" className="btn btn--strong card-link">See how it learns</Link>
+              </div>
+            </div>
+          </article>
           <article className="path">
             <TwinNotebook trainer={TONY_LATIMER} livePath="/tony-latimer/live" questions={QUESTIONS} />
             <div className="path-b">
