@@ -1,0 +1,131 @@
+# Antoni Lacinai. Build with:
+#   python build.py build antoni-lacinai
+# Source: lore users/antoni-lacinai: 207 YouTube transcripts, 1,314 LinkedIn posts (English and Swedish), 343 Instagram posts.
+# Exchange: studio interview "Why good strategies fail" (2026-06-12, youtube.com/watch?v=dmLP-4Vsb70), host Mia Lilberg.
+# She describes a familiar problem: a good offsite strategy, and a couple of months later nothing happened. Antoni answers
+# that people didn't get it, or didn't agree, and that a new result needs new behaviour; then "a communication problem
+# dressed in a strategy suit". Ties to his headline "You don't have a strategy problem. You have a clarity gap" and to the
+# clarity superpower. Pronouns he/him/his, as in his twin's prompt.
+
+coach:
+  slug: antoni-lacinai
+  name: Antoni
+  full_name: Antoni Lacinai
+  pronouns: [he, him, his]
+
+mobile: true
+
+session:
+  file: youtube/video/2026-06-12-why-good-strategies-fail-dmLP-4Vsb70.md
+  kind: YouTube · studio interview
+  start: And as you do both keynote and coaching
+  coach_speaker: speaker_2
+  other: Mia
+  other_role: Host
+  cue: 2
+  move: 3
+  frames:
+    - ["question", "asking what patterns he sees in leadership teams around the world"]
+    - ["statement", "naming the clarity gap: leaders assume everyone understands what they already know"]
+    - ["question", "describing a familiar problem: a good offsite strategy, and months later nothing has happened"]
+    - ["reframe", "answering that people didn't get it or didn't agree, and that new results need new behaviour"]
+    - ["question", "checking whether he means it isn't a strategy problem"]
+    - ["reframe", "calling it a communication problem dressed in a strategy suit"]
+    - ["question", "pointing out that leaders feel they communicate constantly, in Slack, town halls and one-to-ones"]
+    - ["reframe", "separating clarity from transparency: lots of information isn't the same as being understood"]
+    - ["question", "asking whether there is a cost to unclear communication"]
+    - ["statement", "putting numbers on the waste caused by unclear communication"]
+
+thread:
+  situation: strategy-not-translating
+  topic: communication-clarity
+  phase: 1
+  belief: 0
+
+default_phase: 3
+phases:
+  - title: Show empathy
+    keywords: [empathy, listen, listening, care, caring, interest, understand, feedback, psychological, safety, trust, loneliness]
+  - title: Be clear
+    keywords: [clarity, clear, message, simple, strategy, goals, goal, memory, storytelling, story, gap, miscommunication]
+  - title: Bring energy
+    keywords: [energy, passion, motivation, conviction, presence, charisma, speaker, speaking, presentation, stage, keynote, panel]
+  - title: Engage the team
+    keywords: [engagement, employee, employees, team, teams, collaboration, culture, hybrid, remote, flexible, meetings, meeting]
+  - title: Lead through communication
+    keywords: [leadership, leader, leaders, manager, managers, change, layoff, boss, decision, executive, results, behavior]
+
+beliefs:
+  - {title: Not a strategy problem, text: 'It is not a strategy problem. It’s a communication problem dressed in a strategy suit.', phases: [1, 4]}
+  - {title: Clarity and transparency, text: 'Transparency and clarity are two different muscles. You need both.', phases: [1, 0]}
+  - {title: Better Mondays, text: 'We don’t need better HR initiatives, we don’t need better strategy document. We need better Mondays.', phases: [3, 4]}
+  - {title: Upskill your communication, text: 'You can’t upskill your culture, but you can upskill your communication.', phases: [3, 4]}
+  - {title: Care first, text: 'Your team will care if you care, but only if you care about the right things.', phases: [0, 3]}
+  - {title: Communication drives results, text: 'Communication shapes behavior. Behavior drives results.', phases: [4, 2]}
+
+steps:
+  collect: "We read {youtube} of his YouTube videos, including talks, interviews and short tips, {linkedin} of his LinkedIn posts and {instagram} Instagram posts: <em>{words} words across {lines} lines.</em> From this collection, we follow one interview, where the host brings him a problem every leadership team knows."
+  transcript: ["A recording becomes text", "The interview is transcribed word for word. At first, it is simply a record of who said what."]
+  trace: ["One answer becomes a principle", "We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the exact moment Antoni answered the host."]
+  speakers: ["Who said what", "We separate the host’s questions from Antoni’s answers, and mark the problem she brings him."]
+  layer1: "The host describes it: <em>&ldquo;We’ve had a really good offsite meeting, strategy, and then a couple of months later nothing really happened. What went wrong?&rdquo;</em> Antoni’s answer comes straight after. These exact lines are the evidence for everything that follows."
+  meaning: "The leaders did the strategy work and expected change. Antoni doesn’t look at the strategy at all: he looks at whether people understood it and agreed with it, because only that changes behaviour."
+  cue: "Asked what went wrong, Antoni answers, <em>&ldquo;Well, probably people didn’t get it. And if they got it, they might not still agree.&rdquo;</em>"
+  layer2: "He moves the problem from the strategy to the communication, and from the plan to people’s behaviour. The response stays linked to the exact moment."
+  layer3: "A leadership team has a good strategy that never turns into action. In Antoni’s material this shows up as <em>strategy not translating</em>."
+  layer4: "Antoni keeps coming back to clarity: it comes up in 118 of his sources, and the clarity gap by name in 15, across his talks, interviews and posts."
+  layer5: "The purpose is to move leaders from &ldquo;we told them the strategy&rdquo; to &ldquo;they understood it, agree with it and act on it&rdquo;."
+  layer6: "<em>It’s a communication problem dressed in a strategy suit.</em> This is the principle behind Antoni’s answer."
+
+cards:
+  layer1:
+    cue: We have a strategy, we’ve had a really good offsite meeting, strategy, and then a couple of months later nothing really happened. What went wrong?
+    move: Well, probably people didn’t get it. And if they got it, they might not still agree &hellip; the only way to get a new result is to change behavior of everyone.
+    foot: Two exact lines &middot; two speakers &middot; back to back
+  layer2:
+    cue: Brings a strategy that never turned into action
+    move: Moves the problem from the strategy to understanding and behaviour
+  layer3:
+    title: The strategy that goes nowhere
+    text: The offsite went well and the plan is good, but months later nobody is doing anything differently.
+    foot: Situation in {his} material &middot; &ldquo;strategy not translating&rdquo;
+  layer4:
+    title: Close the clarity gap
+    text: Antoni keeps coming back to the gap between what leaders mean and what their people understand.
+    foot: Recurring pattern &middot; clarity in 118 sources, the clarity gap in 15
+  layer5:
+    title: Make it understood, then acted on
+    text: Check that people get the message and agree with it, so their behaviour changes and the result follows.
+    starts: '&ldquo;We told them the strategy&rdquo;'
+    moves_to: '&ldquo;They get it, agree and act on it&rdquo;'
+  layer6:
+    quote: It’s a communication problem dressed in a strategy suit.
+    text: 'The same idea runs through his work: <em>&ldquo;You can’t upskill your culture, but you can upskill your communication.&rdquo;</em>'
+
+about:
+  sources:
+    - ["YouTube", "Talks, interviews and tips", "{youtube} videos"]
+    - ["LinkedIn", "in/lacinai", "{linkedin} posts · English and Swedish"]
+    - ["Instagram", "Short videos and posts", "{instagram} posts"]
+  rows:
+    - ["Type of coach", [["Communication coach", 1], ["Keynote speaker", 1], ["Leadership coach", 1], ["Author", 1]], "your LinkedIn headline: “Global Keynote Speaker & Executive Communication Coach for +20 years” · 15 books"]
+    - ["Region", [["Sweden", 1], ["Europe", 1], ["Global", 1], ["US", 0]], "LinkedIn: Sweden · “speaking in over 30 countries” (studio interview)"]
+    - ["Who you coach", [["Individuals", 0], ["Leaders and teams", 1], ["Both", 1]], "“I help leaders and teams who want to improve communication” · your LinkedIn About"]
+    - ["How you deliver", [["Keynotes", 1], ["Masterclasses", 1], ["Leadership coaching", 1], ["Communication training", 1]], "“I deliver: keynotes, masterclasses, leadership coaching, communication training” · your LinkedIn About"]
+    - ["Your topics", [["Clarity", 1], ["Empathy", 1], ["Employee engagement", 1], ["Leadership communication", 1], ["Presenting", 1]], "grouped from {topics} recurring topics in your videos and posts"]
+    - ["Named frameworks", [["The Clarity Gap", 1], ["3 Communication Superpowers", 1], ["Empathy, Clarity, Energy", 1], ["Say It So They Get It", 1]], "your LinkedIn About and talks · superpowers in 76 sources, the clarity gap in 15"]
+    - ["Your style", [["Short, memorable lines", 1], ["Backs ideas with numbers", 1], ["Asks reflective questions", 1], ["1:1 coaching: not enough data yet", 0]], "“a communication problem dressed in a strategy suit”, “better Mondays” · cost of unclear communication in the studio interview · “three questions” for leaders · no recorded coaching sessions yet, so start calibration to see how you coach 1:1"]
+
+dd_lead: Antoni's twin follows these in every answer. They come from patterns that run through his talks, interviews and posts.
+dos:
+  - ["check that people understood the message, not just heard it", "Studio interview · the clarity gap"]
+  - ["show empathy and interest before you respond", "Frequent pattern · empathy discussed in 127 sources"]
+  - ["be clear about the direction, not just transparent", "Studio interview · “two different muscles”"]
+  - ["show your passion and conviction", "Frequent pattern · energy or passion in 199 sources"]
+  - ["improve the everyday conversations", "Studio interview · “we need better Mondays”"]
+  - ["ask yourself the three superpower questions", "Studio interview · empathy, clarity, passion"]
+donts:
+  - ["treat a lot of information as clarity", "Studio interview · clarity vs transparency"]
+  - ["assume people understand because you do", "Studio interview · the clarity gap"]
+  - ["blame the strategy when the communication failed", "LinkedIn headline · “you don’t have a strategy problem”"]
+  - ["rely on HR programmes alone to fix engagement", "Studio interview · “not enough”"]
