@@ -3,7 +3,8 @@ import Link from 'next/link'
 import { TONY_LATIMER } from '@/data.js'
 import MadeFrom from '@/components/MadeFrom.jsx'
 import TrustFooter from '@/components/TrustFooter.jsx'
-import { Play, Sparkle } from '@/components/Icons.jsx'
+import { TwinNotebook } from '@/components/ProfileCards.jsx'
+import { Sparkle } from '@/components/Icons.jsx'
 
 const QUESTIONS = [
   'I have just been appointed CEO. What matters most in my first 90 days?',
@@ -25,22 +26,10 @@ export default function Welcome() {
         </div>
         <div className="paths" style={{ gridTemplateColumns: 'minmax(0, 1fr)', maxWidth: 460 }}>
           <article className="path">
-            <div className="peek peek--rps peek--wrap">
-              <span className="peek-k">Ask a question</span>
-              <div className="rprows">
-                {QUESTIONS.map((q) => (
-                  <Link key={q} href={{ pathname: '/tony-latimer/live', query: { q } }} className="rprow" aria-label={'Ask: ' + q}>
-                    <span className="cl" aria-hidden="true">Y</span>
-                    <span className="q">“{q}”</span>
-                    <img className="tw" src={TONY_LATIMER.face} alt="" />
-                    <span className="pl" aria-hidden="true"><Play /></span>
-                  </Link>
-                ))}
-              </div>
-            </div>
+            <TwinNotebook trainer={TONY_LATIMER} livePath="/tony-latimer/live" questions={QUESTIONS} />
             <div className="path-b">
               <h2>Ask {TONY_LATIMER.firstName}’s twin live</h2>
-              <p>Talk to {TONY_LATIMER.firstName}’s twin using your mic and camera, and ask about your role or transition.</p>
+              <p>Pick a post-it to start a conversation, or ask your own question.</p>
               <div className="row">
                 <Link href="/tony-latimer/live" className="btn btn--strong card-link">Start asking</Link>
                 <span className="meta">{TONY_LATIMER.room.kind}</span>

@@ -2,7 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { FLO_AKINBIYI } from '@/data.js'
 import TrustFooter from '@/components/TrustFooter.jsx'
-import { LinkedIn, Play, Sparkle, YouTube } from '@/components/Icons.jsx'
+import { RoleplayPair, TwinNotebook } from '@/components/ProfileCards.jsx'
+import { LinkedIn, Sparkle, YouTube } from '@/components/Icons.jsx'
 
 const QUESTIONS = [
   'I freeze right before I walk on stage. What do I do?',
@@ -11,7 +12,6 @@ const QUESTIONS = [
 
 const ROLEPLAY_URL = 'https://dash.roleplay.foreverlearning.in/agents/five-minutes-with-a-distracted-ceo-karim-flo-akinbiyi'
 
-const SITUATION = 'Karim is an AI persona. He is the CEO of a 300-person logistics company in Dubai. The person talking to him is a manager who has five minutes to present a project and ask for his support. Karim is between meetings, keeps glancing at his phone and cuts in with: what’s the bottom line? He has sat through many flat, slide-heavy updates this week, and today he decides which projects keep their budget.'
 
 export default function Welcome() {
   return (
@@ -37,7 +37,7 @@ export default function Welcome() {
               <span className="peek-k">Coaching methodology</span>
             </div>
             <div className="path-b">
-              <h2>What {FLO_AKINBIYI.firstName}’s twin learns from</h2>
+              <h2>Your coaching method, which the twin learns from</h2>
               <p>See how the twin was built from {FLO_AKINBIYI.firstName}’s coaching, layer by layer.</p>
               <div className="row">
                 <Link href="/flo-akinbiyi/methodology" className="btn btn--strong card-link">See how it learns</Link>
@@ -45,28 +45,10 @@ export default function Welcome() {
             </div>
           </article>
           <article className="path">
-            <div className="peek peek--rps peek--wrap">
-              <span className="peek-k">Ask a question</span>
-              <div className="rprows">
-                <Link href={{ pathname: '/flo-akinbiyi/live', query: { mode: 'ama' } }} className="rprow" aria-label="Ask me anything">
-                  <span className="cl" aria-hidden="true">Y</span>
-                  <span className="q">Ask me anything</span>
-                  <img className="tw" src={FLO_AKINBIYI.face} alt="" />
-                  <span className="pl" aria-hidden="true"><Play /></span>
-                </Link>
-                {QUESTIONS.map((q) => (
-                  <Link key={q} href={{ pathname: '/flo-akinbiyi/live', query: { q } }} className="rprow" aria-label={'Ask: ' + q}>
-                    <span className="cl" aria-hidden="true">Y</span>
-                    <span className="q">“{q}”</span>
-                    <img className="tw" src={FLO_AKINBIYI.face} alt="" />
-                    <span className="pl" aria-hidden="true"><Play /></span>
-                  </Link>
-                ))}
-              </div>
-            </div>
+            <TwinNotebook trainer={FLO_AKINBIYI} livePath="/flo-akinbiyi/live" questions={QUESTIONS} />
             <div className="path-b">
               <h2>Ask {FLO_AKINBIYI.firstName}’s twin live</h2>
-              <p>Talk to {FLO_AKINBIYI.firstName}’s twin using your mic and camera, and ask about your next presentation, your nerves or how to connect with an audience.</p>
+              <p>Pick a post-it to start a conversation, or ask your own question.</p>
               <div className="row">
                 <Link href="/flo-akinbiyi/live" className="btn btn--strong card-link">Start asking</Link>
                 <span className="meta">{FLO_AKINBIYI.room.kind}</span>
@@ -74,22 +56,12 @@ export default function Welcome() {
             </div>
           </article>
           <article className="path path--wide">
-            <div className="peek peek--wrap peek--scn">
-              <span className="peek-k">Role play</span>
-              <div className="scn">
-                <h3 className="scn-t">Win five minutes with a busy CEO</h3>
-                <span className="scn-k">Client persona</span>
-                <div className="scn-p">
-                  <img src="/media/flo-roleplay-karim.jpg" alt="" />
-                  <span>Karim Haddad (Demo for Flo)</span>
-                </div>
-                <span className="scn-k">Situation</span>
-                <p>{SITUATION}</p>
-              </div>
-            </div>
+            <RoleplayPair
+              coachee={{ role: 'Manager', text: 'A manager with five minutes to present a project to the CEO and win his support.', practises: ['Getting to the point', 'Energy and presence'] }}
+              persona={{ role: 'CEO', name: 'Karim Haddad', photo: '/media/flo-roleplay-karim.jpg', voice: 'Ethan', text: 'CEO of a 300-person logistics company in Dubai. Between meetings, short on time and attention, and wants the bottom line.' }}
+            />
             <div className="path-b">
-              <h2>Practise presenting to a distracted CEO</h2>
-              <p>Present to Karim, a CEO who is short on time and attention, and win his support with energy, clarity and human connection.</p>
+              <h2>Win five minutes with a busy CEO</h2>
               <div className="row">
                 <a href={ROLEPLAY_URL} target="_blank" rel="noopener noreferrer" className="btn btn--strong card-link">Start the role play</a>
                 <span className="meta">Opens the role-play app</span>

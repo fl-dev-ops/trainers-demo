@@ -2,7 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { DARREN_MITCHELL } from '@/data.js'
 import TrustFooter from '@/components/TrustFooter.jsx'
-import { LinkedIn, Play, Sparkle, YouTube } from '@/components/Icons.jsx'
+import { TwinNotebook } from '@/components/ProfileCards.jsx'
+import { LinkedIn, Sparkle, YouTube } from '@/components/Icons.jsx'
 
 const QUESTIONS = [
   'I have just been promoted to sales manager. Where do I start?',
@@ -35,7 +36,7 @@ export default function Welcome() {
               <span className="peek-k">Coaching methodology</span>
             </div>
             <div className="path-b">
-              <h2>What {DARREN_MITCHELL.firstName}’s twin learns from</h2>
+              <h2>Your coaching method, which the twin learns from</h2>
               <p>See how the twin was built from {DARREN_MITCHELL.firstName}’s coaching, layer by layer.</p>
               <div className="row">
                 <Link href="/darren-mitchell/methodology" className="btn btn--strong card-link">See how it learns</Link>
@@ -43,22 +44,10 @@ export default function Welcome() {
             </div>
           </article>
           <article className="path">
-            <div className="peek peek--rps peek--wrap">
-              <span className="peek-k">Ask a question</span>
-              <div className="rprows">
-                {QUESTIONS.map((q) => (
-                  <Link key={q} href={{ pathname: '/darren-mitchell/live', query: { q } }} className="rprow" aria-label={'Ask: ' + q}>
-                    <span className="cl" aria-hidden="true">Y</span>
-                    <span className="q">“{q}”</span>
-                    <img className="tw" src={DARREN_MITCHELL.face} alt="" />
-                    <span className="pl" aria-hidden="true"><Play /></span>
-                  </Link>
-                ))}
-              </div>
-            </div>
+            <TwinNotebook trainer={DARREN_MITCHELL} livePath="/darren-mitchell/live" questions={QUESTIONS} />
             <div className="path-b">
               <h2>Ask {DARREN_MITCHELL.firstName}’s twin live</h2>
-              <p>Talk to {DARREN_MITCHELL.firstName}’s twin using your mic and camera, and ask whatever is on your mind about leading your team.</p>
+              <p>Pick a post-it to start a conversation, or ask your own question.</p>
               <div className="row">
                 <Link href="/darren-mitchell/live" className="btn btn--strong card-link">Start asking</Link>
                 <span className="meta">{DARREN_MITCHELL.room.kind}</span>
