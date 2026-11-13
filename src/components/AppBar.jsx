@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { Lock, Logo, Moon, Sun } from './Icons.jsx'
+import { Logo, Moon, Sun } from './Icons.jsx'
 
 function readTheme() {
   try {
@@ -39,7 +39,6 @@ export default function AppBar({ children }) {
         <div className="in">
           <Link href="/" className="lockup"><Logo />TrainerTwin</Link>
           <div className="head-r">
-            <span className="badge hide-sm"><Lock />Private preview</span>
             <button
               type="button"
               className="btn btn--ghost btn--icon"
