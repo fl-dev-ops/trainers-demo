@@ -1,0 +1,141 @@
+# Jameel Hye. Build with:
+#   python build.py build jameel
+# Source: lore users/jameel (indexed 13 Nov 2026, lore 1cc22542): 418 YouTube transcripts (solo videos, Shorts and his
+# podcast with supply chain guests), 825 LinkedIn posts.
+# His recorded conversations are podcasts where he interviews guests, so the guests answer, not him. No coaching calls
+# are public. Like Gopal's page, this one follows a monologue (session.segments): "Demand Planner Job Interview: Top
+# Skills and 10 Commonly Asked Questions" (2024-09-16, youtube.com/watch?v=_9Zeb6azz0g), where Jameel raises the
+# first interview question himself ("tell me about a time when you had to organize and plan a task or a project") and
+# answers it with the STAR model. Ties to his Demand Planner mock-interview twin. Pronouns he/him/his, as in his twin's
+# prompt ("Jameel asks it in his...").
+
+coach:
+  slug: jameel
+  name: Jameel
+  full_name: Jameel Hye
+  pronouns: [he, him, his]
+
+mobile: true
+
+session:
+  file: "youtube/video/2024-09-16-Demand Planner Job Interview  Top Skills and 10 Commonly Asked Questions [_9Zeb6azz0g].md"
+  kind: YouTube · Demand Planner interview guide
+  start: now the first question that you need to prepare for
+  coach_speaker: speaker_1
+  other: The question
+  other_role: The question
+  cue: 0
+  move: 1
+  segments:
+    - now the first question that you need to prepare for
+    - so the best way to answer this question is to use
+    - and if you dont know what the star model is
+    - so make sure that if you are preparing
+    - the next question is what experience do you have with customer segmentation
+    - therefore knowledge and experience on customer segmentation
+    - so if you are working in the cpg
+    - Similarly you could also be working with another segment
+    - so if you have worked as a demand planner in the past
+  end: the next question is what forecasting techniques
+  frames:
+    - ["question", "raising the first interview question to prepare: tell me about a time you organised and planned a task or project, and what the recruiter wants to learn from it"]
+    - ["reframe", "answering that the best way to handle it is the STAR model, because it's a behavioural question"]
+    - ["statement", "pointing to his video that explains situation, task, action and result"]
+    - ["request", "telling candidates to make this their first STAR story"]
+    - ["question", "raising the next question: what experience do you have with customer segmentation?"]
+    - ["statement", "explaining why segmentation matters: each customer group needs a different forecasting approach"]
+    - ["story", "giving examples of key accounts in consumer goods and pharmacy chains in different countries"]
+    - ["statement", "adding dollar stores as a fast-growing segment with its own needs"]
+    - ["request", "telling candidates to name the segment they've worked in, or build the knowledge if they haven't"]
+
+thread:
+  situation: answering-behavioral-interview-questions
+  topic: star-method
+  phase: 3
+  belief: 0
+
+default_phase: 0
+phases:
+  - title: Choose your supply chain path
+    keywords: [career, paths, roles, entry, level, jobs, salary, transition, sectors, canada, internship, opportunity]
+  - title: Build the right skills
+    keywords: [skills, soft, critical, thinking, excel, certification, certifications, tools, ai, planning, forecasting, demand]
+  - title: Get noticed by recruiters
+    keywords: [resume, cv, linkedin, profile, networking, network, branding, recruiters, recruiter, hr, search, social]
+  - title: Ace the interview
+    keywords: [interview, interviews, questions, star, method, behavioral, yourself, answers, preparation, resume-walkthrough, round, examples]
+  - title: Grow into leadership
+    keywords: [leadership, leader, stakeholder, management, transformation, consulting, business, team, communication, presentation, director, executive]
+
+beliefs:
+  - {title: Answer with a STAR story, text: 'Because this is a very behavioral question, the STAR model is the best way to answer it.', phases: [3, 1]}
+  - {title: Show how you think as a planner, text: 'Recruiter first of all really wants to understand your general abilities as a planner.', phases: [3, 1]}
+  - {title: Experience has no parallel, text: 'There is no parallel to experience in supply chain.', phases: [0, 4]}
+  - {title: Start with the problem, text: 'The first step of critical thinking is problem identification and data gathering.', phases: [1, 4]}
+  - {title: Quantify your soft skills, text: 'This is an example where you are quantifying a soft skill.', phases: [2, 1]}
+
+steps:
+  collect: "We read {youtube} of his YouTube videos, including interview guides, career videos and his podcast with supply chain leaders, and {linkedin} of his LinkedIn posts: <em>{words} words across {lines} lines.</em> From this collection, we follow one interview guide. Jameel speaks alone here, so he raises the interview question himself, and then answers it."
+  transcript: ["A recording becomes text", "His video is transcribed word for word. At first, it is simply a record of what he said."]
+  trace: ["One answer becomes a principle", "We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the exact moment Jameel answered the question."]
+  speakers: ["Who said what", "This is a solo video, so every line is Jameel’s. We mark the moment he puts the interview question into words, and the moment he answers it."]
+  layer1: "Jameel raises the question every planning candidate gets: <em>&ldquo;Tell me about a time when you had to organize and plan a task or a project.&rdquo;</em> In the very next line, he answers it. These exact lines are the evidence for everything that follows."
+  meaning: "He has just explained what the recruiter is listening for: how you think as a planner. Jameel doesn’t give a model answer to memorise. He gives the structure that turns your own experience into a clear story."
+  cue: "Asked how to answer it, Jameel says, <em>&ldquo;The best way to answer this question is to use a tried and tested STAR model.&rdquo;</em>"
+  layer2: "He turns an open behavioural question into a structure the candidate can use for any story. The response stays linked to the exact moment."
+  layer3: "A candidate faces a behavioural question in a planning interview. In Jameel’s material this shows up as <em>answering behavioural interview questions</em>."
+  layer4: "Jameel keeps coming back to the STAR method and the resume: STAR comes up by name in 35 of his sources and the resume in 130."
+  layer5: "The purpose is to move candidates from a vague answer to a clear story: situation, task, action and result."
+  layer6: "<em>The STAR model is the best way to answer it.</em> This is the principle behind Jameel’s answer."
+
+cards:
+  layer1:
+    cue: Tell me about a time when you had to organize and plan a task or a project.
+    move: The best way to answer this question is to use a tried and tested STAR model &hellip; because this is a very behavioral question, the STAR model is the best way to answer it.
+    foot: Two exact lines &middot; one speaker &middot; back to back
+  layer2:
+    cue: Raises a behavioural question about planning
+    move: Answers with a structure of situation, task, action and result
+  layer3:
+    title: The behavioural question
+    text: The recruiter wants to see how the candidate thinks as a planner, not just what tools they know.
+    foot: Situation in {his} material &middot; &ldquo;answering behavioural interview questions&rdquo;
+  layer4:
+    title: Structure your story
+    text: Jameel keeps giving candidates a structure for their experience, from STAR answers to a resume that shows results.
+    foot: Recurring pattern &middot; STAR in 35 sources, resume in 130
+  layer5:
+    title: Turn experience into a STAR story
+    text: Pick a real project, then tell it as situation, task, action and result, so the recruiter sees how you plan.
+    starts: '&ldquo;I’m good at planning&rdquo;'
+    moves_to: '&ldquo;Here’s a time I planned a project, and the result&rdquo;'
+  layer6:
+    quote: The STAR model is the best way to answer it.
+    text: 'The same idea runs through his work: <em>&ldquo;There is no parallel to experience in supply chain.&rdquo;</em>'
+
+about:
+  sources:
+    - ["YouTube", "@jameelhye", "{youtube} videos · guides, Shorts, podcast"]
+    - ["LinkedIn", "in/jameelhye", "{linkedin} posts"]
+  rows:
+    - ["Type of coach", [["Career coach", 1], ["Interview coach", 1], ["Supply chain leader", 1], ["Podcast host", 1]], "your LinkedIn headline: “Supply Chain Director | APICS CSCP | Founder SCMCoach.com”"]
+    - ["Region", [["Canada", 1], ["Middle East", 1], ["Asia", 1], ["Global", 1]], "“more than two decades of experience across Asia, Middle East and North America” · your LinkedIn About"]
+    - ["Who you coach", [["Students and graduates", 1], ["Career changers", 1], ["Supply chain professionals", 1]], "entry-level, internship, career transition and manager-level videos"]
+    - ["How you deliver", [["YouTube guides", 1], ["Podcast", 1], ["1:1 coaching", 1], ["SCMCoach.com", 1]], "your channel, podcast and SCMCoach.com"]
+    - ["Your topics", [["Interview prep", 1], ["Supply chain careers", 1], ["Certifications", 1], ["Soft skills", 1], ["Demand planning", 1]], "grouped from {topics} recurring topics in your videos and posts"]
+    - ["Named frameworks", [["STAR method", 1], ["SMD problem statement", 1], ["Soft skills model", 1], ["APICS CSCP", 1]], "your videos · STAR by name in 35 sources, “SMD model to write a problem statement”, “Soft Skills Model - for all professions”"]
+    - ["Your style", [["Step-by-step lists", 1], ["Real company examples", 1], ["Role-specific answers", 1], ["1:1 coaching: not enough data yet", 0]], "“the next question is…” · Walmart, Costco, Walgreens, Nahdi in one answer · guides per role (demand, supply, warehouse) · no recorded coaching calls yet, so start calibration to see how you coach 1:1"]
+
+dd_lead: Jameel's twin follows these in every answer. They come from patterns that run through his videos, podcast and posts.
+dos:
+  - ["answer behavioural questions with a STAR story", "Demand Planner guide · STAR by name in 35 sources"]
+  - ["show the recruiter how you think as a planner", "Demand Planner guide · “your general abilities as a planner”"]
+  - ["tailor answers to the role and the customer segment", "Interview guides per role · customer segmentation"]
+  - ["quantify results, even for soft skills", "Do’s & Don’ts of CV Writing"]
+  - ["start problem-solving with a clear problem statement", "Short · the SMD model"]
+  - ["get hands-on experience, even in a warehouse", "Podcast · “no parallel to experience”"]
+donts:
+  - ["memorise generic answers", "Interview guides · role-specific questions"]
+  - ["list tools without showing your thinking", "Demand Planner guide"]
+  - ["send a resume that is too long", "Short · “Your Resume Is TOO Long!”"]
+  - ["chase another degree before getting experience", "Podcast · “should I go and do a PhD… I said no”"]
