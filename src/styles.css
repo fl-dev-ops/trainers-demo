@@ -317,4 +317,7 @@ svg{flex:none}
    Post-its, question rows and other buttons sit above it and keep their own links. */
 .path{position:relative}
 .card-link::after{content:"";position:absolute;inset:0;z-index:1;border-radius:16px}
-.path .rprow,.path .note,.path .linkbtn,.path .scn a,.path .btn:not(.card-link){position:relative;z-index:2}
+.path .rprow,.path .note,.path .linkbtn,.path .btn:not(.card-link):not(.scn-link){position:relative;z-index:2}
+/* Olga has two scenarios in one card: each scenario box opens its own role play. */
+.scn{position:relative;z-index:2}
+.scn-link::after{content:"";position:absolute;inset:0;border-radius:14px}

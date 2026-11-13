@@ -106,7 +106,7 @@ export default function Welcome() {
                     <span className="scn-k">Situation</span>
                     <p>{r.situation}</p>
                     <div className="row">
-                      <a href={DASH + r.slug} target="_blank" rel="noopener noreferrer" className="btn btn--strong">Start this role play</a>
+                      <a href={DASH + r.slug} target="_blank" rel="noopener noreferrer" className="btn btn--strong scn-link">Start this role play</a>
                     </div>
                   </div>
                 ))}
