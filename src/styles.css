@@ -319,5 +319,5 @@ svg{flex:none}
 .card-link::after{content:"";position:absolute;inset:0;z-index:1;border-radius:16px}
 .path .rprow,.path .note,.path .linkbtn,.path .btn:not(.card-link):not(.scn-link){position:relative;z-index:2}
 /* Olga has two scenarios in one card: each scenario box opens its own role play. */
-.scn{position:relative;z-index:2}
+.scn:has(.scn-link){position:relative;z-index:2}
 .scn-link::after{content:"";position:absolute;inset:0;border-radius:14px}
