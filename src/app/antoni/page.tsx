@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { ANTONI } from '@/data.js'
 import MadeFrom from '@/components/MadeFrom.jsx'
 import TrustFooter from '@/components/TrustFooter.jsx'
-import { TwinNotebook } from '@/components/ProfileCards.jsx'
+import { RoleplayPair, TwinNotebook } from '@/components/ProfileCards.jsx'
 import { Sparkle } from '@/components/Icons.jsx'
 
 const QUESTIONS = [
@@ -46,6 +46,19 @@ export default function Welcome() {
               <div className="row">
                 <Link href="/antoni/live" className="btn btn--strong card-link">Start practising</Link>
                 <span className="meta">{ANTONI.room.kind}</span>
+              </div>
+            </div>
+          </article>
+          <article className="path path--wide">
+            <RoleplayPair
+              coachee={{ role: 'Head of Operations', text: 'A leader explaining the new strategy to a team lead after the town hall.', practises: ['Empathy before explaining', 'One clear message'] }}
+              persona={{ role: 'Team Lead', name: 'Erik Lindqvist', photo: '/media/antoni-roleplay-erik.jpg', behaviour: ['Skeptical & Reserved'], speaking: ['Neutral', 'Short answers'], voice: 'Oliver', text: 'Leads a team of twelve in warehouse operations at a logistics company in Stockholm, fifteen years in. Sat through the strategy town hall. Quiet, polite and practical, and gives little away at first.' }}
+            />
+            <div className="path-b">
+              <h2>Explain the new strategy so it lands</h2>
+              <div className="row">
+                <a href="https://dash.roleplay.foreverlearning.in/agents/explain-the-new-strategy-so-it-lands" target="_blank" rel="noopener noreferrer" className="btn btn--strong card-link">Start the role play</a>
+                <span className="meta">Opens the role-play app</span>
               </div>
             </div>
           </article>

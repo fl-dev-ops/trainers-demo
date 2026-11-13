@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { MARCUS_CAUCHI } from '@/data.js'
 import TrustFooter from '@/components/TrustFooter.jsx'
-import { TwinNotebook } from '@/components/ProfileCards.jsx'
+import { RoleplayPair, TwinNotebook } from '@/components/ProfileCards.jsx'
 import { LinkedIn, Sparkle, YouTube } from '@/components/Icons.jsx'
 
 const QUESTIONS = [
@@ -50,6 +50,19 @@ export default function Welcome() {
               <div className="row">
                 <Link href="/marcus-cauchi/live" className="btn btn--strong">Start asking</Link>
                 <span className="meta">{MARCUS_CAUCHI.room.kind}</span>
+              </div>
+            </div>
+          </article>
+          <article className="path path--wide">
+            <RoleplayPair
+              coachee={{ role: 'Account Executive', text: 'A seller on a second call with the CFO about an £80k solution.', practises: ['Handing the objection back', 'The cost of doing nothing'] }}
+              persona={{ role: 'CFO', name: 'Graham Pearce', photo: '/media/gopal-roleplay-peter.jpg', behaviour: ['Skeptical & Reserved', 'Direct & Challenging'], speaking: ['Formal', 'Short answers'], voice: 'Oliver', text: 'CFO of a UK software company with about £15M revenue. Signs off every spend above £25k and has seen plenty of projects promise savings that never arrived.' }}
+            />
+            <div className="path-b">
+              <h2>It’s not in the budget</h2>
+              <div className="row">
+                <a href="https://dash.roleplay.foreverlearning.in/agents/it-s-not-in-the-budget-graham-cfo-marcus-cauchi" target="_blank" rel="noopener noreferrer" className="btn btn--strong card-link">Start the role play</a>
+                <span className="meta">Opens the role-play app</span>
               </div>
             </div>
           </article>
