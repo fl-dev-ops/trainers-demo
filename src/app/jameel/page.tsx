@@ -25,7 +25,7 @@ export default function Welcome() {
             </div>
             <div className="path-b">
               <div className="row">
-                <Link href="/jameel/live" className="btn btn--strong">Meet your twin</Link>
+                <Link href="/jameel/live" className="btn btn--strong card-link">Meet your twin</Link>
               </div>
             </div>
           </article>

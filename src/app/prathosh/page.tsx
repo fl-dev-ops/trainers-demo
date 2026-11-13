@@ -35,7 +35,7 @@ export default function Welcome() {
               <h2>Meet the video twin</h2>
               <p>A short intro from Prathosh’s AI twin.</p>
               <div className="row">
-                <Link href="/prathosh/meet" className="btn btn--strong">Watch the intro</Link>
+                <Link href="/prathosh/meet" className="btn btn--strong card-link">Watch the intro</Link>
                 <span className="meta">35 sec</span>
               </div>
             </div>
@@ -47,7 +47,7 @@ export default function Welcome() {
               <h2>Meet the interactive twin</h2>
               <p>Pick a post-it to ask a doubt, or ask your own.</p>
               <div className="row">
-                <Link href="/prathosh/live" className="btn btn--strong">Ask a doubt</Link>
+                <Link href="/prathosh/live" className="btn btn--strong card-link">Ask a doubt</Link>
                 <span className="meta">Mathematical Foundations of ML · NPTEL</span>
               </div>
             </div>
@@ -63,7 +63,7 @@ export default function Welcome() {
               <h2>Your teaching method, which the twin learns from</h2>
               <p>Two personas, two pyramids: switch between the ML professor and the Sanskrit teacher on every screen.</p>
               <div className="row">
-                <Link href="/prathosh/methodology" className="btn btn--strong">See how it learns</Link>
+                <Link href="/prathosh/methodology" className="btn btn--strong card-link">See how it learns</Link>
               </div>
             </div>
           </article>

@@ -42,7 +42,7 @@ export default function Welcome() {
               <h2>Practise your pitch live</h2>
               <p>Pitch to {ANTONI.firstName}’s twin using your mic and camera, then try again with his feedback.</p>
               <div className="row">
-                <Link href="/antoni/live" className="btn btn--strong">Start practising</Link>
+                <Link href="/antoni/live" className="btn btn--strong card-link">Start practising</Link>
                 <span className="meta">{ANTONI.room.kind}</span>
               </div>
             </div>

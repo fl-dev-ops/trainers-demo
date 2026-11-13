@@ -41,7 +41,7 @@ export default function Welcome() {
               <h2>Your coaching method, which the twin learns from</h2>
               <p>See how the twin was built from {GOPAL_RAJGURU.firstName}’s coaching, layer by layer.</p>
               <div className="row">
-                <Link href="/gopal-rajguru/methodology" className="btn btn--strong">See how it learns</Link>
+                <Link href="/gopal-rajguru/methodology" className="btn btn--strong card-link">See how it learns</Link>
               </div>
             </div>
           </article>
@@ -51,7 +51,7 @@ export default function Welcome() {
               <h2>Ask {GOPAL_RAJGURU.firstName}’s twin live</h2>
               <p>Pick a post-it to start a conversation, or ask your own question.</p>
               <div className="row">
-                <Link href="/gopal-rajguru/live" className="btn btn--strong">Start asking</Link>
+                <Link href="/gopal-rajguru/live" className="btn btn--strong card-link">Start asking</Link>
                 <span className="meta">{GOPAL_RAJGURU.room.kind}</span>
               </div>
             </div>
@@ -64,7 +64,7 @@ export default function Welcome() {
             <div className="path-b">
               <h2>Hold your price with procurement</h2>
               <div className="row">
-                <a href={ROLEPLAY_URL} target="_blank" rel="noopener noreferrer" className="btn btn--strong">Start the role play</a>
+                <a href={ROLEPLAY_URL} target="_blank" rel="noopener noreferrer" className="btn btn--strong card-link">Start the role play</a>
                 <span className="meta">Opens the role-play app</span>
               </div>
             </div>

@@ -56,7 +56,7 @@ export default function Welcome() {
               <h2>What your twin learns from</h2>
               <p>See how your twin was built from your coaching, layer by layer.</p>
               <div className="row">
-                <Link href="/olga/methodology" className="btn btn--strong">See how it learns</Link>
+                <Link href="/olga/methodology" className="btn btn--strong card-link">See how it learns</Link>
               </div>
             </div>
           </article>
@@ -85,7 +85,7 @@ export default function Welcome() {
               <h2>Meet your interactive twin</h2>
               <p>Where your agents practise with you. Customise, tweak and personalise it anytime.</p>
               <div className="row">
-                <Link href={`/olga/live?s=${SCENARIOS[0].id}`} className="btn btn--strong">Start a role play</Link>
+                <Link href={`/olga/live?s=${SCENARIOS[0].id}`} className="btn btn--strong card-link">Start a role play</Link>
                 <span className="meta">{SCENARIOS.length} scenarios · about 2 min each</span>
               </div>
             </div>
@@ -106,7 +106,7 @@ export default function Welcome() {
                     <span className="scn-k">Situation</span>
                     <p>{r.situation}</p>
                     <div className="row">
-                      <a href={DASH + r.slug} target="_blank" rel="noopener noreferrer" className="btn btn--strong">Start this role play</a>
+                      <a href={DASH + r.slug} target="_blank" rel="noopener noreferrer" className="btn btn--strong scn-link">Start this role play</a>
                     </div>
                   </div>
                 ))}
