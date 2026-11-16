@@ -152,6 +152,7 @@ export const SEAN_WEAFER = {
   starterInRoom: true,
   firstName: 'Seán',
   initials: 'SW',
+  participantName: 'User', // the learner's tile label in the live room (default is 'Candidate')
   face: '/media/sean-weafer-headshot.jpg',
   portrait: '/media/sean-weafer-headshot.jpg',
   room: {

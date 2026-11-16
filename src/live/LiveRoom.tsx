@@ -20,10 +20,10 @@ import TranscriptPanel from '@/live/TranscriptPanel.jsx'
 
 type Scenario = (typeof SCENARIOS)[number]
 type TrainerRoom = { kind: string; title: string; scenario: string }
-type Trainer = { id: string; firstName: string; face: string; portrait?: string; portraitClass?: string; room?: TrainerRoom; starterInRoom?: boolean }
+type Trainer = { id: string; firstName: string; face: string; portrait?: string; portraitClass?: string; room?: TrainerRoom; starterInRoom?: boolean; participantName?: string }
 
 // Stand-in identity until the app has a signed-in profile to read a real name from.
-const PARTICIPANT_NAME = 'Candidate'
+const PARTICIPANT_NAME = 'Candidate' // default; a coach sets participantName in data.js ('User' for all new coaches)
 
 export default function LiveRoom({ trainer }: { trainer: Trainer }) {
   // useSearchParams needs a boundary so the page can still be prerendered.
@@ -72,7 +72,7 @@ function LiveEntry({ trainer }: { trainer: Trainer }) {
     fetch('/api/connection-details', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: PARTICIPANT_NAME, profile: trainer.id, ...(starterInRoom ? { starter } : {}), ...(ama ? { opener: 'ama' } : {}) }),
+      body: JSON.stringify({ name: trainer.participantName ?? PARTICIPANT_NAME, profile: trainer.id, ...(starterInRoom ? { starter } : {}), ...(ama ? { opener: 'ama' } : {}) }),
     })
       .then(async (response) => {
         const payload = await response.json().catch(() => null)
@@ -291,12 +291,12 @@ function RolePlay({ connection, scenario: SCENARIO, trainer, starter = null, sta
 
             <div className="rtiles">
               <AvatarStage name={`${trainer.firstName}'s twin`} image={trainer.portrait ?? trainer.face} imageClassName={trainer.portraitClass ?? ''} />
-              <div className="rtile" aria-label={(fixedRoom ? PARTICIPANT_NAME : SCENARIO.participant) + ' video'}>
+              <div className="rtile" aria-label={(fixedRoom ? (trainer.participantName ?? PARTICIPANT_NAME) : SCENARIO.participant) + ' video'}>
                 <div className="rtile-slot" id="participant-video">
                   {session.local.cameraTrack && <VideoTrack trackRef={session.local.cameraTrack} />}
                 </div>
-                <span className="cav">{fixedRoom ? PARTICIPANT_NAME[0] : SCENARIO.initials}</span>
-                <span className="rname">{fixedRoom ? PARTICIPANT_NAME : SCENARIO.participant}</span>
+                <span className="cav">{fixedRoom ? (trainer.participantName ?? PARTICIPANT_NAME)[0] : SCENARIO.initials}</span>
+                <span className="rname">{fixedRoom ? (trainer.participantName ?? PARTICIPANT_NAME) : SCENARIO.participant}</span>
               </div>
             </div>
 
