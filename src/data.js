@@ -153,7 +153,7 @@ export const SEAN_WEAFER = {
   firstName: 'Seán',
   initials: 'SW',
   face: '/media/sean-weafer-headshot.jpg',
-  portrait: '/media/sean-weafer-portrait.jpg',
+  portrait: '/media/sean-weafer-headshot.jpg',
   room: {
     kind: 'Ask me anything · Demo',
     title: 'Ask about selling as a trusted advisor',
