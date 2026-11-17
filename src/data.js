@@ -162,6 +162,23 @@ export const SEAN_WEAFER = {
   },
 }
 
+export const CLIVE_MILLER = {
+  id: 'clive-miller',
+  name: 'Clive Miller',
+  // The agent answers the welcome-page starter as the first message (needs starter_reply in agents.json).
+  starterInRoom: true,
+  firstName: 'Clive',
+  initials: 'CM',
+  participantName: 'User', // the learner's tile label in the live room (default is 'Candidate')
+  face: '/media/clive-miller-headshot.jpg',
+  portrait: '/media/clive-miller-portrait.jpg',
+  room: {
+    kind: 'Ask me anything · Demo',
+    title: 'Ask about winning complex sales',
+    scenario: 'Clive’s AI twin will help you with selling complex B2B solutions, getting customers to engage, qualifying deals and leading a sales team. It was made only for this demo and is not a replacement for Clive.',
+  },
+}
+
 export const TONY_LATIMER = {
   id: 'tony-latimer',
   name: 'Tony Latimer',
@@ -436,5 +453,19 @@ SEAN_WEAFER.sources = [
   ]],
   ['Website', '22 pages', [
     ['salesmentor.pro and seanweafer.com', 'His programme pages and blog posts'],
+  ]],
+]
+
+CLIVE_MILLER.sourceSummary = '13 videos and podcasts · 18 LinkedIn posts'
+CLIVE_MILLER.sources = [
+  ['YouTube', '13 videos', [
+    ['The Adaptive Edge Podcast EP 04', 'Complex B2B sales and the CLEAR model'],
+    ['Pitch The Solution Early And They Stop Needing You', 'Consulting Rainmakers interview'],
+    ['Selling Before the Internet', 'What can we learn from selling before the internet'],
+    ['Sales Success Formula', 'His own short course'],
+    ['Accelerate Learning', 'His own short courses on learning and behaviour change'],
+  ]],
+  ['LinkedIn', '18 posts', [
+    ['Clive Miller on LinkedIn', 'His own posts, 2025 to 2026'],
   ]],
 ]
