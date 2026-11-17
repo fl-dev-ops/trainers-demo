@@ -2,12 +2,24 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { CLIVE_MILLER } from '@/data.js'
 import TrustFooter from '@/components/TrustFooter.jsx'
-import { TwinNotebook } from '@/components/ProfileCards.jsx'
+import { RoleplayPair, TwinNotebook } from '@/components/ProfileCards.jsx'
 import { LinkedIn, Sparkle, YouTube } from '@/components/Icons.jsx'
 
 const QUESTIONS = [
   'A prospect loved my pitch and asked me to send a proposal. Now they’ve gone quiet. What happened?',
   'I’m selling to a company with lots of people involved. Where do I start?',
+]
+
+const DASH = 'https://dash.roleplay.foreverlearning.in/agents/'
+
+/* Clive's role play on the role-play dashboard. Third person. */
+const ROLE_PLAYS = [
+  {
+    slug: 'just-send-me-a-proposal',
+    title: 'Just send me a proposal',
+    coachee: { role: 'Account executive', text: 'An account executive at a software company, on a second call with a customer who has seen the demo and wants a proposal.', practises: ['Making no assumptions', 'Facts before the proposal'] },
+    persona: { role: 'Operations Director', name: 'Helen Marsh', photo: '/media/clive-roleplay-helen.jpg', behaviour: ['Warm & Open'], speaking: ['Casual', 'Long answers'], voice: 'Olivia', text: 'Runs operations at a 140-person precision-parts manufacturer in the Midlands. She liked the demo and wants to keep things moving.' },
+  },
 ]
 
 export default function Welcome() {
@@ -53,6 +65,18 @@ export default function Welcome() {
               </div>
             </div>
           </article>
+          {ROLE_PLAYS.map((r) => (
+            <article key={r.slug} className="path path--wide">
+              <RoleplayPair coachee={r.coachee} persona={r.persona} />
+              <div className="path-b">
+                <h2>{r.title}</h2>
+                <div className="row">
+                  <a href={DASH + r.slug} target="_blank" rel="noopener noreferrer" className="btn btn--strong card-link">Start the role play</a>
+                  <span className="meta">Opens the role-play app</span>
+                </div>
+              </div>
+            </article>
+          ))}
         </div>
         <TrustFooter twin={CLIVE_MILLER} />
       </div>
