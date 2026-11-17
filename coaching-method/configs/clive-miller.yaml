@@ -1,0 +1,130 @@
+# Clive Miller. Build with:
+#   python build.py build clive-miller
+# Source: lore users/clive-miller: 13 YouTube transcripts (his channel plus 3 guest podcasts), 18 LinkedIn posts. No website
+# pages (salessense.co.uk blocks automated fetching).
+# Exchange: The Adaptive Edge Podcast EP 04 (2026-09-22, youtube.com/watch?v=1iOOg8LKuvU), host Julia Feng, an old
+# friend who once hosted his enterprise-selling training in Shanghai and Beijing. At 12:47 she asks how his training helps a
+# client speed up the process or prevent bad results. At 13:03 Clive answers by introducing CLEAR (Circumstances,
+# Leverage, Expand, Advantage, Requirement) and its three rules; then the black hole. Chosen by Lalith over the
+# Consulting Rainmakers interview. Pronouns he/him/his.
+
+coach:
+  slug: clive-miller
+  name: Clive
+  full_name: Clive Miller
+  pronouns: [he, him, his]
+
+mobile: true
+
+session:
+  file: youtube-guests/video/2026-09-22-the-adaptive-edge-podcast-ep-04-with-clive-miller-complex-b2-1iOOg8LKuvU.md
+  kind: YouTube · podcast interview
+  start: yes especially the b2b sale
+  coach_speaker: speaker_2
+  other: Julia
+  other_role: Host
+  cue: 2
+  move: 3
+  frames:
+    - ["question", "saying complex B2B sales cycles are long, and asking him to say more about making them work"]
+    - ["statement", "answering: forethought and preparation, because a complex sale is project management with two herds of cats"]
+    - ["question", "asking how his training helps a client speed up the process or prevent bad results"]
+    - ["reframe", "introducing CLEAR and its three rules, with the requirement always at the back end"]
+
+thread:
+  situation: lost-momentum
+  situation_label: a deal that loses momentum
+  topic: clear-model
+  phase: 1
+  belief: 0
+
+default_phase: 1
+phases:
+  - title: Fill the pipeline
+    keywords: [pipeline, leads, lead, prospecting, prospect, marketing, linkedin, campaign, messaging, outreach, cold, email, voicemail]
+  - title: Understand the customer
+    keywords: [clear, circumstances, assumptions, stakeholders, questions, discovery, requirement, pain, problem, buying, listening, listen]
+  - title: Qualify the deal
+    keywords: [qualification, qualify, qualified, opportunity, predictor, funnel, forecast, meddic, bant, score, scoring, win]
+  - title: Win the proposal
+    keywords: [proposal, solution, objection, objections, price, value, negotiation, closing, decision, guarantee, trust]
+  - title: Lead the sales team
+    keywords: [management, manager, managers, coaching, coach, team, hiring, kpi, measurement, accountability, behaviour]
+  - title: Keep learning
+    keywords: [learning, learn, practice, habit, skill, competence, mistakes, training, ai, technology, circle]
+
+beliefs:
+  - {title: Hold back the solution, text: 'As soon as you talk about the solution, you’ve given up the only reason they have for talking to you.', phases: [1, 3]}
+  - {title: Make no assumptions, text: 'Say you’d like to avoid making assumptions in this process. Nobody is going to say no to that.', phases: [1, 2]}
+  - {title: Two herds of cats, text: 'A complex sale is much more like project management, because you’ve got two herds of cats.', phases: [2, 4]}
+  - {title: Slow down, text: 'Slow the process down until you get all the information out that you need.', phases: [1, 2]}
+  - {title: Skill needs practice, text: 'To know and not to do is not to know.', phases: [5, 4]}
+  - {title: It’s a long game, text: 'You can’t turn sales on overnight. It’s a long game.', phases: [0, 4]}
+
+steps:
+  collect: "We read {youtube} of his YouTube videos, including his own short courses and guest podcasts, and {linkedin} of his LinkedIn posts: <em>{words} words across {lines} lines.</em> From this collection, we follow one podcast, where the host asks how his training helps with a complex sale."
+  transcript: ["A recording becomes text", "The podcast is transcribed word for word. At first, it is simply a record of who said what."]
+  trace: ["One answer becomes a principle", "We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the exact moment Clive answered the host."]
+  speakers: ["Who said what", "We separate the host’s questions from Clive’s answers, and mark the question she brings him."]
+  layer1: "The host asks: <em>&ldquo;How does your training help your client, either speed up the process or prevent some bad results happening?&rdquo;</em> Clive’s answer comes straight after. These exact lines are the evidence for everything that follows."
+  meaning: "The host wants to know how his training makes a long, complex sale go better. Clive doesn’t talk about presenting or closing: he says the usual order is the wrong way round, and gives her a method."
+  cue: "Asked how his training helps, Clive answers, <em>&ldquo;I teach something called CLEAR &hellip; and the requirement is always on the back end.&rdquo;</em>"
+  layer2: "He turns the question into a different order of work: facts first, solution last. The response stays linked to the exact moment."
+  layer3: "A salesperson pitches early, the customer asks for it in writing, and then stops taking calls. In Clive’s material this shows up as <em>a deal that loses momentum</em>."
+  layer4: "Clive keeps coming back to CLEAR, which comes up in 7 of his sources, with its three rules in 2, across his talks, interviews and posts."
+  layer5: "The purpose is to move salespeople from &ldquo;pitch, then wait for an answer&rdquo; to &ldquo;get the facts first, then earn the proposal&rdquo;."
+  layer6: "<em>As soon as you talk about the solution, you&rsquo;ve given up the only reason they have for talking to you.</em> This is the principle behind Clive’s answer."
+
+cards:
+  layer1:
+    cue: How does your training help your client, you know, either speed up the process or prevent some &hellip; bad results happening?
+    move: I teach something called CLEAR which is Circumstances, Leverage, Expand, Advantage, Requirement. And the requirement is always on the back end &hellip; don&rsquo;t talk about the solution, because as soon as you talk about the solution you&rsquo;ve given up the only reason they have for talking to you.
+    foot: Two exact lines &middot; two speakers &middot; back to back
+  layer2:
+    cue: Asks how his training helps with a complex sale
+    move: Turns it into facts first, solution last
+  layer3:
+    title: The deal that loses momentum
+    text: The customer liked the pitch and asked for something in writing. Now the calls go unanswered.
+    foot: Situation in {his} material &middot; &ldquo;lost momentum&rdquo; in 10 sources
+  layer4:
+    title: Use CLEAR
+    text: Clive keeps coming back to one order of work, so find out Circumstances, Leverage, Expand and Advantage before the Requirement.
+    foot: Recurring pattern &middot; CLEAR in 7 sources, the three rules in 2
+  layer5:
+    title: Get the facts, then earn the proposal
+    text: Find out whether the need is real, who is affected and what the numbers are, while you still have a proposal to trade.
+    starts: '&ldquo;Pitch, then wait for an answer&rdquo;'
+    moves_to: '&ldquo;Facts first, then the proposal&rdquo;'
+  layer6:
+    quote: As soon as you talk about the solution, you’ve given up the only reason they have for talking to you.
+    text: 'The same idea runs through his work: <em>&ldquo;You must get all the information out before you give up talking about the requirement.&rdquo;</em>'
+
+about:
+  sources:
+    - ["YouTube", "Courses, interviews and guest podcasts", "{youtube} videos"]
+    - ["LinkedIn", "in/clivemiller", "{linkedin} posts"]
+  rows:
+    - ["Type of coach", [["Sales coach", 1], ["Sales trainer", 1], ["Sales consultant", 1], ["Sales enablement", 1]], "your LinkedIn headline: “Sales Consulting, Coaching, Training, Sales Enablement” · “more than 40 years” of sales, management and enablement"]
+    - ["Region", [["UK", 1], ["Europe", 1], ["Global", 1], ["US", 0]], "LinkedIn: Greater Exeter Area · enterprise-selling training delivered in Shanghai and Beijing (Adaptive Edge podcast)"]
+    - ["Who you coach", [["Individual salespeople", 1], ["Sales teams and managers", 1], ["Both", 1]], "“people who sell complex things to other businesses” · your podcast interviews and LinkedIn About"]
+    - ["How you deliver", [["Consulting", 1], ["One-to-one coaching", 1], ["Training courses", 1], ["Free guides and tools", 1]], "your LinkedIn About: “one-to-one coaching, and comprehensive training programs” · free Sales Success Formula and The Power to Speak"]
+    - ["Your topics", [["Complex B2B selling", 1], ["Qualification", 1], ["Sales management", 1], ["Pipeline", 1], ["Learning and behaviour change", 1], ["AI in sales", 1]], "grouped from {topics} recurring topics in your videos and posts"]
+    - ["Named frameworks", [["CLEAR", 1], ["The three rules", 1], ["Sales Success Formula", 1], ["Win Predictor", 1], ["Quantified qualification", 1], ["Learning circle", 1]], "your talks, courses and posts · CLEAR in 7 sources, Sales Success Formula in 3, Win Predictor in 2"]
+    - ["Your style", [["Everyday pictures", 1], ["Credits his sources", 1], ["Questions first", 1], ["Slows you down", 1], ["Real examples", 1]], "“two herds of cats”, “bread to sell and a list of hungry people”, learning to drive · Covey, Tom Peters, Voltaire, Gladwell and Kipling named in 7 sources · “a series of questions” before any solution · “slow the process down” · “for example” in 7 sources"]
+
+dd_lead: Clive's twin follows these in every answer. They come from patterns that run through his courses, interviews and posts.
+dos:
+  - ["agree at the start that you will make no assumptions", "Adaptive Edge · CLEAR rule two"]
+  - ["get the facts before you talk about the solution", "Adaptive Edge · CLEAR rule three"]
+  - ["talk to everyone affected by the decision", "Adaptive Edge · “all of the people who are impacted”"]
+  - ["slow the process down until you have what you need", "Adaptive Edge · slowing down"]
+  - ["ask whether it’s real and whether they have the numbers", "Adaptive Edge · testing the need"]
+  - ["write a plan for adopting any new way of working", "Learning video · getting learning used"]
+donts:
+  - ["rush to pitch because it feels like progress", "Adaptive Edge · “much too eager”"]
+  - ["rely on a single point of contact", "Adaptive Edge · “you don’t know if you’re being lied to”"]
+  - ["keep asking have you made up your minds yet", "Adaptive Edge · the black hole"]
+  - ["send a pitch before establishing need or trust", "Selling Before the Internet · cold pitches"]
+  - ["lean on AI instead of finding your own leads", "LinkedIn · the Mekon"]
+  - ["expect to turn sales on overnight", "Adaptive Edge · “it’s a long game”"]
