@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ANTONI, BEVAN_BROADBENT, CLIVE_MILLER, DARREN_MITCHELL, FLO_AKINBIYI, GOPAL_RAJGURU, JAMEEL, JOHNNY_DANIELE, MARCUS_CAUCHI, PRATHOSH, SEAN_WEAFER, TONY_LATIMER, TWIN } from '../data.js'
+import { ANTONI, BEVAN_BROADBENT, CLIVE_MILLER, DARREN_MITCHELL, FLO_AKINBIYI, GOPAL_RAJGURU, JAMEEL, JOHNNY_DANIELE, MARCUS_CAUCHI, PRATHOSH, SEAN_WEAFER, SHEHZAD_MUKADAM, TONY_LATIMER, TWIN } from '../data.js'
 
 export const metadata: Metadata = {
   title: 'Trainer demos · TrainerTwin',
@@ -239,6 +239,24 @@ export default function Home() {
               <div className="row">
                 <Link href="/clive-miller" className="btn btn--strong">
                   Explore Clive’s demo
+                </Link>
+              </div>
+            </div>
+          </article>
+          <article className="path">
+            <div className="path-b">
+              <Image
+                src={SHEHZAD_MUKADAM.face}
+                alt={SHEHZAD_MUKADAM.name}
+                width={76}
+                height={76}
+                style={{ borderRadius: '50%', objectFit: 'cover' }}
+              />
+              <h2>{SHEHZAD_MUKADAM.name}</h2>
+              <p>Ask Shehzad’s AI twin about sales training that sticks, leading managers and building trust with clients.</p>
+              <div className="row">
+                <Link href="/shehzad-mukadam" className="btn btn--strong">
+                  Explore Shehzad’s demo
                 </Link>
               </div>
             </div>
