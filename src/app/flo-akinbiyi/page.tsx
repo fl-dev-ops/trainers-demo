@@ -58,7 +58,7 @@ export default function Welcome() {
           <article className="path path--wide">
             <RoleplayPair
               coachee={{ role: 'Manager', text: 'A manager with five minutes to present a project to the CEO and win his support.', practises: ['Getting to the point', 'Energy and presence'] }}
-              persona={{ role: 'CEO', name: 'Karim Haddad', photo: '/media/flo-roleplay-karim.jpg', voice: 'Ethan', text: 'CEO of a 300-person logistics company in Dubai. Between meetings, short on time and attention, and wants the bottom line.' }}
+              persona={{ role: 'CEO', name: 'Richard Hale', photo: '/media/flo-roleplay-richard.jpg', voice: 'Ethan', text: 'CEO of a 300-person logistics company in Dubai, originally from Leeds. Between meetings, short on time and attention, and wants the bottom line.' }}
             />
             <div className="path-b">
               <h2>Win five minutes with a busy CEO</h2>
