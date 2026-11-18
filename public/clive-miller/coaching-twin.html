@@ -475,7 +475,8 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', 
 const pad = n => String(n).padStart(2, '0');
 const lineOf = id => L.find(l => l.id === id);
 const cueL = lineOf(TH.cueLine), moveL = lineOf(TH.moveLine);
-const NAMES = ['', 'Lines', 'Moves', 'Situations', 'Topics', 'Phases', 'Beliefs'];
+// the pyramid labels use the same words as the layer cards in the box on the right (cards: layer 4 recurring pattern, layer 5 purpose, layer 6 principle)
+const NAMES = ['', 'Lines', 'Moves', 'Situations', 'Recurring pattern', 'Purpose', 'Principle'];
 const KIND = {youtube: ['YouTube video', 'yt', 'YouTube'], linkedin: ['LinkedIn post', 'li', 'LinkedIn'], web: ['Web page', 'wb', 'Website'],
   medium: ['Medium article', 'wb', 'Medium'], doc: ['Document', 'wb', 'Documents'], recording: ['Recording', 'lm', 'Recordings'],
   instagram: ['Instagram post', 'ig', 'Instagram'], twitter: ['Post on X', 'tw', 'X']};
