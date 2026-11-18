@@ -264,6 +264,17 @@ header b{color:var(--l1);font-weight:600}
 #ab .chip:hover{color:var(--ink);border-color:var(--dim)}
 #ab .chip[aria-pressed=true]{color:#1b1712;background:var(--l1);border-color:var(--l1);font-weight:500}
 #ab .ev{flex-basis:100%;margin-top:4px;font:500 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+/* who you are / who you are not (standard from 17 Nov 2026): two columns per row */
+#ab .page{overflow-y:auto;scrollbar-width:thin;padding-right:6px}
+#ab .sheet.two{max-width:1180px;padding:4px 24px 6px}
+#ab .sheet.two .row{grid-template-columns:130px 1fr}
+#ab .cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+#ab .col .ev{display:block;margin-top:9px}
+#ab .row.heads{padding:12px 0 6px;border-bottom:1px solid var(--line2)}
+#ab .heads b{font:600 10px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase}
+#ab .heads b.is{color:var(--l1)}#ab .heads b.no{color:#e0715a}
+#ab .chip.no::before{content:'\2715';margin-right:7px;font-size:11px;color:#e0715a}
+#ab .chip.no[aria-pressed=true]{color:var(--ink);background:transparent;border-color:#e0715a;font-weight:400}
 #fd .todo span{display:block;font:600 10px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--l5);margin-bottom:10px}
 
 /* ---------- source badges for the other kinds */
@@ -373,6 +384,12 @@ body.m #ab h2,body.m #fd h2{font-size:30px;flex-wrap:wrap}
 body.m #ab .what,body.m #fd .what{font-size:16px}
 body.m #ab .sheet{padding:2px 16px}
 body.m #ab .row{grid-template-columns:1fr;gap:10px}
+body.m #ab .sheet.two .row{grid-template-columns:1fr}
+body.m #ab .cols{grid-template-columns:1fr;gap:18px}
+body.m #ab .row.heads{display:none}
+body.m #ab .col::before{display:block;margin-bottom:8px;font:600 10px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--l1);content:'Who you are'}
+body.m #ab .col+.col::before{color:#e0715a;content:'Who you are not'}
+body.m #ab .page{overflow:visible}
 body.m #ab .chip{font-size:13.5px;padding:8px 12px}
 body.m #fd .lead .principle-count b{font-size:44px}
 body.m #fd .keys{display:inline-block;margin-top:16px;padding:8px 0;font-size:11px;color:var(--dim)}
@@ -465,26 +482,26 @@ const KIND = {youtube: ['YouTube video', 'yt', 'YouTube'], linkedin: ['LinkedIn 
 
 /* ================= the states ================= */
 const P = CF.steps;
-const CH = ['Collect', 'Read', 'Follow', 'Understand', 'About you', 'Do’s & Don’ts'];
+const CH = ['Collect', 'About you', 'Read', 'Follow', 'Understand', 'Do’s & Don’ts'];
 const STATES = [
   {ch: -1},
   {ch: 0, ...P.collect, stat: [T.conversations, `sources · ${(T.words / 1e6).toFixed(1)}m words`]},
-  {ch: 1, ...P.transcript},
-  {ch: 1, ...P.speakers},
-  {ch: 1, ...P.layer1, stat: [T.actions, 'lines spoken or written'], lvl: 1},
-  {ch: 2, ...P.meaning, stat: [S.frames.length, `frames from these ${L.length} lines`]},
-  {ch: 2, ...P.cue},
-  {ch: 3, ...P.layer2, stat: [T.frames, `substantive lines by ${NM}`], lvl: 2},
-  {ch: 3, ...P.layer3, stat: [T.tactics, 'situations'], lvl: 3},
-  {ch: 3, ...P.layer4, stat: [T.scenes, 'recurring topics'], lvl: 4},
-  {ch: 3, ...P.layer5, stat: [T.phases, WD.coaching + ' purposes'], lvl: 5},
-  {ch: 3, ...P.layer6, stat: [T.beliefs, 'principles'], lvl: 6},
-  {ch: 3, ...P.trace, lvl: 7},
-  {ch: 4, ab: true},
+  {ch: 1, ab: true},                       // About you comes straight after Collect (standard from 17 Nov 2026)
+  {ch: 2, ...P.transcript},
+  {ch: 2, ...P.speakers},
+  {ch: 2, ...P.layer1, stat: [T.actions, 'lines spoken or written'], lvl: 1},
+  {ch: 3, ...P.meaning, stat: [S.frames.length, `frames from these ${L.length} lines`]},
+  {ch: 3, ...P.cue},
+  {ch: 4, ...P.layer2, stat: [T.frames, `substantive lines by ${NM}`], lvl: 2},
+  {ch: 4, ...P.layer3, stat: [T.tactics, 'situations'], lvl: 3},
+  {ch: 4, ...P.layer4, stat: [T.scenes, 'recurring topics'], lvl: 4},
+  {ch: 4, ...P.layer5, stat: [T.phases, WD.coaching + ' purposes'], lvl: 5},
+  {ch: 4, ...P.layer6, stat: [T.beliefs, 'principles'], lvl: 6},
+  {ch: 4, ...P.trace, lvl: 7},
   {ch: 5, fd: true},
 ];
 const N = STATES.length, ST_L1 = STATES.findIndex(s => s.lvl === 1), ST_L2 = STATES.findIndex(s => s.lvl === 2);
-const ST_FR = ST_L1 + 1, ST_CUE = ST_L1 + 2;
+const ST_FR = ST_L1 + 1, ST_CUE = ST_L1 + 2, ST_AB = STATES.findIndex(s => s.ab);
 
 /* ================= build the DOM ================= */
 document.title = `How ${NM}'s Twin Learns`;
@@ -553,7 +570,7 @@ $('#legend').innerHTML = `<div class="plabel">This exchange, layer by layer</div
 // about you
 const A = CF.about;
 $('#ab').innerHTML = `<div class="lead">
-    <div class="kick">05 · About you</div>
+    <div class="kick">${pad(STATES[ST_AB].ch + 1)} · About you</div>
     <h1>Where we found you</h1>
     <p>${CF.about_lead || 'Your twin starts from what you have already shared in public.'}</p>
     <div class="found">${A.sources.map(([k, where, meta]) => `<div><b>${k}</b> ${where}<em>✓</em><small>${meta}</small></div>`).join('')}</div>
@@ -561,8 +578,12 @@ $('#ab').innerHTML = `<div class="lead">
   <div class="page">
     <h2>Here’s who we think you are</h2>
     <p class="what">From your ${(n => n.length > 1 ? n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1] : n[0])(A.sources.map(s => s[0]))}. Tap to correct anything.</p>
-    <div class="sheet">${A.rows.map(([label, opts, ev]) => `<div class="row"><span>${label}</span><div class="chips">${
-      opts.map(([v, on]) => `<button type="button" class="chip" aria-pressed="${!!on}">${v}</button>`).join('')}<span class="ev">${ev}</span></div></div>`).join('')}</div>
+    ${A.rows.some(r => r.length >= 5) ? `<div class="sheet two"><div class="row heads"><span></span><div class="cols"><b class="is">Who you are</b><b class="no">Who you are not</b></div></div>${
+      A.rows.map(([label, yes, not, evYes, evNot]) => `<div class="row"><span>${label}</span><div class="cols">
+        <div class="col"><div class="chips">${yes.map(([v, on]) => `<button type="button" class="chip" aria-pressed="${!!on}">${v}</button>`).join('')}</div><span class="ev">${evYes}</span></div>
+        <div class="col"><div class="chips">${not.map(([v, on]) => `<button type="button" class="chip no" aria-pressed="${!!on}">${v}</button>`).join('')}</div><span class="ev">${evNot}</span></div>
+      </div></div>`).join('')}</div>` : `<div class="sheet">${A.rows.map(([label, opts, ev]) => `<div class="row"><span>${label}</span><div class="chips">${
+      opts.map(([v, on]) => `<button type="button" class="chip" aria-pressed="${!!on}">${v}</button>`).join('')}<span class="ev">${ev}</span></div></div>`).join('')}</div>`}
   </div>`;
 
 // do's & don'ts (optionally one set per persona, e.g. a professor who also teaches Sanskrit chanting)
@@ -683,17 +704,17 @@ function go(i) {
 
   // ----- the window
   const win = $('#win');
-  const shown = i >= 1 && i < ST_L1 || i === ST_FR || i === ST_CUE;
+  const shown = i >= 1 && i < ST_L1 && i !== ST_AB || i === ST_FR || i === ST_CUE;
   win.classList.toggle('show', shown);
   win.classList.toggle('gone', !shown && i > 0);
   win.classList.toggle('narrow', i === ST_FR || i === ST_CUE);
   $('#side').style.cssText = i <= 1 ? '' : 'width:0;padding:14px 0;opacity:0';
-  cls('#list', 'on', i === 1); cls('#docs', 'on', i >= 2);
+  cls('#list', 'on', i === 1); cls('#docs', 'on', i > ST_AB);
   $('#wtitle').textContent = i <= 1 ? CF.coach.slug : `${sess.date} · ${sess.title}.md`;
-  $('#status').textContent = i >= 2 ? `${sess.kind} · ${day(sess.date)}` : '';
+  $('#status').textContent = i > ST_AB ? `${sess.kind} · ${day(sess.date)}` : '';
   if (i === 1) runList(); else listAnim++;
   const doc = $('#doc');
-  doc.classList.toggle('clean', i >= 3); doc.classList.toggle('focus', i === ST_CUE);
+  doc.classList.toggle('clean', i > ST_AB + 1); doc.classList.toggle('focus', i === ST_CUE);
 
   // ----- right panels
   cls('#frames', 'on', i === ST_FR || i === ST_CUE); cls('#frames', 'focus', i === ST_CUE);
