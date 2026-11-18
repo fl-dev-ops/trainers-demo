@@ -7,9 +7,9 @@ const NOTE_COLOURS = ['note--yellow', 'note--pink', 'note--blue', 'note--green']
 // The twin in a notebook, with coloured post-its. Each post-it starts a conversation with the twin in that context.
 // `notes` (optional) replaces the default post-its with explicit ones: [{ label, query }], the first being Ask me anything.
 /**
- * @param {{ trainer: any, livePath: string, questions?: string[], notes?: { label: string, query: Record<string, string> }[] }} props
+ * @param {{ trainer: any, livePath: string, questions?: string[], notes?: { label: string, query: Record<string, string> }[], plain?: boolean }} props
  */
-export function TwinNotebook({ trainer, livePath, questions, notes: custom }) {
+export function TwinNotebook({ trainer, livePath, questions, notes: custom, plain = false }) {
   const notes = custom ?? [{ label: 'Ask me anything', query: { mode: 'ama' } }, ...(questions ?? []).map((q) => ({ label: q, query: { q } }))]
   return (
     <div className="peek peek--nb">
@@ -25,10 +25,10 @@ export function TwinNotebook({ trainer, livePath, questions, notes: custom }) {
             <Link
               key={n.label}
               href={{ pathname: livePath, query: n.query }}
-              className={'note ' + NOTE_COLOURS[i % NOTE_COLOURS.length] + (i === 0 ? ' note--ama' : '')}
-              aria-label={i === 0 ? 'Ask me anything' : 'Ask: ' + n.label}
+              className={'note ' + NOTE_COLOURS[i % NOTE_COLOURS.length] + (i === 0 && !plain ? ' note--ama' : '')}
+              aria-label={plain ? 'Talk by ' + n.label.toLowerCase() : i === 0 ? 'Ask me anything' : 'Ask: ' + n.label}
             >
-              {i === 0 ? n.label : '“' + n.label + '”'}
+              {plain || i === 0 ? n.label : '“' + n.label + '”'}
             </Link>
           ))}
         </div>

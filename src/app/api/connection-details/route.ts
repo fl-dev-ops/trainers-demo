@@ -44,6 +44,7 @@ export async function POST(request: Request) {
   let agentId = "olga";
   let starter = "";
   let opener = "";
+  let mode = "";
   try {
     const body = (await request.json()) as Record<string, unknown>;
     name = typeof body?.name === "string" ? body.name.trim() : "";
@@ -57,6 +58,7 @@ export async function POST(request: Request) {
       starter = body.starter.replace(/\s+/g, " ").trim().slice(0, 300);
     }
     if (body.opener === "ama") opener = "ama";
+    if (body.mode === "text" || body.mode === "voice") mode = body.mode;
   } catch {
     return Response.json({ error: "Invalid JSON body" }, { status: 400 });
   }
@@ -66,7 +68,8 @@ export async function POST(request: Request) {
 
   const metadata = JSON.stringify({
     agent_id: agentId,
-    avatar: ANAM_AGENT_IDS.includes(agentId) ? "anam" : true,
+    // text and voice talk to the twin without the paid video avatar (the agent falls back to audio-only)
+    avatar: mode ? false : ANAM_AGENT_IDS.includes(agentId) ? "anam" : true,
     user_name: name,
     interaction_mode: "auto",
     ...(starter ? { starter } : {}),

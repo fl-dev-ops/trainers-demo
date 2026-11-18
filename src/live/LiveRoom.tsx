@@ -54,6 +54,11 @@ function LiveEntry({ trainer }: { trainer: Trainer }) {
   // "Ask me anything" on the welcome page (?mode=ama) asks the agent for its AMA opening.
   const ama = Boolean(trainer.starterInRoom && !starter && searchParams.get('mode') === 'ama')
   const roomScoped = starterInRoom || ama
+  // How the user talks to the twin: text (chat only), voice (mic, no avatar) or video (the default). Read once.
+  const [talk] = useState<'text' | 'voice' | 'video'>(() => {
+    const m = searchParams.get('mode')
+    return m === 'text' || m === 'voice' ? m : 'video'
+  })
 
   // Connects on mount; the agent addresses the user by this name.
   // The ref guard survives StrictMode's double invoke, so we never mint two rooms.
@@ -61,7 +66,7 @@ function LiveEntry({ trainer }: { trainer: Trainer }) {
     if (hasStartedRef.current) return
     hasStartedRef.current = true
 
-    const cached = roomScoped ? null : parseConnectionDetails(sessionStorage.getItem(storageKey))
+    const cached = roomScoped || talk !== 'video' ? null : parseConnectionDetails(sessionStorage.getItem(storageKey))
     if (cached) {
       setConnection(cached)
       return
@@ -72,7 +77,7 @@ function LiveEntry({ trainer }: { trainer: Trainer }) {
     fetch('/api/connection-details', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: trainer.participantName ?? PARTICIPANT_NAME, profile: trainer.id, ...(starterInRoom ? { starter } : {}), ...(ama ? { opener: 'ama' } : {}) }),
+      body: JSON.stringify({ name: trainer.participantName ?? PARTICIPANT_NAME, profile: trainer.id, ...(starterInRoom ? { starter } : {}), ...(ama ? { opener: 'ama' } : {}), ...(talk !== 'video' ? { mode: talk } : {}) }),
     })
       .then(async (response) => {
         const payload = await response.json().catch(() => null)
@@ -94,9 +99,9 @@ function LiveEntry({ trainer }: { trainer: Trainer }) {
         console.error(`[EXT-API:connection-details] event=failure elapsed_ms=${Date.now() - startedAt}`, caught)
         setError(caught instanceof Error ? caught.message : 'Could not start the role play.')
       })
-  }, [storageKey, trainer.id, starter, starterInRoom, ama, roomScoped])
+  }, [storageKey, trainer.id, starter, starterInRoom, ama, roomScoped, talk])
 
-  if (connection) return <RolePlay connection={connection} scenario={SCENARIO} trainer={trainer} starter={starterInRoom ? null : starter} starterInRoom={roomScoped} />
+  if (connection) return <RolePlay connection={connection} scenario={SCENARIO} trainer={trainer} starter={starterInRoom ? null : starter} starterInRoom={roomScoped} talk={talk} />
 
   return (
     <section>
@@ -111,7 +116,7 @@ function LiveEntry({ trainer }: { trainer: Trainer }) {
 }
 
 /** The live room: owns the LiveKit session and renders the role play UI. */
-function RolePlay({ connection, scenario: SCENARIO, trainer, starter = null, starterInRoom = false }: { connection: ConnectionDetails; scenario: Scenario; trainer: Trainer; starter?: string | null; starterInRoom?: boolean }) {
+function RolePlay({ connection, scenario: SCENARIO, trainer, starter = null, starterInRoom = false, talk = 'video' }: { connection: ConnectionDetails; scenario: Scenario; trainer: Trainer; starter?: string | null; starterInRoom?: boolean; talk?: 'text' | 'voice' | 'video' }) {
   const trainerHome = `/${trainer.id}`
   // Trainers with a fixed room (e.g. Jameel, Prathosh) skip the role-play scenario and cues.
   const fixedRoom = trainer.room
@@ -144,8 +149,8 @@ function RolePlay({ connection, scenario: SCENARIO, trainer, starter = null, sta
     session
       .start({
         tracks: {
-          microphone: { enabled: true },
-          camera: { enabled: true },
+          microphone: { enabled: talk !== 'text' },
+          camera: { enabled: talk === 'video' },
         },
       })
       .catch((error) => {
@@ -261,7 +266,7 @@ function RolePlay({ connection, scenario: SCENARIO, trainer, starter = null, sta
 
   return (
     <SessionProvider session={session}>
-      <RoomAudioRenderer room={session.room} />
+      {talk !== 'text' && <RoomAudioRenderer room={session.room} />}
       <section>
         <div className="room">
           <div className="room-bar">
@@ -304,8 +309,8 @@ function RolePlay({ connection, scenario: SCENARIO, trainer, starter = null, sta
           </div>
 
           <div className="ctrl" role="toolbar" aria-label="Role play controls">
-            <button type="button" className="cb" aria-pressed={camOn} aria-label={camOn ? 'Turn camera off' : 'Turn camera on'} onClick={toggleCamera}><VideoCam width={1.8} /></button>
-            <button type="button" className="cb" aria-pressed={micOn} aria-label={micOn ? 'Mute microphone' : 'Unmute microphone'} onClick={toggleMic}><Mic /></button>
+            {talk === 'video' && <button type="button" className="cb" aria-pressed={camOn} aria-label={camOn ? 'Turn camera off' : 'Turn camera on'} onClick={toggleCamera}><VideoCam width={1.8} /></button>}
+            {talk !== 'text' && <button type="button" className="cb" aria-pressed={micOn} aria-label={micOn ? 'Mute microphone' : 'Unmute microphone'} onClick={toggleMic}><Mic /></button>}
             <button type="button" className="cb chat" aria-pressed={chat} aria-label={chat ? 'Hide chat' : 'Show chat'} onClick={() => setChat(!chat)}><Chat width={1.8} /></button>
             <button type="button" className="cb end" aria-label="End role play" onClick={() => { void leaveToHome() }}><HangUp /></button>
           </div>
