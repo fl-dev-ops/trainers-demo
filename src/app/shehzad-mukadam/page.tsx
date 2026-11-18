@@ -5,11 +5,6 @@ import TrustFooter from '@/components/TrustFooter.jsx'
 import { RoleplayPair, TwinNotebook } from '@/components/ProfileCards.jsx'
 import { Instagram, LinkedIn, Sparkle } from '@/components/Icons.jsx'
 
-const QUESTIONS = [
-  'My team loved the training, but three weeks later nothing has changed. Why?',
-  'My best salesperson just became a sales manager and is struggling. What should I do?',
-]
-
 const DASH = 'https://dash.roleplay.foreverlearning.in/agents/'
 
 /* Shehzad's role play on the role-play dashboard. Third person. */
@@ -41,10 +36,10 @@ export default function Welcome() {
         </div>
         <div className="paths">
           <article className="path">
-            <TwinNotebook trainer={{ ...SHEHZAD_MUKADAM, portrait: SHEHZAD_MUKADAM.face }} livePath="/shehzad-mukadam/live" questions={QUESTIONS} />
+            <TwinNotebook trainer={{ ...SHEHZAD_MUKADAM, portrait: SHEHZAD_MUKADAM.face }} livePath="/shehzad-mukadam/live" plain notes={[{ label: 'Text', query: { mode: 'text' } }, { label: 'Voice', query: { mode: 'voice' } }, { label: 'Video', query: {} }]} />
             <div className="path-b">
               <h2>Ask {SHEHZAD_MUKADAM.firstName}’s twin live</h2>
-              <p>Pick a post-it to start a conversation, or ask your own question.</p>
+              <p>Choose how to talk with {SHEHZAD_MUKADAM.firstName}’s twin: text, voice or video.</p>
               <div className="row">
                 <Link href="/shehzad-mukadam/live" className="btn btn--strong card-link">Start asking</Link>
                 <span className="meta">{SHEHZAD_MUKADAM.room.kind}</span>
