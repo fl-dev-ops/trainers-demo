@@ -196,6 +196,23 @@ export const SHEHZAD_MUKADAM = {
   },
 }
 
+export const NATALIE_SEREBRENNIK = {
+  id: 'natalie-serebrennik',
+  name: 'Natalie Serebrennik',
+  // The agent answers the welcome-page starter as the first message (needs starter_reply in agents.json).
+  starterInRoom: true,
+  firstName: 'Natalie',
+  initials: 'NS',
+  participantName: 'User', // the learner's tile label in the live room (default is 'Candidate')
+  face: '/media/natalie-serebrennik-headshot-v2.jpg',
+  portrait: '/media/natalie-serebrennik-portrait-v2.jpg',
+  room: {
+    kind: 'Ask me anything · Demo',
+    title: 'Ask about getting seen and promoted',
+    scenario: 'Natalie’s AI twin will help you with getting seen at work, going for a promotion, executive presence and hard conversations with your manager. It was made only for this demo and is not a replacement for Natalie.',
+  },
+}
+
 export const TONY_LATIMER = {
   id: 'tony-latimer',
   name: 'Tony Latimer',
@@ -494,5 +511,21 @@ SHEHZAD_MUKADAM.sources = [
   ]],
   ['Instagram', '118 posts and reels', [
     ['@lifebyshehzad', 'His own reels and posts, 2025 to 2026'],
+  ]],
+]
+
+NATALIE_SEREBRENNIK.sourceSummary = '4 YouTube videos · 378 LinkedIn posts · 29 website pages'
+NATALIE_SEREBRENNIK.sources = [
+  ['YouTube', '4 videos', [
+    ['Advance your career', 'Guest interview'],
+    ['Essential leadership mindset shift', 'Her own Short'],
+    ['3 tips to grow your career', 'Her own Short'],
+    ['Make office politics work for you', 'Her own Short'],
+  ]],
+  ['LinkedIn', '378 posts', [
+    ['Natalie Serebrennik on LinkedIn', 'Her own posts, 2024 to 2026'],
+  ]],
+  ['Website', '29 pages', [
+    ['natalieserebrennik.com', 'Coaching, services, guides and blog'],
   ]],
 ]

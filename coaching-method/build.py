@@ -266,6 +266,24 @@ def build_story(cfg, C):
 
     # ----- the conversation we follow
     turns = C.transcripts.get(sess_cfg['file'])
+    post = sess_cfg.get('post_turns')   # a written post that quotes a conversation (config `session.post_turns`, in order)
+    if post and not turns:
+        fp = os.path.join(C.data, sess_cfg['file'])
+        if not os.path.exists(fp):
+            die(f"session.file '{sess_cfg['file']}' is not in the coach's data folder.")
+        raw_lines = open(fp, encoding='utf-8', errors='replace').read().split('\n')
+        pre = split_fm(open(fp, encoding='utf-8', errors='replace').read())[1]
+        sid = next((i for i, s in C.ix['sources'].items() if s['path'] == sess_cfg['file']), None)
+        paras = [j for j in range(pre, len(raw_lines)) if raw_lines[j].strip()]
+        turns = []
+        for pt in post:
+            j = next((j for j in paras if pt['text'].lower() in raw_lines[j].lower()), None)
+            if j is None:
+                die(f"session.post_turns text not found in {sess_cfg['file']}: {pt['text']}")
+            c = pt['who'] == 'coach'
+            turns.append({'src': sid, 'ln': j + 1, 'spk': 'speaker_1' if c else 'speaker_2', 'coach': c, 'text': pt['text'],
+                          'w': len(pt['text'].split()), 'ts': f'¶{paras.index(j) + 1}'})
+        sess_cfg = dict(sess_cfg, start=turns[0]['text'])
     if not turns:
         die(f"session.file '{sess_cfg['file']}' has no speaker_N: turns (or is not in index.json).")
     start = sess_cfg['start'].lower()
@@ -307,7 +325,7 @@ def build_story(cfg, C):
     def clip(t, n=235):
         return t if len(t) <= n else t[:n].rsplit(' ', 1)[0] + ' …'
     sess_lines = [{'id': f"t{t['ln']:04d}" + (f"-{t['part']}" if 'part' in t else ''),
-                   'ts': f"¶{w0 + 1}.{t['part'] + 1}" if 'part' in t else f'¶{w0 + k + 1}', 'raw': t['spk'], 'coach': t['coach'],
+                   'ts': t.get('ts') or (f"¶{w0 + 1}.{t['part'] + 1}" if 'part' in t else f'¶{w0 + k + 1}'), 'raw': t['spk'], 'coach': t['coach'],
                    'who': cfg['coach']['name'] if t['coach'] else other, 'text': clip(t['text'])}
                   for k, t in enumerate(win)]
     frames = [{'id': f'f-{k:02d}', 'span': s, 'kind': kd, 'from': [sess_lines[k]['id']]}
@@ -398,7 +416,7 @@ def build_story(cfg, C):
     fm, _ = split_fm(open(os.path.join(C.data, sess_cfg['file']), encoding='utf-8').read())
     return {
         'files': files, 'totals': totals,
-        'session': {'title': sess_cfg.get('title') or fm_field(fm, 'title') or '', 'date': fm_field(fm, 'date') or '',
+        'session': {'title': sess_cfg.get('title') or fm_field(fm, 'title') or '', 'date': (fm_field(fm, 'date') or '')[:10],
                     'kind': sess_cfg.get('kind', ''), 'turns': len(turns), 'other': other, 'lines': sess_lines,
                     'lines_full': sess_full},
         'frames': frames,

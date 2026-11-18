@@ -1,0 +1,134 @@
+# Natalie Serebrennik. Build with:
+#   python build.py build natalie-serebrennik
+# Source: lore users/natalie-serebrennik: 4 YouTube videos, 378 LinkedIn posts, 29 website pages (118k words).
+# Exchange: her LinkedIn post of 25 June 2025 "She'd been mentoring junior staff for years" (DJ's pick: none of the
+# videos has a usable exchange). A client story with a real question and answer inside the post: Natalie asks the
+# client how her manager would describe her leadership, the client answers, Natalie names the problem and makes a plan.
+# Built with session.post_turns (build.py reads the post's own lines in order). Pronouns she/her/her.
+
+coach:
+  slug: natalie-serebrennik
+  name: Natalie
+  full_name: Natalie Serebrennik
+  pronouns: [she, her, her]
+
+mobile: true
+
+session:
+  file: linkedin/posts/2025-06-25-shed-been-mentoring-junior-staff.md
+  title: She’d been mentoring junior staff for years
+  kind: LinkedIn · client story
+  other: Client
+  other_role: Client
+  post_turns:
+    - {who: coach, text: "How would your manager describe your leadership?"}
+    - {who: other, text: "I’m not sure he even knows I’m doing any of it."}
+    - {who: coach, text: "We needed to make the invisible visible."}
+    - {who: coach, text: "So we built a simple, strategic plan."}
+  cue: 1
+  move: 2
+  frames:
+    - ["question", "asking how her manager would describe her leadership"]
+    - ["statement", "answering that he may not even know she is doing any of it"]
+    - ["reframe", "naming the problem: the work is invisible, so it has to be made visible"]
+    - ["statement", "turning it into a simple, strategic plan"]
+
+thread:
+  situation: passed-over-for-promotion
+  topic: self-advocacy
+  phase: 0
+  belief: 1
+
+default_phase: 0
+phases:
+  - title: Get seen
+    keywords: [visibility, visible, advocacy, self-advocacy, recognition, noticed, sponsorship, sponsor, influence, positioning, reputation]
+  - title: Build executive presence
+    keywords: [executive, presence, communication, speaking, meetings, meeting, confidence, strategic, thinking, perception, voice]
+  - title: Win the promotion
+    keywords: [promotion, promoted, advancement, career, progression, passed, stagnation, growth, stuck, transition, role, alignment]
+  - title: Negotiate the pay
+    keywords: [salary, negotiation, negotiating, pay, raise, compensation, offer, worth, value]
+  - title: Lead without burning out
+    keywords: [boundaries, boundary, delegation, burnout, balance, leadership, mindset, team, feedback, manager]
+  - title: Handle the hard moments
+    keywords: [conflict, difficult, conversations, politics, imposter, syndrome, mistake, mistakes, pushback, resilience]
+
+beliefs:
+  - {title: Hard work is the baseline, text: 'Hard work is the baseline. Not the differentiator.', phases: [2, 0]}
+  - {title: Make the invisible visible, text: 'We needed to make the invisible visible.', phases: [0, 2]}
+  - {title: Performance alone isn’t enough, text: 'In this system, performance alone doesn’t get you promoted.', phases: [2, 1]}
+  - {title: Don’t wait for permission, text: 'Stop waiting for management to notice your contributions and hand you opportunities.', phases: [0, 2]}
+  - {title: Be a little selfish, text: 'If you’re not selfish, you’re on the sidelines.', phases: [3, 2]}
+  - {title: Without burning out, text: 'You don’t need to work harder. You need a system that gets you seen.', phases: [4, 0]}
+
+steps:
+  collect: "We read {youtube} of her YouTube videos, {linkedin} of her LinkedIn posts and {web} pages of her website: <em>{words} words across {lines} lines.</em> From this collection, we follow one LinkedIn post, where she asks a client how her manager would describe her leadership."
+  transcript: ["A post becomes text", "The post is split by who is speaking: Natalie’s question, the client’s answer and Natalie’s reply. At first, it is simply a record of who said what."]
+  trace: ["One reply becomes a principle", "We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the exact moment Natalie answered her client."]
+  speakers: ["Who said what", "We separate Natalie’s lines from the client’s, and mark the line she responds to."]
+  layer1: "Natalie asks: <em>&ldquo;How would your manager describe your leadership?&rdquo;</em> The client answers: <em>&ldquo;I’m not sure he even knows I’m doing any of it.&rdquo;</em> These exact lines are the evidence for everything that follows."
+  meaning: "The client has mentored junior staff for years, with steady praise and strong relationships, yet she was passed over for a high-profile project. Natalie doesn’t tell her to work harder: she names the real problem."
+  cue: "Told that her manager may not even know, Natalie answers, <em>&ldquo;We needed to make the invisible visible.&rdquo;</em>"
+  layer2: "She turns a stuck feeling into a plan. The response stays linked to the exact moment."
+  layer3: "A reliable high performer is praised, then passed over. In Natalie’s material this shows up as <em>being passed over for a promotion</em>."
+  layer4: "Natalie keeps coming back to being seen: visibility comes up in 112 of her sources and promotion in 130, across her posts, videos and website."
+  layer5: "The purpose is to move professionals from &ldquo;do great work and wait&rdquo; to &ldquo;make the work seen, then ask&rdquo;."
+  layer6: "<em>We needed to make the invisible visible.</em> This is the principle behind Natalie’s reply."
+
+cards:
+  layer1:
+    cue: How would your manager describe your leadership?
+    move: I’m not sure he even knows I’m doing any of it.
+    foot: Two exact lines &middot; two speakers &middot; back to back
+  layer2:
+    cue: Says her manager may not even know what she does
+    move: Turns it into a plan to make the work visible
+  layer3:
+    title: Passed over despite great work
+    text: The client is praised and trusted, then passed over for a high-profile project, again.
+    foot: Situation in {his} material &middot; &ldquo;passed over for promotion&rdquo; in 11 sources
+  layer4:
+    title: Make your work visible
+    text: Natalie keeps coming back to being seen, so make your impact visible to the people who decide before you ask for the next level.
+    foot: Recurring pattern &middot; visibility in 112 sources, promotion in 130
+  layer5:
+    title: Make the work seen, then ask
+    text: Stop waiting to be noticed. Make your contribution easy to see, then have the growth conversation.
+    starts: '&ldquo;Do great work and wait&rdquo;'
+    moves_to: '&ldquo;Make the work seen, then ask&rdquo;'
+  layer6:
+    quote: We needed to make the invisible visible.
+    text: 'The same idea runs through her material: <em>&ldquo;You don’t need to work harder. You need a system that gets you seen.&rdquo;</em>'
+
+about:
+  sources:
+    - ["YouTube", "Interviews and talks", "{youtube} videos"]
+    - ["LinkedIn", "in/natalie-serebrennik", "{linkedin} posts"]
+    - ["Website", "natalieserebrennik.com", "{web} pages"]
+  # Standard from 17 Nov 2026: 3-4 "who you are" and 3-4 "who you are not" tags per row, each side with evidence.
+  # Row = [label, [[tag, 1], ...] is, [[tag, 0], ...] is not, evidence for "is", evidence for "is not"].
+  rows:
+    - ["Type of coach", [["Executive coach", 1], ["Leadership coach", 1], ["Career coach", 1], ["Workshop facilitator", 1]], [["A résumé writer", 0], ["A recruiter", 0], ["A therapist", 0]], "your LinkedIn headline: “Certified Executive Coach” · your website: “Certified Executive Leadership Coach” · “workshops and development programming”", "your material is about promotion, pay and leadership impact: résumés come up in only 4 sources · mindset work is about “limiting beliefs”, not therapy"]
+    - ["Region", [["Toronto", 1], ["Canada", 1], ["Canadian and US firms", 1], ["Finance and corporate", 1]], [["US-based", 0], ["Europe-based", 0], ["Local-only", 0]], "LinkedIn: Toronto, Ontario, Canada · 17 years in Sales & Trading at BMO Capital Markets · your website’s client list is Canadian and US firms, plus a few global ones", "your LinkedIn location is Toronto, not the US or Europe · your clients are not only local: the list on your website includes firms outside Canada"]
+    - ["Who you coach", [["Mid-senior professionals", 1], ["Women in corporate", 1], ["High performers who are overlooked", 1], ["Emerging leaders", 1]], [["Early-career graduates", 0], ["Founders and entrepreneurs", 0], ["People underperforming", 0]], "“A 3-month accelerator for mid-senior professionals” · “Especially as a woman in corporate” · “You’re not here because you’re underperforming”", "your offers speak to people already “doing everything right”; founders come up in only 5 sources"]
+    - ["How you deliver", [["One-to-one coaching", 1], ["3-month accelerator", 1], ["Self-paced course", 1], ["Company workshops", 1]], [["A quick fix", 0], ["A DIY course alone", 0], ["Generic motivation", 0]], "The Executive Edge, the accelerator, Next Level Leader and speaking workshops, plus the free Self-Advocacy Guide and masterclass", "“It’s definitely not a quick fix” · “This isn’t a DIY course” (the coaching page) · “No fluff, just practical tools and honest conversations” (workshops)"]
+    - ["Your topics", [["Self-advocacy", 1], ["Visibility", 1], ["Executive presence", 1], ["Promotion and pay", 1]], [["Working harder", 0], ["Keeping your head down", 0], ["Waiting to be noticed", 0], ["Burning out to prove yourself", 0]], "visibility in 112 sources, promotion in 130, executive presence in 22, salary and negotiation in 22", "“The old ‘keep your head down and do good work’ strategy won’t cut it” · “Stop waiting for management to notice your contributions” · “without burning out in the process”"]
+    - ["Named frameworks", [["The Executive Edge", 1], ["Next Level Leader", 1], ["Self-Advocacy Guide", 1], ["The 6 unspoken executive skills", 1]], [["A famous leadership model", 0], ["A one-size-fits-all plan", 0], ["Personality typing", 0]], "your website and LinkedIn · the free Self-Advocacy Guide is offered in most of your posts", "no off-the-shelf leadership model is named in your material · “We’ll create a customized strategy for your unique situation” · no personality-type tool is used"]
+    - ["Your style", [["Blunt", 1], ["Client stories", 1], ["Ready-to-use scripts", 1], ["Challenges the system", 1]], [["Soft and fluffy", 0], ["Corporate jargon", 0], ["Blaming the person", 0]], "“I call BS” (2 sources) · “my client” in 91 sources · “ready-to-use scripts” and “the exact language swaps” on your website", "“No fluff” on your workshop page · you say the system, not the person, is the problem: “I call BS on a system that makes high performers believe the answer is to work harder”"]
+
+dd_lead: Natalie's twin follows these in every answer. They come from patterns that run through her posts, videos and website.
+dos:
+  - ["make your impact visible to the people who decide", "LinkedIn · “make the invisible visible”"]
+  - ["ask how your manager would describe your leadership", "LinkedIn · the junior staff post"]
+  - ["prepare ready-to-use words for the hard conversations", "Website · the communication guide"]
+  - ["build a plan around your own situation", "Website · The Executive Edge"]
+  - ["claim the next level and the pay that goes with it", "Website · the accelerator"]
+  - ["grow without burning out", "LinkedIn · “without burning out in the process”"]
+donts:
+  - ["keep your head down and hope to be noticed", "Website · “won’t cut it in today’s world”"]
+  - ["assume more hard work will get you promoted", "Website · “Hard work is the baseline”"]
+  - ["wait for permission or recognition", "Website · the Self-Advocacy Guide"]
+  - ["undermine your credibility with softening language", "Website · “the exact language swaps”"]
+  - ["treat career growth as a quick fix", "Website · “not a quick fix”"]
+  - ["blame yourself when the system is the problem", "Website · “I call BS”"]
