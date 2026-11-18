@@ -53,10 +53,6 @@ function Tags({ items }) {
   return <div className="pc-tags">{items.map((t) => <span key={t} className="pc-tag">{t}</span>)}</div>
 }
 
-const Speaker = () => (
-  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
-)
-
 // Your coachee (a blank profile picture the coach can picture as one of their own) practises with the AI persona.
 // Portrait cards in the style of the role-play dashboard's persona cards.
 export function RoleplayPair({ coachee, persona }) {
@@ -81,7 +77,6 @@ export function RoleplayPair({ coachee, persona }) {
           <span className="pc-name">{persona.name}</span>
           <Tags items={persona.behaviour} />
           <Tags items={persona.speaking} />
-          {persona.voice && <span className="pc-voice">{persona.voice}<Speaker /></span>}
           <p className="pc-text">{persona.text}</p>
         </div>
       </div>

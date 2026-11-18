@@ -13,7 +13,7 @@ const ROLE_PLAYS = [
     slug: 'this-won-t-sell-in-my-store',
     title: 'This won’t sell in my store',
     coachee: { role: 'Field sales representative', text: 'A field sales representative for a consumer goods supplier, introducing a premium range to a store manager who has said no before.', practises: ['Asking before assuming', 'Reframing, not pushing'] },
-    persona: { role: 'Store Manager', name: 'Faisal Hamdan', photo: '/media/shehzad-roleplay-faisal.jpg', behaviour: ['Warm but Cautious'], speaking: ['Casual', 'Medium answers'], voice: 'Ethan', text: 'Runs a busy supermarket in Sharjah with fourteen years in retail. Friendly but short on time, and wary of anything that adds stock he has to explain or write off.' },
+    persona: { role: 'Store Manager', name: 'Mark Henderson', photo: '/media/shehzad-roleplay-mark.jpg', behaviour: ['Warm but Cautious'], speaking: ['Casual', 'Medium answers'], voice: 'Ethan', text: 'Runs a busy supermarket in Dubai with fourteen years in retail, originally from Manchester. Friendly but short on time, and wary of anything that adds stock he has to explain or write off.' },
   },
 ]
 
