@@ -1,0 +1,133 @@
+# Shehzad Mukadam. Build with:
+#   python build.py build shehzad-mukadam
+# Source: lore users/shehzad-mukadam: 289 LinkedIn posts, 118 Instagram posts and reels (about 42k words).
+# Exchange: his LinkedIn post of 5 Aug 2026 "He was struggling with objections on Monday" (one of DJ's two shortlisted posts;
+# the other, "A client once told me" of 22 Aug, is a relationship story outside his sales-training scope). A workshop story,
+# not a dialogue: the consultant's problem, Shehzad's process, the live call that proves it. Built with session.post_turns.
+# Pronouns he/him/his.
+
+coach:
+  slug: shehzad-mukadam
+  name: Shehzad
+  full_name: Shehzad Mukadam
+  pronouns: [he, him, his]
+
+mobile: true
+
+session:
+  file: linkedin/posts/2026-08-05-he-was-struggling-with-objections.md
+  title: He was struggling with objections on Monday
+  kind: LinkedIn · workshop story
+  other: The consultant
+  other_role: Consultant
+  post_turns:
+    - {who: other, text: "He was struggling with objections on Monday."}
+    - {who: coach, text: "Day 2 was about turning that mindset into a repeatable process"}
+    - {who: coach, text: "Back-to-back objection handling drills - no breaks, no mercy"}
+    - {who: coach, text: "One consultant picked up the phone, made an actual call, in front of the entire room - and booked a meeting."}
+  cue: 0
+  move: 1
+  frames:
+    - ["statement", "a consultant struggling with objections on Monday"]
+    - ["reframe", "turning the mindset into a repeatable process on day two"]
+    - ["story", "back-to-back objection drills, no breaks"]
+    - ["statement", "a live call in front of the whole room that books a meeting"]
+
+thread:
+  situation: objection-handling
+  topic: behavior-change
+  phase: 1
+  belief: 0
+
+default_phase: 1
+phases:
+  - title: Find the real need
+    keywords: [training, needs, analysis, audit, bottlenecks, gaps, learning, development, corporate, business]
+  - title: Train for behaviour
+    keywords: [behavior, behaviour, change, habits, practice, role, play, reinforcement, feedback, workshop, skills, soft]
+  - title: Sell with trust
+    keywords: [sales, selling, trust, objection, objections, client, clients, relationship, relationships, discount, psychology, negotiation]
+  - title: Lead people
+    keywords: [leadership, leader, manager, management, servant, culture, safety, empathy, team, teams, engagement]
+  - title: Build the person
+    keywords: [mindset, growth, boundaries, boundary, confidence, self, worth, respect, personal, motivation, emotional]
+  - title: Stay steady
+    keywords: [resilience, letting, go, stress, burnout, loneliness, adversity, faith, patience, peace, time]
+
+beliefs:
+  - {title: A system and the reps, text: 'They don''t need more motivation, they need a system and the reps to back it up.', phases: [1, 2]}
+  - {title: Teach people how to think, text: 'Training isn''t about teaching people what to say. It''s about teaching people how to think.', phases: [1, 2]}
+  - {title: Training needs a follow-up, text: 'Without those four things, training isn''t a waste - it''s just entertainment with a certificate.', phases: [1, 3]}
+  - {title: Curiosity over assumptions, text: 'Stereotypes close doors. Curiosity opens them.', phases: [2, 4]}
+  - {title: Seen, not told, text: 'Leaders don’t change when they’re told. They change when they’re seen.', phases: [3, 4]}
+  - {title: Safety first, text: 'People don’t resist training. They resist feeling stupid.', phases: [1, 4]}
+
+steps:
+  collect: "We read {linkedin} of his LinkedIn posts and {instagram} of his Instagram posts and reels: <em>{words} words across {lines} lines.</em> From this collection, we follow one LinkedIn post, where a consultant who struggled with objections on Monday booked a real meeting on a live call by Wednesday."
+  transcript: ["A post becomes text", "The post is split into the line that sets the scene and Shehzad’s own lines. At first, it is simply a record of what was written."]
+  trace: ["One answer becomes a principle", "We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the exact moment Shehzad turned a mindset into a process."]
+  speakers: ["Who said what", "We separate the consultant’s problem from Shehzad’s response, and mark the line he responds to."]
+  layer1: "The post opens: <em>&ldquo;He was struggling with objections on Monday.&rdquo;</em> Shehzad’s response comes straight after. These exact lines are the evidence for everything that follows."
+  meaning: "A consultant froze at objections on day one. Shehzad doesn’t offer more motivation: he turns the mindset into a repeatable process, drills it, and then proves it on a live call."
+  cue: "Faced with a consultant who struggles with objections, Shehzad writes, <em>&ldquo;Day 2 was about turning that mindset into a repeatable process.&rdquo;</em>"
+  layer2: "He moves from a feeling of &ldquo;I can’t handle objections&rdquo; to a process and the practice to back it up. The response stays linked to the exact moment."
+  layer3: "A team knows the process but freezes on a real objection. In Shehzad’s material this shows up as <em>objection handling</em>."
+  layer4: "Shehzad keeps coming back to behaviour: it comes up in 32 of his sources, objections in 12 and role plays in 7, across his posts and reels."
+  layer5: "The purpose is to move teams from &ldquo;know it, then freeze&rdquo; to &ldquo;practise it until it holds on a live call&rdquo;."
+  layer6: "<em>They don&rsquo;t need more motivation, they need a system and the reps to back it up.</em> This is the principle behind Shehzad’s response."
+
+cards:
+  layer1:
+    cue: He was struggling with objections on Monday.
+    move: Day 2 was about turning that mindset into a repeatable process
+    foot: Two exact lines &middot; written back to back
+  layer2:
+    cue: A consultant freezes at objections
+    move: Turns the mindset into a process to practise
+  layer3:
+    title: Freezing at objections
+    text: The team knows the steps, but on a real objection the consultant freezes.
+    foot: Situation in {his} material &middot; &ldquo;objection handling&rdquo; in 2 sources
+  layer4:
+    title: Train behaviour, not just knowledge
+    text: Shehzad keeps coming back to practice, so build a process and then drill it on real objections until it holds.
+    foot: Recurring pattern &middot; behaviour in 32 sources, objections in 12
+  layer5:
+    title: Practise it until it holds
+    text: Don&rsquo;t stop at the workshop. Practise on real objections, then test it live.
+    starts: '&ldquo;Know it, then freeze&rdquo;'
+    moves_to: '&ldquo;Practise it until it holds&rdquo;'
+  layer6:
+    quote: They don't need more motivation, they need a system and the reps to back it up.
+    text: 'The same idea runs through his work: <em>&ldquo;Without those four things, training isn&rsquo;t a waste - it&rsquo;s just entertainment with a certificate.&rdquo;</em>'
+
+about:
+  sources:
+    - ["LinkedIn", "in/shehzadmukadam", "{linkedin} posts"]
+    - ["Instagram", "@lifebyshehzad", "{instagram} posts and reels"]
+  # Standard from 17 Nov 2026: 3-4 "who you are" and 3-4 "who you are not" tags per row, each side with evidence.
+  # Row = [label, [[tag, 1], ...] is, [[tag, 0], ...] is not, evidence for "is", evidence for "is not"].
+  rows:
+    - ["Type of coach", [["Sales trainer", 1], ["Corporate trainer", 1], ["L&D specialist", 1], ["Leadership coach", 1]], [["A one-off workshop seller", 0], ["A slides-and-theory lecturer", 0], ["A certificate factory", 0]], "your LinkedIn headline: “Sales Trainer | Corporate Trainer | L&D Manager, Dubai” · “2000+ professionals trained, 100+ workshops” · “100+ coaching sessions”", "“not just a one-off workshop, but something that changes how people work” · “not PowerPoint slides, but transformation in real time” · “not certificates, not great energy, but results”"]
+    - ["Region", [["Dubai", 1], ["UAE", 1], ["India", 1], ["UK", 1]], [["New York or London playbooks", 0], ["A Western MBA approach", 0], ["One template for every market", 0]], "LinkedIn: Dubai, United Arab Emirates · “18+ years across the UAE, UK, and India”", "“Stop training your Dubai real estate team like they’re selling in New York or London” · “Your Western MBA won’t help you lead a Gulf team”"]
+    - ["Who you coach", [["Sales teams and property consultants", 1], ["Managers and first-time managers", 1], ["Founders and HR leaders", 1], ["Retail and hospitality teams", 1]], [["Teams that just need motivation", 0], ["Teams that want a certificate", 0], ["People who want a script to read", 0]], "Sales Domination with property consultants and tele sales teams, retail, FMCG and hospitality workshops, and posts to “Founders and HR leaders”", "“they don’t need more motivation, they need a system and the reps to back it up” · business owners say “we tried training before, nothing changed” · “I trained three salespeople with the exact same script. Only one of them used it.”"]
+    - ["How you deliver", [["Multi-day sales programmes", 1], ["Live role plays", 1], ["Training needs analysis", 1], ["Coaching sessions", 1]], [["Slides", 0], ["A one-day event with nothing after", 0], ["Off-the-shelf templates", 0]], "“Sales Domination”, role plays in 7 of your sources, “40+ Training Needs Analyses” (your LinkedIn About)", "“not PowerPoint slides” · “nothing after the training room” in the Monday and Wednesday post · “generic sales training - templates, scripts, one-day workshops”"]
+    - ["Your topics", [["Sales and objection handling", 1], ["Behaviour change", 1], ["Manager and leadership development", 1], ["Psychological safety", 1]], [["Scripts to memorise", 0], ["Discounting to close", 0], ["More motivation", 0]], "behaviour in 32 sources, objections in 12, trust in 85, psychological safety in 15", "“Your discount is often a symptom, not the strategy” · “Training isn’t about teaching people what to say” · “they don’t need more motivation”"]
+    - ["Named frameworks", [["Training Needs Analysis", 1], ["ADDIE", 1], ["A reinforcement plan", 1], ["Three questions that replace assumptions", 1]], [["A famous sales model", 0], ["Scripts and templates", 0], ["One-size-fits-all training", 0]], "your LinkedIn About and posts · the reinforcement plan: brief the manager, one behaviour in 48 hours, a weekly 15-minute check-in, a day-30 review", "SPIN, Challenger and MEDDIC are not named anywhere in your material · “That day I stopped believing in one-size-fits-all sales training”"]
+    - ["Your style", [["Story-led", 1], ["Direct", 1], ["Question-led", 1], ["Practical", 1]], [["Hype", 0], ["Blaming the team", 0], ["Theory-heavy", 0]], "client and workshop stories: “I trained three salespeople”, “The best closer in the company”, “He was struggling with objections” · “Ask them one question” posts", "“not certificates, not great energy, but results” · “That is a training problem, not a you problem” · “not PowerPoint slides”"]
+
+dd_lead: Shehzad's twin follows these in every answer. They come from patterns that run through his posts and reels.
+dos:
+  - ["ask three questions that replace assumptions", "LinkedIn · the most expensive sentence in Dubai sales"]
+  - ["start with a training needs analysis", "LinkedIn · the team won’t grow just by being busy"]
+  - ["practise on real objections, not textbook ones", "LinkedIn · Sales Domination"]
+  - ["plan what happens after the training", "LinkedIn · the reinforcement plan"]
+  - ["teach people how to think, so they say it their way", "LinkedIn · three salespeople, one script"]
+  - ["ask what a great month looks like before writing someone up", "LinkedIn · the lowest performer post"]
+donts:
+  - ["hand people a script to follow", "LinkedIn · three salespeople, one script"]
+  - ["assume you know how the client thinks", "LinkedIn · the most expensive sentence"]
+  - ["reach for a discount before selling the value", "LinkedIn · discount is a symptom"]
+  - ["count a training as a success because people enjoyed it", "LinkedIn · the biggest lie in corporate training"]
+  - ["promote the best closer without training them to manage", "LinkedIn · the best closer in the company"]
+  - ["train a Dubai team like they sell in New York or London", "LinkedIn · the Dubai real estate post"]
