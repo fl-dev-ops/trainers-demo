@@ -70,7 +70,7 @@ export default function Welcome() {
           <article className="path path--wide">
             <RoleplayPair
               coachee={{ role: 'M.Tech student', text: 'A student defending a project on generative models in front of the viva panel.', practises: ['The why behind the how', 'Intuition before equations'] }}
-              persona={{ role: 'Viva Examiner', name: 'Dr Suresh Iyer', photo: '/media/prathosh-roleplay-suresh.jpg', behaviour: ['Curious & Probing'], speaking: ['Formal', 'Short answers'], voice: 'Oliver', text: 'Professor and external examiner on an M.Tech viva panel in Bengaluru. Has read the report on generative models. Calm, precise and patient, and keeps asking why.' }}
+              persona={{ role: 'Viva Examiner', name: 'Dr Peter Lawson', photo: '/media/prathosh-roleplay-peter.jpg', behaviour: ['Curious & Probing'], speaking: ['Formal', 'Short answers'], voice: 'Oliver', text: 'Professor from Edinburgh and external examiner on an M.Tech viva panel. Has read the report on generative models. Calm, precise and patient, and keeps asking why.' }}
             />
             <div className="path-b">
               <h2>Defend your project in the viva</h2>
