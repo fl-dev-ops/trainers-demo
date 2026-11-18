@@ -187,8 +187,8 @@ export const SHEHZAD_MUKADAM = {
   firstName: 'Shehzad',
   initials: 'SM',
   participantName: 'User', // the learner's tile label in the live room (default is 'Candidate')
-  face: '/media/shehzad-mukadam-headshot.jpg',
-  portrait: '/media/shehzad-mukadam-portrait.jpg',
+  face: '/media/shehzad-mukadam-headshot-v2.jpg',
+  portrait: '/media/shehzad-mukadam-portrait-v2.jpg',
   room: {
     kind: 'Ask me anything · Demo',
     title: 'Ask about sales training and leadership',
