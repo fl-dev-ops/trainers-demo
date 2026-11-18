@@ -492,7 +492,7 @@ SHEHZAD_MUKADAM.sources = [
   ['LinkedIn', '289 posts', [
     ['Shehzad Mukadam on LinkedIn', 'His own posts, 2024 to 2026'],
   ]],
-  ['Instagram', '125 posts and reels', [
+  ['Instagram', '118 posts and reels', [
     ['@lifebyshehzad', 'His own reels and posts, 2025 to 2026'],
   ]],
 ]
