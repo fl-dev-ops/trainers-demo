@@ -1,0 +1,978 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How a Coach's Twin Learns</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#151310; --ink:#ece5d8; --dim:#a89e8c; --faint:#6f6759; --line:#37322a; --line2:#4a443a;
+  --l1:#e2a93b; --l2:#4fa9a0; --l3:#d4746a; --l4:#9a86c9; --l5:#8fae62; --l6:#c94f33;
+  --ease:cubic-bezier(.65,0,.25,1);
+  --serif:'Fraunces',Georgia,serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --sys:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--serif)}
+body{cursor:pointer;user-select:none;-webkit-user-select:none}
+body.final{cursor:grab}
+canvas#cv{position:fixed;inset:0;width:100vw;height:100vh;display:block}
+#stage{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0;pointer-events:none}
+#stage *{pointer-events:none}
+#stage .hit{pointer-events:auto}
+svg#wires{position:absolute;inset:0;width:1600px;height:900px;overflow:visible}
+
+/* ---------- header & chapter rail */
+header{position:absolute;left:60px;right:60px;top:34px;display:flex;align-items:center;justify-content:space-between;
+  font:500 11px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+header b{color:var(--l1);font-weight:600}
+/* persona switch (config `switch`): one page per persona, on every screen */
+#psw{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line2);border-radius:999px;letter-spacing:normal;text-transform:none}
+#psw[hidden],#hdr[hidden]{display:none!important}
+#stage #psw,#stage #psw *{pointer-events:auto}
+#psw .ptab{white-space:nowrap;font:500 13px/1 var(--serif);color:var(--dim);padding:9px 16px;border-radius:999px;border:0;background:transparent;cursor:pointer;transition:all .2s}
+#psw .ptab:hover{color:var(--ink)}
+#psw .ptab small{margin-left:8px;font:500 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+#psw .ptab[aria-selected=true]{color:#1b1712;background:var(--l1);font-weight:600;cursor:default}
+#rail{display:flex;gap:28px}
+#rail .ch{display:flex;flex-direction:column;gap:9px;align-items:flex-start;transition:color .5s}
+#rail .ch.on{color:var(--ink)}
+#rail .ch.done{color:var(--dim)}
+#rail .dots{display:flex;gap:5px}
+#rail .dots i{width:6px;height:6px;border-radius:50%;background:var(--line2);transition:background .4s,transform .4s}
+#rail .dots i.done{background:var(--dim)}
+#rail .dots i.on{background:var(--l1);transform:scale(1.35)}
+#hint{position:absolute;left:60px;bottom:34px;font:500 10.5px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--faint);transition:opacity .6s}
+#hint kbd{font:inherit;color:var(--dim);border:1px solid var(--line2);border-radius:4px;padding:3px 6px;margin:0 2px}
+
+/* ---------- narrative column */
+#cap{position:absolute;left:60px;top:150px;width:390px;transition:opacity .45s}
+#cap.out{opacity:0}
+#cap .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin-bottom:22px}
+#cap h1{font-weight:380;font-size:38px;line-height:1.12;letter-spacing:-.01em;margin-bottom:22px;font-variation-settings:'opsz' 96}
+#cap p{font-size:18px;line-height:1.55;color:var(--dim);font-weight:330}
+#cap p em{color:var(--ink);font-style:italic}
+#stat{position:absolute;left:60px;bottom:96px;width:390px;transition:opacity .5s}
+#stat .num{font:300 64px/1 var(--serif);letter-spacing:-.02em;font-variation-settings:'opsz' 144;font-variant-numeric:tabular-nums}
+#stat .unit{font:500 11px/1.6 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-top:12px}
+#stat.hide{opacity:0}
+
+/* hero */
+#hero{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:opacity .8s,transform 1.1s var(--ease)}
+#hero .kick{font:500 12px/1 var(--mono);letter-spacing:.3em;text-transform:uppercase;color:var(--l1);margin-bottom:30px}
+#hero h1{font-weight:320;font-size:88px;line-height:1.02;letter-spacing:-.025em;font-variation-settings:'opsz' 144}
+#hero h1 i{color:var(--l1);font-weight:300}
+#hero p{margin-top:30px;font-size:21px;line-height:1.55;color:var(--dim);max-width:640px;font-weight:330}
+#hero .go{margin-top:46px;font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--faint)}
+#hero.out{opacity:0;transform:translateY(-30px) scale(.98)}
+
+/* ---------- the window: Finder -> transcript */
+#win{position:absolute;left:540px;top:120px;width:1000px;height:660px;border-radius:12px;background:#1d1c1b;
+  border:1px solid #3a3835;box-shadow:0 40px 90px rgba(0,0,0,.55),0 0 0 .5px rgba(255,255,255,.04) inset;
+  overflow:hidden;font-family:var(--sys);color:#e6e3de;
+  transition:left 1s var(--ease),top 1s var(--ease),width 1s var(--ease),height 1s var(--ease),opacity .7s,transform 1.1s var(--ease);
+  opacity:0;transform:translateY(40px) scale(.96)}
+#win.show{opacity:1;transform:none}
+#win.narrow{left:500px;top:96px;width:570px;height:772px}
+#win.gone{opacity:0;transition:opacity .35s}
+.tbar{height:46px;display:flex;align-items:center;gap:16px;padding:0 16px;background:#2a2927;border-bottom:1px solid #3a3835}
+.lights{display:flex;gap:8px}.lights i{width:12px;height:12px;border-radius:50%;background:#ff5f57}
+.lights i:nth-child(2){background:#febc2e}.lights i:nth-child(3){background:#28c840}
+.navb{color:#77736d;font-size:17px;letter-spacing:10px}
+.wtitle{font-weight:600;font-size:13.5px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.views{display:flex;gap:2px;background:#353330;border-radius:6px;padding:2px}
+.views i{width:28px;height:20px;border-radius:4px;display:block;position:relative}
+.views i.on{background:#55524d}
+.views i::after{content:'';position:absolute;left:9px;top:5px;width:10px;height:10px;border:1.5px solid #aaa49c;border-radius:2px}
+.views i:nth-child(2)::after{border-width:1.5px 0;height:3px;top:5px;box-shadow:0 4px 0 0 #aaa49c}
+.wbody{position:absolute;top:46px;bottom:26px;left:0;right:0;display:flex}
+.side{width:190px;flex:none;background:#242321;border-right:1px solid #33312e;padding:14px 10px;font-size:12.5px;transition:width .9s var(--ease),padding .9s var(--ease),opacity .5s;overflow:hidden;white-space:nowrap}
+.side h6{font-size:10.5px;font-weight:600;color:#7c7872;margin:6px 8px 6px}
+.side div{padding:5px 8px;border-radius:6px;display:flex;align-items:center;gap:8px;color:#d8d4ce;transition:background .4s}
+.side div.on{background:#3a3835}
+.side .fi{width:15px;height:11px;border-radius:2px;background:#5da6ec;position:relative;flex:none}
+.side .fi::before{content:'';position:absolute;left:0;top:-2px;width:6px;height:3px;border-radius:2px 2px 0 0;background:#5da6ec}
+.pane{flex:1;position:relative;overflow:hidden}
+.pane>section{position:absolute;inset:0;transition:opacity .6s,transform .8s var(--ease);opacity:0;transform:translateY(12px)}
+.pane>section.on{opacity:1;transform:none}
+.status{position:absolute;bottom:0;left:0;right:0;height:26px;border-top:1px solid #33312e;background:#242321;font-size:11px;color:#8b8780;display:flex;align-items:center;justify-content:center}
+
+/* icon view */
+.icons{display:flex;gap:70px;padding:120px 60px;justify-content:center}
+.folder{width:150px;text-align:center;font-size:14px;opacity:0;transform:translateY(16px) scale(.9);transition:opacity .6s,transform .7s var(--ease)}
+.on .folder{opacity:1;transform:none}
+.on .folder:nth-child(2){transition-delay:.15s}
+.ficon{width:130px;height:100px;margin:0 auto 14px;position:relative}
+.ficon::before{content:'';position:absolute;left:0;top:0;width:54px;height:18px;border-radius:8px 8px 0 0;background:#4b8fd6}
+.ficon::after{content:'';position:absolute;left:0;top:10px;right:0;bottom:0;border-radius:5px 9px 9px 9px;background:linear-gradient(#78b8f5,#5a9ee6)}
+.ficon i{position:absolute;z-index:1;left:50%;top:50px;transform:translateX(-50%)}
+.folder small{display:block;color:#8b8780;font-size:12px;margin-top:5px}
+
+/* list view */
+.lhead,.lrow{display:grid;grid-template-columns:1fr 130px 110px 70px;gap:12px;padding:0 18px;align-items:center}
+.lhead{height:30px;font-size:11px;font-weight:600;color:#8b8780;border-bottom:1px solid #33312e;background:#1d1c1b;position:relative;z-index:1}
+.lrows{position:absolute;top:30px;left:0;right:0;will-change:transform}
+.lrow{height:26px;font-size:12.5px;white-space:nowrap;transition:background .4s,color .4s}
+.lrow:nth-child(even){background:#232220}
+.lrow .nm{overflow:hidden;text-overflow:ellipsis;display:flex;gap:9px;align-items:center}
+.lrow .kd,.lrow .dt,.lrow .sz{color:#8b8780;font-size:11.5px}
+.lrow .sz{text-align:right}
+.badge{width:16px;height:12px;border-radius:3px;flex:none;position:relative;display:block}
+.badge.yt{background:#e5443b}.badge.yt::after{content:'';position:absolute;left:6px;top:3px;border-left:5px solid #fff;border-top:3px solid transparent;border-bottom:3px solid transparent}
+.badge.lm{background:#7a5af5}.badge.lm::after{content:'';position:absolute;left:4px;top:3px;width:6px;height:6px;border-radius:50%;border:1.5px solid #fff}
+.ficon .badge{width:30px;height:22px;border-radius:5px}
+.ficon .badge.yt::after{left:11px;top:6px;border-left-width:9px;border-top-width:5px;border-bottom-width:5px}
+.ficon .badge.lm::after{left:8px;top:4px;width:11px;height:11px;border-width:2px}
+.badge.li{background:#0a66c2}.badge.li::after{content:'in';position:absolute;left:3px;top:0;font:700 8px/12px var(--sys);color:#fff}
+.badge.wb{background:#6c8a5a}.badge.wb::after{content:'';position:absolute;left:4px;top:2px;width:6px;height:6px;border-radius:50%;border:1.5px solid #fff}
+.lrow.sel{background:#2f5fb3!important;color:#fff}
+.lrow.sel .kd,.lrow.sel .dt,.lrow.sel .sz{color:#dfe8fa}
+
+/* document view */
+.doc{padding:16px 22px 16px 18px;font-size:13.5px;line-height:1.42}
+.fm{font:12px/1.6 var(--mono);color:#8b8780;white-space:pre;overflow:hidden;max-height:120px;transition:max-height .9s var(--ease),opacity .6s,margin .9s var(--ease);margin-bottom:12px}
+.doc.clean .fm{max-height:0;opacity:0;margin:0}
+.ln{position:relative;padding:4px 8px 4px 8px;border-radius:7px;transition:background .5s,box-shadow .5s,opacity .5s;margin-bottom:2px}
+.rh{font:12px/1.5 var(--mono);color:#9a958d;max-height:20px;overflow:hidden;transition:max-height .8s var(--ease),opacity .5s}
+.rh .h{color:#6c6862}
+.row{display:flex;gap:10px;align-items:baseline}
+.ts{font:11px/1 var(--mono);color:#77736d;width:0;overflow:hidden;opacity:0;flex:none;transition:width .8s var(--ease),opacity .6s}
+.who{font:600 10.5px/1 var(--sys);letter-spacing:.04em;text-transform:uppercase;width:0;overflow:hidden;opacity:0;flex:none;transition:width .8s var(--ease),opacity .6s;padding-top:1px}
+.who.o{color:var(--l1)}.who{white-space:nowrap}.who.s{color:#9fb8d6}
+.txt{flex:1;font:12.5px/1.5 var(--mono);color:#cfcac2}
+.txt .c{display:none}.doc.clean .txt .r{display:none}.doc.clean .txt .c{display:inline}
+.doc.clean .rh{max-height:0;opacity:0}
+.doc.clean .ts{width:46px;opacity:1}
+.doc.clean .who{width:var(--who,54px);opacity:1}
+.doc.clean .txt{font:13.4px/1.4 var(--sys);color:#ece8e2}
+.doc.focus .ln{opacity:.32}
+.doc.focus .ln.key{opacity:1;box-shadow:inset 0 0 0 1px rgba(226,169,59,.75);background:rgba(226,169,59,.1)}
+
+/* ---------- right column panels */
+.rpanel{position:absolute;left:1120px;top:110px;width:420px;opacity:0;transform:translateX(30px);transition:opacity .6s,transform .9s var(--ease)}
+.rpanel.on{opacity:1;transform:none}
+.plabel{font:500 10.5px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin-bottom:16px}
+
+/* frames */
+#frames{top:100px;height:760px}
+#frames .plabel{position:absolute;top:-28px}
+.fc{position:absolute;left:0;width:420px;padding:6px 11px 7px 12px;border-radius:8px;background:#1b211f;border:1px solid rgba(79,169,160,.35);
+  font-size:12.8px;line-height:1.32;color:#dbeee9;font-weight:340;opacity:0;transform:translateX(24px);transition:opacity .5s,transform .7s var(--ease),border-color .5s,background .5s,box-shadow .5s}
+.fc .k{display:inline;font:600 9px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--l2);margin-right:8px}
+.fc .k em{font-style:normal;color:var(--l1);margin-left:8px}
+#frames.on .fc{opacity:1;transform:none}
+#frames.focus .fc{opacity:.25}
+#frames.focus .fc.key{opacity:1;border-color:var(--l2);background:#1d2a27;box-shadow:0 0 30px rgba(79,169,160,.18)}
+.wire{fill:none;stroke:var(--l2);stroke-width:1.2;opacity:0;transition:opacity .6s}
+.wire.on{opacity:.45}
+.wire.dim{opacity:.08}
+.wire.key{opacity:.95;stroke-width:1.8}
+
+/* layer cards */
+#cards{top:150px}
+.card{position:absolute;left:0;top:0;width:420px;padding:22px 24px 22px;border-radius:12px;background:rgba(32,29,24,.94);border:1px solid var(--line2);
+  opacity:0;transform:translateY(16px);transition:opacity .55s,transform .8s var(--ease);backdrop-filter:blur(6px)}
+.card.on{opacity:1;transform:none;transition-delay:.35s}
+.card .lv{font:600 10px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;margin-bottom:14px}
+.card h3{font-weight:400;font-size:23px;line-height:1.22;margin-bottom:12px;font-variation-settings:'opsz' 72}
+.card p{font-size:15px;line-height:1.5;color:var(--dim);font-weight:330}
+.card .pair{display:grid;grid-template-columns:62px 1fr;gap:10px 12px;margin-top:6px}
+.card .pair dt{font:600 9.5px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.card .pair dd{font-size:15px;line-height:1.45;color:var(--ink);font-weight:340}
+.card .pair dd.q{font-style:italic}
+.card .foot{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font:500 10px/1.6 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.card blockquote{font-size:20px;line-height:1.38;font-weight:360;color:var(--ink);margin:4px 0 14px;font-style:italic}
+
+/* finale legend */
+#legend{top:170px;left:1270px;width:290px}
+.lg{display:grid;grid-template-columns:14px 1fr auto;gap:12px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line);opacity:0;transform:translateX(14px);transition:opacity .5s,transform .7s var(--ease)}
+#legend.on .lg{opacity:1;transform:none}
+.lg i{width:9px;height:9px;border-radius:50%;display:block;transform:translateY(-1px)}
+.lg span{font:500 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.lg b{font:300 26px/1 var(--serif);font-variant-numeric:tabular-nums}
+#tip{position:fixed;max-width:360px;padding:9px 12px;border-radius:8px;background:rgba(21,19,16,.95);border:1px solid var(--line2);font-size:14px;line-height:1.4;color:var(--ink);pointer-events:none;opacity:0;transition:opacity .15s;z-index:5}
+#tip small{display:block;font:600 9.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px}
+/* ---------- findings: a docs page, one layer per page */
+#fd{position:absolute;left:60px;right:60px;top:96px;bottom:34px;display:grid;grid-template-columns:280px 1fr;gap:56px;
+  opacity:0;visibility:hidden;transform:translateY(16px);transition:opacity .6s,transform .9s var(--ease),visibility 0s .6s;cursor:default}
+#fd.on{opacity:1;visibility:visible;transform:none;transition:opacity .6s .2s,transform .9s var(--ease) .2s,visibility 0s}
+#stage #fd,#stage #fd *{pointer-events:auto}
+#fd .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin:24px 0 20px}
+#fd .lead h1{font-weight:380;font-size:32px;line-height:1.14;margin-bottom:16px;font-variation-settings:'opsz' 96}
+#fd .lead p{font-size:15px;line-height:1.55;color:var(--dim);font-weight:330}
+#fd nav{margin-top:30px;border-top:1px solid var(--line)}
+#fd nav a{display:grid;grid-template-columns:12px 1fr;gap:12px;align-items:center;padding:14px 10px;border-bottom:1px solid var(--line);
+  cursor:pointer;color:var(--dim);transition:background .3s,color .3s}
+#fd nav a:hover{background:rgba(255,255,255,.03);color:var(--ink)}
+#fd nav a.on{background:rgba(255,255,255,.05);color:var(--ink)}
+#fd nav a i{width:9px;height:9px;border-radius:50%}
+#fd nav a span{font:500 11px/1.35 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+#fd nav a b{font:600 9px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:5px 7px;border-radius:4px;border:1px solid currentColor;opacity:.85}
+#fd .keys{margin-top:18px;font:500 10px/1.6 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+#fd .page{overflow-y:auto;padding:24px 36px 40px 0;scrollbar-width:thin;scrollbar-color:var(--line2) transparent}
+#fd article{display:none;max-width:920px}
+#fd article.on{display:block;animation:fdin .5s var(--ease)}
+@keyframes fdin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#fd .lv{font:600 10.5px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;margin-bottom:16px}
+#fd h2{font-weight:380;font-size:40px;line-height:1.1;margin-bottom:14px;font-variation-settings:'opsz' 120;display:flex;align-items:center;gap:18px}
+#fd h2 b{font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;padding:7px 10px;border-radius:5px;border:1px solid currentColor}
+#fd .what{font-size:19px;line-height:1.5;color:var(--dim);font-weight:330;max-width:760px}
+#fd .what em{color:var(--ink)}
+#fd .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:30px 0 8px}
+#fd .nums div{border-top:1px solid var(--line2);padding-top:14px}
+#fd .nums strong{display:block;font:300 40px/1 var(--serif);font-variant-numeric:tabular-nums;font-variation-settings:'opsz' 144}
+#fd .nums small{display:block;margin-top:10px;font:500 10px/1.5 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+#fd h4{font:600 10.5px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--faint);margin:38px 0 14px}
+#fd .how{font-size:16px;line-height:1.6;color:var(--ink);font-weight:340;max-width:800px}
+#fd .how code,#fd li code,#fd .ex code{font:12.5px var(--mono);color:var(--l1);background:rgba(226,169,59,.08);padding:1px 5px;border-radius:4px}
+#fd .exs{display:grid;gap:12px}
+#fd .ex{padding:16px 18px;border-radius:10px;background:rgba(32,29,24,.9);border:1px solid var(--line2);border-left-width:3px}
+#fd .ex.good{border-left-color:var(--l5)}#fd .ex.bad{border-left-color:var(--l6)}
+#fd .ex .tag{font:600 9.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;margin-bottom:10px}
+#fd .ex.good .tag{color:var(--l5)}#fd .ex.bad .tag{color:#e0715a}
+#fd .ex q{display:block;font-size:17px;line-height:1.42;font-style:italic;color:var(--ink);font-weight:350;quotes:'“' '”'}
+#fd .ex p{margin-top:9px;font-size:14px;line-height:1.5;color:var(--dim);font-weight:330}
+#fd .ex p q{display:inline;font-size:14px;color:#d8d0c2}
+#fd ul{list-style:none;display:grid;gap:10px;max-width:820px}
+#fd li{position:relative;padding-left:22px;font-size:16px;line-height:1.5;color:var(--ink);font-weight:340}
+#fd li::before{content:'';position:absolute;left:2px;top:10px;width:7px;height:7px;border-radius:50%;background:#e0715a}
+#fd li strong{font-weight:560}
+#fd .todo{margin-top:34px;padding:18px 20px;border-radius:10px;border:1px dashed var(--line2);font-size:16px;line-height:1.55;color:var(--ink);font-weight:340}
+#ab{position:absolute;left:60px;right:60px;top:96px;bottom:34px;display:grid;grid-template-columns:280px 1fr;gap:56px;
+  opacity:0;visibility:hidden;transform:translateY(16px);transition:opacity .6s,transform .9s var(--ease),visibility 0s .6s;cursor:default}
+#ab.on{opacity:1;visibility:visible;transform:none;transition:opacity .6s .2s,transform .9s var(--ease) .2s,visibility 0s}
+#stage #ab,#stage #ab *{pointer-events:auto}
+#ab .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin:24px 0 20px}
+#ab .lead h1{font-weight:380;font-size:32px;line-height:1.14;margin-bottom:16px;font-variation-settings:'opsz' 96}
+#ab .lead p{font-size:15px;line-height:1.55;color:var(--dim);font-weight:330}
+#ab .found{margin-top:26px;border-top:1px solid var(--line)}
+#ab .found div{padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;line-height:1.35}
+#ab .found b{font-weight:520}#ab .found em{font-style:normal;color:var(--l5);float:right}
+#ab .found small{display:block;margin-top:4px;font:500 9.5px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+#ab .page{padding-top:24px}
+#ab h2{font-weight:380;font-size:40px;line-height:1.1;margin-bottom:10px;font-variation-settings:'opsz' 120}
+#ab .what{font-size:17px;line-height:1.5;color:var(--dim);font-weight:330}
+#ab .sheet{max-width:1080px;margin-top:22px;padding:4px 24px;border-radius:12px;border:1px solid var(--line2);background:rgba(32,29,24,.9)}
+#ab .row{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--line)}
+#ab .row:last-child{border-bottom:0}
+#ab .row>span{font:600 10px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+#ab .chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#ab .chip{font:400 14px/1 var(--serif);color:var(--dim);padding:8px 13px;border-radius:999px;border:1px solid var(--line2);background:transparent;cursor:pointer;transition:all .2s}
+#ab .chip:hover{color:var(--ink);border-color:var(--dim)}
+#ab .chip[aria-pressed=true]{color:#1b1712;background:var(--l1);border-color:var(--l1);font-weight:500}
+#ab .ev{flex-basis:100%;margin-top:4px;font:500 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+/* who you are / who you are not (standard from 17 Nov 2026): two columns per row */
+#ab .page{overflow-y:auto;scrollbar-width:thin;padding-right:6px}
+#ab .sheet.two{max-width:1180px;padding:4px 24px 6px}
+#ab .sheet.two .row{grid-template-columns:130px 1fr}
+#ab .cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+#ab .col .ev{display:block;margin-top:9px}
+#ab .row.heads{padding:12px 0 6px;border-bottom:1px solid var(--line2)}
+#ab .heads b{font:600 10px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase}
+#ab .heads b.is{color:var(--l1)}#ab .heads b.no{color:#e0715a}
+#ab .chip.no::before{content:'\2715';margin-right:7px;font-size:11px;color:#e0715a}
+#ab .chip.no[aria-pressed=true]{color:var(--ink);background:transparent;border-color:#e0715a;font-weight:400}
+#fd .todo span{display:block;font:600 10px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--l5);margin-bottom:10px}
+
+/* ---------- source badges for the other kinds */
+.badge.ig{background:#c13584}.badge.ig::after{content:'';position:absolute;left:4px;top:2px;width:6px;height:6px;border-radius:2px;border:1.5px solid #fff}
+.badge.tw{background:#3a3a3a}.badge.tw::after{content:'X';position:absolute;left:4px;top:0;font:700 8px/12px var(--sys);color:#fff}
+/* ---------- do's & don'ts page */
+#fd .principle-count{margin-top:20px;border-top:1px solid var(--line);padding-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#fd .principle-count b{display:block;font:300 56px/1 var(--serif);color:var(--ink)}
+#fd .principle-count span{display:block;margin-top:10px;font:500 10px/1.5 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+#fd .ptabs{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line2);border-radius:999px;margin:2px 0 4px}
+#fd .ptab{font:500 13px/1 var(--serif);color:var(--dim);padding:9px 16px;border-radius:999px;border:0;background:transparent;cursor:pointer;transition:all .2s}
+#fd .ptab:hover{color:var(--ink)}
+#fd .ptab[aria-selected=true]{color:#1b1712;background:var(--l1);font-weight:600}
+#fd .dd-cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:18px;max-width:1080px}
+#fd .dd-head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;font-size:19px;font-weight:450}
+#fd .dd-head small{font-size:13.5px;color:var(--dim);font-weight:330}
+#fd .dd-head.do i{color:var(--l5);font-style:normal}#fd .dd-head.dont i{color:#e0715a;font-style:normal}
+#fd .dd-row{display:grid;grid-template-columns:22px 1fr;gap:12px;padding:10px 16px;margin-bottom:8px;border:1px solid var(--line2);border-radius:10px;background:rgba(32,29,24,.9)}
+#fd .dd-row>i{font-style:normal;font-size:15px;line-height:1.4}
+#fd .dd-row.do>i{color:var(--l5)}#fd .dd-row.dont>i{color:#e0715a}
+#fd .dd-row p{font-size:15.5px;line-height:1.4;color:var(--ink);font-weight:340}
+#fd .dd-row p b{font-weight:600}
+#fd .dd-row small{display:block;margin-top:6px;font:500 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+#fd .keys{cursor:pointer}
+
+/* ---------- phones (config `mobile: true`): one portrait column instead of the scaled 16:9 slide */
+#vis,#mback,#rot{display:none}
+body.m{touch-action:none}
+body.m canvas#cv{width:100%;height:100%}
+body.m #stage{width:100%;height:100%;transform:none!important;padding:0 18px;display:grid;grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto minmax(0,1fr) auto auto auto;grid-template-areas:'hd' 'vis' 'st' 'cap' 'ft'}
+body.m #vis{display:block;grid-area:vis}
+body.m header{grid-area:hd;position:relative;left:auto;right:auto;top:auto;padding:max(16px,env(safe-area-inset-top)) 0 12px;font-size:10px}
+body.m #hdr{display:none}
+body.m header{flex-wrap:wrap}
+body.m #psw{order:2;display:flex;width:100%;margin-top:12px}
+body.m #psw .ptab{flex:1;padding:10px 8px;font-size:13px}
+body.m #psw .ptab small{display:block;margin:5px 0 0;font-size:9px}
+body.m #rail{gap:12px;width:100%;justify-content:space-between}
+body.m #rail .ch{gap:7px}
+body.m #rail .ch>span:first-child{display:none}
+body.m #rail .dots{gap:6px}
+body.m #rail .dots i{width:7px;height:7px}
+body.m header{min-height:44px}
+/* hero */
+body.m #hero{padding:0 26px}
+body.m #hero .kick{font-size:10px;letter-spacing:.24em;margin-bottom:22px;line-height:1.6}
+body.m #hero h1{font-size:52px}
+body.m #hero p{font-size:17px;margin-top:22px}
+body.m #hero .go{margin-top:34px}
+/* narrative */
+body.m #cap{grid-area:cap;position:relative;left:auto;top:auto;width:auto;padding:12px 0 4px}
+body.m #cap .kick{font-size:10px;margin-bottom:10px}
+body.m #cap h1{font-size:24px;line-height:1.15;margin-bottom:9px}
+body.m #cap p{font-size:15px;line-height:1.5}
+body.m #stat{grid-area:st;position:relative;left:auto;bottom:auto;width:auto;display:flex;align-items:baseline;gap:12px;padding-top:14px}
+body.m #stat .num{font-size:34px}
+body.m #stat .unit{margin-top:0;font-size:10px;line-height:1.4}
+body.m #hint{grid-area:ft;position:relative;left:auto;bottom:auto;display:flex;justify-content:space-between;align-items:center;
+  padding:14px 0 max(18px,env(safe-area-inset-bottom));font-size:10px}
+body.m #mback{display:inline-block;padding:8px 12px 8px 0;margin:-8px 0;color:var(--dim)}
+/* the window */
+body.m #win{grid-area:vis;position:relative;left:auto;top:auto;width:auto;height:auto;min-height:0;margin-top:4px}
+body.m #win.narrow{opacity:0;transform:translateY(20px) scale(.97)}
+body.m .side{display:none}
+body.m .tbar{height:38px;gap:10px;padding:0 12px}
+body.m .lights i{width:10px;height:10px}
+body.m .navb,body.m .views{display:none}
+body.m .wtitle{font-size:12px}
+body.m .wbody{top:38px;bottom:22px}
+body.m .status{height:22px;font-size:10px}
+body.m .lhead,body.m .lrow{grid-template-columns:minmax(0,1fr) 78px;padding:0 12px}
+body.m .lhead span:nth-child(2),body.m .lhead span:nth-child(4),body.m .lrow .kd,body.m .lrow .sz{display:none}
+body.m .lrow{font-size:12px}
+body.m .doc{padding:12px 12px}
+body.m .doc .txt{font-size:11.5px}
+body.m .doc.clean .txt{font-size:12.5px}
+body.m .doc.clean .ts{width:0;opacity:0}
+body.m .doc.clean .who{width:var(--who,56px)}
+/* frames */
+body.m #wires{display:none}
+body.m .rpanel{transform:translateY(16px)}
+body.m .rpanel.on{transform:none}
+body.m #frames{grid-area:vis;position:relative;left:auto;top:auto;height:auto;width:auto;min-height:0;overflow:hidden;padding-top:8px}
+body.m #frames .plabel{position:static;margin-bottom:10px}
+body.m .fc{position:relative;width:auto;top:auto!important;margin-bottom:6px;font-size:12px;transform:translateY(12px)}
+/* layer cards and the legend sit under the layered space */
+body.m #cards,body.m #legend{grid-area:vis;align-self:end;position:relative;left:auto;top:auto;width:auto}
+body.m .card{position:absolute;left:0;right:0;top:auto;bottom:0;width:auto;padding:16px 18px}
+body.m .card.on{position:relative}
+body.m .card .lv{margin-bottom:10px}
+body.m .card h3{font-size:19px;margin-bottom:8px}
+body.m .card p,body.m .card .pair dd{font-size:14px}
+body.m .card blockquote{font-size:18px}
+body.m .card .foot{margin-top:12px;padding-top:10px}
+body.m #legend{display:grid;grid-template-columns:1fr 1fr;column-gap:16px}
+body.m #legend .plabel{grid-column:1 / -1;margin-bottom:6px}
+body.m .lg{padding:8px 0;gap:9px}
+body.m .lg span{font-size:9px;letter-spacing:.1em;line-height:1.3}
+/* about you, do's & don'ts: scrolling pages */
+body.m #ab,body.m #fd{position:absolute;left:0;right:0;top:var(--hdh,44px);bottom:0;display:block;overflow-y:auto;background:var(--bg);padding:0 18px max(40px,env(safe-area-inset-bottom));touch-action:pan-y;-webkit-overflow-scrolling:touch}
+body.m #ab{bottom:52px;padding-bottom:28px}
+body.m #ab .kick,body.m #fd .kick{margin:18px 0 14px}
+body.m #ab .lead h1,body.m #fd .lead h1{font-size:30px}
+body.m #ab .page,body.m #fd .page{overflow:visible;padding:30px 0 0}
+body.m #ab h2,body.m #fd h2{font-size:30px;flex-wrap:wrap}
+body.m #ab .what,body.m #fd .what{font-size:16px}
+body.m #ab .sheet{padding:2px 16px}
+body.m #ab .row{grid-template-columns:1fr;gap:10px}
+body.m #ab .sheet.two .row{grid-template-columns:1fr}
+body.m #ab .cols{grid-template-columns:1fr;gap:18px}
+body.m #ab .row.heads{display:none}
+body.m #ab .col::before{display:block;margin-bottom:8px;font:600 10px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--l1);content:'Who you are'}
+body.m #ab .col+.col::before{color:#e0715a;content:'Who you are not'}
+body.m #ab .page{overflow:visible}
+body.m #ab .chip{font-size:13.5px;padding:8px 12px}
+body.m #fd .lead .principle-count b{font-size:44px}
+body.m #fd .keys{display:inline-block;margin-top:16px;padding:8px 0;font-size:11px;color:var(--dim)}
+body.m #fd .ptabs{display:flex;width:100%;margin:6px 0 2px}
+body.m #fd .ptab{flex:1;padding:10px 8px;font-size:13px}
+body.m #fd .dd-cols{grid-template-columns:1fr;gap:26px}
+body.m #fd .dd-row{padding:10px 14px}
+body.m #fd .dd-row p{font-size:15px}
+body.m #tip{display:none}
+/* a phone turned sideways */
+body.rot #stage,body.rot #cv{display:none}
+body.rot #rot{display:flex;position:fixed;inset:0;z-index:9;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px}
+#rot b{font-weight:330;font-size:30px;font-variation-settings:'opsz' 96}
+#rot span{font:500 10.5px/1.6 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="tip"></div>
+<div id="rot"><b>Turn your phone upright</b><span>This page reads best in portrait</span></div>
+<div id="stage">
+  <div id="vis"></div>
+  <header><div id="hdr"></div><div id="psw" class="hit" role="tablist" hidden></div><nav id="rail" class="hit"></nav></header>
+
+  <div id="hero">
+    <div class="kick">One real exchange, followed all the way through</div>
+    <h1 id="hero-h"></h1>
+    <p id="hero-p"></p>
+    <div class="go" id="go">Click to begin →</div>
+  </div>
+
+  <div id="cap" class="out"><div class="kick" id="kick"></div><h1 id="title"></h1><p id="body"></p></div>
+  <div id="stat" class="hide"><div class="num" id="num">0</div><div class="unit" id="unit"></div></div>
+
+  <div id="win">
+    <div class="tbar"><span class="lights"><i></i><i></i><i></i></span><span class="navb">‹ ›</span><span class="wtitle" id="wtitle"></span><span class="views"><i class="on" id="v1"></i><i id="v2"></i></span></div>
+    <div class="wbody">
+      <div class="side" id="side"></div>
+      <div class="pane">
+        <section id="list"><div class="lhead"><span>Name</span><span>Kind</span><span>Date</span><span style="text-align:right">Size</span></div><div class="lrows" id="lrows"></div></section>
+        <section id="docs"><div class="doc" id="doc"></div></section>
+      </div>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <svg id="wires"></svg>
+  <div class="rpanel" id="frames"></div>
+  <div class="rpanel" id="cards"></div>
+  <div class="rpanel" id="legend"></div>
+  <div id="ab"></div>
+  <div id="fd">
+    <div class="lead">
+      <div class="kick">06 · Do’s &amp; Don’ts</div>
+      <h1>Do’s &amp; Don’ts</h1>
+      <p id="dd-lead"></p>
+      <div class="principle-count" id="dd-count"></div>
+      <div class="keys">← back</div>
+    </div>
+    <div class="page" id="fdpage"></div>
+  </div>
+  <div id="hint">Click or <kbd>→</kbd> to continue · <kbd>←</kbd> back</div>
+</div>
+
+<script>
+/* Filled in by build.py: STORY is the data, CONFIG is the written copy (configs/<slug>.yaml). */
+const STORY = {"files":[{"n":"Challenging gender biases and embracing women in corporate leadership","d":"2024-11-16","s":1559,"k":"linkedin"},{"n":"How a Simple Conversation Transformed My Confidence Forever","d":"2024-11-18","s":2375,"k":"linkedin"},{"n":"Defining True Leadership Beyond Directions and Decision-Making","d":"2024-11-21","s":712,"k":"linkedin"},{"n":"Never let others perceptions about you define who you are","d":"2024-11-23","s":309,"k":"linkedin"},{"n":"Weekend Fun Greeting","d":"2024-11-23","s":495,"k":"linkedin"},{"n":"Wishing everyone in UAE Happy UAE National Day","d":"2024-12-02","s":404,"k":"linkedin"},{"n":"From Invisible To Invaluable by Nasir Zaidi","d":"2024-12-04","s":788,"k":"linkedin"},{"n":"Don’t Ignore the Ones Who Choose You","d":"2024-12-08","s":995,"k":"linkedin"},{"n":"Supporting and Pre-ordering 'From Invisible to Invaluable'","d":"2024-12-10","s":608,"k":"linkedin"},{"n":"Leadership is About Empowerment, Not Ego","d":"2024-12-13","s":1324,"k":"linkedin"},{"n":"The Hidden Struggles of Strong People","d":"2024-12-14","s":818,"k":"linkedin"},{"n":"Mentorship and Personal Development Services on Topmate","d":"2024-12-15","s":1284,"k":"linkedin"},{"n":"Exciting Opportunity for Professionals in the Hospitality Industry","d":"2024-12-18","s":249,"k":"linkedin"},{"n":"Choosing silence to protect loved ones from pain","d":"2024-12-25","s":885,"k":"linkedin"},{"n":"How to fix someone...","d":"2024-12-28","s":1659,"k":"linkedin"},{"n":"Your Journey, Your Focus","d":"2024-12-29","s":670,"k":"linkedin"},{"n":"Lesson to learn","d":"2025-01-01","s":537,"k":"linkedin"},{"n":"Prioritizing personal well-being and growth by letting go of hindrances","d":"2025-01-02","s":881,"k":"linkedin"},{"n":"Supporting an entry-level chemistry graduate in finding opportunities in the UAE","d":"2025-01-09","s":1706,"k":"linkedin"},{"n":"Being intentional with kindness and energy","d":"2025-01-14","s":962,"k":"linkedin"},{"n":"Time Management: A Myth We All Believe In","d":"2025-01-18","s":1917,"k":"linkedin"},{"n":"Time reveals the truth about relationships and intentions","d":"2025-01-19","s":840,"k":"linkedin"},{"n":"Sharing your story and deepest truth wisely","d":"2025-01-20","s":685,"k":"linkedin"},{"n":"The Value of Meaningful Friendships and Collaboration in the Professional World","d":"2025-01-23","s":966,"k":"linkedin"},{"n":"AI is here to assist and not to replace","d":"2025-01-25","s":719,"k":"linkedin"},{"n":"Power-Pleasing Won’t Build Your Career","d":"2025-01-29","s":1323,"k":"linkedin"},{"n":"Do you agree?","d":"2025-02-02","s":356,"k":"linkedin"},{"n":"Entry-Level Aircraft Technician Job Search in Dubai","d":"2025-02-06","s":2183,"k":"linkedin"},{"n":"Pay attention to actions over words in relationships","d":"2025-02-08","s":705,"k":"linkedin"},{"n":"Investing in Leadership Development to Build High-Performing Teams","d":"2025-02-14","s":655,"k":"linkedin"},{"n":"Ethical leadership starts with you","d":"2025-02-20","s":327,"k":"linkedin"},{"n":"Know when to stay quiet and protect your plans","d":"2025-03-07","s":559,"k":"linkedin"},{"n":"Empowered Women, Empower the World","d":"2025-03-08","s":413,"k":"linkedin"},{"n":"Judging People by Actions Over Words","d":"2025-03-08","s":944,"k":"linkedin"},{"n":"Soft skills training with Core Skill Hub","d":"2025-03-09","s":483,"k":"linkedin"},{"n":"UAE Corporate Trainers & L&D Networking Community","d":"2025-03-09","s":954,"k":"linkedin"},{"n":"Be the Person Everyone Wants to Work With","d":"2025-03-10","s":763,"k":"linkedin"},{"n":"If God Gave You the Idea, He Will Provide the Way!","d":"2025-03-15","s":1326,"k":"linkedin"},{"n":"How important are you?","d":"2025-03-17","s":1129,"k":"linkedin"},{"n":"Letting go of people to grow and move forward","d":"2025-03-20","s":954,"k":"linkedin"},{"n":"Turning Burnout into Breakthroughs","d":"2025-03-26","s":793,"k":"linkedin"},{"n":"Your #Attitude","d":"2025-03-28","s":1807,"k":"linkedin"},{"n":"Eid Ul Fitr Wishes and Celebration of Togetherness","d":"2025-03-29","s":495,"k":"linkedin"},{"n":"Supplication and prayers for loved ones during Ramadan and Laylatul Qadr","d":"2025-03-29","s":1409,"k":"linkedin"},{"n":"Why Soft Skills Matter More Than You Think","d":"2025-03-30","s":1854,"k":"linkedin"},{"n":"Leadership Poll Invitation","d":"2025-04-02","s":357,"k":"linkedin"},{"n":"Letting Go of One-Sided Relationships and Guilt","d":"2025-04-02","s":888,"k":"linkedin"},{"n":"Maintaining Boundaries and Professionalism in Workplace Friendships","d":"2025-04-03","s":810,"k":"linkedin"},{"n":"The magic of emotional attachment is within us","d":"2025-04-04","s":801,"k":"linkedin"},{"n":"Middle East Energy 2025 at Dubai World Trade Centre","d":"2025-04-06","s":669,"k":"linkedin"},{"n":"Taking a break from daily routine for refreshed perspective and renewed energy","d":"2025-04-06","s":849,"k":"linkedin"},{"n":"Empowering Workplace Culture and Navigating Office Politics","d":"2025-04-09","s":1489,"k":"linkedin"},{"n":"Applying through job post rather than direct message","d":"2025-04-11","s":405,"k":"linkedin"},{"n":"Letting go of expectations to maintain relationships and find peace","d":"2025-04-11","s":1359,"k":"linkedin"},{"n":"Silence is sometimes the best answer","d":"2025-04-12","s":482,"k":"linkedin"},{"n":"Finding spiritual wisdom and humility in hardship","d":"2025-04-14","s":692,"k":"linkedin"},{"n":"Great leaders defend their team","d":"2025-04-15","s":226,"k":"linkedin"},{"n":"The Impact of Silence Over Presence","d":"2025-04-16","s":572,"k":"linkedin"},{"n":"Reflecting on Workplace Friendships and True Connections After a Colleague Departs","d":"2025-04-18","s":1207,"k":"linkedin"},{"n":"Remove yourself from the equation","d":"2025-04-19","s":382,"k":"linkedin"},{"n":"Adopting a 'not my best yet' mindset for continuous growth","d":"2025-04-20","s":2251,"k":"linkedin"},{"n":"Book signing for Nasir Zaidi's 'From Invisible to Invaluable'","d":"2025-04-22","s":1000,"k":"linkedin"},{"n":"Letting go of one-sided connections and choosing peace over self-neglect","d":"2025-04-22","s":1723,"k":"linkedin"},{"n":"Core Skill Hub tailored training and coaching programs","d":"2025-04-24","s":650,"k":"linkedin"},{"n":"Using silence and strategic detachment to navigate manipulation","d":"2025-04-25","s":1145,"k":"linkedin"},{"n":"From Rock Bottom to Empowering Others: My Journey as Coach Shehzad","d":"2025-04-27","s":2302,"k":"linkedin"},{"n":"Skill1: Emotional Intelligence (EQ)","d":"2025-04-28","s":2112,"k":"linkedin"},{"n":"Your silence might be full of love - but is it being heard?","d":"2025-04-30","s":1767,"k":"linkedin"},{"n":"Honoring workers on International Labour Day","d":"2025-05-01","s":546,"k":"linkedin"},{"n":"Read This When You Feel Misunderstood — and Tired of Explaining Yourself","d":"2025-05-04","s":1286,"k":"linkedin"},{"n":"Impact of 1-on-1 Job Search Strategy Coaching","d":"2025-05-05","s":1161,"k":"linkedin"},{"n":"LinkedIn Marketing Solutions Fundamentals Certification","d":"2025-05-08","s":399,"k":"linkedin"},{"n":"Open to Opportunities in UAE","d":"2025-05-09","s":1232,"k":"linkedin"},{"n":"When leaders ask for feedback but punish honesty, silence becomes survival","d":"2025-05-12","s":1946,"k":"linkedin"},{"n":"Valuing authenticity over external validation and superficial recognition","d":"2025-05-15","s":751,"k":"linkedin"},{"n":"Embracing Life's Constant Change and Unpredictability","d":"2025-05-16","s":1367,"k":"linkedin"},{"n":"Outgrowing spaces and letting go without guilt","d":"2025-05-18","s":1694,"k":"linkedin"},{"n":"2025-05-19-hopefully-you-got-your-answer","d":"2025-05-19","s":337,"k":"instagram"},{"n":"𝗟𝗶𝗻𝗸𝗲𝗱𝗜𝗻 – To update your bio from \"𝗛𝗮𝗿𝗱𝘄𝗼𝗿𝗸𝗶𝗻𝗴 𝗘𝗺𝗽𝗹𝗼𝘆𝗲𝗲\" to \"𝗢𝗽𝗲𝗻 𝘁𝗼 𝗢𝗽𝗽𝗼𝗿𝘁𝘂𝗻𝗶𝘁𝗶𝗲𝘀\"","d":"2025-05-21","s":2101,"k":"linkedin"},{"n":"Healing Starts Within: Overcoming Projected Self-Judgment","d":"2025-05-25","s":984,"k":"linkedin"},{"n":"Reflecting on the impact of presence and moving forward with purpose","d":"2025-05-29","s":555,"k":"linkedin"},{"n":"When Connection Meets Fear of Loss","d":"2025-06-02","s":2108,"k":"linkedin"},{"n":"Eid Mubarak Greeting","d":"2025-06-06","s":386,"k":"linkedin"},{"n":"The Value of Real Friendships in the Corporate World","d":"2025-06-07","s":1260,"k":"linkedin"},{"n":"Holding space and quiet presence as emotional strength","d":"2025-06-08","s":941,"k":"linkedin"},{"n":"Finding Happiness Through Helping Others and Choosing Kindness","d":"2025-06-12","s":1248,"k":"linkedin"},{"n":"Father's Day Tribute to a Guiding Hero","d":"2025-06-16","s":723,"k":"instagram"},{"n":"Leaving the Wrong Situation for Personal Growth","d":"2025-06-20","s":552,"k":"instagram"},{"n":"Leaving the wrong environment for peace and growth","d":"2025-06-20","s":535,"k":"linkedin"},{"n":"Protecting your healing by not returning to what broke you","d":"2025-06-21","s":649,"k":"linkedin"},{"n":"People who truly love you will be hard on you and protect you","d":"2025-06-22","s":632,"k":"linkedin"},{"n":"People who truly love you will be hard on you to protect you","d":"2025-06-22","s":711,"k":"instagram"},{"n":"Emotional safety and steady connection in relationships","d":"2025-06-28","s":1587,"k":"instagram"},{"n":"Every day is a new chance to shine","d":"2025-06-28","s":685,"k":"linkedin"},{"n":"Weekend getaway and mindfulness","d":"2025-06-28","s":253,"k":"instagram"},{"n":"The Value of Deep, Emotionally Safe Connections","d":"2025-06-29","s":1492,"k":"linkedin"},{"n":"Stop Chasing People and Focus on Your Own Peace and Growth","d":"2025-07-01","s":1167,"k":"instagram"},{"n":"Stop chasing people. Start choosing you.","d":"2025-07-01","s":1116,"k":"linkedin"},{"n":"Essential Career Skills for the 2025 Workplace","d":"2025-07-02","s":1025,"k":"linkedin"},{"n":"Lowkey never liked sushi… but this spot said 'let me fix that.'","d":"2025-07-04","s":775,"k":"instagram"},{"n":"Confidence is knowing you'll figure it out","d":"2025-07-05","s":350,"k":"instagram"},{"n":"What Practical Skills Will Advance Your Career in 2025?","d":"2025-07-06","s":868,"k":"linkedin"},{"n":"Realizing the value of moments after they are gone","d":"2025-07-09","s":536,"k":"linkedin"},{"n":"You don't know what you've got until it's gone","d":"2025-07-09","s":627,"k":"instagram"},{"n":"Training Needs Analysis for Team and Business Growth","d":"2025-07-10","s":1571,"k":"instagram"},{"n":"Using Training Needs Analysis (TNA) for Focused Team Growth and Business Performance","d":"2025-07-10","s":1051,"k":"linkedin"},{"n":"Encouragement for Dreamers Feeling Stuck","d":"2025-07-15","s":1673,"k":"instagram"},{"n":"To the dreamers who feel like giving up…","d":"2025-07-15","s":1112,"k":"linkedin"},{"n":"Sharing the best life advice received","d":"2025-07-17","s":660,"k":"linkedin"},{"n":"Don't let small moments of frustration ruin your entire day","d":"2025-07-21","s":1021,"k":"instagram"},{"n":"Protect your peace and don't let 60 seconds of frustration ruin your day","d":"2025-07-22","s":663,"k":"linkedin"},{"n":"Observing drama with detachment and truth","d":"2025-07-23","s":598,"k":"linkedin"},{"n":"Watching the drama unfold while knowing the truth","d":"2025-07-23","s":395,"k":"instagram"},{"n":"Self-respect and knowing your worth","d":"2025-07-27","s":1287,"k":"instagram"},{"n":"Self-respect isn't ego","d":"2025-07-27","s":490,"k":"linkedin"},{"n":"Defining True Success Through Peace, Authenticity, and Purpose","d":"2025-07-29","s":989,"k":"instagram"},{"n":"Redefining Real Success as Peace, Growth, and Purpose","d":"2025-07-30","s":1059,"k":"linkedin"},{"n":"Don't engage, elevate: rising above criticism like an eagle","d":"2025-07-31","s":1114,"k":"instagram"},{"n":"Don’t waste your energy on people trying to bring you down","d":"2025-07-31","s":832,"k":"linkedin"},{"n":"Corporate Training and 1:1 Coaching for Leadership and Professional Growth","d":"2025-08-02","s":1303,"k":"linkedin"},{"n":"Friendship is about who never left","d":"2025-08-03","s":682,"k":"instagram"},{"n":"Friendship is about who never left","d":"2025-08-03","s":445,"k":"linkedin"},{"n":"Resetting stuck teams and burnt-out professionals through coaching and training","d":"2025-08-04","s":894,"k":"linkedin"},{"n":"Resetting stuck teams and overwhelmed professionals through coaching and training","d":"2025-08-04","s":1218,"k":"instagram"},{"n":"Corporate Training That Works","d":"2025-08-06","s":1252,"k":"linkedin"},{"n":"Identifying and protecting your real circle","d":"2025-08-06","s":997,"k":"instagram"},{"n":"Identifying and protecting your real circle during difficult times","d":"2025-08-07","s":705,"k":"linkedin"},{"n":"Every person you meet leaves a mark and shapes your growth","d":"2025-08-08","s":1236,"k":"linkedin"},{"n":"Never blame anyone and move forward from every experience","d":"2025-08-08","s":1106,"k":"instagram"},{"n":"AIGPE™ Certified Six Sigma Green Belt Certification","d":"2025-08-09","s":394,"k":"linkedin"},{"n":"AIGPE™ Certified Six Sigma Green Belt Digital Badge","d":"2025-08-09","s":2868,"k":"linkedin"},{"n":"Happy Independence Day Celebration","d":"2025-08-15","s":417,"k":"linkedin"},{"n":"Opinions don’t pay rent. Bills get cleared by hustle, not gossip.","d":"2025-08-23","s":455,"k":"instagram"},{"n":"Save the reel if this resonate with you","d":"2025-08-24","s":389,"k":"instagram"},{"n":"Reaching the point of being done explaining and fighting","d":"2025-08-27","s":434,"k":"instagram"},{"n":"Respect, Self-Respect, and Mental Peace","d":"2025-08-29","s":340,"k":"linkedin"},{"n":"Keep your private life to yourself and do not overshare","d":"2025-08-31","s":407,"k":"instagram"},{"n":"Reasons to travel in every life situation","d":"2025-09-08","s":416,"k":"instagram"},{"n":"Always be ready to survive ALONE","d":"2025-09-10","s":505,"k":"instagram"},{"n":"Learning friendship truths through silence and reaching out","d":"2025-09-23","s":552,"k":"instagram"},{"n":"Embracing authenticity and learning from failure in professional life","d":"2025-09-26","s":1142,"k":"linkedin"},{"n":"Maintaining boundaries against betrayal and disrespect","d":"2025-09-26","s":894,"k":"instagram"},{"n":"Supplication for Allah's Mercy and Guidance","d":"2025-10-02","s":770,"k":"instagram"},{"n":"Strong communication as a leadership power skill","d":"2025-10-09","s":1206,"k":"linkedin"},{"n":"Drop a ❤️ if you agree...","d":"2025-10-13","s":188,"k":"instagram"},{"n":"FLAMEC manufacturing and engineering update","d":"2025-10-15","s":206,"k":"linkedin"},{"n":"Mental clarity is wealth","d":"2025-10-18","s":785,"k":"instagram"},{"n":"Mental clarity is wealth","d":"2025-10-18","s":1296,"k":"linkedin"},{"n":"Agree?","d":"2025-10-19","s":639,"k":"linkedin"},{"n":"Inspirational Reel on Trust, Friendship, and Emotions","d":"2025-10-20","s":340,"k":"instagram"},{"n":"Pausing before judgment to find the truth in workplace conflicts","d":"2025-10-22","s":1791,"k":"linkedin"},{"n":"Navigating trust, workplace betrayal, and integrity","d":"2025-10-23","s":1803,"k":"instagram"},{"n":"Never trust people at your workplace blindly","d":"2025-10-24","s":1735,"k":"linkedin"},{"n":"Deciding to leave versus facing real-life constraints","d":"2025-10-25","s":695,"k":"linkedin"},{"n":"The challenge of helping people change from within","d":"2025-10-27","s":1466,"k":"linkedin"},{"n":"Attending Gulfood Manufacturing 2025 to Explore F&B Innovation and Connect","d":"2025-10-28","s":734,"k":"linkedin"},{"n":"Breaking through career plateaus by changing your internal narrative","d":"2025-10-30","s":1640,"k":"linkedin"},{"n":"Using Revision History to Ensure Authenticity Against AI Shortcuts in Assignments","d":"2025-11-02","s":1517,"k":"linkedin"},{"n":"Visiting Gulfood Manufacturing 2025 at Dubai World Trade Centre","d":"2025-11-02","s":909,"k":"instagram"},{"n":"When the laughter’s louder than the destination, you know it’s a trip worth remembering","d":"2025-11-03","s":760,"k":"instagram"},{"n":"Protect your peace - not everyone deserves a front-row seat in your life","d":"2025-11-06","s":514,"k":"linkedin"},{"n":"Gulfood Manufacturing 2025 reflections on innovation and collaboration","d":"2025-11-07","s":1335,"k":"linkedin"},{"n":"Gulfood Manufacturing 2025 wrap-up and takeaways","d":"2025-11-07","s":657,"k":"instagram"},{"n":"Stop pouring from an empty cup and protect your energy","d":"2025-11-08","s":767,"k":"linkedin"},{"n":"Strong people lift others versus dimming their light","d":"2025-11-09","s":1028,"k":"linkedin"},{"n":"Encouragement for those awaiting career breakthroughs and life-changing news","d":"2025-11-10","s":1008,"k":"linkedin"},{"n":"Longing for Love and Acceptance","d":"2025-11-10","s":330,"k":"instagram"},{"n":"Balancing Passion with Discipline for Long-Term Success","d":"2025-11-11","s":2208,"k":"instagram"},{"n":"Balancing purpose and discipline for long-term career success","d":"2025-11-11","s":2129,"k":"linkedin"},{"n":"Letting memories live in the past without closure","d":"2025-11-12","s":1588,"k":"linkedin"},{"n":"Raise children who stand for what’s right, not for what’s liked","d":"2025-11-14","s":847,"k":"linkedin"},{"n":"Raising Children to Stand for Values Over Popularity","d":"2025-11-14","s":1082,"k":"instagram"},{"n":"A little Reminder","d":"2025-11-15","s":561,"k":"linkedin"},{"n":"Recitation of Names of Allah","d":"2025-11-15","s":561,"k":"instagram"},{"n":"Before God gives you success, he reveals the hearts of those around you","d":"2025-11-16","s":639,"k":"instagram"},{"n":"Before the breakthrough comes the unveiling","d":"2025-11-16","s":588,"k":"linkedin"},{"n":"Creating psychological safety and trust in training rooms","d":"2025-11-17","s":1161,"k":"linkedin"},{"n":"When truth becomes a threat, people react","d":"2025-11-19","s":703,"k":"instagram"},{"n":"When truth becomes a threat, people react","d":"2025-11-20","s":748,"k":"linkedin"},{"n":"Corporate Trainer and Coaching Services","d":"2025-11-23","s":1450,"k":"linkedin"},{"n":"Quiet struggles and supporting others","d":"2025-11-24","s":511,"k":"linkedin"},{"n":"Stop the cycle of sales team struggle","d":"2025-11-26","s":1700,"k":"linkedin"},{"n":"Millennials and the Ache of Nostalgia","d":"2025-11-27","s":636,"k":"linkedin"},{"n":"Protecting peace and knowing when to walk away","d":"2025-11-28","s":817,"k":"instagram"},{"n":"Protecting peace and setting boundaries by knowing when to walk away","d":"2025-11-28","s":591,"k":"linkedin"},{"n":"Overcoming Leadership Burnout to Reignite Executive Performance and Vitality","d":"2025-11-29","s":1705,"k":"linkedin"},{"n":"Recitation of Tasbih and Praise of God","d":"2025-12-01","s":852,"k":"instagram"},{"n":"UAE National Day Celebration","d":"2025-12-02","s":392,"k":"linkedin"},{"n":"𝟭. 𝗖𝗼𝗮𝗰𝗵𝗶𝗻𝗴 (𝗧𝗵𝗲 𝗔𝗰𝗰𝗲𝗹𝗲𝗿𝗮𝘁𝗼𝗿)","d":"2025-12-06","s":2708,"k":"linkedin"},{"n":"Travel regardless of your emotional state","d":"2025-12-07","s":530,"k":"instagram"},{"n":"Breaking Free from the Cages of Speaking Up in Corporate Culture","d":"2025-12-10","s":2809,"k":"linkedin"},{"n":"The only competition that matters is you vs. you","d":"2025-12-11","s":1723,"k":"linkedin"},{"n":"Defining Human Capability Development","d":"2025-12-12","s":1176,"k":"instagram"},{"n":"Human Capability Development (HCD)","d":"2025-12-12","s":2367,"k":"linkedin"},{"n":"Always protect your peace","d":"2025-12-14","s":376,"k":"instagram"},{"n":"Treat people with dignity, even when you hold authority","d":"2025-12-15","s":1366,"k":"linkedin"},{"n":"Trusting Allah's Plan and Relinquishing Anxiety for the Future","d":"2025-12-17","s":950,"k":"instagram"},{"n":"Trusting Allah's timing and plan during uncertainty","d":"2025-12-17","s":778,"k":"linkedin"},{"n":"Free Psychometric Assessment Webinar for HR Professionals, Trainers, and Coaches","d":"2025-12-18","s":470,"k":"linkedin"},{"n":"Managing Personal Space Over Time Management","d":"2025-12-18","s":1155,"k":"instagram"},{"n":"Time Management vs. Owning Your Space","d":"2025-12-18","s":1707,"k":"linkedin"},{"n":"Don't compare yourself to anyone. You are unique.","d":"2025-12-19","s":588,"k":"instagram"},{"n":"Don't compare yourself to anyone. You are unique.","d":"2025-12-19","s":567,"k":"linkedin"},{"n":"Protecting personal boundaries and emotional privacy","d":"2025-12-22","s":910,"k":"linkedin"},{"n":"Trust Allah's Plan","d":"2025-12-23","s":564,"k":"linkedin"},{"n":"Trust Allah's Plan Through Hardship","d":"2025-12-23","s":614,"k":"instagram"},{"n":"Focusing on personal growth instead of critiquing others","d":"2025-12-24","s":1030,"k":"instagram"},{"n":"Focusing on personal growth instead of critiquing others","d":"2025-12-24","s":994,"k":"linkedin"},{"n":"Review of From Invisible to Invaluable by Nasir Zaidi","d":"2025-12-25","s":2501,"k":"linkedin"},{"n":"Silence as a Warning Rather Than Weakness","d":"2025-12-25","s":529,"k":"instagram"},{"n":"Trust Allah's Plans","d":"2025-12-29","s":396,"k":"linkedin"},{"n":"Navigating uncertainty, self-doubt, and career pressure through action and self-trust","d":"2025-12-30","s":922,"k":"linkedin"},{"n":"Taking the next honest step when facing uncertainty","d":"2025-12-30","s":951,"k":"instagram"},{"n":"Addressing silent pressure through honest self-reflection","d":"2025-12-31","s":1005,"k":"linkedin"},{"n":"Reflecting on 2025 and moving forward with clarity and self-respect","d":"2025-12-31","s":1482,"k":"linkedin"},{"n":"Biggest 3 Enemies of Success","d":"2026-01-01","s":1327,"k":"linkedin"},{"n":"Room with a View","d":"2026-01-03","s":163,"k":"instagram"},{"n":"Sharing your biggest life lesson","d":"2026-01-04","s":606,"k":"linkedin"},{"n":"Navigating conditional workplace support and loneliness at your lowest","d":"2026-01-05","s":751,"k":"instagram"},{"n":"Supporting colleagues and navigating isolation at your lowest","d":"2026-01-05","s":889,"k":"linkedin"},{"n":"Creating a culture that gives permission to learn","d":"2026-01-07","s":2006,"k":"linkedin"},{"n":"Recognizing Priorities and Raising Relationship Standards","d":"2026-01-08","s":2472,"k":"instagram"},{"n":"We make time for what we value","d":"2026-01-08","s":3234,"k":"linkedin"},{"n":"The 2026 Leadership Playbook: Why Experience is Failing","d":"2026-01-09","s":1298,"k":"linkedin"},{"n":"Lead with Purpose, Not Performance","d":"2026-01-10","s":2317,"k":"instagram"},{"n":"Lead with Purpose, Not Performance","d":"2026-01-10","s":2110,"k":"linkedin"},{"n":"Building a Legacy vs Creating Dependency as a Leader","d":"2026-01-11","s":611,"k":"instagram"},{"n":"Stop managing tasks. Start leading humans.","d":"2026-01-11","s":1517,"k":"linkedin"},{"n":"AI Fluent but Human-First Leadership","d":"2026-01-13","s":631,"k":"instagram"},{"n":"Human-first executive leadership and avoiding the efficiency trap in the age of AI","d":"2026-01-13","s":1759,"k":"linkedin"},{"n":"Leading people and purpose in an AI-automated workplace","d":"2026-01-14","s":1961,"k":"linkedin"},{"n":"Trusting in Allah's Plan","d":"2026-01-16","s":572,"k":"instagram"},{"n":"Staying on track and raising the stakes","d":"2026-01-17","s":1161,"k":"instagram"},{"n":"The 90/10 Rule","d":"2026-01-17","s":2361,"k":"linkedin"},{"n":"Holding onto faith and trusting Allah during hardship","d":"2026-01-18","s":639,"k":"instagram"},{"n":"Positive Mindset and Faith","d":"2026-01-18","s":520,"k":"linkedin"},{"n":"Setting Boundaries and Choosing Your Circle","d":"2026-01-19","s":1183,"k":"instagram"},{"n":"Stop trying to be perfectly efficient","d":"2026-01-19","s":2662,"k":"linkedin"},{"n":"Leadership Isn't a Position, It's How You Make People Feel","d":"2026-01-21","s":1126,"k":"instagram"},{"n":"Persistence in building a business through the Long Middle","d":"2026-01-21","s":1801,"k":"linkedin"},{"n":"From Authority to Empathy","d":"2026-01-22","s":1945,"k":"linkedin"},{"n":"Relationship Selling and Building Trust Over Transactional Closing","d":"2026-01-22","s":2015,"k":"instagram"},{"n":"Harvard just confirmed: Your sales script is why you’re losing clients","d":"2026-01-23","s":1689,"k":"linkedin"},{"n":"Choosing inspiration over insecurity when seeing others' success","d":"2026-01-24","s":628,"k":"instagram"},{"n":"Responding to others' success with growth instead of insecurity","d":"2026-01-24","s":728,"k":"linkedin"},{"n":"Happy Republic Day Celebration","d":"2026-01-26","s":370,"k":"linkedin"},{"n":"Recognizing Effort and Prioritizing Reciprocity in Relationships","d":"2026-01-27","s":1220,"k":"linkedin"},{"n":"Engagement call to agree and comment","d":"2026-01-28","s":447,"k":"linkedin"},{"n":"Invisible Influence and Empathy in Modern Leadership","d":"2026-01-29","s":2178,"k":"instagram"},{"n":"Transitioning from individual contributor to empathetic leadership","d":"2026-01-29","s":2070,"k":"linkedin"},{"n":"Empathy and empowerment over heroic leadership","d":"2026-01-30","s":1053,"k":"linkedin"},{"n":"Shift from 'know-it-all' leadership to 'learn-it-all' cultures and empathetic empowerment","d":"2026-01-30","s":992,"k":"instagram"},{"n":"Flash back to learning and development training","d":"2026-02-02","s":704,"k":"linkedin"},{"n":"Accept people as they are, but place them where they belong","d":"2026-02-03","s":2105,"k":"linkedin"},{"n":"Managing People in Your Life with Acceptance and Boundaries","d":"2026-02-03","s":821,"k":"instagram"},{"n":"Surrounding yourself with supportive and peaceful people","d":"2026-02-05","s":1190,"k":"linkedin"},{"n":"Why certain people never appreciate what you do for them","d":"2026-02-05","s":1157,"k":"instagram"},{"n":"Maman dit travailler c'est bien, bien mieux qu'être mal accompagné","d":"2026-02-06","s":600,"k":"instagram"},{"n":"Training the Dubai Duty Free team on Armaf Perfume Product & Sales","d":"2026-02-11","s":2054,"k":"linkedin"},{"n":"Luxury Presentation and Fragrance Storytelling","d":"2026-02-12","s":1017,"k":"instagram"},{"n":"ARMAF product and sales training for Dubai Duty Free","d":"2026-02-13","s":1681,"k":"linkedin"},{"n":"Healing and Comfort Through Faith","d":"2026-02-15","s":374,"k":"instagram"},{"n":"Engaging Gen Z in Training Programs","d":"2026-02-16","s":293,"k":"linkedin"},{"n":"Ramadan Kareem Greeting","d":"2026-02-17","s":225,"k":"instagram"},{"n":"Ramadan Kareem Greeting","d":"2026-02-17","s":441,"k":"linkedin"},{"n":"Your sales team doesn’t need more leads. They need better conversations.","d":"2026-02-17","s":1227,"k":"linkedin"},{"n":"Iftaar at Sheikh Zayed Grand Mosque","d":"2026-02-22","s":230,"k":"instagram"},{"n":"Clear expectations drive team performance","d":"2026-02-24","s":1417,"k":"linkedin"},{"n":"Welcome to the real world","d":"2026-02-24","s":515,"k":"instagram"},{"n":"Adults learn from experience rather than slides to shift behavior","d":"2026-02-25","s":718,"k":"instagram"},{"n":"The Great Skills Reshuffle: What India & UAE Can Learn From Each Other","d":"2026-02-25","s":2483,"k":"linkedin"},{"n":"Experiential Learning and Behavioral Change in Corporate Training","d":"2026-02-26","s":1875,"k":"linkedin"},{"n":"The $1M Silence: Overcoming AI Fatigue and Human-Centric L&D","d":"2026-02-28","s":2583,"k":"linkedin"},{"n":"Safety check and prayers for connections across the Middle East","d":"2026-03-01","s":1328,"k":"linkedin"},{"n":"Consistency is the key","d":"2026-03-05","s":219,"k":"linkedin"},{"n":"Stop Training Your Employees. Start Building Their Capabilities.","d":"2026-03-05","s":2164,"k":"linkedin"},{"n":"Alhamdulillah","d":"2026-03-06","s":175,"k":"instagram"},{"n":"2026-03-07-harsh-truth-truth-quotes-lifelesson","d":"2026-03-07","s":284,"k":"instagram"},{"n":"Freelance Corporate Trainer Opportunity for Sales & Leadership","d":"2026-03-07","s":942,"k":"linkedin"},{"n":"Hiring Freelance Corporate Trainer for Sales and Leadership Workshops","d":"2026-03-07","s":1097,"k":"instagram"},{"n":"International Women's Day Celebration","d":"2026-03-08","s":311,"k":"instagram"},{"n":"International Women's Day Celebration","d":"2026-03-08","s":427,"k":"linkedin"},{"n":"The $100 Billion Silent Leak: Why AI Tools Aren't Saving Your Team (Yet)","d":"2026-03-14","s":1370,"k":"linkedin"},{"n":"Unlearning management habits to lead people effectively","d":"2026-03-18","s":1946,"k":"linkedin"},{"n":"Eid Mubarak Greetings and Supplications","d":"2026-03-21","s":601,"k":"linkedin"},{"n":"Overcoming learned helplessness through persistent effort and small victories","d":"2026-03-23","s":1610,"k":"linkedin"},{"n":"The Leadership Loneliness: Why Your Managers are Quitting (Even if the AI isn't)","d":"2026-03-30","s":1401,"k":"linkedin"},{"n":"The Trust Currency: Why Your \"High-Tech\" Team has a \"Low-Trust\" Problem","d":"2026-04-10","s":1480,"k":"linkedin"},{"n":"LearnTube.ai's P.E.A.K.S. assessment in Project Management","d":"2026-04-13","s":1174,"k":"linkedin"},{"n":"The \"Quiet Overachiever\" is the most dangerous role you can play in your career","d":"2026-04-15","s":2706,"k":"linkedin"},{"n":"Agree? (Share your opinion)","d":"2026-04-23","s":357,"k":"linkedin"},{"n":"Do you agree?","d":"2026-04-23","s":225,"k":"instagram"},{"n":"AI won’t replace leadership, but it will redefine how we lead","d":"2026-05-15","s":1033,"k":"linkedin"},{"n":"Merchandising","d":"2026-05-19","s":2937,"k":"instagram"},{"n":"Why sales transformation relies on human behavior and leader participation rather than scripts","d":"2026-05-19","s":3255,"k":"linkedin"},{"n":"Empowering Sales Teams in the UAE Through Training Strategies","d":"2026-05-21","s":449,"k":"linkedin"},{"n":"Leadership Behaviour and Psychological Safety in High-Performing Teams","d":"2026-05-23","s":2317,"k":"instagram"},{"n":"Leadership behaviour issues and psychological safety in team disengagement","d":"2026-05-23","s":1996,"k":"linkedin"},{"n":"Soft Skills That Quietly Kill Careers","d":"2026-05-24","s":199,"k":"instagram"},{"n":"The true measure of leadership impact and creating supportive environments","d":"2026-05-24","s":890,"k":"linkedin"},{"n":"Soft Skills That Quietly Kill Careers","d":"2026-05-25","s":534,"k":"linkedin"},{"n":"The Power of Du'a on the Day of Arafat","d":"2026-05-26","s":1013,"k":"linkedin"},{"n":"The Virtues and Power of Supplication on the Day of Arafat","d":"2026-05-26","s":1198,"k":"instagram"},{"n":"The essence of Eid is in the sincerity of sacrifice","d":"2026-05-27","s":781,"k":"linkedin"},{"n":"बचपन की ईद की यादें और बदलते एहसास","d":"2026-05-27","s":1371,"k":"instagram"},{"n":"Work-life integration and bringing joy to the workplace","d":"2026-05-28","s":1983,"k":"linkedin"},{"n":"The biggest L&D lie companies still believe","d":"2026-05-29","s":265,"k":"instagram"},{"n":"The biggest L&D lie companies still believe: Training doesn’t work","d":"2026-05-29","s":1488,"k":"linkedin"},{"n":"Stop waiting for the perfect moment and take small steps","d":"2026-05-30","s":1288,"k":"instagram"},{"n":"When Motivation Meets Tea Break","d":"2026-06-02","s":1119,"k":"linkedin"},{"n":"Corporate training reinforcement strategies for behavior change","d":"2026-06-04","s":1392,"k":"linkedin"},{"n":"Opportunity | Assessor / Observer Needed for Assessment Center Activity in Dubai","d":"2026-06-04","s":936,"k":"linkedin"},{"n":"Fix the people first instead of the process when a team is underperforming","d":"2026-06-09","s":1386,"k":"linkedin"},{"n":"Why soft skills drive team revenue and retention beyond technical ability","d":"2026-06-09","s":1085,"k":"instagram"},{"n":"The Cost of Neglecting Soft Skills Training in High-Performing Teams","d":"2026-06-11","s":1502,"k":"linkedin"},{"n":"Your Western MBA won't lead a Gulf team","d":"2026-06-16","s":1352,"k":"linkedin"},{"n":"Experience at the Get Together Networking Event by United Brothers","d":"2026-06-21","s":2378,"k":"instagram"},{"n":"Reflections on the United Brothers Networking Event","d":"2026-06-21","s":2206,"k":"linkedin"},{"n":"Somos rivales, pero encima hay que bancar","d":"2026-06-23","s":747,"k":"instagram"},{"n":"Poor communication is costing your business more than bad sales","d":"2026-06-24","s":2058,"k":"linkedin"},{"n":"Action creates motivation rather than waiting for the right mood","d":"2026-06-25","s":1152,"k":"linkedin"},{"n":"Cold Calling Mindset and Emotional Stages","d":"2026-07-15","s":631,"k":"instagram"},{"n":"Sales Domination Program: Day 1 Sales Psychology and Invisible Forces","d":"2026-07-19","s":2042,"k":"linkedin"},{"n":"Is Sales Training Worth the Money?","d":"2026-07-24","s":1326,"k":"linkedin"},{"n":"Gratitude and reflection on sales coaching with La Foret Real Estate","d":"2026-07-31","s":955,"k":"linkedin"},{"n":"Why sales training must teach salespeople how to think rather than rely on rigid scripts","d":"2026-08-03","s":2368,"k":"linkedin"},{"n":"Great leaders adapt under pressure","d":"2026-08-05","s":412,"k":"instagram"},{"n":"Sales Domination Training: Turning Sales Psychology into Process and Live Results","d":"2026-08-05","s":2774,"k":"linkedin","sel":1},{"n":"How leaders actually behave under pressure","d":"2026-08-06","s":414,"k":"linkedin"},{"n":"Why Coaching Is Essential for Post-Training Behaviour Change and ROI","d":"2026-08-07","s":1624,"k":"linkedin"},{"n":"Tying L&D and career growth paths to employee retention","d":"2026-08-12","s":1749,"k":"linkedin"},{"n":"Corporate training engagement with La Foret Real Estate","d":"2026-08-13","s":303,"k":"linkedin"},{"n":"Stop Training Your Dubai Real Estate Team Like They're Selling in New York or London","d":"2026-08-14","s":2588,"k":"linkedin"},{"n":"Train for the room they're actually walking into","d":"2026-08-14","s":702,"k":"instagram"},{"n":"Finding your personal meaning of life","d":"2026-08-15","s":782,"k":"instagram"},{"n":"Happy Independence Day","d":"2026-08-15","s":417,"k":"linkedin"},{"n":"Finding your personal meaning of life","d":"2026-08-16","s":741,"k":"linkedin"},{"n":"Why Psychological Safety and Welcoming Disagreement Defines True Leadership","d":"2026-08-17","s":2476,"k":"linkedin"},{"n":"1. READING THE REAL CONCERN","d":"2026-08-19","s":2734,"k":"instagram"},{"n":"5 things I would NEVER automate in sales","d":"2026-08-19","s":1133,"k":"linkedin"},{"n":"Turning training concepts into immediately applicable sales skills","d":"2026-08-20","s":393,"k":"linkedin"},{"n":"Fixing Winnable Lost Deals with Practical Sales Training","d":"2026-08-21","s":1483,"k":"linkedin"},{"n":"Letting go by separating who someone was from who you hoped they would be","d":"2026-08-22","s":1441,"k":"linkedin"},{"n":"The hardest goodbyes are quiet","d":"2026-08-23","s":613,"k":"instagram"},{"n":"Finding Inner Peace and Closure Within Yourself","d":"2026-08-24","s":662,"k":"instagram"},{"n":"Finding inner peace and closure from within rather than waiting for an apology","d":"2026-08-24","s":1232,"k":"linkedin"},{"n":"Your discount is often a symptom, not the strategy","d":"2026-08-27","s":441,"k":"linkedin"},{"n":"Dubai's Emergence as a Global Wealth Capital","d":"2026-08-31","s":318,"k":"linkedin"},{"n":"Preventing Founder Burnout Through Sustainable Leadership","d":"2026-09-02","s":1700,"k":"instagram"},{"n":"Sustainable Leadership and Avoiding Founder Burnout","d":"2026-09-02","s":1561,"k":"linkedin"},{"n":"The real impact of a great teacher","d":"2026-09-05","s":967,"k":"linkedin"},{"n":"People Don't Resist Training, They Resist Feeling Stupid","d":"2026-09-08","s":1992,"k":"instagram"},{"n":"People Don’t Resist Training, They Resist Feeling Stupid","d":"2026-09-08","s":1237,"k":"linkedin"},{"n":"Using AI as an admin shortcut rather than a replacement for human sales skills","d":"2026-09-10","s":2171,"k":"linkedin"},{"n":"Post-Training Reinforcement and Behavior Change","d":"2026-09-11","s":2050,"k":"linkedin"},{"n":"Nobody trained them to manage: bridging the new manager skills gap","d":"2026-09-13","s":1621,"k":"linkedin"},{"n":"Promoting Individual Contributors into Management Without Proper Training","d":"2026-09-13","s":1526,"k":"instagram"},{"n":"Attending GISEC GLOBAL Cybersecurity Event","d":"2026-09-16","s":932,"k":"instagram"},{"n":"First, no upside","d":"2026-09-16","s":2204,"k":"linkedin"},{"n":"A senior person's smallest reaction sets the standard everyone else copies","d":"2026-09-17","s":1661,"k":"linkedin"},{"n":"Fixing Broken Systems and Removing Barriers as a Leader","d":"2026-09-18","s":1781,"k":"linkedin"},{"n":"He Read The Room Like A Poker Player And Made $725 Million","d":"2026-09-19","s":2619,"k":"linkedin"},{"n":"Reframing a product as a lever to sell existing inventory","d":"2026-09-22","s":1573,"k":"linkedin"},{"n":"Boiler Room and the Reality of Selling Belief, Lifestyle, and Morality","d":"2026-09-23","s":2021,"k":"linkedin"},{"n":"Selling Certainty Instead of Products","d":"2026-09-24","s":998,"k":"instagram"},{"n":"Selling belief and instilling certainty instead of convincing","d":"2026-09-24","s":1092,"k":"linkedin"},{"n":"Pricing by Urgency and Perceived Value","d":"2026-09-25","s":1763,"k":"linkedin"},{"n":"Navigating the Fear of Stepping into Your First Leadership Role","d":"2026-09-29","s":2282,"k":"instagram"},{"n":"Navigating the Transition to First-Time Leadership","d":"2026-09-29","s":2371,"k":"linkedin"},{"n":"Protecting Your Team from Disrespectful Customers","d":"2026-09-30","s":1394,"k":"linkedin"},{"n":"Choosing integrity over compromise when pressured to lie for career advancement","d":"2026-10-02","s":2352,"k":"linkedin"},{"n":"Protecting your vision and distinguishing seeking wisdom from seeking permission","d":"2026-10-03","s":3369,"k":"linkedin"},{"n":"Your first impression isn’t your résumé. It’s your presence.","d":"2026-10-06","s":1997,"k":"linkedin"},{"n":"The most expensive sentence in Dubai sales: I know how this client thinks","d":"2026-10-07","s":2364,"k":"linkedin"},{"n":"Embracing discomfort as the price of real progress","d":"2026-10-08","s":1550,"k":"linkedin"},{"n":"Unlocking Sales Potential by Shifting Identity and Aspiration","d":"2026-10-08","s":2090,"k":"linkedin"},{"n":"Promoting top closers to managers without proper onboarding or training","d":"2026-10-10","s":1530,"k":"linkedin"},{"n":"How to set goals for a team, not just for himself","d":"2026-10-12","s":2025,"k":"linkedin"},{"n":"Training sales managers to coach and reinforce skills","d":"2026-10-13","s":1417,"k":"linkedin"},{"n":"Handling difficult customer conversations through de-escalation and pause","d":"2026-10-15","s":2533,"k":"linkedin"},{"n":"Promoting top sales performers to manager without leadership training","d":"2026-10-17","s":2059,"k":"linkedin"},{"n":"Teaching decision-making and contingency planning","d":"2026-10-19","s":1745,"k":"linkedin"},{"n":"Be familiar with everyone. Don't turn colleagues into family.","d":"2026-10-20","s":975,"k":"instagram"},{"n":"Emotional boundaries and the risks of treating colleagues like family","d":"2026-10-20","s":1417,"k":"linkedin"},{"n":"Caring for people isn't the same as carrying them","d":"2026-10-22","s":1149,"k":"instagram"},{"n":"Caring for people isn't the same as carrying them","d":"2026-10-22","s":1241,"k":"linkedin"},{"n":"A reinforcement plan I’d ask for before any training budget is approved","d":"2026-10-24","s":1272,"k":"linkedin"},{"n":"A reinforcement plan I’d ask for before any training budget is approved","d":"2026-10-24","s":1181,"k":"instagram"},{"n":"Before writing up low performers, check for aligned expectations","d":"2026-10-26","s":1184,"k":"linkedin"},{"n":"Before writing up low performers, test their clarity on performance expectations","d":"2026-10-26","s":1514,"k":"instagram"},{"n":"The Impact of Honest Management Feedback","d":"2026-10-27","s":1528,"k":"instagram"},{"n":"The lasting impact and standard of honest managerial feedback","d":"2026-10-27","s":1607,"k":"linkedin"},{"n":"Credit goes down. Name who had the idea, in the room.","d":"2026-10-29","s":2080,"k":"instagram"},{"n":"Three habits to protect your team and build trust around board meetings","d":"2026-10-29","s":2414,"k":"linkedin"},{"n":"What It Really Takes to Win in Business, Leadership, and Life","d":"2026-11-01","s":1648,"k":"linkedin"},{"n":"Respect vs fear in leadership","d":"2026-11-02","s":1711,"k":"linkedin"},{"n":"Respect vs fear in leadership and how to change workplace culture","d":"2026-11-02","s":1851,"k":"instagram"},{"n":"Managing Leader Mood and Emotional Contagion","d":"2026-11-03","s":1568,"k":"instagram"},{"n":"Your team checked your mood before they checked their inbox","d":"2026-11-03","s":1649,"k":"linkedin"},{"n":"One peer outside your company who also leads people","d":"2026-11-05","s":1606,"k":"linkedin"},{"n":"Declining Manager Engagement and How to Support Them","d":"2026-11-10","s":1877,"k":"instagram"},{"n":"Declining Manager Engagement and the Need for Support","d":"2026-11-10","s":1788,"k":"linkedin"},{"n":"Do you show up in person?","d":"2026-11-12","s":2103,"k":"linkedin"},{"n":"Leadership in Crisis and Supporting Employees on Their Worst Days","d":"2026-11-12","s":2029,"k":"instagram"},{"n":"Management as the reason top employees quit","d":"2026-11-13","s":588,"k":"linkedin"},{"n":"Shift 1","d":"2026-11-15","s":1945,"k":"instagram"},{"n":"What actually changed behavior in leadership coaching","d":"2026-11-15","s":1376,"k":"linkedin"}],"totals":{"conversations":407,"actions":2851,"frames":2029,"tactics":219,"scenes":44,"phases":6,"beliefs":6,"words":42315},"session":{"title":"He was struggling with objections on Monday","date":"2026-08-05","kind":"LinkedIn · workshop story","turns":4,"other":"The consultant","lines":[{"id":"t0010","ts":"¶1","raw":"speaker_2","coach":false,"who":"The consultant","text":"He was struggling with objections on Monday."},{"id":"t0017","ts":"¶5","raw":"speaker_1","coach":true,"who":"Shehzad","text":"Day 2 was about turning that mindset into a repeatable process"},{"id":"t0030","ts":"¶16","raw":"speaker_1","coach":true,"who":"Shehzad","text":"Back-to-back objection handling drills - no breaks, no mercy"},{"id":"t0034","ts":"¶19","raw":"speaker_1","coach":true,"who":"Shehzad","text":"One consultant picked up the phone, made an actual call, in front of the entire room - and booked a meeting."}]},"frames":[{"id":"f-00","span":"a consultant struggling with objections on Monday","kind":"statement","from":["t0010"]},{"id":"f-01","span":"turning the mindset into a repeatable process on day two","kind":"reframe","from":["t0017"]},{"id":"f-02","span":"back-to-back objection drills, no breaks","kind":"story","from":["t0030"]},{"id":"f-03","span":"a live call in front of the whole room that books a meeting","kind":"statement","from":["t0034"]}],"thread":{"cue":"f-00","move":"f-01","cueLine":"t0010","moveLine":"t0017"},"labels":{"tactics":["objection handling","After Performance Appraisal","Eid celebration","managing team relationships","carrying business burden alone","waiting for an apology or explanation","best employees stop caring over time","team member facing a crisis or hard day","feeling isolated in leadership role","team pretends to work when leadership is present","entry-level job search","executive exhaustion and stress","promoted from individual contributor to manager","employees reverting to old habits after workshops","promoting top performer to manager","delivering uncomfortable feedback to employees","watching others move ahead","realizing you made the wrong choice","experiencing loss or change","team not growing despite being busy","learning to use chopsticks","feeling stuck and wanting to give up","observing drama unfold with knowledge of the truth","handling rough moments","dealing with critics and detractors","feeling undervalued in relationships","navigating difficult times and adversity","dealing with hurtful people","burnout and disconnected teams","dealing with judgment and gossip","setting boundaries","stopping reaching out","betrayal in friendship","workplace gossip and manipulation","desiring love","Gen Z workplace expectations","someone trashes your name out of fear of exposure","ending toxic relationships","preparing for personal or professional breakthrough","feeling uncertain or anxious about the future","experiencing suffering, loneliness, and anxiety","broken trust","feeling alone when you need support after supporting others","feeling uncertain about life","making excuses for someone not texting back","facing difficulty in understanding life circumstances","feeling hopeless during hardship","employee retention","moving away from command-and-control management","losing clients to competitors","someone doesn't appreciate your help or care","comparing yourself to others' success","Ramadan","career advancement","team members stop speaking up","overthinking and waiting for perfection","losing deals due to mistraining in a different cultural market","push back from retailers","stock concerns","time constraints","product is expensive","non-moving inventory","introducing new products","employee resistance to training and feedback","holding onto hope for too long","customer says it's too expensive","handling frustrated customers","prospect hesitation","managing people without being taken advantage of","nervousness during presentations","women judged on looks and age over potential","someone making an effort to stay connected","carrying emotional pain alone","trying to fix someone else","fear of hurting loved ones","new year goal setting","navigating early career advancement","friends disappearing when not useful","protecting future plans from detractors","International Women's Day","fear of failure in starting a business","being treated as an option","feeling overwhelmed","feeling guilty for not reaching out","Laylatul Qadr during Ramadan","losing emotional attachment","navigating negative or unsupportive work culture","applying for shared job post","disappointment in relationships","coping with hardship and pain","close colleague quitting","dealing with manipulation and deception","feeling misunderstood and emotionally lonely","feeling stuck or overwhelmed","feeling misunderstood","feeling stuck in job search","employees silent after feedback is punished","job search in UAE","effort becomes one-sided","feeling unappreciated despite showing depth","hesitating to leave out of guilt","feeling lost or stuck","feeling judged by others","moving forward after departure","fear of loss overwhelming present connection","supporting someone going through a hard time","feeling stuck in the wrong situation","recovering from past emotional or mental distress","reflecting on past comfort and lost moments","dreamers who feel like giving up","unnecessary drama","people trying to bring you down","leading a team that is stuck or feeling stuck","teams stuck and professional burnout","dealing with frustration","going through adversity","experiencing career setbacks","decision fatigue in leadership","professional betrayal and workplace gossip","hearing only one version of a workplace dispute","facing real-life pressure before leaving a job","students using ChatGPT for assignments","dealing with chaotic or toxic people","overgiving energy without reciprocity","feeling stuck despite doing everything right","waiting for a job offer or promotion","relationships ending without closure","struggling quietly","truth becomes a threat","sales turnover and underperformance","feeling alone in the Ache","comparing yourself to others","life feels uncertain, slow, or heavy","feeling overwhelmed by distractions","fear of speaking up at work","carrying pressure silently","career pressure, emotional overwhelm, or self-doubt","year-end reflection","feeling alone after supporting others","making excuses for someone's silence","learning feels unsafe or rushed","teams feeling disconnected due to automation","AI automating team workflow","team mental health protection","managing team engagement","isolation while building a business","building a business through long-term challenges","seeing others succeed","retaining top talent","failing talent playbooks and regional skills shifts","AI fatigue and underutilized software","regional crisis in the Middle East","team performance issues","feeling guilty about distancing from draining relationships","talent falling behind the AI curve","high team turnover","giving up after repeated failures","Eid al-Fitr celebration","managers quitting due to AI isolation","tools implemented but results aren't scaling","overlooked for promotion despite high performance","integrating AI into corporate workflows","team disengagement","receiving client or mentee appreciation","expecting one workshop to change behavior","participant asking about breaks during training","teams misinterpreting meeting messages","L&D budget prioritising technical skills over soft skills","leading teams in Gulf organisations","feeling low energy and zero drive","training before failed to create lasting change","underperforming team with late deliverables and missed targets","ineffective sales training","client ghosting after pitch","supervisors resigning due to lack of growth paths","employee afraid to correct boss","low close rate from weak pitch and objection handling","missing someone who broke trust","needing to drop price to close deals","Teacher's Day","employees resisting training or feedback","sales team adopting AI tools without revenue growth","promoted without management training","junior staffer makes a mistake","high-stakes merger negotiation","bureaucratic rules hindering employee productivity","buyer already has identical inventory","customer refuses initial price","transitioning into a management role","disrespectful customer pushes team member to tears","external doubt killing business ideas","unethical demand for promotion","making a first impression without track record","promoting a top closer to manager without training","training fades without reinforcement","promoting a salesperson to manager","managing lower-performing reps","transitioning from individual contributor to manager","angry customer looking for a fight","handling staffing and scheduling conflicts","managing team performance","being an overly available leader","training team without long-term change","salesperson stuck at performance plateau","managing an underperforming employee","presenting team ideas to leadership","walking into a tough meeting","aftermath of crisis","client stops responding","manager burnout and pressure","best employees quitting due to management","managing low performers","training retention failure","entering a meeting or approaching a team while stressed","manager burnout","presenting team ideas to board","handling executive blame","executive pressure","supporting employees through personal or collective tragedy"],"scenes":["psychological safety","growth mindset","mindset","personal boundaries","personal growth","workplace culture","self-respect","servant leadership","soft skills","learning and development","letting go","emotional intelligence","leadership loneliness","self-worth","soft skills training","career growth","behavior change","leadership development","boundaries","empathy in leadership","time management","objection handling","workplace boundaries","constructive feedback","sales psychology","genuine relationships","trust in God","corporate training","emotional safety","training needs analysis","perseverance and faith","motivation","audience engagement","workplace trust","mental clarity","manufacturing innovation","true friendship","character building","setting boundaries","human capability development","self-improvement","emotional well-being","supportive culture","navigating uncertainty"],"phases":["Find the real need","Train for behaviour","Sell with trust","Lead people","Build the person","Stay steady"],"beliefs":["A system and the reps: They don't need more motivation, they need a system and the reps to back it up.","Teach people how to think: Training isn't about teaching people what to say. It's about teaching people how to think.","Training needs a follow-up: Without those four things, training isn't a waste - it's just entertainment with a certificate.","Curiosity over assumptions: Stereotypes close doors. Curiosity opens them.","Seen: Leaders don’t change when they’re told. They change when they’re seen.","Safety first: People don’t resist training. They resist feeling stupid."]},"floors":{"1":[628,-82,622,268,595,135,656,-45,-913,211,-365,215,-356,812,-199,-153,537,-175,543,668,-336,792,-224,609,-216,-281,-272,-59,-497,401,125,95,-123,769,-142,412,-119,573,269,729,-36,-507,-282,14,66,295,738,324,92,131,-242,-435,-277,643,-428,-55,397,-731,-268,-360,52,753,271,-655,-245,207,13,573,-235,-92,-164,668,-411,637,-714,-329,-96,548,374,505,735,-158,353,-188,317,-557,-123,-653,574,594,-465,26,235,-95,-93,-247,-426,-402,-232,-758,-91,-128,454,517,-760,-118,-130,-262,-242,-393,-258,-38,879,-235,466,171,-87,566,-226,-278,222,-54,-124,-352,-423,638,249,-384,-715,181,-188,775,215,117,310,108,-813,-376,438,-238,-65,-391,288,311,-94,666,-331,-93,-62,-235,271,535,-567,-43,-346,-446,-336,-225,90,-39,257,9,-197,-142,786,-312,374,-225,174,-568,-339,-380,249,-192,351,-226,606,243,-181,-289,-803,-342,853,79,-681,402,-271,-823,-20,-334,-213,703,-74,589,-537,-294,328,-273,-737,515,571,-376,650,-40,576,-87,-484,-304,-339,730,-142,-196,-348,702,-121,-165,-235,820,375,0,617,-615,480,326,100,-378,-431,737,-169,-327,120,433,-145,-306,-287,301,104,-270,-785,-180,814,29,551,12,665,-172,510,751,-3,-661,-211,859,276,-158,220,-453,-211,573,-127,-674,196,332,-103,174,-16,136,-73,-104,95,148,-29,-219,-130,-519,82,-328,179,-294,-355,397,280,35,-181,693,-25,116,335,-162,132,6,-159,-251,36,-551,34,-251,-851,283,-540,278,985,-124,596,-462,307,307,20,-783,384,175,-54,616,-77,-578,587,172,-291,146,170,491,208,-42,287,-277,638,532,-70,-396,-83,-155,-624,82,-434,769,822,-92,-549,275,278,-177,-19,-242,195,32,31,-307,-984,-159,-171,891,-111,-434,76,170,-114,-222,20,-244,-147,810,-500,-6,-267,801,593,63,44,-195,98,628,43,-742,-655,205,400,362,485,655,452,-345,559,147,914,-328,-930,85,-838,48,-588,-360,79,-115,515,331,-421,427,-252,811,120,-721,-186,-166,33,873,-143,-258,-355,458,-740,195,-61,-601,-274,589,-458,67,-264,-102,176,-345,913,-206,-128,-194,-269,-192,579,-687,192,601,375,-163,272,-96,184,-41,-311,470,611,172,390,207,285,-274,-403,-179,-136,-14,750,-38,-302,698,350,648,79,-251,-103,-294,606,-150,-563,388,351,-381,-224,-281,-256,-59,-155,-276,-294,455,-329,-165,320,-178,644,681,178,-500,-322,-294,-259,-387,267,-256,240,309,-257,-375,525,492,-626,140,-376,561,-78,-126,-171,-307,-142,212,-237,-723,204,260,-79,-230,-585,31,-238,-778,-272,-232,-257,95,203,-78,-282,-303,-557,-320,604,-420,-168,-150,256,-750,50,735,397,-761,808,-95,-440,392,809,-140,-237,-398,-351,-327,-153,575,-56,51,-32,-186,-407,363,-153,-701,361,170,617,255,729,163,263,-428,75,-57,354,133,293,483,848,-83,121,-338,306,509,-844,-167,-385,-740,306,724,-31,-603,443,668,-161,-223,-504,702,-347,607,188,-501,-55,-151,-23,-167,434,428,-363,85,182,-589,-46,-554,254,488,-295,-2,163,-155,-378,-276,-186,552,-267,-545,-124,309,617,-190,211,-121,1,-347,-64,-328,-877,-78,630,-131,-113,-232,-704,-195,369,-334,176,606,-126,-211,-184,-667,-293,126,220,138,-99,-170,284,510,163,-426,177,338,-97,-248,-197,751,384,-241,271,-629,-124,-317,-476,-356,407,-502,260,503,472,636,-815,31,-106,-291,-102,-227,-64,-197,249,346,-58,-164,504,450,-422,-13,550,-59,-673,223,564,164,412,714,-332,-21,-395,-379,-766,208,-554,-110,-160,-53,-133,750,496,-490,320,566,621,182,340,279,-434,267,-194,-199,741,-200,384,682,-41,-661,748,214,-298,-177,326,-397,-406,-189,-496,-516,-217,84,678,61,-296,521,12,512,-665,603,353,-331,-411,-127,-301,-270,-359,15,344,18,-291,664,470,46,75,-293,-101,-34,-525,684,-300,459,-224,538,-26,-274,-339,-302,225,442,745,133,518,-592,-590,-418,-177,-213,-648,313,19,-388,-106,-558,327,486,-588,-362,275,766,729,289,-2,464,-536,270,-141,-250,-325,-165,-667,370,-125,91,107,-753,352,312,-203,-172,2,366,-13,-134,-130,-517,277,-54,-109,625,764,-90,-177,-196,-137,-822,467,-928,-282,-171,-151,251,368,813,-549,-371,795,148,790,-174,888,402,-99,-773,-626,-155,369,-111,725,-17,-184,-298,-700,209,150,1,-321,102,286,-610,-353,-360,583,-460,-590,-167,-370,-172,-175,-411,435,101,417,-148,-57,397,-259,-633,-263,-618,-47,578,182,-376,-394,512,-170,-267,665,-693,-761,176,206,-346,-199,356,239,65,339,-362,-679,-508,-338,107,256,442,-206,-200,-134,-19,545,-331,15,-494,-627,-7,650,-372,279,-496,-386,403,-46,-113,524,442,-63,-727,781,-210,-596,-340,238,-606,-851,292,-290,536,-584,-308,484,-53,-649,178,197,755,-34,-272,371,-116,-301,-527,-332,-498,190,421,449,252,-331,-466,310,-386,-464,-360,311,-153,-164,-399,324,0,52,684,-99,-642,-459,134,-106,353,-216,275,336,-560,-291,-446,248,-507,-288,612,416,321,-94,243,81,-198,490,-12,-242,-61,315,351,-137,-195,-83,569,640,309,-308,785,-310,-285,-272,-541,454,55,543,-759,-616,686,-135,-426,-73,-117,107,659,-369,-577,-129,-299,-335,666,-244,570,556,73,-121,821,-533,428,107,474,-7,-695,95,552,-699,-414,957,-24,-843,-50,-609,-91,288,-215,699,-308,533,597,316,679,222,-565,-95,938,531,-474,149,198,-146,782,249,124,639,-277,-436,-310,859,220,-211,-88,235,431,408,-504,-101,-227,-335,149,-252,625,350,12,-110,100,-6,-380,-158,-361,151,-17,279,-226,-108,-553,-259,-272,-84,-660,720,-297,-596,-190,-625,-470,617,-382,459,54,-206,-249,418,578,-337,-241,329,21,-412,-14,143,-253,-254,576,686,53,-200,-384,206,-18,-657,-31,128,-507,-100,-352,-348,-113,-254,695,158,526,-354,-398,-104,342,130,113,-93,-65,170,-653,33,-215,-151,149,-406,-527,416,-379,-158,-18,-633,299,745,-147,143,-616,488,119,330,67,113,714,248,-428,809,154,-390,709,159,-280,-258,197,495,-311,-294,671,653,70,-341,-193,-121,-473,-288,771,-120,963,143,537,-353,-382,-811,457,-375,423,465,-327,918,54,159,65,-306,-65,-647,-636,602,-333,-292,606,-348,286,598,-314,248,-326,173,-386,317,-735,-60,-340,233,-375,-308,715,784,-33,-255,-367,-601,41,-129,684,-86,-796,266,-8,-198,391,350,675,94,245,171,423,-79,-687,153,-744,-458,-173,-84,-220,63,-259,-641,402,328,-282,-408,748,699,69,-147,-269,789,-21,51,-811,469,-144,-262,753,-73,-614,295,-383,50,-374,170,529,295,-73,37,219,176,-205,800,45,-558,-451,-254,-286,15,217,553,-565,-25,737,-10,-183,-685,261,-210,545,-255,-276,276,-251,-137,889,-761,-287,495,-269,-119,124,34,-345,464,-449,-217,452,709,118,-94,-284,-331,-96,271,-267,-373,412,-46,-257,778,-161,-261,-199,-598,208,-264,724,539,26,-118,-192,570,-13,207,-43,367,-92,330,-282,310,534,-390,-367,-492,417,467,457,-93,-221,625,-9,-206,569,-875,-15,461,333,-387,172,-239,-288,-697,-100,232,-23,-452,-455,31,-226,546,-104,-441,-597,-124,-264,-86,-241,-197,676,-363,817,-208,784,90,184,245,650,-297,-233,-269,-307,333,268,-291,147,-89,-399,162,-873,-900,104,-243,761,-235,-241,32,-192,-279,635,418,450,412,65,-342,735,189,-703,480,62,-78,-210,138,83,-105,18,377,410,96,671,578,106,-358,-584,109,-464,207,549,350,593,675,-15,462,235,-736,99,-299,-83,-96,772,-123,-526,929,-42,-281,732,122,-360,897,495,274,-555,-539,-544,-674,-436,174,-157,614,205,-110,942,150,526,-225,-377,316,-251,159,-501,221,678,-478,795,396,258,-230,544,-259,-286,-21,-88,469,-129,238,59,179,526,73,-883,-112,-314,-348,-290,454,490,783,-15,493,422,167,-159,212,696,-625,-570,252,-700,-104,216,703,-198,135,730,321,-146,-93,-341,518,-284,-165,519,221,-198,870,-61,-236,-537,474,338,-175,741,-1,-243,-31,125,-79,714,-231,644,-503,-469,-348,-183,-872,123,72,-254,368,-410,475,616,602,276,670,-70,273,2,-226,744,154,96,445,389,97,-166,-463,387,-30,564,-682,-509,670,212,398,-489,-58,-334,121,441,-219,-235,-86,-440,472,-75,354,37,397,-60,322,-16,390,10,-551,-353,490,472,-98,112,-269,180,-419,521,56,247,-985,-78,688,-3,-847,-194,180,-466,-302,-268,672,-98,747,-162,-149,-45,-524,404,-83,698,18,407,-296,943,301,-196,418,-163,-413,700,-315,289,-182,724,565,203,458,143,122,-91,235,-199,-661,-29,171,178,-308,-233,319,-90,264,721,-370,867,-343,623,502,-145,-345,240,-20,-304,-424,669,-37,256,172,-859,159,37,-320,649,473,-321,-420,586,639,-74,-348,840,-257,-357,-178,-99,-214,312,-312,-201,235,119,-79,-108,-289,-328,76,-145,33,409,384,-462,239,-166,-193,637,-98,-342,-432,-438,282,542,-57,-54,-520,465,-384,393,148,905,-227,-152,-194,-696,431,13,-291,-376,182,627,254,366,-789,-450,178,-99,470,-394,132,-193,22,-221,285,417,-341,-336,928,-339,263,-95,105,-214,925,219,34,641,711,60,441,440,483,-279,538,-404,546,-331,200,-15,632,163,-124,289,361,203,39,-208,100,624,345,-65,245,332,-563,-557,-565,438,791,-362,985,36,615,103,-181,-121,-294,119,-100,-182,735,-182,-9,-743,173,-370,-209,-198,-173,-178,-267,766,-133,638,155,-87,-70,392,-758,-49,-249,-365,86,-242,-84,-250,459,-540,-355,729,-250,-285,566,-418,-139,315,322,75,577,73,255,-81,145,-522,-682,323,-593,-112,650,350,-221,-83,239,-159,-136,-125,-263,641,-525,50,562,-57,367,54,166,645,-371,715,-96,-251,-178,66,62,-550,-316,625,330,-621,-213,-242,-141,-523,604,-88,-293,-374,224,-729,-582,71,-64,332,-440,616,96,-588,527,-193,296,-280,-356,142,212,690,-631,-398,-198,444,579,452,-303,-217,-231,-301,-277,923,236,-294,425,-325,28,-144,139,479,-206,-374,-102,-580,501,-110,-202,272,62,-8,238,-201,-328,-188,316,-68,105,-755,129,-420,178,586,267,-300,-221,746,307,207,179,-80,-650,-105,-289,-305,417,422,671,137,504,493,-542,577,358,-394,-96,-191,302,293,-520,183,-195,-347,-351,-615,-138,-545,-289,61,-276,670,-197,770,-256,-336,128,432,-102,694,-389,-292,663,-54,-616,486,-384,722,-267,-338,246,330,160,-424,-265,-283,643,-250,386,-152,-103,737,-113,433,-660,-663,101,-796,30,245,-391,212,-354,-225,-470,-355,-565,10,-612,-248,-388,14,660,-142,-198,-224,-529,486,-9,253,-320,722,18,799,-633,-70,-580,-319,-97,-190,347,-71,-205,258,-286,799,-356,101,-156,829,-304,108,543,-20,-91,-249,467,361,-566,574,208,641,-270,309,730,-73,599,266,262,290,-19,-14,-349,-555,231,-178,-37,828,333,164,82,929,-554,-15,-193,788,769,35,631,154,369,-288,-635,71,-161,378,-244,121,686,122,-751,11,-241,170,-492,435,-639,-488,-463,667,373,-167,-502,766,-767,-454,-209,-119,644,-323,-648,66,-63,-378,-744,-409,-156,-613,190,301,724,144,-514,-217,487,-391,86,388,-397,-304,-773,-115,-672,22,-83,751,-122,-176,-9,400,431,-205,-554,-180,-364,985,-195,-660,202,-100,-77,-868,-23,246,-367,-581,-60,-621,-267,834,278,394,301,-760,-228,-217,205,340,7,845,-60,-321,144,681,-243,-619,348,416,115,613,581,-128,127,-493,-514,534,-320,-533,708,227,-153,-208,-131,328,482,-395,372,420,-92,-127,-649,-436,645,396,-400,-174,145,489,-279,-370,-239,-346,694,-728,284,-259,-353,656,50,271,376,441,323,-23,41,-458,-121,851,-16,33,-364,-20,126,799,-154,-139,-747,-12,-279,325,-410,326,-411,762,-128,721,-149,165,-246,723,-509,-527,-76,-470,-308,545,-101,-167,-186,-277,-251,-709,-54,-133,340,-389,-220,-240,-190,-21,-218,-410,-279,519,-358,985,107,439,125,-230,201,779,385,-329,-362,-359,-750,-260,-544,107,-119,-183,368,674,180,-308,9,548,-156,449,-522,-622,439,89,-10,594,-528,574,104,-360,-1,-542,-260,231,-361,-389,515,-202,-131,-307,-401,-449,373,-398,280,-109,-227,-542,231,564,-42,-621,-445,-592,-472,-77,-520,261,-2,385,-693,-197,-755,119,17,-52,-745,-289,-811,136,-733,-306,-101,-237,-666,497,-247,-385,259,454,86,-252,255,750,289,-239,144,-415,323,428,545,-29,342,-727,-473,253,-962,367,-473,-407,-171,708,-186,-142,329,-8,130,294,258,-465,63,-661,-290,-229,226,602,67,53,-279,-368,-174,-275,-163,647,-325,770,-920,-417,214,-238,384,73,240,137,-387,766,-19,-342,-142,-338,-149,-622,-134,-161,273,-193,245,548,-390,39,-313,724,758,-55,-166,-159,-394,-344,-238,-558,779,22,-28,149,-335,187,520,-752,-60,-248,351,339,-132,-225,-295,-255,362,-482,642,142,-25,-519,95,-264,-749,191,-750,250,568,-698,-963,41,-513,199,230,-464,416,-52,-160,-784,334,-277,323,345,-22,-253,254,156,-201,706,-179,243,-225,103,-349,-400,-170,-261,-513,640,312,-342,103,-312,-239,-494,-303,-97,642,112,601,-509,-119,-373,-205,717,192,397,394,-318,-682,-52,312,-640,22,171,1,638,297,-549,-258,-553,-301,593,-30,-164,336,-325,-289,-135,-66,-678,-464,-428,-143,-395,383,629,-303,910,545,-47,-395,-468,143,-257,-116,-324,-164,327,-416,-624,240,673,548,-7,255,-280,-203,-135,-153,502,519,3,-120,647,-475,-74,-123,-62,146,-676,-171,-386,-384,-540,577,-28,-409,638,-247,-338,28,334,539,258,-472,485,-420,-578,253,-97,304,-228,-93,-542,603,-167,301,-219,149,-584,-780,-67,-228,795,389,-81,-214,-208,200,-482,442,708,-239,-323,678,-139,676,62,541,-279,443,-520,-261,683,-578,-88,274,-237,133,124,18,-735,-227,546,39,767,-131,-100,-682,507,226,-96,-256,-839,-542,292,192,510,549,284,283,199,-213,573,218,-284,-183,-333,-10,632,44,-550,-485,586,-372,835,-237,-73,103,-473,369,487,-502,882,40,-129,-333,-450,196,-479,219,-450,-102,-174,-494,405,-360,-213,-682,422,-311,-485,232,610,319,-630,-305,692,154,-475,-55,-130,512,-707,698,258,-303,-271,-580,388,-51,-103,-18,-304,391,614,560,-319,448,616,-607,-293,701,58,176,389,373,43,-365,428,278,-161,650,-302,-328,-171,-669,130,-146,-191,-383,467,-194,897,72,-224,732,-90,-890,-2,583,-103,-110,-528,-304,595,736,65,831,316,585,-6,263,76,-316,760,472,546,-79,218,41,270,-111,264,0,-832,129,217,293,553,-21,-661,142,-274,755,132,134,-74,235,439,-247,-284,309,9,254,-176,630,69,-118,646,-456,-690,734,-180,516,-207,351,67,335,519,-194,-648,-319,-208,-29,-223,-381,227,342,382,819,-123,48,86,-426,-31,340,609,568,-351,-75,813,-200,463,712,-41,651,-4,-465,-429,-464,-96,-271,539,8,-295,-357,-67,-883,26,-32,578,-239,-283,131,508,43,-836,237,442,-197,-333,246,594,-336,484,139,-341,370,-106,126,76,-570,-285,-240,-195,557,552,153,-209,-663,-172,8,-254,702,140,-321,157,-14,-134,-7,96,-436,-591,27,212,-541,386,-126,-132,-188,-148,-254,335,92,137,-313,541,-765,30,342,-200,538,-365,-186,689,-225,72,-647,152,325,650,-877,-71,689,-210,-207,-222,-733,-83,116,292,-18,220,-36,107,562,-75,-631,-496,86,665,77,-297,-833,96,72,81,605,-142,-675,-132,298,-579,-803,-257,23,281,549,-234,-830,-88,43,-363,581,231,331,-55,-752,-364,-552,621,-142,-350,-323,568,-365,-280,-86,175,-51,-331,73,-237,-54,-293,-139,-273,-404,-240,471,272,-186,842,-60,684,22,-306,-308,288,160,-724,877,-195,133,-98,763,226,-311,-304,286,523,51,67,438,385,-166,787,-254,237,-399,774,517,39,-396,-238,769,-118,-446,714,401,-65,602,-50,175,72,198,181,172,-38,-232,-722,204,-385,138,433,-45,-425,-189,50,-735,-597,-245,-123,-244,401,-835,100,153,855,-11,-119,684,47,-392,577,-14,253,153,-146,-361,666,-35,214,-485,250,62,-207,239,688,193,-367,-459,-68,777,-41,143,534,106,-575,-229,513,543,-462,-375,623,103,-94,906,129,-438,48,514,531,-200,597,643,-59,-807,12,219,-261,734,-235,-448,-427,534,-194,329,-75,605,-178,496,-279,-391,-461,273,66,-419,-182,-102,105,-343,-89,-149,-490,-827,260,393,-237,544,-641,-13,-139,355,835,-554,288,254,609,-269,-325,301,-299,70,-210,-242,-708,-642,-49,188,578,295,345,434,-35,-79,-235,985,-32,-176,-365,516,567,-473,625,-768,420,457,672,420,530,397,387,-584,-398,456,179,-373,-251,-424,-314,-462,445,-276,-539,506,-213,216,317,-308,959,-224,722,-816,-177,-234,818,-361,-154,644,-447,-224,581,-853,-112,-60,-721,-210,608,228,-573,366,-183,500,-213,741,-12,705,78,-234,-394,432,155,-91,437,-19,-459,-207,55,115,-207,-653,-385,-354,517,158,73,-91,-148,-68,446,-316,216,633,-168,362,53,-486,-480,142,-229,372,-179,399,598,-227,-237,402,150,-748,-340,205,-133,761,303,-642,256,-457,-246,-744,5,-513,143,394,654,-513,-512,395,-129,249,640,-698,-580,659,-35,-169,-400,-620,224,129,-530,-345,-166,-627,77,-322,503,-474,-15,709,-134,341,495,372,-166,108,-536,-377,704,-515,-323,344,0,371,560,-469,734,4,-16,42,-109,23,250,-270,-377,-88,-683,-413,693,106,-269,592,-341,394,792,-397,561,172,181,-236,-59,-5,-567,115,-420,109,387,284,-913,481,96,103,-299,-6,-423,-195,782,163,-731,126,919,-211,-682,-254,737,-388,-504,155,353,693,-272,414,142,-81,-594,-651,-141,207,-321,389,745,-202,-352,-129,-238,243,-639,173,770,-236,-81,20,-240,257,-210,379,616,331,605,208,89,-522,-105,-90,-280,-565,48,443,370,352,-209,239,-495,-622,-208,-518,-111,-388,360,-80,139,-361,333,-217,752,340,548,231,306,-59,-203,-256,-167,-256,277,136,458,-33,281,-421,-221,-202,85,-154,-236,-32,895,-300,181,19,633,588,698,-48,528,-41,646,-237,-395,-70,-164,79,-553,-135,658,-309,-230,-17,-355,-30,286,-666,-427,-504,38,-446,-294,-310,-352,370,-387,-189,128,286,640,-299,985,91,810,-223,727,165,718,-222,819,370,400,912,118,-249,-103,-676,-105,-367,730,220,-106,-20,-793,-122,-175,216,-673,5,-14,-133,-225,-129,580,109,-258,83,36,-148,783,-280,780,13,761,302,559,604,653,-218,-430,255,-176,-123,-327,-478,493,-268,844,-357,-323,108,27,124,-165,221,630,-153,551,209,245,579,60,-274,147,-77,673,524,-261,411,-775,-94,-673,131,585,212,-661,797,119,149,511,152,-710,388,73,-107,894,305,-769,341,-601,-144,-289,-46,-412,110,34,-151,150,-328,692,-49,-479,557,16,516,239,626,5,271,-180,-153,585,-276,-471,-489,478,-47,406,22,-693,453,174,-294,14,96,-250,717,397,617,-145,219,-147,-648,-475,793,-19,-28,-383,-258,347,558,203,-529,-308,-315,-189,-187,-480,-645,155,-211,-115,280,410,451,538,-318,599,-519,-115,306,-576,-62,-370,-471,-317,185,-99,-592,-212,302,360,290,-51,-361,691,-115,948,125,604,-550,-169,-694,-73,167,509,-402,985,521,172,-4,-592,-588,493,-385,274,-559,-302,360,498,393,589,750,-434,183,-721,873,-506,-107,-369,173,-69,450,250,-521,374,-88,-786,-8,-204,114,-460,-320,258,362,-158,-86,-297,-254,-375,672,-143,-40,577,119,-150,-727,311,546,31,132,-387,270,-537,645,-106,200,-287,-503,389,-93,-682,-126,-546,656,-46,-358,801,-444,606,760,150,-299,866,-9,-472,479,313,-781,-64,-85,-307,906,611,381,612,323,620,-748,301,-113,27,294,672,-154,771,259,-552,-411,198,-177,-212,-601,-74,160,-379,25,606,625,413,-258,-201,23,147,-420,-366,-30,-646,369,-189,179,-253,-735,-2,-645,-398,159,564,386,-309,70,-383,-111,-182,-48,-87,-196,-357,-320,-270,199,-712,-692,-2,616,374,-380,-173,-457,-331,-219,-340,18,-163,-433,120,-141,-287,226,715,-976,389,-540,-134,647,136,-291,251,-72,-403,-323,-266,216,-758,-229,849,218,-462,-63,767,701,41,-432,694,-44,-562,-192,-374,455,-3,256,-164,-178,-290,-419,640,-233,953,-112,-635,436,-126,187,-566,-351,269,-677,-26,-183,200,-863,360,936,-16,-274,609,-291,833,-192,-294,-939,-3,-311,-218,503,618,-68,-319,-656,-294,125,299,513,70,-297,-686,74,-113,307,-538,142,-75,-374,648,167,429,-329,-347,-127,-6,296,-400,-264,629,431,205,483,153,202,-423,-281,-771,-289,862,-858,-30,61,-78,-301,-664,-72,-351,101,703,340,467,-248,-82,-371,-474,-178,862,386,564,-327,-231,-295,-550,96,-903,296,-486,-79,-222,156,392,-326,-520,-384,-28,-167,-493,-677,-112,-469,-263,272,-208,88,-634,-541,179,129,-920,260,585,-65,-407,677,-202,179,-117,-289,683,417,135,780,-177,-218,-330,157,651,227,782,-33,-116,513,460,759,-45,743,-92,-316,-405,50,201,666,-400,-321,74,-33,-112,-301,478,672,-132,301,-397,497,914,-325,638,-193,739,-201,518,-82,-804,-87,-698,535,573,-333,-452,-580,-294,-217,-267,-273,678,-50,-349,-452,409,-378,-292,-150,-139,-110,55,334,459,-190,-686,816,-107,-65,-256,-210,736,266,-168,-20,-411,-409,-78,531,472,828,-113,517,-184,-375,707,-5,-680,142,98,453,195,76,343,733,-91,222,732,52,-474,52,226,-630,-106,322,799,661,-332,-149,734,-200,860,304,16,1,633,763,72,369,-41,522,-172,15,-210,-111,-39,183,-62,985,-308,-616,669,-893,-84,-301,540,515,-17,668,-331,529,-55,258,-417,-27,-199,-315,656,-558,-422,-93,173,-284,-183,-160,721,657,-615,219,-621,455,211,-107,595,-789,-75,-693,-15,-832,-24,371,-198,-245,627,-89,-247,-18,-303,-555,-366,183,-380,-165,-70,359,-162,-668,346,-222,197,-675,-442,-591,582,259,-669,199,-31,-386,-143,-137,-652,-225,-181,67,-155,45,68,-158,644,-435,294,-273,-225,-577,602,-346,590,371,490,-90,734,-539,-36,-282,-405,-35,-207,-470,-187,-663,-347,-256,579,-287,-607,-504,338,-106,-258,-294,555,134,103,730,-32,-260,433,-181,-461,-907,-295,-405,722,225,-688,-875,58,-360,828,-318,-123,116,-310,-285,272,-335,257,179,486,-788,58,600,-548,-673,454,470,318,-211,-533,425,-335,-166,684,273,183,-334,727,244,-552,-541,-346,-15,713,264,-190,-368,-57,-783,-182,-164,-17,298,-217,-196,-200,-158,-130,603,2,-163,288,569,486,488,349,20,-307,-37,-716,-173,-361,155,584,-473,352,143,-53,-580,-280,-362,796,593,-310,665,-64,793,18,-570,-329,-66,-185,53,-862,-152,-320,226,440,-503,-46,339,-450,-769,-71,47,-418,119,207,-744,-154,-380,-613,557,-311,-315,753,237,-62,-476,-184,629,-245,689,-659,310,-163,78,-546,-57,-447,-175,-246,-262,250,110,517,276,-412,415,279,-580,57,607,-88,-435,578,390,392,352,117,622,-60,316,-376,-588,4,-223,20,-173,-369,184,484,464,394,-383,705,-157,-677,-373,-373,-296,-620,173,27,-360,-332,-114,416,-773,348,-50,506,719,346,-275,665,337,462,59,197,-322,-152,-211,-222,-93,-280,-304,-347,-112,533,-428,-262,-487,-138,-467,225,178,566,-226,-324,-248,698,466,-43,-457,-84,129,413,-299,-779,-46,553,806,-252,-803,-263,-59,227,51,-332,-614,-218,-956,297,-36,495,491,-388,452,-5,-21,715,35,-137,-48,308,-108,116,-130,-245,-259,752,503,-444,100,543,-237,-513,-539,442,-16,165,224,-819,-360,-439,189,392,146,-339,486,-332,438,-169,-436,10,-364,-226,-304,825,-617,306,745,-171,-299,226,-239,-327,-59,535,456,437,76,-349,596,-287,-187,-278,257,-58,-252,-198,-218,-153,14,-262,-12,759,432,595,-309,-42,-223,487,658,133,-67,43,-228,361,-281,-86,-425,-374,-21,-656,278,4,-86,973,362,-576,281,121,73,-60,27,116,326,596,-835,29,-189,-302,-316,758,-182,222,109,-629,-337,476,-180,838,-557,-470,-228,-306,68,158,-131,-363,-827,-340,92,-275,623,-382,-220,741,753,-153,408,729,-165,-236,985,-412,-523,-146,-5,-77,55,130,101,-467,-527,425,-189,-457,-318,66,-124,-162,478,-312,35,-22,500,-13,253,-597,769,-40,-367,-644,-180,-322,-728,-209,-29,685,218,610,-379,178,-217,248,-102,-259,324,-190,333,-755,-534,771,-275,-293,-664,357,-423,265,-647,153,290,-96,329,-569,-344,47,-392,-455,471,171,-146,80,325,215,165,-409,-405,793,-331,413,-232,-181,284,436,-383,-259,-291,-77,482,405,39,-98,-29,643,56,-157,-5,-985,-309,-170,386,565,700,-238,48,821,-510,-366,353,-785,461,-136,-145,690,-138,-173,187,-832,611,-208,-145,-503,-150,-266,-328,336,-225,-117,635,152,17,-110,-330,332,-338,441,372,27,36,-210,-239,493,164,-269,-215,-268,309,665,151,-618,-271,672,-769,-112,196,-674,-56,-90,-302,174,316,479,-603,264,134,-361,347,71,337,197,-293,-497,188,390,-238,-73,323,174,403,-347,593,590,155,368,539,-129,534,35,-210,570,207,725,-457,572,312,18,374,-308,283,914,116,-172,584,224,46,126,-48,271,170,-382,-307,642,-93,-446,-284,692,-598,485,87,252,-101,-404,149,516,-288,-195,186,-604,401,-97,213,526,128,358,-115,-800,249,-216,399,-308,361,-95,510,-107,-351,-219,239,-91,-588,40,-486,725,169,339,-710,363,579,597,-166,-452,-31,-472,502,301,20,-201,149,-222,-17,-267,396,-231,-187,711,-820,202,-89,583,175,175,-312,-81,-90,-634,-396,-446,-603,-220,-245,255,-42,-358,-245,-312,-128,-368,385,307,-570,-13,-36,-294,182,-334,-515,452,287,111,-202,-822,-228,256,-191,136,293,-321,-270,554,-297,-189,-158,-384,615,246,-94,-284,664,525,-399,-221,-26,-330,-594,-192,337,30,-498,490,-269,653,78,-315,-134,-99,-400,-118,-875,-165,660,-352,558,49,-204,294,766,-284,-537,403,-294,-312,-315,-250,288,664,2,-225,-188,200,-180,-126,-140,-215,-329,797,-119,-407,-172,-275,756,-500,-236,802,223,-314,114,-789,-427,-19,208,-644,476,-640,694,38,-52,180,-70,-481,-306,139,175,579,-414,262,-481,8,520,-478,254,45,464,20,20,612,770,9,318,686,255,-168,-282,681,212,593,-80,-310,178,203,597,-121,364,7,-126,144,342,404,816,262,48,-640,-68,123,306,460,-36,-496,-261,-337,-469,620,-321,700,-659,-139,-81,-133,43,-139,-441,187,-267,-379,-212,-85,-414,-116,324,665,-413,-532,-7,-249,248,-21,-94,-189,-663,-165,-215,640,457,-280,-118,634,543,-381,-333,352,-66,-139,153,-218,-158,665,-279,835,504,772,-261,-299,149,-56,-174,704,-590,268,-268,-776,-352,453,240,-510,350,442,186,-859,-216,835,-330,-226,795,138,745,-139,-608,165,267,-289,-520,-13,949,-115,760,-156,-338,864,-273,265,-293,459,-338,569,-64,-205,88,-715,353,-115,-43,-202,-503,-388,-114,121,-27,-157,-185,775,-220,-271,-166,-121,-352,640,-290,673,822,10,140,145,-201,785,861,-40,-47,-49,-74,-273,-157,-156,-219,-302,247,-479,98,584,211,-793,435,-148,-753,-35,236,-155,-349,863,-46,112,-97,135,-40,721,-75,-258,183,-370,-373,713,-145,-204,-418,-69,-17,-551,-120,253,-580,-1,387,176,-207,-377,-247,-138,-800,29,-73,-702,258,107,347,-531,-666,-11,389,-263,541,8,257,582,-401,-406,55,664,571,-341,-634,-188,-269,902,108,227,-275,-165,39,198,-400,720,-32,341,-590,537,350,-2,-429,-128,-937,-65,-311,-252,-354,-259,318,-654,44,23,-190,-133,428,591,-155,-126,405,521,736,-5,253,-383,-228,-10,-242,399,385,653,-11,-894,249,-102,298,-370,-321,906,-319,-500,-731,-218,-308,605,477,804,-2,-295,-315,-147,311,-777,214,189,707,117,-321,-628,-29,-706,-336,676,-326,-59,658,63,-197,80,-507,378,445,-336,-359,659,-471,-428,226,-365,-133,196,-333,189,-269,-14,-594,163,190,688,-118,-260,23,-162,-339,865,285,-259,317,10,-842,47,84,256,526,309,-77,-170,-790,-79,-422,748,-332,-183,141,606,-316,758,99,902,-31,-249,668,60,384,-537,356,-334,297,-234,212,-654,580,-333,-136,-212,155,40,-245,-178,-205,-166,-36,522,-225,-401,477,-235,-9,-250,480,-154,292,480,648,102,-378,672,-353,-554,-246,646,-944,-15,-75,-246,-655,115,225,772,-128,-32,-243,752,733,-9,109,-166,74,677,-340,857,-23,58,176,-610,-184,-535,1,-515,803,-186,-535,-86,-19,362,-184,-302,659,-101,-26,320,-138,-273,-860,116,184,477,408,-208,-534,495,31,-264,300,-129,-110,-339,-595,-37,-479,492,-563,453,-95,-129,-19,-550,143,524,-249,683,324,-216,-65,-70,103,677,14,-246,393,192,665,-199,247,-133,-101,-208,-100,-88,4,-489,-395,649,415,-220,-296,-632,556,-228,88,894,8,-36,403,-81,287,769,-31,558,420,-620,535,-261,-216,-196,-5,-294,219,-669,541,366,-129,-176,-209,385,617,-41,-180,793,-342,855,-56,-188,201,-15,-118,-225,181,618,738,-20,627,664,-263,768,-100,-416],"2":[658,-42,653,278,566,128,670,-52,-534,387,-266,-247,331,-487,-373,803,-182,-192,-24,-485,-607,-328,755,-146,-845,-60,-568,606,-138,-154,-749,-398,-123,-748,299,-39,499,-11,-285,-128,86,-262,239,-759,-460,761,44,-210,-380,-503,459,-327,-64,-245,-719,-543,-433,-175,-358,868,188,-647,565,-97,-167,285,138,-379,691,363,-774,-263,-311,194,420,-469,-325,789,-295,123,-804,-88,-119,678,-69,524,-618,661,-87,-501,-206,672,15,-90,-435,187,-85,-127,320,-238,-619,103,-42,114,196,325,-479,-32,-307,-500,-82,-280,-220,-375,-59,-661,-364,813,-264,-395,-328,-291,-127,-199,-50,193,276,25,689,140,-506,-441,257,156,-279,304,-170,-390,173,-58,527,-14,-259,-189,-354,704,-583,-289,-489,-20,-149,-173,607,-119,340,-236,158,383,-192,-223,524,806,67,-237,-189,118,-322,-93,-310,704,651,86,448,-645,368,-3,-121,-674,1,730,280,-158,-120,-268,230,-437,-490,-19,-555,-15,-168,-141,-339,-461,-370,-435,-761,-114,-269,890,-361,985,20,141,146,535,-345,-395,18,-334,625,-170,-168,807,-887,-270,479,-119,361,17,236,-247,198,-653,330,-554,148,-307,-334,-70,224,-20,41,881,-339,719,65,272,-139,201,-371,-380,17,558,-217,-279,738,-275,-53,-695,-146,-317,740,-91,-663,386,-27,-526,-111,-118,477,131,-88,675,216,579,-542,249,246,498,-495,794,-296,-150,836,16,318,678,146,-743,-508,-499,512,-163,145,350,-234,652,118,-387,-168,-667,270,-342,-654,325,-185,707,-746,4,-295,609,275,-603,21,233,-396,-158,763,-7,67,193,-329,567,361,193,500,593,244,-107,-631,-224,-561,435,728,-119,63,662,237,749,-39,-124,765,-163,-238,-448,171,-592,-558,574,-587,-215,-609,223,-251,-188,645,-134,627,-299,339,404,-878,58,-733,4,-215,249,44,-223,513,474,-288,190,-110,726,-204,645,-364,649,-199,-213,-437,574,-71,-85,761,-44,762,-65,-634,-159,-340,701,-162,200,-372,-289,12,-39,-18,-28,426,-161,581,18,11,-132,-116,93,-69,-272,-241,-267,-301,678,76,94,-236,-63,-514,-513,143,454,91,179,-72,-232,241,-170,596,71,-373,-396,-319,121,-316,358,-125,792,-574,391,346,-168,-1,22,359,30,-843,14,173,460,-9,676,-346,124,747,211,-354,567,380,491,-112,725,-357,-112,241,-687,243,583,-225,796,-10,-925,210,-699,-155,-544,-10,628,237,-116,305,692,-161,-325,-269,-824,268,-287,-43,-727,209,-605,-87,-306,170,-354,-693,-471,-734,323,-438,725,128,296,-677,350,579,-512,-74,-343,295,-408,-149,-104,199,-232,-442,621,262,743,-87,-177,275,678,-268,-198,-1,-623,-227,-539,55,-650,310,553,-254,129,344,285,-202,255,-324,-297,-266,-216,-756,434,472,495,-280,523,-121,-212,5,568,-202,768,-78,91,690,-72,-120,158,-850,297,308,-687,295,485,-171,-245,-658,-33,-665,111,313,-223,468,16,401,160,456,391,236,-617,628,-277,94,664,-80,-201,573,-562,-723,66,-98,-238,-3,-705,59,-197,-456,-324,-216,295,-85,-318,-89,-175,508,-201,-285,702,-262,651,-66,-400,-163,-587,127,876,503,-223,-570,-289,365,191,-505,553,-17,-243,-283,845,-179,-37,-796,26,259,-356,-20,-681,-183,-225,-520,-308,582,-42,-71,-561,-100,111,317,-90,-611,-88,336,-642,319,189,-59,406,-33,-697,-171,-264,667,-122,-642,-642,-765,-250,-209,-317,203,451,-94,-226,-236,-317,-19,-288,-50,-650,356,-289,91,-518,-90,-555,144,549,489,346,-504,-102,231,700,48,-261,323,114,362,810,615,-370,-137,-549,-101,-178,570,-262,-806,-265,-238,710,259,210,27,-206,-273,-371,-91,680,101,-144,438,19,657,-238,195,150,-256,704,-191,-186,97,649,-227,9,-462,268,280,909,-92,963,312,477,318,302,748,-14,-254,-424,-416,397,-460,-257,10,-295,676,-266,-615,-434,-482,-239,-294,-152,-199,-436,-96,-304,490,-234,372,328,-176,717,-144,716,-605,463,361,-201,267,-478,174,-142,-885,122,-588,-239,-163,-514,-261,-205,314,374,-211,-505,-65,-52,459,-18,121,99,-350,624,928,87,-85,555,-23,64,123,797,-523,720,-410,-356,-279,-549,190,647,756,-423,-54,-146,559,-65,206,704,-859,61,-130,-197,-763,-68,598,-201,329,-7,-213,785,377,772,-144,780,-74,-183,-56,373,-583,214,-30,302,191,290,514,560,-353,704,244,290,29,-215,568,-113,130,-49,-802,-197,-317,-222,-359,373,-641,-584,359,-4,-110,-205,282,-150,158,187,30,567,-682,-37,-514,356,-928,39,-220,-120,-154,363,-627,310,401,593,-244,-442,-384,-221,-198,-149,699,-188,380,-131,251,-402,430,12,276,-71,225,-622,-377,-56,-56,44,824,116,-659,93,-195,-520,321,-329,-244,-37,-396,-457,588,-342,68,51,220,154,-109,-129,478,731,286,-603,145,-224,-476,-395,-302,-363,56,143,-79,-731,555,-754,32,-270,661,65,79,-242,662,339,65,-911,69,177,265,103,-89,-223,6,-284,-422,-641,-457,788,669,-108,-84,-239,-129,-25,-714,-306,-333,666,-618,-370,508,553,-263,-112,411,-40,-93,-153,196,-73,-665,-102,-192,673,-439,510,-330,157,-335,-586,-340,686,-339,-134,-579,-8,-113,127,-333,-490,655,153,-121,-256,-94,-269,592,-185,-206,-251,-400,785,567,-386,198,574,-222,-336,-320,703,193,-110,652,327,-117,-263,-219,-272,79,-33,115,696,178,682,250,598,-429,601,-118,-629,-153,637,604,253,-230,-138,785,-12,774,115,367,280,-220,-381,247,-620,-231,-216,-188,-251,-2,-333,206,21,298,24,755,313,-68,687,78,-639,-165,142,-468,516,488,-698,149,574,-49,-54,-585,-225,-343,-382,439,483,366,-213,56,-371,-263,875,342,-448,335,537,327,-630,318,-160,-361,-320,297,-7,-357,220,-60,292,396,335,523,-129,-277,517,-405,-362,131,-307,120,415,-226,-337,-136,891,48,676,-305,893,270,-169,-242,-659,295,-284,176,-487,-329,574,238,-606,-185,-122,-242,-149,-261,-766,-252,-779,309,328,-45,-401,-184,485,-353,455,-112,-375,549,303,478,-478,336,-392,-216,612,619,256,177,-578,-211,204,155,-148,-588,-404,-18,-816,-517,475,-171,873,21,816,-334,-213,-188,623,-378,716,310,479,287,-136,486,316,250,30,-624,-347,-239,-668,373,139,38,225,-294,174,-321,241,280,-568,52,-820,104,227,70,-319,576,46,-611,600,643,-173,-263,-540,209,658,496,-84,-539,-13,-408,375,196,-780,412,491,91,-410,650,-139,-188,704,-658,146,634,-78,-243,565,724,-175,764,-103,35,327,-181,-176,-154,950,370,-154,-201,174,-473,624,309,51,660,92,-209,-287,214,-717,-517,-120,-518,391,351,-807,36,787,653,-372,439,-536,244,-417,-750,534,-384,-164,34,142,-40,843,136,-245,-49,58,-733,151,-339,744,655,-393,586,-686,156,359,364,423,-90,799,330,-137,464,185,-617,-100,-551,621,-236,113,-5,-445,-96,-241,220,-260,-132,-331,-188,-666,-59,265,38,-116,-164,-191,-316,552,338,-459,-466,-253,-240,231,741,-117,766,-65,4,-167,-948,120,176,-69,71,-71,63,392,-158,695,-701,-209,261,69,-447,-274,279,-234,593,-637,442,-291,252,361,-396,-610,-131,535,-630,78,65,-312,710,56,-153,-760,-95,-139,-93,-252,218,-206,383,-572,-172,-474,-184,-270,-579,-345,-349,617,-550,-376,-971,34,582,10,127,862,480,115,219,-78,721,78,-44,522,555,-626,204,-112,419,570,-81,-243,319,668,-305,727,-315,597,-113,-186,-9,-494,121,-775,125,564,-98,623,-171,502,-225,-222,-340,-458,340,73,-210,857,-455,569,461,499,152,-103,190,517,-359,-399,-262,-310,250,-436,-116,-315,-943,1,-274,-588,78,-566,-326,108,175,-383,-331,-389,-236,806,15,222,-418,-236,425,617,741,-29,282,546,3,-311,-161,-14,-85,304,872,630,-156,-256,-294,122,146,-823,614,-84,-781,468,491,-322,-83,-330,48,831,430,-359,245,-40,528,-453,362,-138,-705,-126,-458,-4,-174,-291,-111,-407,-411,740,601,15,547,215,-101,-274,-496,404,-319,-254,66,236,-195,-279,-781,130,-278,-356,-488,-326,638,128,164,480,9,-759,-798,-225,-143,-171,-145,425,-267,670,-38,36,383,186,-278,-386,139,627,-71,-285,-483,476,-136,704,58,-34,-919,-427,-19,-388,-114,-213,-53,-336,506,296,400,-289,-689,-508,-521,-361,-277,-361,241,-767,-340,-256,230,-668,-353,709,178,337,-232,899,-66,-249,-36,164,426,-802,-225,338,662,-359,322,87,357,21,-223,-495,-296,571,-262,-40,-134,-176,139,698,99,-328,592,-360,-11,290,474,350,-184,706,-677,-416,-621,109,-209,-280,48,-152,125,206,16,-583,-298,849,-119,-229,-200,260,602,672,-266,-551,-71,-337,-145,696,555,43,-337,722,-213,739,598,-318,104,274,-252,-272,8,-204,-267,506,306,-255,581,-425,-694,-235,331,117,181,-427,-178,77,787,-32,-390,-128,-547,76,-309,-579,24,-258,-618,662,-286,823,-311,818,219,398,406,60,-33,-248,158,184,276,-682,85,18,-319,702,448,-450,-191,698,-213,-67,-314,-296,338,-180,-42,-503,-272,-660,740,-69,360,-181,603,-309,604,160,80,-152,-281,677,156,340,-8,-478,-60,300,373,-87,549,-216,376,-148,165,-719,391,774,26,-290,462,471,-411,-552,-159,-120,-192,-333,-43,643,431,197,562,49,-147,-164,114,272,-237,-522,-883,-87,649,-96,252,51,-162,583,-127,722,-163,-248,-627,-499,-225,676,193,615,-341,38,-141,-327,-251,637,-122,-246,-368,-304,-261,239,639,-331,-100,211,-652,269,-354,845,-473,-145,381,-724,260,-317,-159,-290,129,300,229,-201,435,660,-548,-376,-107,-242,-207,-758,591,-172,818,374,794,153,-755,31,460,-933,-158,-324,-95,-747,-228,444,1,-215,-360,-175,-18,709,-24,880,130,15,-372,99,-413,632,359,497,-93,-290,-268,883,-27,508,100,-178,182,-114,-317,-489,512,-439,401,-641,124,-185,-114,656,-421,764,-275,-216,-20,615,506,-15,-270,662,-205,641,-511,433,-355,-187,63,-332,515,-134,599,-353,441,351,283,-109,580,-312,-29,-201,413,-113,-27,-593,-241,-348,163,-517,-610,-373,-404,-645,-422,-412,484,669,479,310,-209,-311,467,345,289,-529,-249,-343,-585,-13,-311,277,21,-141,-168,692,971,-135,630,-408,-474,-73,-807,39,-826,-175,41,-180,613,-386,-48,-404,578,-131,-831,62,135,717,493,416,171,-526,674,-44,593,263,-86,-98,163,-393,-35,97,-264,-263,-77,-427,254,-28,-353,-384,-130,-534,-218,597,163,496,-39,-129,415,189,557,-357,476,762,-514,-374,61,251,-480,364,-652,-443,-719,350,384,55,334,-445,-9,-154,-205,-340,-369,-58,-238,844,185,496,-597,486,384,367,-240,276,316,-268,-345,-505,143,15,-275,-372,-825,104,-136,-355,-89,-337,41,780,-198,-158,-237,-333,498,693,162,5,-452,696,-475,216,-303,-381,-234,559,123,-710,498,367,224,307,-156,-346,265,-913,216,-225,37,-693,-268,-352,-148,260,-57,345,812,262,-495,255,609,296,166,-292,-280,178,61,-8,238,-524,-415,240,-243,312,-683,514,-570,-22,728,216,390,-219,182,508,456,181,260,-113,-64,591,-260,-259,-163,798,-389,-649,656,198,381,665,-104,113,759,22,305,414,-12,-99,-623,1,-137,43,746,301,122,-380,585,559,25,439,-180,-213,-19,-130,-254,-338,225,-346,-406,971,566,657,-291,282,-559,77,-83,-288,306,19,-261,-258,-475,239,275,323,154,-489,299,-252,-321,-493,159,-410,203,-77,678,-79,-123,-377,473,222,341,-111,-620,-445,268,-110,481,541,-391,679,-217,-86,-295,153,-565,-175,-68,-492,-206,80,-78,-136,-322,356,-358,-18,-665,-361,-688,-34,-248,-654,132,-110,-20,-352,290,531,-216,570,-299,582,-79,-194,321,-207,-422,-185,493,137,-675,-21,59,-290,616,316,-555,678,-135,-44,-330,-254,-392,201,-284,356,-517,529,-588,453,356,841,-884,348,223,-197,-166,-276,-417,-54,98,-150,-134,544,500,-763,318,140,351,168,-357,-287,-527,-110,-388,263,168,185,-266,940,12,-242,-104,-411,92,581,-165,753,234,642,95,-248,-650,-203,-312,690,-213,747,-359,299,-306,927,-444,-532,-207,231,-263,-274,-186,808,134,407,290,214,-180,-199,-678,-546,-848,-46,-73,539,-285,65,226,713,-269,-238,-268,645,-329,-489,-389,-544,-466,-138,-2,-686,302,-189,270,-170,126,-722,-118,-211,225,-459,-85,150,-670,186,-467,469,810,-234,220,-588,-316,644,314,-258,898,-379,337,-101,477,-374,-701,-195,315,477,243,44,304,458,657,-87,-516,-396,39,-501,-107,-234,295,-177,-564,422,151,103,188,573,-683,234,-231,754,235,160,168,-98,736,102,-657,-490,-259,108,-464,-585,726,106,-119,303,-676,443,235,-285,17,-335,-949,272,-760,-50,147,-171,-229,14,81,-872,-328,-354,156,649,-224,742,235,-372,-335,657,200,702,-419,292,-448,235,-186,-820,278,328,-729,312,511,-553,278,-380,-509,469,125,636,633,192,701,-217,-371,464,-97,695,-412,-30,-152,-25,93,543,-311,-194,-303,445,143,-336,-246,205,-264,-100,738,-302,-48,765,594,-81,-36,-338,-395,-92,477,-249,-376,-347,461,-418,135,-324,658,-11,-211,968,-241,783,-354,-353,673,54,507,181,-344,768,-138,-13,-239,-195,-7,-256,-237,-67,340,501,647,-32,615,-19,780,-365,-162,627,-300,-236,-560,-442,25,-134,-425,-111,208,-851,-91,-448,-418,583,-162,-661,530,-460,731,-500,212,745,-139,-408,70,174,-244,-87,270,393,458,-314,345,-49,-636,189,-613,157,-492,175,-395,-98,440,-288,369,385,-871,-319,-193,-191,-330,592,295,-664,84,-245,-275,-245,204,-119,40,12,893,-248,-87,-346,-232,155,-418,584,462,-177,458,38,92,-291,892,-216,-211,764,-55,-535,-125,-260,218,675,-357,96,-492,-509,461,-317,-637,191,-141,-547,-354,-510,-956,400,315,-29,396,-188,-182,358,582,168,281,114,-404,71,276,506,-116,660,-436,649,-761,-149,394,552,185,-353,334,-37,340,-804,-461,664,-175,513,-450,672,-218,431,-587,-272,-84,333,419,-259,-222,816,-203,803,13,259,-44,-400,306,-142,746,-156,-213,826,10,426,-316,-86,424,591,-269,-127,-756,-178,-104,-14,740,25,-228,-732,-59,-64,-328,423,-306,-323,320,-744,65,243,741,-40,91,688,103,-440,-91,-174,-213,884,325,648,-289,617,-337,674,98,-461,230,442,463,94,-247,-407,-93,-155,-249,-563,320,435,-133,-675,61,221,-510,-627,263,-474,105,-798,-509,740,-158,195,-344,256,464,-14,-917,-63,-285,440,163,455,388,-186,-959,-151,-547,-306,-91,-142,-338,605,-207,-202,154,-466,653,-44,624,-26,279,-234,-796,44,408,-102,-311,537,-299,-252,-140,-312,-231,-358,-306,-208,-161,-380,350,-156,740,212,-261,-275,36,-361,-44,-312,219,-134,-256,-311,-289,957,-316,538,83,-221,122,-349,-258,3,398,232,-313,-335,642,-26,-149,263,1,-258,-268,791,433,-274,224,-146,-585,571,-192,-133,301,-188,-264,531,737,106,-258,859,950,-332,-173,833,-970,452,295,-515,712,-86,-764,-68,-224,-503,-158,157,985,54,297,-49,-410,-508,-179,-720,354,-560,-114,-253,385,167,73,-767,715,142,-213,-162,-101,-172,-138,959,-44,568,354,-310,-319,967,-207,-376,-316,98,-175,669,-271,745,439,475,-370,-340,749,-240,-268,-169,-216,-47,-96,-376,78,-96,-88,-383,-271,-242,646,-24,54,-233,340,-779,-479,454,-415,-197,-452,-470,-183,-288,-282,-255,-116,-271,-28,128,233,-413,-609,119,16,166,-188,-170,-631,-418,166,-748,297,576,248,-336,537,-261,-323,388,-304,746,173,-232,393,-288,-8,790,-166,859,-256,434,-472,-722,590,-88,-173,255,759,129,-462,-326,-556,489,28,-742,-877,297,703,-233,937,228,-141,178,30,-175,-81,-641,-128,-25,-339,-249,120,-584,-47,-510,-171,-190,207,450,-146,-498,939,-80,-125,-172,-515,411,-295,-215,-702,-550,119,144,-148,-65,-344,-350,-97,-265,-114,32,408,552,197,-374,443,382,-131,437,-291,745,-892,-3,-300,572,87,-85,198,412,-852,15,282,-601,362,-349,178,-642,52,-105,160,-584,554,-316,-245,-788,-130,673,209,-23,393,194,-384,-307,-14,581,482,-189,321,320,126,-278,-286,602,-146,-275,-306,-251,670,128,69,343,201,-52,-430,645,238,422,-294,297,-383,-468,256,578,-254,-541,-459,-302,-189,516,-119,398,-380,424,-574,493,132,-723,-175,-257,290,24,-52,-121,-471,-407,-197,343,-294,838,-290,-498,-589,-274,-274,-393,-86,-246,392,79,420,-76,-470,458,56,-269,164,-106,-159,-512,864,-518,-271,282,-226,-105,-115,-342,-684,49,-453,-133,301,-556,-286,195,618,499,-7,751,15,156,387,551,933,51,78,218,-229,-269,325,-212,149,-237,-59,-659,-170,-144,520,-135,592,282,-302,-69,-567,358,160,74,-523,570,416,-102,166,119,-220,781,279,132,-854,-85,911,410,312,-782,211,2,7,-372,-265,-329,-437,-241,-228,560,63,-285,625,389,-72,156,619,695,68,-186,614,-316,-171,-379,-13,-625,-266,395,-56,-193,66,-250,-509,411,-26,-355,-956,60,333,-301,516,-232,321,-348,-21,360,505,469,686,-747,-145,755,339,796,232,-434,104,47,-232,516,622,489,26,-350,274,-482,579,-690,-231,-356,-51,568,616,-181,284,-281,-570,311,-116,-170,217,-107,-383,659,-815,280,273,-416,900,475,51,-353,-138,-421,-460,619,428,446,-283,-361,-533,256,-181,-470,-14,-827,-268,601,363,636,-466,-300,165,-681,-220,-118,-730,216,-190,766,-179,-351,-271,613,161,15,-177,-351,102,801,-658,248,-68,569,-212,269,-985,-58,602,-100,363,-369,-344,-643,-370,-75,251,762,-368,431,-422,-431,-260,55,814,-81,-346,-188,774,-163,65,-202,-108,593,-219,297,-446,568,124,-932,242,-5,139,428,190,-558,-460,442,-81,216,-180,-213,-464,-421,-584,-288,-182,-150,-165,-297,46,151,480,229,-174,-102,529,369,-84,-27,254,-218,328,64,404,-94,662,-702,392,558,138,-442,-95,-101,-358,569,-98,-642,440,-74,-329,478,-298,-155,-380,-230,-93,112,409,588,317,657,-13,445,-377,-234,-144,-256,-294,589,83,-519,238,-323,181,-349,202,-363,550,-418,447,-160,126,532,-17,779,309,637,-11,-173,-235,-363,-204,485,75,127,-115,-231,791,-5,25,220,92,-255,-567,-366,-345,78,144,-447,36,661,-21,659,398,-201,-420,827,311,-307,382,664,-4,-213,-130,-400,624,-661,-288,601,-616,43,593,552,401,-260,-377,242,705,1,-19,-979,-198,-231,519,-279,-148,-162,568,196,111,-634,177,676,357,-183,379,-105,216,-18,-32,-637,-693,14,-362,686,335,-67,-649,-210,-144,-264,-78,477,-370,683,163,748,-226,599,-139,-659,-243,-407,-515,-508,-86,-704,-106,-790,530,-317,-638,520,-531,-80,-723,-416,494,97,518,412,81,-642,-363,-359,571,-477,553,-353,-661,-2,350,-266,-100,-347,36,-269,794,-142,-221,638,-174,781,-216,-134,48,-350,141,-136,-832,10,670,-49,-348,-405,682,248,-720,-334,-89,-230,215,103,171,444,-54,-244,479,-379,-142,-207,-165,-213,-165,703,515,53,-233,-221,-364,362,-228,553,300,-462,202,242,-336,501,-252,734,147,-514,736,36,42,923,501,707,-320,806,487,-221,-515,-183,306,412,343,-387,-305,-490,476,409,97,-538,-586,451,487,363,-94,-121,423,-328,-205,339,-491,-77,-14,-585,-227,-139,-202,743,634,33,636,158,344,-110,-310,-208,-155,854,-538,155,-95,-135,262,-387,214,78,321,254,-298,-523,440,116,920,29,573,32,-725,-18,-95,-286,715,86,-215,-292,-743,125,39,615,-12,-241,-336,-208,284,121,272,110,630,439,-605,-333,66,-496,-331,464,-304,771,33,-489,702,-48,-57,-434,-27,659,371,168,920,154,-594,-452,-201,-538,-79,-302,143,241,155,-410,-529,-173,170,155,-60,-493,-345,692,89,72,-807,-438,-638,-138,-264,-376,348,-101,362,670,2,17,179,34,222,-699,-71,-114,-28,410,80,-157,-221,-226,-274,210,571,57,-141,-187,-58,-230,-416,138,-71,-390,172,-608,-69,622,848,-118,447,220,-167,-138,-273,-30,-17,-297,621,228,-651,46,-349,513,-652,-681,340,626,129,410,-330,260,576,-377,-275,647,45,-320,-89,-357,11,172,-320,812,-347,382,128,-441,-120,-501,255,716,647,-240,-505,204,125,463,-349,-620,-200,-342,-42,-50,35,-231,106,469,624,93,-853,-380,-317,820,-267,770,253,699,-13,-14,151,66,-303,727,814,89,413,419,-379,975,34,-108,-460,475,-33,-321,-264,559,282,48,-157,-215,629,220,-21,-380,475,80,-220,422,218,-320,434,204,512,923,-349,106,-108,-339,-213,-107,-317,-642,-341,-74,22,565,614,-176,-219,-284,159,406,412,-473,759,158,382,606,-587,-497,-94,-402,231,-119,-57,597,505,-314,-237,-344,155,506,760,-42,217,-278,138,-710,645,-308,-4,-234,-244,-394,-108,-355,401,-182,-171,-264,201,-89],"3":[-591,-521,175,-716,587,-330,-684,291,-138,-320,29,-188,-387,-316,-238,-266,-617,-295,-61,319,716,341,-49,-259,-270,-441,-306,850,-239,-365,140,-759,-251,107,622,326,-608,132,744,406,254,-294,-596,59,637,12,242,626,-218,269,-71,310,-590,-373,-48,137,-569,-56,40,-141,159,565,-209,-538,282,-422,-577,-522,333,505,-16,-228,153,-507,-781,-57,-651,-219,-826,-22,498,-305,784,293,691,292,-736,319,591,-102,549,-263,675,-378,-59,-71,-127,-252,-43,620,-669,-316,-216,40,-598,-316,406,33,111,-60,-605,-48,-261,715,-307,524,-305,-195,-445,-360,729,105,508,569,-190,-379,307,-36,134,-532,589,109,167,458,-486,331,-666,-23,-345,561,-175,-249,-722,-312,199,500,346,-384,-143,586,-150,106,-760,414,-601,-242,-205,713,-45,-310,-144,-169,501,-154,-14,-231,-773,-213,556,360,615,-136,337,-139,702,483,280,462,833,272,396,-232,226,556,-117,843,-401,-37,742,125,266,-62,231,-196,-305,139,-763,-320,-285,-234,-305,42,414,318,-49,276,-1,-459,-81,448,275,535,-387,-151,-392,3,-189,365,-645,102,200,462,-382,52,-359,618,-204,-209,-38,-228,-159,-753,-394,383,787,-44,-473,-463,254,554,146,497,-452,-402,-769,-30,19,183,41,-271,-65,-627,267,-466,801,-88,191,428,-373,623,-546,640,-218,140,-668,149,-456,-394,284,-27,65,-320,-690,353,92,358,749,204,78,-421,359,-102,-161,-311,-146,-182,-463,-294,302,149,689,-114,-749,222,-102,78,-98,-265,411,317,-222,-666,322,83,-695,-134,121,222,-233,695,-8,-150,260,-621,779,-3,-556,-187,231,-620,-93,-519,-122,-113,417,-57,-173,-241,-468,148,92,804,338,-280,-417,494,-302,-274,333,-662,-185,731,420,-588,-316,-631,-273,767,-289,152,272,71,643,202,233,-637,303,393,31,-784,-432,360,34,286,-113,-265,370,95,-765,-230,268,-225,391,281,737,298,-208,-287,-533,-452,-146,-299,-241,596,647,-301,-272,-272,-262,740,-841,-114,-124,-356,-705,-27,-639,-58,-828,287,-640,414,342,-387,-151,757,-77,-305,855,216,283,-24,250,498,34,-594,-530,524,171,784,643,-144,-237,830,-161,712,-43,-203,89,713,-517,136,-264,-131,48,619,-164,-287],"4":[252,17,-246,112,26,-211,49,223,-372,-50,308,-197,-98,276,-173,-257,416,75,-419,291,246,-585,224,508,-568,-331,588,-131,-325,554,-20,-512,382,368,-624,-7,247,-415,19,588,-360,-364,641,107,-572,421,133,-710,352,659,-709,-265,650,-268,-265,725,-169,-699,616,384,-679,124,441,-622,126,756,-563,-521,748,-77,-493,601,-106,-745,521,527,-747,-60,581,-425,-101,683,-342,-619,750,229,-734,336],"5":[-12,184,64,119,97,-41,28,-67,-2,-62,-278,-288],"6":[-60,-46,-2,-39,131,-49,26,-25,56,-70,19,42]},"edges":[0,2851,1,2852,2,2853,3,2854,166,2873,2744,2880,1803,2881,2119,2894,2228,2904,2038,2905,2214,2919,363,2922,1799,2923,1252,2977,333,2985,2692,2987,2450,3008,2075,3009,2544,3012,2696,3020,2447,3022,703,3030,2421,3047,554,3052,1058,3059,1396,3066,564,3069,362,3074,675,3078,198,3081,1650,3091,1291,3100,531,3108,212,3109,1199,3111,689,3113,469,3128,2773,3130,659,3142,107,3150,2331,3161,1432,3166,2586,3171,2454,3175,47,3184,2280,3193,1317,3194,2253,3196,460,3198,2722,3229,674,3231,2514,3233,1653,3237,2491,3254,1550,3269,1644,3281,2767,3293,587,3295,594,3308,431,3319,331,3321,937,3333,1464,3334,2014,3339,1211,3340,1002,3348,141,3349,1749,3360,1602,3361,641,3363,2566,3365,2714,3368,1616,3375,2330,3380,1169,3386,2844,3389,2807,3395,2532,3399,484,3408,5,3411,704,3414,1463,3415,2028,3430,784,3435,174,3449,850,3451,595,3453,749,3464,2150,3469,1061,3472,2165,3474,2110,3492,2063,3511,2086,3525,1264,3530,2422,3540,1287,3551,1403,3552,1049,3560,995,3579,1544,3589,2512,3592,1112,3602,718,3613,686,3620,113,3627,1889,3629,483,3637,926,3640,1158,3651,2485,3658,2596,3661,2107,3672,137,3680,1045,3682,2795,3687,2318,3691,507,3695,683,3698,1926,3718,709,3719,1820,3725,1499,3728,1337,3731,2220,3736,1075,3737,2301,3742,2384,3753,627,3763,2016,3770,49,3787,2350,3793,1770,3799,1878,3808,806,3812,2001,3815,697,3839,985,3844,150,3846,286,3850,2300,3851,1692,3858,1014,3868,1139,3870,2216,3877,1136,3878,2493,3879,2229,3881,1794,3885,1633,3888,221,3890,244,3893,2322,3899,1981,3902,1786,3904,2643,3941,837,3947,258,3965,2221,3966,1901,3968,1336,3971,1425,3972,1162,3977,1728,3984,615,3989,839,3991,1296,3994,2361,3995,2116,3998,1044,4003,2785,4009,1021,4014,2600,4030,2441,4043,2642,4053,2036,4070,528,4071,997,4074,1084,4080,983,4086,2055,4094,1563,4096,2728,4097,2394,4099,388,4104,2263,4126,1098,4127,828,4129,844,4134,456,4136,2406,4137,931,4144,1871,4159,1076,4166,2360,4168,1873,4170,1968,4186,1224,4194,345,4198,1592,4200,2607,4202,1942,4206,994,4207,328,4215,1841,4219,119,4227,2059,4236,542,4245,1181,4248,461,4254,1949,4263,1163,4267,1345,4268,830,4269,1990,4274,2662,4300,1172,4304,1851,4313,492,4319,1034,4322,1729,4333,1819,4335,163,4339,2513,4341,1509,4352,1897,4358,1812,4359,2236,4363,955,4370,2802,4374,1131,4386,1567,4393,2304,4403,1416,4404,1590,4406,31,4409,2440,4411,570,4417,240,4419,1307,4445,1709,4450,1241,4452,2634,4459,162,4466,1492,4476,1366,4478,1490,4480,1242,4486,1531,4497,2258,4501,2511,4507,973,4510,2058,4513,1142,4514,442,4525,322,4529,1610,4532,399,4540,1868,4541,428,4548,1008,4560,1015,4566,1414,4570,479,4576,1638,4578,2201,4590,562,4604,145,4608,907,4614,1069,4617,1933,4618,408,4619,2132,4638,2187,4643,2670,4648,629,4654,202,4660,275,4665,2769,4666,2679,4668,628,4669,1689,4691,537,4696,2654,4698,1654,4716,1797,4730,133,4738,2371,4758,603,4760,2790,4768,1107,4772,104,4775,2592,4778,777,4784,1825,4790,2142,4801,1091,4803,2354,4804,2471,4810,621,4812,1489,4813,521,4821,2653,4824,297,4836,2134,4849,2012,4859,332,4860,2314,4867,199,4872,241,4875,4037,4880,3834,4880,4880,5132,3284,4881,2905,4881,3083,4881,4375,4881,4881,5140,4881,5122,4647,4882,3479,4882,4882,5125,3680,4883,3945,4883,3650,4883,4301,4883,3222,4883,4426,4883,4883,5121,4883,5106,3555,4884,2922,4884,4884,5106,3655,4885,4444,4885,4885,5101,4581,4886,3206,4886,4886,5119,2922,4887,3716,4887,4887,5106,3659,4888,3399,4888,4888,5111,3067,4889,2959,4889,4214,4889,3582,4889,4889,5104,4889,5105,3382,4890,3927,4890,4890,5141,3619,4891,4638,4891,4725,4891,4864,4891,4891,5138,4891,5106,3103,4892,2922,4892,4892,5106,4243,4893,4308,4893,4893,5126,3206,4894,4313,4894,4894,5119,4753,4895,2856,4895,4464,4895,3377,4895,4895,5106,4895,5122,4224,4896,4292,4896,4896,5100,3996,4897,4844,4897,4897,5128,4746,4898,3563,4898,4898,5129,4756,4899,3907,4899,4899,5128,2955,4900,4611,4900,4900,5117,3509,4901,4088,4901,4901,5129,3024,4902,4478,4902,4902,5120,3547,4903,2983,4903,4903,5110,3975,4904,3677,4904,4904,5100,3532,4905,3702,4905,4905,5105,3202,4906,3833,4906,4906,5124,4292,4907,3693,4907,4907,5100,3133,4908,3926,4908,4908,5116,4865,4909,4344,4909,4909,5101,4167,4910,4434,4910,4910,5110,4542,4911,3459,4911,4911,5135,3311,4912,3094,4912,4912,5117,3637,4913,3834,4913,4913,5132,4167,4914,4826,4914,4914,5110,4474,4915,3668,4915,4915,5101,3155,4916,2962,4916,4916,5109,3164,4917,4778,4917,4917,5137,3653,4918,2861,4918,4918,5124,3164,4919,3028,4919,4919,5137,2974,4920,3470,4920,4920,5125,4861,4921,4198,4921,4921,5141,3250,4922,2885,4922,4922,5141,4194,4923,4376,4923,4923,5142,3017,4924,3337,4924,4924,5112,3489,4925,3500,4925,4925,5125,4176,4926,4500,4926,4926,5125,3229,4927,3573,4927,4927,5106,3569,4928,4630,4928,3494,4928,3059,4928,4928,5118,4928,5106,4525,4929,3905,4929,4929,5139,3653,4930,3202,4930,4930,5124,4081,4931,4382,4931,4931,5100,4265,4932,3785,4932,4932,5111,3966,4933,3969,4933,4933,5107,3457,4934,3455,4934,4934,5099,4803,4935,2886,4935,4935,5116,4288,4936,3449,4936,4936,5126,3105,4937,4261,4937,4937,5113,4568,4938,3963,4938,4938,5119,4788,4939,3809,4939,4939,5119,4133,4940,3391,4940,4940,5120,4520,4941,4399,4941,4941,5136,4337,4942,3990,4942,4942,5106,4518,4943,3285,4943,4943,5099,3613,4944,4171,4944,4944,5109,3629,4945,3936,4945,4945,5120,4859,4946,3220,4946,4946,5110,4540,4947,4346,4947,4947,5121,3264,4948,3240,4948,4948,5137,2968,4949,4600,4949,4949,5113,4303,4950,4483,4950,4036,4950,3751,4950,4950,5104,4950,5106,4449,4951,4863,4951,4951,5124,4576,4952,4434,4952,4952,5110,4269,4953,3311,4953,4953,5117,4420,4954,4467,4954,4954,5139,3924,4955,3978,4955,4955,5100,3879,4956,3128,4956,4956,5142,4449,4957,2861,4957,4957,5124,4537,4958,3805,4958,4958,5126,3625,4959,3573,4959,4959,5106,2995,4960,3696,4960,4960,5101,3736,4961,4748,4961,4961,5112,3333,4962,3704,4962,4962,5101,4828,4963,2924,4963,4963,5124,4756,4964,4721,4964,4964,5128,3484,4965,3736,4965,4965,5112,3780,4966,2928,4966,4966,5104,3996,4967,4488,4967,4967,5128,4869,4968,2903,4968,4968,5110,4323,4969,3250,4969,4969,5141,4365,4970,4180,4970,4970,5104,3274,4971,4859,4971,4971,5110,4525,4972,3506,4972,4972,5139,3306,4973,4279,4973,4973,5103,3468,4974,3074,4974,4974,5141,4300,4975,3061,4975,4975,5099,3556,4976,3287,4976,4976,5104,4231,4977,3917,4977,4977,5100,4168,4978,4863,4978,3426,4978,4711,4978,4978,5124,4978,5117,3750,4979,3558,4979,4979,5119,4640,4980,4354,4980,4980,5103,4321,4981,2985,4981,4981,5115,3532,4982,3054,4982,4982,5105,3597,4983,3741,4983,4983,5114,4379,4984,3782,4984,4984,5105,3274,4985,4538,4985,4985,5110,3114,4986,4562,4986,4986,5103,3490,4987,4347,4987,4987,5103,4223,4988,4031,4988,4988,5105,3216,4989,3563,4989,4989,5129,4021,4990,3183,4990,4990,5110,4432,4991,4178,4991,4991,5100,4810,4992,4829,4992,4992,5126,4817,4993,3182,4993,4993,5106,4529,4994,3722,4994,4994,5101,3089,4995,3447,4995,4995,5135,4564,4996,4075,4996,4996,5108,3126,4997,2862,4997,4997,5133,4253,4998,3637,4998,4998,5132,4407,4999,3929,4999,4999,5110,3888,5000,4859,5000,5000,5110,4448,5001,4436,5001,5001,5119,3070,5002,3173,5002,5002,5137,3539,5003,4157,5003,5003,5102,3326,5004,3372,5004,5004,5101,4251,5005,4729,5005,5005,5114,3385,5006,4345,5006,5006,5109,3040,5007,4060,5007,5007,5133,3987,5008,4201,5008,5008,5110,3818,5009,2957,5009,5009,5126,3254,5010,3276,5010,5010,5134,4515,5011,4525,5011,4557,5011,4432,5011,5011,5139,5011,5100,3776,5012,4746,5012,5012,5129,3195,5013,2888,5013,3117,5013,3147,5013,5013,5117,5013,5119,3921,5014,3390,5014,5014,5099,3722,5015,4290,5015,5015,5101,4548,5016,4309,5016,5016,5142,3461,5017,3723,5017,3273,5017,4428,5017,5017,5102,5017,5105,2885,5018,4744,5018,5018,5141,3112,5019,4185,5019,5019,5114,3133,5020,3686,5020,2928,5020,3060,5020,5020,5116,5020,5104,3829,5021,3010,5021,4479,5021,3243,5021,5021,5104,5021,5106,4070,5022,4769,5022,5022,5106,4667,5023,3147,5023,5023,5119,3652,5024,4755,5024,5024,5099,4315,5025,4712,5025,5025,5133,4054,5026,4746,5026,5026,5129,4081,5027,4460,5027,5027,5100,2973,5028,4535,5028,5028,5106,3383,5029,3454,5029,5029,5115,3787,5030,3170,5030,5030,5127,4481,5031,3544,5031,5031,5099,4089,5032,3240,5032,5032,5137,4252,5033,3689,5033,5033,5102,3902,5034,3766,5034,5034,5126,3871,5035,3280,5035,5035,5101,4595,5036,4238,5036,5036,5109,4141,5037,3485,5037,5037,5133,3660,5038,3168,5038,5038,5111,2872,5039,4345,5039,5039,5109,3310,5040,2979,5040,5040,5114,3222,5041,4395,5041,5041,5106,4417,5042,3389,5042,4521,5042,4123,5042,5042,5099,5042,5106,3188,5043,3320,5043,3748,5043,3049,5043,5043,5104,5043,5106,4820,5044,4555,5044,5044,5108,4187,5045,3113,5045,5045,5131,4652,5046,4483,5046,5046,5104,3627,5047,3105,5047,5047,5113,3941,5048,4285,5048,5048,5106,3396,5049,3811,5049,5049,5130,4424,5050,3235,5050,5050,5126,4011,5051,3100,5051,5051,5130,4854,5052,3695,5052,5052,5140,3651,5053,3336,5053,5053,5126,2855,5054,3283,5054,5054,5108,3537,5055,4300,5055,4565,5055,3344,5055,5055,5099,5055,5106,3391,5056,4478,5056,5056,5120,3092,5057,4577,5057,5057,5109,3316,5058,4496,5058,5058,5115,3330,5059,3019,5059,5059,5122,3477,5060,4641,5060,3411,5060,4075,5060,5060,5115,5060,5108,4252,5061,3176,5061,5061,5102,3388,5062,3286,5062,5062,5106,3901,5063,4622,5063,5063,5099,3641,5064,4393,5064,5064,5124,4220,5065,3279,5065,4761,5065,3150,5065,5065,5104,5065,5106,3454,5066,3514,5066,5066,5115,3250,5067,4744,5067,5067,5141,4799,5068,4455,5068,5068,5106,3180,5069,3875,5069,5069,5132,4350,5070,3524,5070,5070,5106,4131,5071,3121,5071,5071,5126,4421,5072,4343,5072,5072,5125,4448,5073,3409,5073,5073,5119,2892,5074,4537,5074,5074,5126,3635,5075,3759,5075,5075,5137,3626,5076,4701,5076,5076,5106,2949,5077,3070,5077,5077,5137,3686,5078,4772,5078,5078,5116,3119,5079,3096,5079,5079,5142,3395,5080,2978,5080,5080,5121,4353,5081,4096,5081,5081,5117,3739,5082,4686,5082,5082,5126,3398,5083,2995,5083,5083,5101,3860,5084,4323,5084,5084,5141,4846,5085,3674,5085,5085,5099,3261,5086,4806,5086,5086,5110,4423,5087,3245,5087,5087,5114,3363,5088,4671,5088,5088,5134,2953,5089,4651,5089,5089,5131,2882,5090,3614,5090,5090,5112,3575,5091,4639,5091,5091,5126,3267,5092,3341,5092,5092,5126,3184,5093,3200,5093,5093,5106,2953,5094,4713,5094,5094,5131,3776,5095,4312,5095,5095,5129,4276,5096,3317,5096,5096,5106,3349,5097,3072,5097,5097,5139,4457,5098,2946,5098,5098,5106,5099,5146,5100,5147,5101,5147,5102,5147,5103,5147,5104,5146,5105,5147,5106,5146,5107,5144,5108,5143,5109,5148,5110,5147,5111,5146,5112,5147,5113,5144,5114,5147,5115,5144,5116,5143,5117,5147,5118,5146,5119,5146,5120,5145,5121,5147,5122,5144,5123,5145,5124,5145,5125,5145,5126,5143,5127,5146,5128,5143,5129,5148,5130,5147,5131,5146,5132,5145,5133,5144,5134,5144,5135,5144,5136,5144,5137,5147,5138,5143,5139,5147,5140,5147,5141,5146,5142,5144,5144,5149,5145,5149,5144,5150,5145,5150,5144,5151,5146,5151,5145,5152,5147,5152,5146,5153,5147,5153,5144,5154,5147,5154,0,4880,1,4880],"sessNodes":[0,1,2,3],"sessFrameNodes":{"f-00":2851,"f-01":2852,"f-02":2853,"f-03":2854},"threadNodes":[0,1,2851,2852,4880,5115,5144,5149]};
+const CONFIG = {"coach":{"name":"Shehzad","full_name":"Shehzad Mukadam","slug":"shehzad-mukadam","pronouns":["he","him","his"]},"session":{"other_role":"Consultant"},"steps":{"collect":{"t":"407 sources, gathered in one place","b":"We read 289 of his LinkedIn posts and 118 of his Instagram posts and reels: <em>42,315 words across 2,851 lines.<\/em> From this collection, we follow one LinkedIn post, where a consultant who struggled with objections on Monday booked a real meeting on a live call by Wednesday."},"transcript":{"t":"A post becomes text","b":"The post is split into the line that sets the scene and Shehzad’s own lines. At first, it is simply a record of what was written."},"speakers":{"t":"Who said what","b":"We separate the consultant’s problem from Shehzad’s response, and mark the line he responds to."},"layer1":{"t":"Layer 1 · What was said","b":"The post opens: <em>&ldquo;He was struggling with objections on Monday.&rdquo;<\/em> Shehzad’s response comes straight after. These exact lines are the evidence for everything that follows."},"meaning":{"t":"What happened next?","b":"A consultant froze at objections on day one. Shehzad doesn’t offer more motivation: he turns the mindset into a repeatable process, drills it, and then proves it on a live call."},"cue":{"t":"What Shehzad does in response","b":"Faced with a consultant who struggles with objections, Shehzad writes, <em>&ldquo;Day 2 was about turning that mindset into a repeatable process.&rdquo;<\/em>"},"layer2":{"t":"Layer 2 · Shehzad’s response","b":"He moves from a feeling of &ldquo;I can’t handle objections&rdquo; to a process and the practice to back it up. The response stays linked to the exact moment."},"layer3":{"t":"Layer 3 · The situation","b":"A team knows the process but freezes on a real objection. In Shehzad’s material this shows up as <em>objection handling<\/em>."},"layer4":{"t":"Layer 4 · The recurring pattern","b":"Shehzad keeps coming back to behaviour: it comes up in 32 of his sources, objections in 12 and role plays in 7, across his posts and reels."},"layer5":{"t":"Layer 5 · The coaching purpose","b":"The purpose is to move teams from &ldquo;know it, then freeze&rdquo; to &ldquo;practise it until it holds on a live call&rdquo;."},"layer6":{"t":"Layer 6 · The principle","b":"<em>They don&rsquo;t need more motivation, they need a system and the reps to back it up.<\/em> This is the principle behind Shehzad’s response."},"trace":{"t":"One answer becomes a principle","b":"We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the exact moment Shehzad turned a mindset into a process."}},"cards":{"layer1":{"cue":"He was struggling with objections on Monday.","move":"Day 2 was about turning that mindset into a repeatable process","foot":"Two exact lines &middot; written back to back"},"layer2":{"cue":"A consultant freezes at objections","move":"Turns the mindset into a process to practise"},"layer3":{"title":"Freezing at objections","text":"The team knows the steps, but on a real objection the consultant freezes.","foot":"Situation in his material &middot; &ldquo;objection handling&rdquo; in 2 sources"},"layer4":{"title":"Train behaviour, not just knowledge","text":"Shehzad keeps coming back to practice, so build a process and then drill it on real objections until it holds.","foot":"Recurring pattern &middot; behaviour in 32 sources, objections in 12"},"layer5":{"title":"Practise it until it holds","text":"Don&rsquo;t stop at the workshop. Practise on real objections, then test it live.","starts":"&ldquo;Know it, then freeze&rdquo;","moves_to":"&ldquo;Practise it until it holds&rdquo;"},"layer6":{"quote":"They don't need more motivation, they need a system and the reps to back it up.","text":"The same idea runs through his work: <em>&ldquo;Without those four things, training isn&rsquo;t a waste - it&rsquo;s just entertainment with a certificate.&rdquo;<\/em>"}},"about":{"sources":[["LinkedIn","in/shehzadmukadam","289 posts"],["Instagram","@lifebyshehzad","118 posts and reels"]],"rows":[["Type of coach",[["Sales trainer",1],["Corporate trainer",1],["L&D specialist",1],["Leadership coach",1]],[["A one-off workshop seller",0],["A slides-and-theory lecturer",0],["A certificate factory",0]],"your LinkedIn headline: “Sales Trainer | Corporate Trainer | L&D Manager, Dubai” · “2000+ professionals trained, 100+ workshops” · “100+ coaching sessions”","“not just a one-off workshop, but something that changes how people work” · “not PowerPoint slides, but transformation in real time” · “not certificates, not great energy, but results”"],["Region",[["Dubai",1],["UAE",1],["India",1],["UK",1]],[["New York or London playbooks",0],["A Western MBA approach",0],["One template for every market",0]],"LinkedIn: Dubai, United Arab Emirates · “18+ years across the UAE, UK, and India”","“Stop training your Dubai real estate team like they’re selling in New York or London” · “Your Western MBA won’t help you lead a Gulf team”"],["Who you coach",[["Sales teams and property consultants",1],["Managers and first-time managers",1],["Founders and HR leaders",1],["Retail and hospitality teams",1]],[["Teams that just need motivation",0],["Teams that want a certificate",0],["People who want a script to read",0]],"Sales Domination with property consultants and tele sales teams, retail, FMCG and hospitality workshops, and posts to “Founders and HR leaders”","“they don’t need more motivation, they need a system and the reps to back it up” · business owners say “we tried training before, nothing changed” · “I trained three salespeople with the exact same script. Only one of them used it.”"],["How you deliver",[["Multi-day sales programmes",1],["Live role plays",1],["Training needs analysis",1],["Coaching sessions",1]],[["Slides",0],["A one-day event with nothing after",0],["Off-the-shelf templates",0]],"“Sales Domination”, role plays in 7 of your sources, “40+ Training Needs Analyses” (your LinkedIn About)","“not PowerPoint slides” · “nothing after the training room” in the Monday and Wednesday post · “generic sales training - templates, scripts, one-day workshops”"],["Your topics",[["Sales and objection handling",1],["Behaviour change",1],["Manager and leadership development",1],["Psychological safety",1]],[["Scripts to memorise",0],["Discounting to close",0],["More motivation",0]],"behaviour in 32 sources, objections in 12, trust in 85, psychological safety in 15","“Your discount is often a symptom, not the strategy” · “Training isn’t about teaching people what to say” · “they don’t need more motivation”"],["Named frameworks",[["Training Needs Analysis",1],["ADDIE",1],["A reinforcement plan",1],["Three questions that replace assumptions",1]],[["A famous sales model",0],["Scripts and templates",0],["One-size-fits-all training",0]],"your LinkedIn About and posts · the reinforcement plan: brief the manager, one behaviour in 48 hours, a weekly 15-minute check-in, a day-30 review","SPIN, Challenger and MEDDIC are not named anywhere in your material · “That day I stopped believing in one-size-fits-all sales training”"],["Your style",[["Story-led",1],["Direct",1],["Question-led",1],["Practical",1]],[["Hype",0],["Blaming the team",0],["Theory-heavy",0]],"client and workshop stories: “I trained three salespeople”, “The best closer in the company”, “He was struggling with objections” · “Ask them one question” posts","“not certificates, not great energy, but results” · “That is a training problem, not a you problem” · “not PowerPoint slides”"]]},"dos":[["ask three questions that replace assumptions","LinkedIn · the most expensive sentence in Dubai sales"],["start with a training needs analysis","LinkedIn · the team won’t grow just by being busy"],["practise on real objections, not textbook ones","LinkedIn · Sales Domination"],["plan what happens after the training","LinkedIn · the reinforcement plan"],["teach people how to think, so they say it their way","LinkedIn · three salespeople, one script"],["ask what a great month looks like before writing someone up","LinkedIn · the lowest performer post"]],"donts":[["hand people a script to follow","LinkedIn · three salespeople, one script"],["assume you know how the client thinks","LinkedIn · the most expensive sentence"],["reach for a discount before selling the value","LinkedIn · discount is a symptom"],["count a training as a success because people enjoyed it","LinkedIn · the biggest lie in corporate training"],["promote the best closer without training them to manage","LinkedIn · the best closer in the company"],["train a Dubai team like they sell in New York or London","LinkedIn · the Dubai real estate post"]],"personas":[],"mobile":true,"words":{},"about_lead":"","dd_lead":"Shehzad's twin follows these in every answer. They come from patterns that run through his posts and reels."};
+</script>
+<script>
+(() => {
+const S = STORY, CF = CONFIG, T = S.totals, TH = S.thread, sess = S.session, L = sess.lines;
+const NM = CF.coach.name, [HE, HIM, HIS] = CF.coach.pronouns;
+const WD = Object.assign({coaching: 'coaching', Coaching: 'Coaching', coaches: 'coaches'}, CF.words || {});
+const $ = s => document.querySelector(s);
+const fmt = n => n.toLocaleString('en-US');
+const css = getComputedStyle(document.documentElement);
+const C = {}; for (let l = 1; l <= 6; l++) C[l] = css.getPropertyValue('--l' + l).trim();
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const day = d => d ? `${+d.slice(8, 10)} ${MON[+d.slice(5, 7) - 1]} ${d.slice(0, 4)}` : '—';
+const kb = b => Math.max(1, Math.round(b / 1e3)) + ' KB';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const lineOf = id => L.find(l => l.id === id);
+const cueL = lineOf(TH.cueLine), moveL = lineOf(TH.moveLine);
+const NAMES = ['', 'Lines', 'Moves', 'Situations', 'Topics', 'Phases', 'Beliefs'];
+const KIND = {youtube: ['YouTube video', 'yt', 'YouTube'], linkedin: ['LinkedIn post', 'li', 'LinkedIn'], web: ['Web page', 'wb', 'Website'],
+  medium: ['Medium article', 'wb', 'Medium'], doc: ['Document', 'wb', 'Documents'], recording: ['Recording', 'lm', 'Recordings'],
+  instagram: ['Instagram post', 'ig', 'Instagram'], twitter: ['Post on X', 'tw', 'X']};
+
+/* ================= the states ================= */
+const P = CF.steps;
+const CH = ['Collect', 'About you', 'Read', 'Follow', 'Understand', 'Do’s & Don’ts'];
+const STATES = [
+  {ch: -1},
+  {ch: 0, ...P.collect, stat: [T.conversations, `sources · ${(T.words / 1e6).toFixed(1)}m words`]},
+  {ch: 1, ab: true},                       // About you comes straight after Collect (standard from 17 Nov 2026)
+  {ch: 2, ...P.transcript},
+  {ch: 2, ...P.speakers},
+  {ch: 2, ...P.layer1, stat: [T.actions, 'lines spoken or written'], lvl: 1},
+  {ch: 3, ...P.meaning, stat: [S.frames.length, `frames from these ${L.length} lines`]},
+  {ch: 3, ...P.cue},
+  {ch: 4, ...P.layer2, stat: [T.frames, `substantive lines by ${NM}`], lvl: 2},
+  {ch: 4, ...P.layer3, stat: [T.tactics, 'situations'], lvl: 3},
+  {ch: 4, ...P.layer4, stat: [T.scenes, 'recurring topics'], lvl: 4},
+  {ch: 4, ...P.layer5, stat: [T.phases, WD.coaching + ' purposes'], lvl: 5},
+  {ch: 4, ...P.layer6, stat: [T.beliefs, 'principles'], lvl: 6},
+  {ch: 4, ...P.trace, lvl: 7},
+  {ch: 5, fd: true},
+];
+const N = STATES.length, ST_L1 = STATES.findIndex(s => s.lvl === 1), ST_L2 = STATES.findIndex(s => s.lvl === 2);
+const ST_FR = ST_L1 + 1, ST_CUE = ST_L1 + 2, ST_AB = STATES.findIndex(s => s.ab);
+
+/* ================= build the DOM ================= */
+document.title = `How ${NM}'s Twin Learns`;
+// long speaker names (more than 7 letters) get a wider column; shorter ones keep the 54px one
+{ const n = Math.max(...L.map(l => l.who.length)); if (n > 7) document.documentElement.style.setProperty('--who', Math.ceil(n * 7.8) + 'px'); }
+$('#hdr').innerHTML = `Twin-memory · <b>From ${esc(NM)}'s words to a ${WD.coaching} principle</b>`;
+if (CF.switch && CF.switch.length > 1) {
+  $('#psw').hidden = false; $('#hdr').hidden = true;   // the switch takes the strapline's place
+  $('#psw').innerHTML = CF.switch.map(q => `<button type="button" class="ptab" role="tab" data-href="${esc(q.href)}" aria-selected="${!!q.current}">${esc(q.label)}${q.count ? `<small>${esc(q.count)}</small>` : ''}</button>`).join('');
+}
+$('#hero-h').innerHTML = `How ${esc(NM)}'s twin<br><i>learns</i>`;
+$('#hero-p').textContent = `Start with what was said. Follow what ${NM} does next, the situation ${HE} recognizes, and the principle behind ${HIS} response.`;
+
+const stage = $('#stage');
+const rail = $('#rail');
+CH.forEach((name, c) => {
+  const el = document.createElement('div'); el.className = 'ch';
+  el.innerHTML = `<span>${pad(c + 1)} ${name}</span><span class="dots">${
+    STATES.map((s, i) => s.ch === c ? `<i data-i="${i}" class="hit"></i>` : '').join('')}</span>`;
+  rail.appendChild(el);
+});
+
+// finder list: every source, oldest first; the session is selected
+const files = S.files;
+const selIdx = files.findIndex(f => f.sel);
+const kinds = [...new Set(files.map(f => f.k))];
+$('#side').innerHTML = `<h6>Favourites</h6><div class="on"><i class="fi"></i>${esc(CF.coach.slug)}</div>
+  <h6 style="margin-top:14px">Sources</h6>${kinds.map(k => `<div><i class="fi"></i>${(KIND[k] || KIND.doc)[2]}</div>`).join('')}`;
+$('#lrows').innerHTML = files.map(f => { const K = KIND[f.k] || KIND.doc;
+  return `<div class="lrow"><span class="nm"><i class="badge ${K[1]}"></i>${esc(f.n)}</span><span class="kd">${K[0]}</span><span class="dt">${day(f.d)}</span><span class="sz">${kb(f.s)}</span></div>`; }).join('');
+
+// transcript
+const keyLines = new Set([TH.cueLine, TH.moveLine]);
+$('#doc').innerHTML = `<div class="fm">---\ntitle: '${esc(sess.title)}'\ndate: '${sess.date}'\nturns: ${sess.turns}\n---</div>` +
+  L.map(l => `<div class="ln${keyLines.has(l.id) ? ' key' : ''}" data-id="${l.id}">
+    <div class="rh"><span class="h">### </span>${l.ts} · ${l.raw}</div>
+    <div class="row"><span class="ts">${l.ts}</span><span class="who ${l.coach ? 'o' : 's'}">${esc(l.who)}</span><span class="txt"><span class="r">${esc(l.text)}</span><span class="c">${esc(l.text)}</span></span></div></div>`).join('');
+
+// frames
+$('#frames').innerHTML = `<div class="plabel">Frames · <b style="color:var(--l2)">what each line meant</b></div>` +
+  S.frames.map(f => `<div class="fc${f.id === TH.cue || f.id === TH.move ? ' key' : ''}"><span class="k">${f.kind}${f.id === TH.cue ? '<em>cue</em>' : f.id === TH.move ? `<em>${esc(NM)}’s move</em>` : ''}</span>${esc(f.span)}</div>`).join('');
+
+// layer cards (copy is trusted HTML from the config)
+const K = CF.cards;
+$('#cards').innerHTML = `
+  <div class="card" id="c1"><div class="lv" style="color:var(--l1)">Layer 1 · What was said</div>
+    <dl class="pair"><dt>${esc(sess.other)}</dt><dd class="q">“${K.layer1.cue}”</dd><dt>${esc(NM)}</dt><dd class="q">“${K.layer1.move}”</dd></dl>
+    <div class="foot">${K.layer1.foot || `${day(sess.date)} · ${cueL.ts} and ${moveL.ts} · stored word for word`}</div></div>
+  <div class="card" id="c2"><div class="lv" style="color:var(--l2)">Layer 2 · What ${esc(NM)} does</div>
+    <dl class="pair"><dt>${esc(CF.session.other_role)}</dt><dd>${K.layer2.cue}</dd><dt>${esc(NM)}</dt><dd>${K.layer2.move}</dd></dl>
+    <div class="foot">The response stays linked to the exact exchange</div></div>
+  <div class="card" id="c3"><div class="lv" style="color:var(--l3)">Layer 3 · The situation</div><h3>${K.layer3.title}</h3><p>${K.layer3.text}</p>
+    <div class="foot">${K.layer3.foot}</div></div>
+  <div class="card" id="c4"><div class="lv" style="color:var(--l4)">Layer 4 · The recurring pattern</div><h3>${K.layer4.title}</h3><p>${K.layer4.text}</p>
+    <div class="foot">${K.layer4.foot}</div></div>
+  <div class="card" id="c5"><div class="lv" style="color:var(--l5)">Layer 5 · The ${WD.coaching} purpose</div><h3>${K.layer5.title}</h3><p>${K.layer5.text}</p>
+    <dl class="pair" style="margin-top:14px"><dt>Starts</dt><dd>${K.layer5.starts}</dd><dt>Moves to</dt><dd>${K.layer5.moves_to}</dd></dl>
+    <div class="foot">Why ${esc(NM)}’s reply matters</div></div>
+  <div class="card" id="c6"><div class="lv" style="color:var(--l6)">Layer 6 · The ${WD.coaching} principle</div><blockquote>“${K.layer6.quote}”</blockquote><p>${K.layer6.text}</p>
+    <div class="foot">Derived from the recorded pattern</div></div>`;
+
+const LG = ['What was said', `What ${NM} does`, 'The situation', 'Recurring pattern', WD.Coaching + ' purpose', 'Derived principle'];
+$('#legend').innerHTML = `<div class="plabel">This exchange, layer by layer</div>` + [6, 5, 4, 3, 2, 1].map((l, i) =>
+  `<div class="lg" style="transition-delay:${.1 + i * .08}s"><i style="background:${C[l]}"></i><span>L${l} ${esc(LG[l - 1])}</span></div>`).join('');
+
+// about you
+const A = CF.about;
+$('#ab').innerHTML = `<div class="lead">
+    <div class="kick">${pad(STATES[ST_AB].ch + 1)} · About you</div>
+    <h1>Where we found you</h1>
+    <p>${CF.about_lead || 'Your twin starts from what you have already shared in public.'}</p>
+    <div class="found">${A.sources.map(([k, where, meta]) => `<div><b>${k}</b> ${where}<em>✓</em><small>${meta}</small></div>`).join('')}</div>
+  </div>
+  <div class="page">
+    <h2>Here’s who we think you are</h2>
+    <p class="what">From your ${(n => n.length > 1 ? n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1] : n[0])(A.sources.map(s => s[0]))}. Tap to correct anything.</p>
+    ${A.rows.some(r => r.length >= 5) ? `<div class="sheet two"><div class="row heads"><span></span><div class="cols"><b class="is">Who you are</b><b class="no">Who you are not</b></div></div>${
+      A.rows.map(([label, yes, not, evYes, evNot]) => `<div class="row"><span>${label}</span><div class="cols">
+        <div class="col"><div class="chips">${yes.map(([v, on]) => `<button type="button" class="chip" aria-pressed="${!!on}">${v}</button>`).join('')}</div><span class="ev">${evYes}</span></div>
+        <div class="col"><div class="chips">${not.map(([v, on]) => `<button type="button" class="chip no" aria-pressed="${!!on}">${v}</button>`).join('')}</div><span class="ev">${evNot}</span></div>
+      </div></div>`).join('')}</div>` : `<div class="sheet">${A.rows.map(([label, opts, ev]) => `<div class="row"><span>${label}</span><div class="chips">${
+      opts.map(([v, on]) => `<button type="button" class="chip" aria-pressed="${!!on}">${v}</button>`).join('')}<span class="ev">${ev}</span></div></div>`).join('')}</div>`}
+  </div>`;
+
+// do's & don'ts (optionally one set per persona, e.g. a professor who also teaches Sanskrit chanting)
+const PERS = (CF.personas && CF.personas.length) ? CF.personas : [{label: '', dd_lead: CF.dd_lead, dos: CF.dos, donts: CF.donts}];
+const ddRow = (kind, [text, meta]) => `<div class="dd-row ${kind}"><i>${kind === 'do' ? '✓' : '✕'}</i><div><p><b>${kind === 'do' ? 'Do' : 'Don’t'}</b> ${text}</p><small>${meta}</small></div></div>`;
+function showPersona(k) {
+  const P = PERS[k];
+  $('#dd-lead').innerHTML = P.dd_lead || CF.dd_lead;
+  $('#dd-count').innerHTML = `<div><b>${P.dos.length}</b><span>Do’s</span></div><div><b>${P.donts.length}</b><span>Don’ts</span></div>`;
+  const tabs = PERS.length > 1 ? `<div class="ptabs" role="tablist">${PERS.map((q, n) =>
+    `<button type="button" class="ptab" role="tab" data-p="${n}" aria-selected="${n === k}">${esc(q.label)}</button>`).join('')}</div>` : '';
+  $('#fdpage').innerHTML = `<article class="on">
+  <h2>How ${esc(NM)} ${WD.coaches}</h2>${tabs}
+  <div class="dd-cols">
+    <section><div class="dd-head do"><i>✓</i> Do’s <small>how ${HIS} twin behaves</small></div>${P.dos.map(x => ddRow('do', x)).join('')}</section>
+    <section><div class="dd-head dont"><i>✕</i> Don’ts <small>lines ${HIS} twin never crosses</small></div>${P.donts.map(x => ddRow('dont', x)).join('')}</section>
+  </div>
+</article>`;
+}
+showPersona(0);
+
+/* ================= the layered space ================= */
+const FLOOR = {1: 1.0, 2: .84, 3: .68, 4: .52, 5: .36, 6: .2}, FY = l => -1 + (l - 1) * .4;
+const counts = {}, off = {}; let NN = 0;
+for (let l = 1; l <= 6; l++) { counts[l] = S.floors[l].length / 2; off[l] = NN; NN += counts[l]; }
+const X = new Float32Array(NN), Y = new Float32Array(NN), Z = new Float32Array(NN), LAY = new Uint8Array(NN);
+for (let l = 1; l <= 6; l++) {
+  const f = S.floors[l], w = FLOOR[l];
+  for (let k = 0; k < counts[l]; k++) { const i = off[l] + k; X[i] = f[2 * k] / 1000 * w; Z[i] = f[2 * k + 1] / 1000 * w; Y[i] = FY(l); LAY[i] = l; }
+}
+// draw order: a shuffle per layer, so a floor fills evenly as it appears
+const ORDER = {};
+for (let l = 1; l <= 6; l++) {
+  const a = new Uint32Array(counts[l]); for (let k = 0; k < a.length; k++) a[k] = off[l] + k;
+  for (let k = a.length - 1; k > 0; k--) { const j = (Math.random() * (k + 1)) | 0; const t = a[k]; a[k] = a[j]; a[j] = t; }
+  ORDER[l] = a;
+}
+const EDGE = {};                               // links grouped by the upper layer they reach
+for (let k = 0; k < S.edges.length; k += 2) { const a = S.edges[k], b = S.edges[k + 1], l = LAY[b]; (EDGE[l] ||= []).push(a, b); }
+const SN = S.sessNodes;                        // the lines we followed, in transcript order
+const SF = S.frames.map(f => ({node: S.sessFrameNodes[f.id], from: SN[L.findIndex(l => l.id === f.from.at(-1))]}));
+const thr = S.threadNodes;                     // [line cue, line move, frame cue, frame move, situation, topic, phase, belief]
+const thrEdges = [[thr[0], thr[2]], [thr[1], thr[3]], [thr[2], thr[4]], [thr[3], thr[4]], [thr[4], thr[5]], [thr[5], thr[6]], [thr[6], thr[7]]];
+const PX = new Float32Array(NN), PYs = new Float32Array(NN);
+const LBL = i => { const l = LAY[i], k = i - off[l]; return l === 3 ? S.labels.tactics[k] : l === 4 ? S.labels.scenes[k] : l === 5 ? S.labels.phases[k] : l === 6 ? S.labels.beliefs[k] : ''; };
+
+/* ================= animated values ================= */
+const V = {}, TG = {};
+const val = (k, v) => { V[k] = TG[k] = v; };
+[['ry', .55], ['rx', .62], ['zoom', .82], ['ty', -1], ['cx', 790], ['cy', 520], ['spin', 0], ['thrA', 0]].forEach(([k, v]) => val(k, v));
+for (let l = 1; l <= 6; l++) { val('L' + l, 0); val('E' + l, 0); }
+let rot = 0, drag = 0, cur = -1, thrUpTo = 0, cardLevel = 0, fly = null, flyF = null, wiresLeft = 0;
+
+/* ================= layout ================= */
+const cv = $('#cv'), ctx = cv.getContext('2d');
+let W = 0, H = 0, DPR = 1, KS = 1, OX = 0, OY = 0, KD = 1, M = false;
+const sx = x => OX + x * KS, sy = y => OY + y * KS;
+const HINT = $('#hint').innerHTML;
+// media queries, not innerWidth: a phone zooms out to fit the 1600px slide, which inflates innerWidth
+const MQ = matchMedia('(orientation: portrait) and (max-width: 899px)'), MQR = matchMedia('(orientation: landscape) and (max-height: 499px)');
+function fit() {
+  // phones: a portrait column (opt-in per coach); a phone held sideways is asked to turn upright
+  M = !!CF.mobile && MQ.matches;
+  document.body.classList.toggle('m', M);
+  document.body.classList.toggle('rot', !!CF.mobile && MQR.matches);
+  W = innerWidth; H = innerHeight; DPR = Math.min(2, devicePixelRatio || 1);
+  cv.width = W * DPR; cv.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  $('#hint').innerHTML = M ? '<span id="mback" class="hit">← Back</span><span>Tap to continue</span>' : HINT;
+  $('#go').textContent = M ? 'Tap to begin →' : 'Click to begin →';
+  // with a persona switch the phone header is taller: the About and Do's pages start below it
+  if (M && CF.switch) document.documentElement.style.setProperty('--hdh', document.querySelector('header').getBoundingClientRect().height + 'px');
+  if (M) { camM(0); wiresLeft = 0; return; }
+  KS = Math.min(W / 1600, H / 900); KD = KS; OX = (W - 1600 * KS) / 2; OY = (H - 900 * KS) / 2;
+  stage.style.transform = `translate(${OX}px,${OY}px) scale(${KS})`;
+  wiresLeft = 30;
+}
+// phones: fit the layered space into the free part of the visual area (above a card or the legend), easing as it changes
+function camM(dt) {
+  const v = $('#vis').getBoundingClientRect(), panel = ['#cards', '#legend'].map(s => $(s)).find(el => el.classList.contains('on'));
+  const top = v.top + 6, bottom = panel ? panel.getBoundingClientRect().top - 10 : v.bottom - 6, h = Math.max(120, bottom - top);
+  const ks = Math.min(W / 860, h / 560), ox = W / 2 - 800 * ks, oy = top + h / 2 - 470 * ks;
+  const k = dt ? 1 - Math.exp(-dt * 5) : 1;
+  KS += (ks - KS) * k; OX += (ox - OX) * k; OY += (oy - OY) * k; KD = Math.max(KS, .62);
+}
+
+/* ================= state application ================= */
+const cls = (sel, c, on) => $(sel).classList.toggle(c, !!on);
+// camera per layer: start low and close on the dense floors, rise with each layer, end on the whole
+const CAM = {1: [.62, .82, -1.0, 790, 520], 2: [.44, .8, -.78, 790, 530], 3: [.4, .78, -.52, 790, 520], 4: [.37, .76, -.28, 790, 505],
+             5: [.4, .76, -.05, 790, 490], 6: [.44, .74, .12, 790, 470], 7: [.5, .7, 0, 840, 470]};
+function go(i) {
+  i = Math.max(0, Math.min(N - 1, i)); if (i === cur) return;
+  const prev = cur; cur = i; const st = STATES[i], now = performance.now();
+  // the lines drop from the transcript onto the floor
+  fly = null;
+  if (i === ST_L1 && prev === ST_L1 - 1)
+    fly = {t0: now, from: [...document.querySelectorAll('.ln')].map(el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r.width, r.height]; })};
+  flyF = null;
+  if (i === ST_L2 && prev === ST_CUE)
+    flyF = {t0: now, from: [...document.querySelectorAll('.fc')].map(el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r.width, r.height]; })};
+
+  cls('#hero', 'out', i > 0);
+  const cap = $('#cap');
+  cap.classList.add('out');
+  if (i > 0 && !st.fd && !st.ab) setTimeout(() => {
+    if (cur !== i) return;
+    $('#kick').textContent = `${pad(st.ch + 1)} · ${CH[st.ch]}`;
+    $('#title').innerHTML = st.t; $('#body').innerHTML = st.b; cap.classList.remove('out');
+  }, 380);
+  if (st.stat) { countTo(st.stat[0]); $('#unit').textContent = st.stat[1]; }
+  cls('#stat', 'hide', !st.stat);
+  $('#hint').style.opacity = i === N - 1 ? 0 : 1;
+  document.body.classList.toggle('final', st.lvl === 7);
+  cls('#fd', 'on', st.fd);
+  cls('#ab', 'on', st.ab);
+  document.querySelectorAll('#rail .ch').forEach((el, c) => { el.classList.toggle('on', c === st.ch); el.classList.toggle('done', c < st.ch); });
+  document.querySelectorAll('#rail i').forEach(el => { const k = +el.dataset.i; el.classList.toggle('on', k === i); el.classList.toggle('done', k < i); });
+
+  // ----- the window
+  const win = $('#win');
+  const shown = i >= 1 && i < ST_L1 && i !== ST_AB || i === ST_FR || i === ST_CUE;
+  win.classList.toggle('show', shown);
+  win.classList.toggle('gone', !shown && i > 0);
+  win.classList.toggle('narrow', i === ST_FR || i === ST_CUE);
+  $('#side').style.cssText = i <= 1 ? '' : 'width:0;padding:14px 0;opacity:0';
+  cls('#list', 'on', i === 1); cls('#docs', 'on', i > ST_AB);
+  $('#wtitle').textContent = i <= 1 ? CF.coach.slug : `${sess.date} · ${sess.title}.md`;
+  $('#status').textContent = i > ST_AB ? `${sess.kind} · ${day(sess.date)}` : '';
+  if (i === 1) runList(); else listAnim++;
+  const doc = $('#doc');
+  doc.classList.toggle('clean', i > ST_AB + 1); doc.classList.toggle('focus', i === ST_CUE);
+
+  // ----- right panels
+  cls('#frames', 'on', i === ST_FR || i === ST_CUE); cls('#frames', 'focus', i === ST_CUE);
+  for (let l = 1; l <= 6; l++) cls('#c' + l, 'on', st.lvl === l);
+  cls('#cards', 'on', st.lvl >= 1 && st.lvl <= 6);
+  cls('#legend', 'on', st.lvl === 7);
+  wiresLeft = 100;
+
+  // ----- canvas targets
+  const lv = st.lvl || 0, t = TG;
+  for (let l = 1; l <= 6; l++) { t['L' + l] = lv && l <= lv ? 1 : 0; t['E' + l] = lv && l <= lv && l > 1 ? 1 : 0; }
+  t.thrA = lv ? 1 : 0; thrUpTo = Math.min(lv, 6); cardLevel = lv >= 1 && lv <= 6 ? lv : 0;
+  t.spin = lv === 7 ? .07 : lv ? .02 : 0;
+  if (lv) { const [rx, zoom, ty, cx, cy] = CAM[lv]; Object.assign(t, {rx, zoom, ty, cx, cy}); }
+}
+
+let numCur = 0, numAnim = 0;
+function countTo(v) {
+  const from = numCur, t0 = performance.now(), id = ++numAnim;
+  const tick = now => {
+    if (id !== numAnim) return;
+    const p = Math.min(1, (now - t0) / 1100), e = 1 - Math.pow(1 - p, 3);
+    numCur = Math.round(from + (v - from) * e); $('#num').textContent = fmt(numCur);
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* the list scrolls through every source, then selects our session */
+let listAnim = 0;
+function runList() {
+  const rows = $('#lrows'), id = ++listAnim, t0 = performance.now();
+  rows.querySelectorAll('.sel').forEach(r => r.classList.remove('sel'));
+  const target = Math.max(0, Math.min(selIdx * 26 - 300, files.length * 26 - 556)), dur = 3600;
+  rows.style.transform = 'translateY(0)';
+  const tick = now => {
+    if (id !== listAnim || cur !== 1) return;
+    const p = Math.min(1, (now - t0) / dur), e = p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+    rows.style.transform = `translateY(${-e * target}px)`;
+    if (p < 1) requestAnimationFrame(tick);
+    else setTimeout(() => id === listAnim && rows.children[selIdx].classList.add('sel'), 250);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* wires: transcript lines -> frame cards */
+function wires() {
+  const svg = $('#wires'), fr = $('#frames'), on = cur === ST_FR || cur === ST_CUE;
+  const lineBox = {};
+  document.querySelectorAll('.ln').forEach(el => { const r = el.getBoundingClientRect(); lineBox[el.dataset.id] = ((r.top + r.bottom) / 2 - OY) / KS; });
+  const cards = [...fr.querySelectorAll('.fc')], frTop = 100;
+  let y = 0;
+  const pos = cards.map((el, k) => {
+    const h = el.offsetHeight || 54, a = lineBox[S.frames[k].from.at(-1)];
+    const want = a !== undefined ? a - frTop - h / 2 : y;
+    y = Math.max(want, y); const top = y; y += h + 6; return {top, h};
+  });
+  const over = y - 765;
+  if (over > 0) pos.forEach((p, k) => p.top -= over * k / Math.max(1, pos.length - 1));
+  cards.forEach((el, k) => { el.style.top = pos[k].top + 'px'; el.style.transitionDelay = (on && cur === ST_FR ? .25 + k * .1 : 0) + 's'; });
+  if (!svg.childElementCount) S.frames.forEach(f => f.from.forEach(() => svg.appendChild(document.createElementNS('http://www.w3.org/2000/svg', 'path'))));
+  let n = 0;
+  cards.forEach((el, k) => {
+    const f = S.frames[k], key = f.id === TH.cue || f.id === TH.move, ty = frTop + pos[k].top + pos[k].h / 2, tx = 1120;
+    f.from.forEach(id => {
+      const p = svg.children[n++], a = lineBox[id]; if (a === undefined) return;
+      const x0 = 1072, mx = (x0 + tx) / 2;
+      p.setAttribute('d', `M${x0},${a} C${mx},${a} ${mx},${ty} ${tx},${ty}`);
+      p.setAttribute('class', `wire${on ? ' on' : ''}${cur === ST_CUE ? (key ? ' key' : ' dim') : ''}`);
+      p.style.transitionDelay = (on && cur === ST_FR ? .35 + k * .1 : 0) + 's';
+    });
+  });
+}
+
+/* ================= canvas ================= */
+function project(x, y, z, out) {
+  const ry = rot + V.ry + drag, rx = V.rx, s = KS * 380 * V.zoom;
+  y -= V.ty;
+  const cy = Math.cos(ry), sy_ = Math.sin(ry), cx = Math.cos(rx), sx_ = Math.sin(rx);
+  const x1 = x * cy + z * sy_, z1 = -x * sy_ + z * cy;
+  const y2 = y * cx - z1 * sx_, z2 = y * sx_ + z1 * cx;
+  const p = 3.4 / (3.4 + z2);
+  out[0] = sx(V.cx) + x1 * p * s; out[1] = sy(V.cy) - y2 * p * s;
+  return out;
+}
+const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${n >> 8 & 255},${n & 255},${a})`; };
+const ease = t => t <= 0 ? 0 : t >= 1 ? 1 : t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const pt = [0, 0];
+const DOT = {1: 1.1, 2: 1.3, 3: 2.3, 4: 4, 5: 5.4, 6: 6};
+const ALPHA = {1: .5, 2: .55, 3: .8, 4: .9, 5: .9, 6: .95};
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  for (const k in TG) {
+    const rate = k[0] === 'L' ? 1.1 : k[0] === 'E' ? 1.4 : 2.6;
+    V[k] += (TG[k] - V[k]) * (1 - Math.exp(-dt * rate));
+  }
+  rot += dt * V.spin;
+  if (M) camM(dt);
+  else if (wiresLeft > 0) { wiresLeft--; wires(); }
+  ctx.clearRect(0, 0, W, H);
+  if ([1, 2, 3, 4, 5, 6].some(l => V['L' + l] > .005)) drawLayers(now);
+  requestAnimationFrame(frame);
+}
+
+function drawLayers(now) {
+  for (let l = 1; l <= 6; l++) {
+    if (V['L' + l] < .005) continue;
+    for (let i = off[l], e = off[l] + counts[l]; i < e; i++) { project(X[i], Y[i], Z[i], pt); PX[i] = pt[0]; PYs[i] = pt[1]; }
+  }
+  // floors
+  for (let l = 1; l <= 6; l++) {
+    const a = Math.min(1, V['L' + l] * 1.5); if (a < .01) continue;
+    const w = FLOOR[l], y = FY(l), cs = [[-w, -w], [w, -w], [w, w], [-w, w]].map(([x, z]) => project(x, y, z, [0, 0]));
+    ctx.beginPath(); cs.forEach((p, k) => k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath();
+    ctx.fillStyle = rgba(C[l], .04 * a); ctx.fill(); ctx.strokeStyle = rgba(C[l], .28 * a); ctx.lineWidth = 1; ctx.stroke();
+    const right = cs.reduce((m, p) => p[0] > m[0] ? p : m);
+    ctx.fillStyle = rgba(C[l], .9 * a); ctx.font = `600 ${M ? 9 : 10.5 * KS}px 'IBM Plex Mono',monospace`;
+    const lbl = `L${l} · ${NAMES[l].toUpperCase()}`, lx = right[0] + 12 * KD;
+    ctx.fillText(lbl, M ? Math.min(lx, W - 4 - ctx.measureText(lbl).width) : lx, right[1] + 4 * KD);
+  }
+  // links up into each layer, one path per layer
+  for (let l = 2; l <= 6; l++) {
+    const a = V['E' + l] * Math.min(V['L' + l], V['L' + (l - 1)]); if (a < .01 || !EDGE[l]) continue;
+    const E = EDGE[l], n = Math.floor(E.length / 2 * Math.min(1, a * 1.2));
+    ctx.strokeStyle = rgba(C[l], (l >= 5 ? .2 : l === 4 ? .13 : .07) * a); ctx.lineWidth = l >= 4 ? .8 : .5;
+    ctx.beginPath();
+    for (let k = 0; k < n; k++) { const p = E[2 * k], q = E[2 * k + 1]; ctx.moveTo(PX[p], PYs[p]); ctx.lineTo(PX[q], PYs[q]); }
+    ctx.stroke();
+  }
+  // atoms: each floor fills in as it appears
+  for (let l = 1; l <= 6; l++) {
+    const v = V['L' + l]; if (v < .005) continue;
+    const ord = ORDER[l], n = Math.floor(ord.length * Math.min(1, v * 1.15)), r = DOT[l] * KD;
+    ctx.fillStyle = rgba(C[l], ALPHA[l] * (cardLevel && cardLevel - l >= 2 ? .45 : 1));
+    if (l <= 3) for (let k = 0; k < n; k++) { const i = ord[k]; ctx.fillRect(PX[i] - r / 2, PYs[i] - r / 2, r, r); }
+    else {
+      ctx.strokeStyle = rgba(C[l], .3);
+      for (let k = 0; k < n; k++) {
+        const i = ord[k]; ctx.beginPath(); ctx.arc(PX[i], PYs[i], r, 0, 6.283); ctx.fill();
+        ctx.beginPath(); ctx.arc(PX[i], PYs[i], r + 3 * KD, 0, 6.283); ctx.stroke();
+      }
+    }
+  }
+  drawSession(now);
+  drawThread(now);
+}
+
+// the session's lines (and their frames) stay lit, so the eye can follow them
+function drawSession(now) {
+  const a1 = V.L1; if (a1 < .01) return;
+  SN.forEach((i, k) => {
+    let x = PX[i], y = PYs[i];
+    if (fly) {
+      const p = ease((now - fly.t0 - k * 55) / 1500), f = fly.from[k];
+      if (p < 1) {
+        x = f[0] + (x - f[0]) * p; y = f[1] + (y - f[1]) * p;
+        const w = f[2] + (5 * KD - f[2]) * p, h = f[3] + (5 * KD - f[3]) * p;
+        ctx.fillStyle = rgba(C[1], .16 + .5 * p); ctx.strokeStyle = rgba(C[1], .8); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(x - w / 2, y - h / 2, w, h, Math.min(7, h / 2)); ctx.fill(); ctx.stroke();
+        return;
+      }
+    }
+    ctx.fillStyle = rgba('#f6d48a', a1); ctx.beginPath(); ctx.arc(x, y, 2.6 * KD, 0, 6.283); ctx.fill();
+  });
+  if (V.L2 < .01) return;
+  SF.forEach((f, k) => {
+    let x = PX[f.node], y = PYs[f.node];
+    if (flyF) {
+      const p = ease((now - flyF.t0 - k * 55) / 1500), r = flyF.from[k];
+      if (p < 1) {
+        x = r[0] + (x - r[0]) * p; y = r[1] + (y - r[1]) * p;
+        const w = r[2] + (5 * KD - r[2]) * p, h = r[3] + (5 * KD - r[3]) * p;
+        ctx.fillStyle = rgba(C[2], .16 + .5 * p); ctx.strokeStyle = rgba(C[2], .85); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(x - w / 2, y - h / 2, w, h, Math.min(8, h / 2)); ctx.fill(); ctx.stroke();
+        return;
+      }
+    }
+    ctx.strokeStyle = rgba(C[2], .6 * V.L2); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(PX[f.from], PYs[f.from]); ctx.lineTo(x, y); ctx.stroke();
+    ctx.fillStyle = rgba('#9fe3da', V.L2); ctx.beginPath(); ctx.arc(x, y, 2.6 * KD, 0, 6.283); ctx.fill();
+  });
+}
+
+function drawThread(now) {
+  if (V.thrA < .02) return;
+  const pulse = .75 + .25 * Math.sin(now / 420), flying = (fly && now - fly.t0 < 2300) || (flyF && now - flyF.t0 < 2300);
+  ctx.lineWidth = 2 * KD;
+  for (const [a, b] of thrEdges) {
+    const lb = LAY[b]; if (lb > thrUpTo) continue;
+    const al = Math.min(V['L' + LAY[a]], V['L' + lb]) * V.thrA * (flyF && lb >= 2 ? ease((now - flyF.t0 - 1500) / 700) : 1);
+    ctx.strokeStyle = rgba('#f3ead9', .85 * al);
+    ctx.beginPath(); ctx.moveTo(PX[a], PYs[a]); ctx.lineTo(PX[b], PYs[b]); ctx.stroke();
+  }
+  for (const i of thr) {
+    const l = LAY[i]; if (l > thrUpTo || (flying && l === thrUpTo)) continue;
+    const al = V['L' + l] * V.thrA, big = l >= 4;
+    ctx.fillStyle = rgba(C[l], al); ctx.beginPath(); ctx.arc(PX[i], PYs[i], (big ? 7 : 4.5) * KD, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = rgba('#f3ead9', .95 * al); ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(PX[i], PYs[i], (big ? 11 : 9) * KD * pulse, 0, 6.283); ctx.stroke();
+  }
+  // leaders from this layer's thread atoms to its card
+  if (cardLevel && !flying) {
+    const r = $('#c' + cardLevel).getBoundingClientRect();
+    ctx.strokeStyle = rgba(C[cardLevel], .75 * V.thrA); ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+    thr.filter(i => LAY[i] === cardLevel).forEach((i, k) => {
+      ctx.beginPath(); ctx.moveTo(PX[i] + (M ? 0 : 10 * KS), PYs[i] + (M ? 10 * KD : 0));
+      if (M) ctx.lineTo(r.left + r.width * (.3 + k * .4), r.top - 6); else ctx.lineTo(r.left - 8, r.top + (cardLevel <= 2 ? 56 + k * 74 : 26) * KS);
+      ctx.stroke();
+    });
+    ctx.setLineDash([]);
+  }
+}
+
+/* ================= input ================= */
+let down = null, moved = false;
+addEventListener('pointerdown', e => { down = {x: e.clientX, d: drag}; moved = false; });
+addEventListener('pointermove', e => {
+  if (down && Math.abs(e.clientX - down.x) > 5 && STATES[cur].lvl) { moved = true; drag = down.d + (e.clientX - down.x) * .006; }
+  hover(e);
+});
+addEventListener('pointerup', e => {
+  const was = down; down = null;
+  if (!was || moved) return;
+  const dot = e.target.closest && e.target.closest('#rail i');
+  if (dot) { go(+dot.dataset.i); return; }
+  if (e.target.closest && e.target.closest('#mback, #fd .keys')) { go(cur - 1); return; }
+  const sw = e.target.closest && e.target.closest('#psw .ptab');
+  if (sw) { if (sw.getAttribute('aria-selected') !== 'true') location.replace(sw.dataset.href + '#' + Math.max(0, cur)); return; }
+  const ptab = e.target.closest && e.target.closest('#fd .ptab');
+  if (ptab) { showPersona(+ptab.dataset.p); return; }
+  const chip = e.target.closest && e.target.closest('#ab .chip');
+  if (chip) { chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true')); return; }
+  if (STATES[cur].fd) return;                  // reading the last page: clicks do not advance
+  go(cur + 1);
+});
+addEventListener('keydown', e => {
+  if (['ArrowRight', ' ', 'Enter', 'PageDown'].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+  if (['ArrowLeft', 'Backspace', 'PageUp'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+  if (e.key === 'Home') go(0);
+});
+const tip = $('#tip');
+function hover(e) {
+  if (M || STATES[cur].lvl !== 7 || down) { tip.style.opacity = 0; return; }
+  let best = -1, bd = 12 * 12;
+  for (let i = off[3]; i < NN; i++) { const dx = PX[i] - e.clientX, dy = PYs[i] - e.clientY, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = i; } }
+  if (best < 0) { tip.style.opacity = 0; return; }
+  const l = LAY[best];
+  tip.innerHTML = `<small style="color:${C[l]}">L${l} · ${NAMES[l]}</small>${esc(LBL(best))}`;
+  tip.style.left = Math.min(W - 380, e.clientX + 16) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; tip.style.opacity = 1;
+}
+addEventListener('resize', fit);
+MQ.addEventListener && MQ.addEventListener('change', fit);
+fit(); requestAnimationFrame(fit);
+go(+location.hash.slice(1) || 0);
+addEventListener('hashchange', () => go(+location.hash.slice(1) || 0));
+requestAnimationFrame(frame);
+if (document.fonts) document.fonts.ready.then(() => { wiresLeft = 30; });
+})();
+</script>
+</body>
+</html>

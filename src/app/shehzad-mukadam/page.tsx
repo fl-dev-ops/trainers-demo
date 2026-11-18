@@ -36,6 +36,19 @@ export default function Welcome() {
         </div>
         <div className="paths">
           <article className="path">
+            <div className="peek peek--fig peek--pyr" aria-hidden="true">
+              <img src="/media/shehzad-mukadam-pyramid.jpg" alt="" />
+              <span className="peek-k">Coaching methodology</span>
+            </div>
+            <div className="path-b">
+              <h2>Your coaching method, which the twin learns from</h2>
+              <p>See how the twin was built from {SHEHZAD_MUKADAM.firstName}’s coaching, layer by layer.</p>
+              <div className="row">
+                <Link href="/shehzad-mukadam/methodology" className="btn btn--strong card-link">See how it learns</Link>
+              </div>
+            </div>
+          </article>
+          <article className="path">
             <TwinNotebook trainer={{ ...SHEHZAD_MUKADAM, portrait: SHEHZAD_MUKADAM.face }} livePath="/shehzad-mukadam/live" plain notes={[{ label: 'Text', query: { mode: 'text' } }, { label: 'Voice', query: { mode: 'voice' } }, { label: 'Video', query: {} }]} />
             <div className="path-b">
               <h2>Ask {SHEHZAD_MUKADAM.firstName}’s twin live</h2>
