@@ -487,7 +487,7 @@ CLIVE_MILLER.sources = [
   ]],
 ]
 
-SHEHZAD_MUKADAM.sourceSummary = '289 LinkedIn posts · 125 Instagram posts and reels'
+SHEHZAD_MUKADAM.sourceSummary = '289 LinkedIn posts · 118 Instagram posts and reels'
 SHEHZAD_MUKADAM.sources = [
   ['LinkedIn', '289 posts', [
     ['Shehzad Mukadam on LinkedIn', 'His own posts, 2024 to 2026'],
