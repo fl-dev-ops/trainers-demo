@@ -6,11 +6,6 @@ import TrustFooter from '@/components/TrustFooter.jsx'
 import { RoleplayPair, TwinNotebook } from '@/components/ProfileCards.jsx'
 import { Sparkle } from '@/components/Icons.jsx'
 
-const QUESTIONS = [
-  'I have just been appointed CEO. What matters most in my first 90 days?',
-  'How do I know if I have the right leadership team?',
-]
-
 export default function Welcome() {
   return (
     <section className="wrap">
@@ -39,10 +34,10 @@ export default function Welcome() {
             </div>
           </article>
           <article className="path">
-            <TwinNotebook trainer={TONY_LATIMER} livePath="/tony-latimer/live" questions={QUESTIONS} />
+            <TwinNotebook trainer={TONY_LATIMER} livePath="/tony-latimer/live" plain notes={[{ label: 'Text', query: { mode: 'text' } }, { label: 'Voice', query: { mode: 'voice' } }, { label: 'Video', query: {} }]} />
             <div className="path-b">
               <h2>Ask {TONY_LATIMER.firstName}’s twin live</h2>
-              <p>Pick a post-it to start a conversation, or ask your own question.</p>
+              <p>Choose how to talk with {TONY_LATIMER.firstName}’s twin: text, voice or video.</p>
               <div className="row">
                 <Link href="/tony-latimer/live" className="btn btn--strong card-link">Start asking</Link>
                 <span className="meta">{TONY_LATIMER.room.kind}</span>
