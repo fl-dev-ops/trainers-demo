@@ -179,6 +179,23 @@ export const CLIVE_MILLER = {
   },
 }
 
+export const SHEHZAD_MUKADAM = {
+  id: 'shehzad-mukadam',
+  name: 'Shehzad Mukadam',
+  // The agent answers the welcome-page starter as the first message (needs starter_reply in agents.json).
+  starterInRoom: true,
+  firstName: 'Shehzad',
+  initials: 'SM',
+  participantName: 'User', // the learner's tile label in the live room (default is 'Candidate')
+  face: '/media/shehzad-mukadam-headshot.jpg',
+  portrait: '/media/shehzad-mukadam-portrait.jpg',
+  room: {
+    kind: 'Ask me anything · Demo',
+    title: 'Ask about sales training and leadership',
+    scenario: 'Shehzad’s AI twin will help you with sales training that sticks, leading and coaching managers, handling objections and building trust with clients. It was made only for this demo and is not a replacement for Shehzad.',
+  },
+}
+
 export const TONY_LATIMER = {
   id: 'tony-latimer',
   name: 'Tony Latimer',
@@ -467,5 +484,15 @@ CLIVE_MILLER.sources = [
   ]],
   ['LinkedIn', '18 posts', [
     ['Clive Miller on LinkedIn', 'His own posts, 2025 to 2026'],
+  ]],
+]
+
+SHEHZAD_MUKADAM.sourceSummary = '289 LinkedIn posts · 125 Instagram posts and reels'
+SHEHZAD_MUKADAM.sources = [
+  ['LinkedIn', '289 posts', [
+    ['Shehzad Mukadam on LinkedIn', 'His own posts, 2024 to 2026'],
+  ]],
+  ['Instagram', '125 posts and reels', [
+    ['@lifebyshehzad', 'His own reels and posts, 2025 to 2026'],
   ]],
 ]
