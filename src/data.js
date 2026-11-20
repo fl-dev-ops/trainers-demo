@@ -213,6 +213,23 @@ export const NATALIE_SEREBRENNIK = {
   },
 }
 
+export const SHELLEY_WALTERS = {
+  id: 'shelley-walters',
+  name: 'Shelley Walters',
+  // The agent answers the welcome-page starter as the first message (needs starter_reply in agents.json).
+  starterInRoom: true,
+  firstName: 'Shelley',
+  initials: 'SW',
+  participantName: 'User', // the learner's tile label in the live room (default is 'Candidate')
+  face: '/media/shelley-walters-headshot.jpg',
+  portrait: '/media/shelley-walters-portrait.jpg',
+  room: {
+    kind: 'Ask me anything · Demo',
+    title: 'Ask about B2B sales and sales leadership',
+    scenario: 'Shelley’s AI twin will help you with building confidence in sales, managing your pipeline, coaching your sales team and winning bigger B2B deals. It was made only for this demo and is not a replacement for Shelley.',
+  },
+}
+
 export const TONY_LATIMER = {
   id: 'tony-latimer',
   name: 'Tony Latimer',
@@ -527,5 +544,22 @@ NATALIE_SEREBRENNIK.sources = [
   ]],
   ['Website', '29 pages', [
     ['natalieserebrennik.com', 'Coaching, services, guides and blog'],
+  ]],
+]
+
+SHELLEY_WALTERS.sourceSummary = '22 videos and podcasts · 80 LinkedIn posts · 77 website pages'
+SHELLEY_WALTERS.sources = [
+  ['YouTube', '20 videos and 2 podcast interviews', [
+    ['You don’t make a sale, you build a sale', 'Speaking Business podcast, 2022'],
+    ['The Future of Sales and Selling', 'Future-Fit Fridays podcast, 2021'],
+    ['Empathy, accountability and commercial …', 'Long interview, 2026'],
+    ['Most sales meetings fail: these 4 fixes', 'Her own video, 2026'],
+    ['Negotiate like a pro', 'Her own short series, 2024'],
+  ]],
+  ['LinkedIn', '80 posts', [
+    ['Shelley Walters on LinkedIn', 'Her own posts, 2024 to 2026'],
+  ]],
+  ['Website', '77 pages', [
+    ['thesalescounsel.online and shelleywalters.com', 'Courses, programmes, keynotes and blog'],
   ]],
 ]

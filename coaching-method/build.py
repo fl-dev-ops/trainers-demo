@@ -319,6 +319,14 @@ def build_story(cfg, C):
         win = turns[w0:w0 + len(frames_cfg)]
         if len(win) < len(frames_cfg):
             die('session.frames has more entries than turns left in the transcript.')
+        trim = sess_cfg.get('trim') or {}   # optional: {frame index: phrase}; that turn is shown from the phrase on (a question buried in a long turn)
+        if trim:
+            win = [dict(t) for t in win]
+            for k, phrase in trim.items():
+                i = win[int(k)]['text'].lower().find(str(phrase).lower())
+                if i < 0:
+                    die(f'session.trim phrase not found in turn {k}: {phrase}')
+                win[int(k)]['text'] = win[int(k)]['text'][i:]
         sess_full = win
     other = sess_cfg['other']
 
