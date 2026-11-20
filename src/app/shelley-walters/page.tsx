@@ -2,8 +2,20 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { SHELLEY_WALTERS } from '@/data.js'
 import TrustFooter from '@/components/TrustFooter.jsx'
-import { TwinNotebook } from '@/components/ProfileCards.jsx'
+import { RoleplayPair, TwinNotebook } from '@/components/ProfileCards.jsx'
 import { LinkedIn, Sparkle, YouTube } from '@/components/Icons.jsx'
+
+const DASH = 'https://dash.roleplay.foreverlearning.in/agents/'
+
+/* Shelley's role play on the role-play dashboard. Third person. */
+const ROLE_PLAYS = [
+  {
+    slug: 'the-deal-that-s-with-the-decision-maker',
+    title: 'The deal that’s with the decision maker',
+    coachee: { role: 'Sales manager', text: 'A sales manager of a six-person B2B software team in Johannesburg, running the Monday commit review one to one with a senior account executive.', practises: ['Validating the decision maker', 'Agreeing a dated next step'] },
+    persona: { role: 'Senior account executive', name: 'Ryan Mitchell', photo: '/media/shelley-roleplay-ryan.jpg', behaviour: ['Warm but Cautious'], speaking: ['Casual', 'Medium answers'], text: 'Senior account executive at a Johannesburg software company that sells warehouse management systems. Hits his number most quarters, likes to be liked, and is quick with good news.' },
+  },
+]
 
 export default function Welcome() {
   return (
@@ -48,6 +60,18 @@ export default function Welcome() {
               </div>
             </div>
           </article>
+          {ROLE_PLAYS.map((r) => (
+            <article key={r.slug} className="path path--wide">
+              <RoleplayPair coachee={r.coachee} persona={r.persona} />
+              <div className="path-b">
+                <h2>{r.title}</h2>
+                <div className="row">
+                  <a href={DASH + r.slug} target="_blank" rel="noopener noreferrer" className="btn btn--strong card-link">Start the role play</a>
+                  <span className="meta">Opens the role-play app</span>
+                </div>
+              </div>
+            </article>
+          ))}
         </div>
         <TrustFooter twin={SHELLEY_WALTERS} />
       </div>
