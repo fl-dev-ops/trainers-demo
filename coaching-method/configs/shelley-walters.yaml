@@ -1,0 +1,135 @@
+# Shelley Walters. Build with:
+#   python build.py build shelley-walters
+# Source: lore users/shelley-walters: 20 YouTube transcripts, 2 podcast guest appearances, 80 LinkedIn posts, 77 website pages.
+# Exchange: Speaking Business podcast, 14 June 2022 (speakingbusiness.libsyn.com), host Maria Franzoni, transcript turns 54-59.
+# Maria asks what sets seasoned sales professionals apart; Shelley names her framework (clarity, conviction, competency).
+# Picked by Lalith. The index already titles this passage "The Three Pillars of Sales Confidence: Clarity, Conviction, and
+# Competency". Pronouns she/her/her.
+
+coach:
+  slug: shelley-walters
+  name: Shelley
+  full_name: Shelley Walters
+  pronouns: [she, her, her]
+
+mobile: true
+
+session:
+  file: youtube-guests/video/2022-06-14-you-don-t-make-a-sale-you-build-a-sale-with-shelley-walters-speakingbusiness-shelley-walters.md
+  kind: Podcast · Speaking Business
+  start: listen its a podcast on its own
+  coach_speaker: speaker_2
+  other: Maria
+  other_role: Host
+  cue: 0
+  move: 1
+  trim:
+    0: Give me a couple of attributes
+  frames:
+    - ["question", "asking what sets real seasoned sales professionals apart from the rest"]
+    - ["reframe", "answering that it is a broad question, and naming her framework: clarity, conviction and competency"]
+    - ["acknowledgment", "loving the line that you don’t make a sale, you build a sale, and asking for one last piece of advice"]
+    - ["story", "saying revenue is the scorecard and advising to get busy helping and to manage the process like a professional"]
+    - ["question", "checking back: so you manage the process"]
+    - ["reframe", "sharpening it: your sales manager should never tell you a weakness you don’t already know"]
+
+thread:
+  situation: closing-skills-over-confidence
+  situation_label: a seller who thinks closing skills are what set top performers apart
+  topic: sales-effectiveness
+  phase: 3
+  belief: 0
+
+default_phase: 2
+phases:
+  - title: Get clear
+    keywords: [clarity, customer, territory, targeting, ideal, accounts, stakeholder, stakeholders, research, planning, prospecting, positioning]
+  - title: Build conviction
+    keywords: [conviction, confidence, mindset, purpose, belief, motivation, growth, resilience, energy, focus, productivity]
+  - title: Build competency
+    keywords: [competency, skills, skill, training, questioning, listening, objection, objections, negotiation, presentation, pitching, closing]
+  - title: Find the gaps in your process
+    keywords: [pipeline, forecasting, process, conversion, metrics, indicators, qualification, deal, deals, reporting, data, measurement]
+  - title: Lead the team
+    keywords: [leadership, manager, managers, management, coaching, accountability, cadence, meetings, culture, enablement]
+  - title: Adapt to change
+    keywords: [change, digital, remote, virtual, technology, disruption, automation, social, ai, resilience, loadshedding]
+
+beliefs:
+  - {title: You build a sale, text: 'You don’t make a sale, you build a sale.', phases: [3, 2]}
+  - {title: A dial, not a switch, text: 'We’re a dial, not a switch.', phases: [1, 0]}
+  - {title: Know your own weakness, text: 'Your sales manager should never tell you something about your weaknesses that you don’t know.', phases: [3, 4]}
+  - {title: Revenue is the scorecard, text: 'In sales the scorecard is revenue.', phases: [3, 2]}
+  - {title: Training is not the fix, text: 'Very often training is not the solution.', phases: [4, 3]}
+  - {title: Build on a foundation, text: 'Training works when it is laid onto a solid foundation.', phases: [4, 2]}
+
+steps:
+  collect: "We read {youtube} of her videos and podcast interviews, {linkedin} of her LinkedIn posts and {web} pages of her websites: <em>{words} words across {lines} lines.</em> From this collection, we follow one podcast, where the host asks what sets seasoned sales professionals apart."
+  transcript: ["A recording becomes text", "The podcast is transcribed word for word. At first, it is simply a record of who said what."]
+  trace: ["One answer becomes a principle", "We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the exact moment Shelley answered the host."]
+  speakers: ["Who said what", "We separate the host’s questions from Shelley’s answers, and mark the question she answers."]
+  layer1: "The host asks: <em>&ldquo;What sets real seasoned professionals apart from the rest?&rdquo;</em> Shelley&rsquo;s answer comes straight after. These exact lines are the evidence for everything that follows."
+  meaning: "The host expects a list of skills. Shelley says it is a broad question, names the framework she uses, and says closing skills are not the whole answer."
+  cue: "Asked what sets professionals apart, Shelley answers, <em>&ldquo;We have a framework that we use &hellip; clarity, conviction and competency.&rdquo;</em>"
+  layer2: "She turns a question about skills into a framework of three parts, and then into a habit of checking your own data. The response stays linked to the exact moment."
+  layer3: "A seller wants to know what sets top performers apart, and assumes the answer is better closing skills. In Shelley’s material this shows up as <em>a seller who thinks closing skills are what set top performers apart</em>."
+  layer4: "Shelley keeps coming back to confidence built on three things. Clarity, conviction and competency appear in 3 of her sources, from 2022 to 2025, and the habit of finding the weak stage in your process comes back in 2026."
+  layer5: "The purpose is to move sellers from &ldquo;what do I need to close more deals?&rdquo; to &ldquo;I know exactly where my process is weakest&rdquo;."
+  layer6: "<em>You don&rsquo;t make a sale, you build a sale.</em> This is the principle behind Shelley&rsquo;s answer."
+
+cards:
+  layer1:
+    cue: "Give me a couple of attributes, skills, actions: what it is that sets real seasoned professionals apart from the rest?"
+    move: "So Maria, it’s a broad question, but I’m going to answer it this way. We have a framework that we use &hellip; we don’t make a sale, you build a sale &hellip; the one is we’ve got to have absolute clarity &hellip; the second is conviction &hellip; and the final one is competency."
+    foot: Two exact lines &middot; two speakers &middot; back to back
+  layer2:
+    cue: Asks what sets seasoned sales professionals apart
+    move: Names a framework of three parts, not a list of skills
+  layer3:
+    title: Closing skills versus confidence
+    text: The seller assumes the answer is better closing. Shelley says that is only one part of it.
+    foot: Situation in {his} material &middot; from this podcast
+  layer4:
+    title: Build confidence on three things
+    text: Shelley keeps coming back to clarity, conviction and competency, and to finding your weak spot in your own numbers.
+    foot: Recurring pattern &middot; the 3 Cs in 3 sources, 2022 to 2025
+  layer5:
+    title: Know exactly where you are weakest
+    text: Stop chasing closing tricks. Look at your own conversions, find where deals fall through, and work on that.
+    starts: '&ldquo;What do I need to close more deals?&rdquo;'
+    moves_to: '&ldquo;I know where my process is weakest, and I&rsquo;m working on it&rdquo;'
+  layer6:
+    quote: You don’t make a sale, you build a sale.
+    text: 'The same idea runs through her work: <em>&ldquo;Your sales manager should never tell you something about your weaknesses that you don&rsquo;t know.&rdquo;</em>'
+
+about:
+  sources:
+    - ["YouTube", "Videos and podcast interviews", "{youtube} videos and podcasts"]
+    - ["LinkedIn", "in/shelley-walters", "{linkedin} posts"]
+    - ["Website", "thesalescounsel.online and shelleywalters.com", "{web} pages"]
+  # Standard from 17 Nov 2026: 3-4 "who you are" and 3-4 "who you are not" tags per row, each side with evidence.
+  # Row = [label, [[tag, 1], ...] is, [[tag, 0], ...] is not, evidence for "is", evidence for "is not"].
+  rows:
+    - ["Type of coach", [["Sales speaker", 1], ["Sales trainer", 1], ["Revenue consultant", 1], ["Sales leadership coach", 1]], [["A feel-good motivator", 0], ["A training-only vendor", 0], ["Theory from the sidelines", 0]], "your LinkedIn headline: “I help B2B sales leaders win the deals that change their year | CEO, The Sales Counsel | Keynote Speaker” · three ways of working: keynote, revenue consulting, enablement and training", "“we’re not Pollyannas” (Speaking Business) · “very often training is not the solution” (March 2026 video) · “built on real commercial work, not theory from the sidelines” (your LinkedIn About)"]
+    - ["Region", [["Johannesburg", 1], ["South Africa", 1], ["Africa", 1], ["Five continents", 1]], [["US-based", 0], ["UK-based", 0], ["Local only", 0]], "LinkedIn: Johannesburg Metropolitan Area · “26 years in B2B sales across five continents” (your website) · clients include Mercedes-Benz Commercial Vans and the JSE", "your location is Johannesburg, not the US or the UK · you have delivered to “over 20,000 delegates across five continents” (your Growth Lab page)"]
+    - ["Who you coach", [["B2B sales leaders", 1], ["Sales managers", 1], ["B2B sales teams", 1], ["CEOs and commercial leaders", 1]], [["B2C sellers", 0], ["Teams that only want motivation", 0], ["Anyone wanting a one-off event", 0]], "“I help B2B sales leaders win the deals that change their year” · the Sales Leadership Growth Lab for sales managers · revenue consulting “for CEOs, Sales Directors and commercial leaders”", "every offer on your site is B2B · “not just attend training, not just enjoy a workshop, sell better” (your LinkedIn About) · “we’re not here to hold each other’s hands” (Speaking Business)"]
+    - ["How you deliver", [["Keynotes", 1], ["Revenue consulting", 1], ["Online courses and a remote selling school", 1], ["A cohort programme for sales managers", 1]], [["One size fits all", 0], ["Training without field practice", 0], ["Opinion-only assessment", 0]], "“Keynote Speaking, Revenue Consulting, Sales Enablement & Training” · “Africa’s first CPD-accredited remote selling school” · the Sales Leadership Growth Lab, with a field challenge on real pipeline", "“bespoke, modular programmes for the way B2B sales teams actually work” · “every assignment is revenue-linked” · the Sales Capability Star compares what each person thinks of themselves with what their manager sees"]
+    - ["Your topics", [["Sales leadership and coaching", 1], ["Pipeline and forecasting", 1], ["Confidence: clarity, conviction, competency", 1], ["Negotiation and objections", 1]], [["Closing tricks", 0], ["Selling at all costs", 0], ["Judging yourself by gut feel", 0]], "pipeline in 33 of your sources, sales managers in 21, negotiation in 15, confidence in 25", "“most people are focusing on closing, closing, closing” · the old double-glazing salesman who “made a sale at all costs” · “we tend to be our own accountants and auditors … we cannot afford to be subjective” (all Speaking Business)"]
+    - ["Named frameworks", [["Clarity, conviction, competency", 1], ["A dial, not a switch", 1], ["The Sales Capability Star", 1], ["The Sales Leadership Growth Lab", 1]], [["Closing scripts", 0], ["Binary thinking", 0], ["Training with no diagnosis", 0]], "the 3 Cs in your keynote page, the podcast and a January 2025 post · “we’re a dial, not a switch” (podcast) · the Star and the Growth Lab on thesalescounsel.online", "“we think about ourselves in binary terms, but the truth is we’re on a continuum” · “you’ve got to go back to your sales process and look at your conversions” before you train anyone"]
+    - ["Your style", [["Metaphor-led", 1], ["Credits her sources", 1], ["Numbers first", 1], ["Practical", 1]], [["Pollyanna positivity", 0], ["Preachy", 0], ["Gut-feel advice", 0]], "two boxers, the cave and the sandwich, the used-car salesman · Simon Sinek, JB Woods and a rabbi’s lecture named in the podcast · “revenue is the metric”", "“we’re not Pollyannas” · her advice is a step to do (“go back to your sales process and look at your conversions”) · “we cannot afford to simply just be subjective”"]
+
+dd_lead: Shelley's twin follows these in every answer. They come from patterns that run through her talks, posts and websites.
+dos:
+  - ["get absolute clarity on who the customer is and what they want to hear", "Speaking Business · clarity"]
+  - ["build the seller’s conviction in why the company does what it does", "Speaking Business · conviction"]
+  - ["look at your conversions and find where deals fall through", "Speaking Business · competency"]
+  - ["learn active listening and how to ask really good questions", "Speaking Business · skills beyond closing"]
+  - ["manage the sales process like a professional, not a hobby", "Speaking Business · the process"]
+  - ["lay training onto a foundation of accountability and support", "LinkedIn video · March 2026 meetings"]
+donts:
+  - ["chase a sale at all costs", "Speaking Business · the used-car salesman"]
+  - ["focus only on closing, closing, closing", "Speaking Business · skills"]
+  - ["let your manager tell you a weakness you don’t already know", "Speaking Business · the process"]
+  - ["run around doing the customer’s bidding without challenging them", "Speaking Business · relationship sellers"]
+  - ["judge your own skills by gut feel", "Speaking Business · accountants and auditors"]
+  - ["expect training alone to fix a stalled pipeline", "LinkedIn video · March 2026 meetings"]
