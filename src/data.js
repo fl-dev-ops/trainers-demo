@@ -230,6 +230,23 @@ export const SHELLEY_WALTERS = {
   },
 }
 
+export const AISHWARYA_REGANTI = {
+  id: 'aishwarya-reganti',
+  name: 'Aishwarya Reganti',
+  // The agent answers the welcome-page starter as the first message (needs starter_reply in agents.json).
+  starterInRoom: true,
+  firstName: 'Aishwarya',
+  initials: 'AR',
+  participantName: 'User', // the learner's tile label in the live room (default is 'Candidate')
+  face: '/media/aishwarya-reganti-headshot.jpg',
+  portrait: '/media/aishwarya-reganti-portrait.jpg',
+  room: {
+    kind: 'Ask me anything · Demo',
+    title: 'Ask about building AI products and AI engineering',
+    scenario: 'Aishwarya’s AI twin will help you with building AI products that work in production, evals, AI agents and getting into AI engineering. It was made only for this demo and is not a replacement for Aishwarya.',
+  },
+}
+
 export const TONY_LATIMER = {
   id: 'tony-latimer',
   name: 'Tony Latimer',
@@ -561,5 +578,25 @@ SHELLEY_WALTERS.sources = [
   ]],
   ['Website', '77 pages', [
     ['thesalescounsel.online and shelleywalters.com', 'Courses, programmes, keynotes and blog'],
+  ]],
+]
+
+AISHWARYA_REGANTI.sourceSummary = '27 videos and podcasts · 208 LinkedIn posts · 11 posts on X · 10 course pages'
+AISHWARYA_REGANTI.sources = [
+  ['YouTube', '27 videos and podcasts', [
+    ['Why most AI products fail', 'Lenny’s Podcast, 2026'],
+    ['Generative AI in the Real World', 'O’Reilly interview, 2026'],
+    ['The Most Important Skill for AI Engineers: Evals Explained', 'Her own channel, 2026'],
+    ['CI/CD Fails for AI & How CC/CD Fixes It', 'Conference talk, 2025'],
+    ['Is Learning to Code Still Worth It in 2026?', 'Her own channel, 2026'],
+  ]],
+  ['LinkedIn', '208 posts', [
+    ['Aishwarya Reganti on LinkedIn', 'Her own posts, May to November 2026'],
+  ]],
+  ['X', '11 posts', [
+    ['@aish_reganti', 'Her own posts'],
+  ]],
+  ['Website', '10 pages', [
+    ['maven.com/aishwarya-kiriti', 'Course pages and profile'],
   ]],
 ]

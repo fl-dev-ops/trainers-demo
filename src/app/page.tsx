@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ANTONI, BEVAN_BROADBENT, CLIVE_MILLER, DARREN_MITCHELL, FLO_AKINBIYI, GOPAL_RAJGURU, JAMEEL, JOHNNY_DANIELE, MARCUS_CAUCHI, PRATHOSH, SEAN_WEAFER, NATALIE_SEREBRENNIK, SHEHZAD_MUKADAM, SHELLEY_WALTERS, TONY_LATIMER, TWIN } from '../data.js'
+import { ANTONI, BEVAN_BROADBENT, CLIVE_MILLER, DARREN_MITCHELL, FLO_AKINBIYI, GOPAL_RAJGURU, JAMEEL, JOHNNY_DANIELE, MARCUS_CAUCHI, PRATHOSH, SEAN_WEAFER, NATALIE_SEREBRENNIK, SHEHZAD_MUKADAM, SHELLEY_WALTERS, AISHWARYA_REGANTI, TONY_LATIMER, TWIN } from '../data.js'
 
 export const metadata: Metadata = {
   title: 'Trainer demos · TrainerTwin',
@@ -293,6 +293,24 @@ export default function Home() {
               <div className="row">
                 <Link href="/shelley-walters" className="btn btn--strong">
                   Explore Shelley’s demo
+                </Link>
+              </div>
+            </div>
+          </article>
+          <article className="path">
+            <div className="path-b">
+              <Image
+                src={AISHWARYA_REGANTI.face}
+                alt={AISHWARYA_REGANTI.name}
+                width={76}
+                height={76}
+                style={{ borderRadius: '50%', objectFit: 'cover' }}
+              />
+              <h2>{AISHWARYA_REGANTI.name}</h2>
+              <p>Ask Aishwarya’s AI twin about building AI products that work in production, evals and AI agents.</p>
+              <div className="row">
+                <Link href="/aishwarya-reganti" className="btn btn--strong">
+                  Explore Aishwarya’s demo
                 </Link>
               </div>
             </div>
