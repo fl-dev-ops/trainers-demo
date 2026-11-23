@@ -243,6 +243,19 @@ export const TONY_LATIMER = {
   },
 }
 
+export const AISHWARYA_REGANTI = {
+  id: 'aishwarya-reganti',
+  name: 'Aishwarya Reganti',
+  firstName: 'Aishwarya',
+  initials: 'AR',
+  face: '/media/aishwarya-reganti-face.svg',
+  room: {
+    kind: 'Ask me anything in Slack · Demo',
+    title: 'Ask about building AI',
+    scenario: 'Aishwarya’s AI twin answers questions about AI engineering, evals, agents and AI careers inside your Slack. It is a demo and not a replacement for Aishwarya.',
+  },
+}
+
 export const SOURCES = [
   ['YouTube', '108 videos · 211 Shorts', [
     ['Dubai 2008 vs 2026: Is 2008 Happening Again?', '134K views'],
@@ -562,4 +575,20 @@ SHELLEY_WALTERS.sources = [
   ['Website', '77 pages', [
     ['thesalescounsel.online and shelleywalters.com', 'Courses, programmes, keynotes and blog'],
   ]],
+]
+
+/* Sources for Aishwarya: her own posts and videos, and only her lines in podcasts. Maven pages co-written with Kiriti Badam are left out. */
+AISHWARYA_REGANTI.sourceSummary = '27 YouTube videos · 208 LinkedIn posts · 11 posts on X'
+AISHWARYA_REGANTI.sources = [
+  ['YouTube', '27 videos · 23 solo, 4 podcasts', [
+    ['Is RAG Dead? How Top Companies Build in 2026 Explained', 'Solo video'],
+    ['The Most Important Skill for AI Engineers: Evals Explained', 'Solo video'],
+    ['Stop Building AI Like Traditional Software', 'Talk'],
+    ['Becoming an AI Engineer in 2026', 'Podcast · her own lines only'],
+  ]],
+  ['LinkedIn', '208 posts · May to Nov 2026', [
+    ['A humble request to aspiring AI engineers', 'Nov 2026'],
+    ['How do you slash token costs by up to 70%', 'Oct 2026'],
+  ]],
+  ['X', '11 posts', [['@aish_reganti', 'Her own posts']]],
 ]

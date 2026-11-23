@@ -1,0 +1,40 @@
+{
+  "display_information": {
+    "name": "Aishwarya's AI Twin",
+    "description": "Ask Aishwarya Reganti's AI twin about AI engineering, evals, agents and AI careers.",
+    "background_color": "#4a2c5a",
+    "long_description": "An AI twin of Aishwarya Reganti, Founder and CEO of LevelUp Labs, built only from her own LinkedIn posts and YouTube videos. @mention it in a channel to get an answer in a thread, or send it a direct message. It is a demo by TrainerTwin and not a replacement for Aishwarya."
+  },
+  "features": {
+    "app_home": {
+      "home_tab_enabled": false,
+      "messages_tab_enabled": true,
+      "messages_tab_read_only_enabled": false
+    },
+    "bot_user": {
+      "display_name": "Aishwarya's twin",
+      "always_online": true
+    }
+  },
+  "oauth_config": {
+    "scopes": {
+      "bot": [
+        "app_mentions:read",
+        "chat:write",
+        "channels:history",
+        "groups:history",
+        "im:history",
+        "users:read"
+      ]
+    }
+  },
+  "settings": {
+    "event_subscriptions": {
+      "request_url": "https://trainers.trainertwin.com/api/slack/aishwarya-reganti",
+      "bot_events": ["app_mention", "message.im"]
+    },
+    "org_deploy_enabled": false,
+    "socket_mode_enabled": false,
+    "token_rotation_enabled": false
+  }
+}
