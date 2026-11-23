@@ -33,6 +33,13 @@ async function slack(method: string, args: Record<string, string | number | unde
 
 const clean = (text = '') => text.replace(/<@[A-Z0-9]+>/g, '').trim()
 
+/* Where the bot may answer. Set SLACK_AISHWARYA_ALLOWED_CHANNELS to one or more channel IDs (comma separated, e.g. C0123ABCD)
+   and it ignores @mentions everywhere else. Direct messages are then off unless SLACK_AISHWARYA_ALLOW_DMS is "true".
+   With the variable empty the bot answers everywhere it has been added, as before. */
+const ALLOWED_CHANNELS = (process.env.SLACK_AISHWARYA_ALLOWED_CHANNELS || '').split(',').map((c) => c.trim()).filter(Boolean)
+const channelAllowed = (channel: string) => ALLOWED_CHANNELS.length === 0 || ALLOWED_CHANNELS.includes(channel)
+const dmsAllowed = () => ALLOWED_CHANNELS.length === 0 || process.env.SLACK_AISHWARYA_ALLOW_DMS === 'true'
+
 /* The thread so far, oldest first, so follow-up questions keep their context. */
 async function threadTurns(channel: string, threadTs: string, botUserId: string): Promise<Turn[]> {
   const { messages } = await slack('conversations.replies', { channel, ts: threadTs, limit: 20 })
@@ -82,9 +89,9 @@ export async function POST(req: Request) {
   const fromBot = Boolean(event.bot_id) || event.user === botUserId || Boolean(event.subtype)
 
   if (!fromBot && event.type === 'app_mention' && !String(event.channel).startsWith('D')) {
-    after(() => answer(event, botUserId, true))
+    if (channelAllowed(String(event.channel))) after(() => answer(event, botUserId, true))
   } else if (!fromBot && event.type === 'message' && event.channel_type === 'im') {
-    after(() => answer(event, botUserId, false))
+    if (dmsAllowed()) after(() => answer(event, botUserId, false))
   }
   return new NextResponse(null, { status: 200 })
 }
