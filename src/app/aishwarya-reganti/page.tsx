@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { AISHWARYA_REGANTI } from '@/data.js'
 import MadeFrom from '@/components/MadeFrom.jsx'
 import TrustFooter from '@/components/TrustFooter.jsx'
-import { TwinNotebook } from '@/components/ProfileCards.jsx'
+import { RoleplayPair, TwinNotebook } from '@/components/ProfileCards.jsx'
 import { Sparkle } from '@/components/Icons.jsx'
 import SlackDemo from './SlackDemo.jsx'
 
@@ -11,6 +11,18 @@ const STEPS = [
   ['Add the app', 'Install Aishwarya’s twin in your Slack workspace and invite it to the channels where your team talks about AI.'],
   ['Mention it', 'Ask @Aishwarya’s twin in any channel and it answers in a thread, so follow-up questions keep their context.'],
   ['Answers in her words', 'It answers only from Aishwarya’s own posts and videos. When a question is outside what she has covered, it says so and points to her.'],
+]
+
+const DASH = 'https://dash.roleplay.foreverlearning.in/agents/'
+
+/* Aishwarya's role play on the role-play dashboard. Third person. */
+const ROLE_PLAYS = [
+  {
+    slug: 'hand-the-ticket-queue-to-ai',
+    title: 'Hand the ticket queue to AI?',
+    coachee: { role: 'Support analyst', text: 'A support operations analyst at a mid-sized online retailer, with ten minutes to propose which parts of the ticket workflow AI should handle and where people still review.', practises: ['Choosing what AI handles', 'Keeping people in the loop'] },
+    persona: { role: 'Support Team Lead', name: 'Rachel Brooks', photo: '/media/aishwarya-roleplay-rachel.jpg', behaviour: ['Skeptical & Reserved'], speaking: ['Casual', 'Medium answers'], text: 'Support Team Lead in Manchester with a team of eight agents. Practical, protective of her team and her customers, and tired of tools that promise a lot. She wants numbers and plain answers.' },
+  },
 ]
 
 export default function Welcome() {
@@ -52,6 +64,18 @@ export default function Welcome() {
               </div>
             </div>
           </article>
+          {ROLE_PLAYS.map((r) => (
+            <article key={r.slug} className="path path--wide">
+              <RoleplayPair coachee={r.coachee} persona={r.persona} />
+              <div className="path-b">
+                <h2>{r.title}</h2>
+                <div className="row">
+                  <a href={DASH + r.slug} target="_blank" rel="noopener noreferrer" className="btn btn--strong card-link">Start the role play</a>
+                  <span className="meta">Opens the role-play app</span>
+                </div>
+              </div>
+            </article>
+          ))}
         </div>
 
         <div className="slk-more">
