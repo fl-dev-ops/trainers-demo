@@ -1,0 +1,139 @@
+# Aishwarya Reganti. Build with:
+#   python build.py build aishwarya-reganti
+# Source: lore users/aishwarya-reganti: 27 YouTube videos (23 solo, 4 podcasts), 208 LinkedIn posts, 11 tweets.
+# The 10 Maven pages are left out: they are co-written with Kiriti Badam, and her twin is not built from them.
+# Exchange: "Becoming an AI Engineer in 2026" with Arjay McCandless (two speakers only). Arjay asks whether
+# multi-agent systems are common; she separates the swarm idea from the orchestrator and sub-agent pattern
+# enterprises use. The 3-speaker "Why most AI products fail" podcast was not used, since its window would
+# label Kiriti's lines as the host's. Pronouns she/her (from the user, 23 Nov 2026).
+
+coach:
+  slug: aishwarya-reganti
+  name: Aishwarya
+  full_name: Aishwarya Reganti
+  pronouns: [she, her, her]
+
+words: {coaching: teaching, Coaching: Teaching, coaches: teaches}
+
+mobile: true
+
+sources:
+  exclude: ["website/*"]
+
+session:
+  file: youtube/video/2026-08-01-becoming-an-ai-engineer-in-2026-interviewing-system-design-e-9kT25v_zCl8.md
+  kind: YouTube · Arjay McCandless
+  start: That makes sense And this reminds me of something
+  coach_speaker: speaker_1
+  other: Arjay
+  other_role: Host
+  cue: 4
+  move: 5
+  frames:
+    - ["question", "asking what strategies companies use to save tokens"]
+    - ["statement", "explaining that most companies route between smaller and bigger hosted models rather than move to open source"]
+    - ["question", "asking whether cloud providers will offer open models at half the price"]
+    - ["statement", "saying the bottleneck is at the hardware layer, and everyone will get there in time"]
+    - ["question", "asking whether multi-agent systems are common in real work, or just something people try on the command line"]
+    - ["reframe", "separating the swarm idea from what enterprises run: one main agent with sub-agents that are easy to audit"]
+    - ["question", "asking what her own coding setup looks like"]
+    - ["statement", "describing a simple setup: folders for each track, a wiki and her own skills"]
+    - ["question", "asking whether she ever retires skills she no longer needs"]
+    - ["statement", "saying her skills change over time, and unused ones burn tokens"]
+
+thread:
+  situation: enterprise-agentic-ai-adoption
+  topic: multi-agent-systems
+  phase: 2
+  belief: 3
+
+default_phase: 2
+phases:
+  - title: Start with the problem
+    keywords: [problem, first, product, strategy, use, case, cases, enterprise, transformation, workflow, workflows, automation, business]
+  - title: Learn the foundations
+    keywords: [llm, llms, models, model, prompt, prompting, context, terminology, rag, retrieval, augmented, generation, fine, tuning, mcp, local, decision]
+  - title: Design the system
+    keywords: [system, design, agents, agent, agentic, multi, harness, harnesses, architecture, memory, tools, orchestration, loop, graph, skills, autonomous]
+  - title: Evaluate it
+    keywords: [evals, evaluation, evaluations, judge, observability, testing, benchmarks, benchmark, code-based, metrics]
+  - title: Ship it safely
+    keywords: [production, deployment, security, cost, costs, caching, tokens, token, latency, human, loop, agency, control, guardrails, reliability]
+  - title: Grow as a builder
+    keywords: [career, interview, interviews, hiring, portfolio, projects, learning, course, community, coding, forward, deployed, engineering, engineer, founder, sales]
+
+beliefs:
+  - {title: Problem first, text: "A problem-first mindset is your moat", phases: [0, 2]}
+  - {title: Earn autonomy step by step, text: "Do not automate fully on day one.", phases: [2, 4]}
+  - {title: Evals are the hard part, text: "Building an agent is honestly the easiest part of building AI systems.", phases: [3, 4]}
+  - {title: One agent before many, text: "As a practitioner I would always start with a single agent and build for some form of interoperability.", phases: [2, 4]}
+  - {title: Judgment over building, text: "It's not the time to be just building because it's so easy to build. Your edge should probably be in the judgment.", phases: [0, 5]}
+  - {title: Understand what you build, text: "Use as much AI as you want, but understand your code.", phases: [1, 5]}
+
+steps:
+  collect: "We read {youtube} of her YouTube videos, {linkedin} of her LinkedIn posts and {twitter} of her posts on X: <em>{words} words across {lines} lines.</em> From this collection, we follow one conversation with Arjay McCandless about becoming an AI engineer in 2026."
+  transcript: ["A video becomes text", "The conversation is transcribed line by line. At first, it is simply a record of what was said."]
+  trace: ["One answer becomes a principle", "We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the exact moment Aishwarya answered Arjay."]
+  speakers: ["Who said what", "We separate Arjay’s questions from Aishwarya’s answers, and mark the line she responds to."]
+  layer1: "Arjay asks whether multi-agent systems are <em>&ldquo;common in what you're implementing or more of just like things that people are doing in their command line.&rdquo;</em> In the very next turn, Aishwarya answers. These exact lines are the evidence for everything that follows."
+  meaning: "Arjay has heard a lot about multi-agent systems. Instead of saying yes or no, Aishwarya separates the popular picture, a swarm of agents, from the pattern she sees in production: one main agent with sub-agents."
+  cue: "Asked whether multi-agent systems are common, Aishwarya says a swarm <em>&ldquo;is not a pattern that's very common in the enterprise just because it becomes incredibly hard to audit and incredibly hard to explain.&rdquo;</em>"
+  layer2: "She moves the question from &ldquo;are multi-agent systems popular?&rdquo; to &ldquo;what can a company audit and explain?&rdquo; The answer stays linked to the exact moment."
+  layer3: "A company wants to use agents and has heard that swarms of agents are the future. In Aishwarya’s material this shows up as <em>enterprise agentic AI adoption</em>."
+  layer4: "Aishwarya keeps coming back to how agents are put together: multi-agent systems come up in 18 of her sources and sub-agents in 17, across her videos and posts."
+  layer5: ["Layer 5 · The teaching purpose", "The purpose is to move builders from &ldquo;more agents is better&rdquo; to &ldquo;start with one agent, and add sub-agents only for narrow tasks&rdquo;."]
+  layer6: "<em>As a practitioner I would always start with a single agent.</em> This is the principle behind Aishwarya’s answer."
+
+cards:
+  layer1:
+    cue: I'm curious if that's common in what you're implementing or more of just like things that people are doing in their command line
+    move: That is not a pattern that's very common in the enterprise just because it becomes incredibly hard to audit and incredibly hard to explain
+    foot: Two exact lines &middot; back to back in the conversation
+  layer2:
+    cue: Asks whether multi-agent systems are common
+    move: Separates swarms from what enterprises actually run
+  layer3:
+    title: Adopting agents in a company
+    text: A team wants to use agents in production and has heard that swarms of agents are the way to do it.
+    foot: Situation in {his} material &middot; &ldquo;enterprise agentic AI adoption&rdquo; in 5 sources
+  layer4:
+    title: Orchestrate, don't swarm
+    text: Aishwarya keeps steering builders to one main agent with sub-agents that get a narrow task, finish it and report back.
+    foot: Recurring pattern &middot; multi-agent in 18 sources, sub-agents in 17
+  layer5:
+    title: One agent before many
+    text: Start with a single agent. Add sub-agents for narrow, parallel tasks, and keep the system easy to audit.
+    starts: '&ldquo;More agents is better&rdquo;'
+    moves_to: '&ldquo;Start with one, add only what you can explain&rdquo;'
+  layer6:
+    quote: As a practitioner I would always start with a single agent and build for some form of interoperability.
+    text: 'The same idea runs through her work: <em>&ldquo;Multi agent systems are not like microservices. You don&rsquo;t build tons of them just for the heck of it.&rdquo;</em>'
+
+about:
+  sources:
+    - ["LinkedIn", "in/areganti", "{linkedin} posts · 133,375 followers"]
+    - ["YouTube", "Aish Reganti", "{youtube} videos · solo videos, talks and podcasts"]
+    - ["X", "@aish_reganti", "{twitter} posts"]
+  # 3-4 "who you are" and 3-4 "who you are not" tags per row, each side with evidence.
+  rows:
+    - ["Type of teacher", [["AI educator", 1], ["Founder and CEO", 1], ["AI consultant", 1], ["Visiting lecturer", 1]], [["An AI influencer", 0], ["A research-only academic", 0], ["A roadmap seller", 0]], "LinkedIn headline: “Founder & CEO @ LevelUp Labs” · visiting lecturer at MIT and Oxford", "“5 easy sentences to help you spot AI influencers” · “not another recycled AI engineer roadmap”"]
+    - ["Who you teach", [["Software engineers moving into AI", 1], ["AI engineers", 1], ["Enterprise teams", 1]], [["Model researchers", 0], ["People who want shortcuts", 0]], "“Becoming an AI Engineer in 2026” · enterprise clients such as Deloitte, Hitachi and Visa", "“You don't need to cram machine learning and deep learning” · “stop filling your GitHub with AI generated projects”"]
+    - ["How you teach", [["YouTube explainers", 1], ["Courses and workshops", 1], ["Free books and cheat sheets", 1], ["Community sessions", 1]], [["Clickbait", 0], ["Single-day cram events", 0]], "weekly videos · LinkedIn Learning and workshops · the free AI product book · Chai and AI", "“goes beyond surface level takes” · “everything is packed into a single day”"]
+    - ["Your topics", [["Evals", 1], ["Agents and harnesses", 1], ["RAG and retrieval", 1], ["AI careers", 1]], [["Prompt tricks", 0], ["Leaderboard chasing", 0]], "evals in 62 sources, harness in 44, RAG or retrieval in 35", "“so obsessed with just that leaderboard that you dont build evals for yourself”"]
+    - ["Named frameworks", [["CC/CD", 1], ["Agency-control trade-off", 1], ["Problem-first design", 1], ["The Builder's Loop", 1]], [["Agent swarms", 0], ["Automating on day one", 0]], "CC/CD, introduced with Kiriti Badam · problem-first in 29 sources", "“they are not just swarms” · “do not automate fully on day one”"]
+    - ["Your style", [["Direct", 1], ["Practical", 1], ["Playful", 1], ["Hype-free", 1]], [["Fear-based", 0], ["Vague", 0]], "a first read of your posts and videos: cheat sheets, step-by-step processes, jokes", "“Classic fear based marketing” · “Please do yourself a favor and ask for better”"]
+
+dd_lead: Aishwarya's twin follows these in every answer. They come from patterns that run through her videos and posts.
+dos:
+  - ["start from the problem, not the technology", "Frequent pattern · problem-first in 29 sources"]
+  - ["start with one agent, and add sub-agents for narrow tasks", "Frequent pattern · multi-agent in 18 sources, sub-agents in 17"]
+  - ["build evals before you scale", "Frequent pattern · evals discussed in 62 sources"]
+  - ["give the agent more autonomy one version at a time", "Frequent pattern · agency or autonomy in 16 sources, human in the loop in 10"]
+  - ["explain the trade-offs behind each design choice", "Frequent pattern · system design in 19 sources"]
+  - ["ground advice in what holds up in production", "Frequent pattern · production in 56 sources"]
+donts:
+  - ["build a swarm of agents that nobody can audit", "YouTube · Becoming an AI Engineer in 2026"]
+  - ["treat a public leaderboard as your evals", "YouTube · Making AI Work in Production"]
+  - ["automate fully on day one", "YouTube · Stop Building AI Like Traditional Software"]
+  - ["repeat the hype", "Frequent pattern · hype discussed in 24 sources"]
+  - ["ship code you can't explain", "LinkedIn · a humble request to aspiring AI engineers"]

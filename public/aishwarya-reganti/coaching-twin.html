@@ -1,0 +1,979 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How a Coach's Twin Learns</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#151310; --ink:#ece5d8; --dim:#a89e8c; --faint:#6f6759; --line:#37322a; --line2:#4a443a;
+  --l1:#e2a93b; --l2:#4fa9a0; --l3:#d4746a; --l4:#9a86c9; --l5:#8fae62; --l6:#c94f33;
+  --ease:cubic-bezier(.65,0,.25,1);
+  --serif:'Fraunces',Georgia,serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --sys:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--serif)}
+body{cursor:pointer;user-select:none;-webkit-user-select:none}
+body.final{cursor:grab}
+canvas#cv{position:fixed;inset:0;width:100vw;height:100vh;display:block}
+#stage{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0;pointer-events:none}
+#stage *{pointer-events:none}
+#stage .hit{pointer-events:auto}
+svg#wires{position:absolute;inset:0;width:1600px;height:900px;overflow:visible}
+
+/* ---------- header & chapter rail */
+header{position:absolute;left:60px;right:60px;top:34px;display:flex;align-items:center;justify-content:space-between;
+  font:500 11px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+header b{color:var(--l1);font-weight:600}
+/* persona switch (config `switch`): one page per persona, on every screen */
+#psw{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line2);border-radius:999px;letter-spacing:normal;text-transform:none}
+#psw[hidden],#hdr[hidden]{display:none!important}
+#stage #psw,#stage #psw *{pointer-events:auto}
+#psw .ptab{white-space:nowrap;font:500 13px/1 var(--serif);color:var(--dim);padding:9px 16px;border-radius:999px;border:0;background:transparent;cursor:pointer;transition:all .2s}
+#psw .ptab:hover{color:var(--ink)}
+#psw .ptab small{margin-left:8px;font:500 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+#psw .ptab[aria-selected=true]{color:#1b1712;background:var(--l1);font-weight:600;cursor:default}
+#rail{display:flex;gap:28px}
+#rail .ch{display:flex;flex-direction:column;gap:9px;align-items:flex-start;transition:color .5s}
+#rail .ch.on{color:var(--ink)}
+#rail .ch.done{color:var(--dim)}
+#rail .dots{display:flex;gap:5px}
+#rail .dots i{width:6px;height:6px;border-radius:50%;background:var(--line2);transition:background .4s,transform .4s}
+#rail .dots i.done{background:var(--dim)}
+#rail .dots i.on{background:var(--l1);transform:scale(1.35)}
+#hint{position:absolute;left:60px;bottom:34px;font:500 10.5px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--faint);transition:opacity .6s}
+#hint kbd{font:inherit;color:var(--dim);border:1px solid var(--line2);border-radius:4px;padding:3px 6px;margin:0 2px}
+
+/* ---------- narrative column */
+#cap{position:absolute;left:60px;top:150px;width:390px;transition:opacity .45s}
+#cap.out{opacity:0}
+#cap .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin-bottom:22px}
+#cap h1{font-weight:380;font-size:38px;line-height:1.12;letter-spacing:-.01em;margin-bottom:22px;font-variation-settings:'opsz' 96}
+#cap p{font-size:18px;line-height:1.55;color:var(--dim);font-weight:330}
+#cap p em{color:var(--ink);font-style:italic}
+#stat{position:absolute;left:60px;bottom:96px;width:390px;transition:opacity .5s}
+#stat .num{font:300 64px/1 var(--serif);letter-spacing:-.02em;font-variation-settings:'opsz' 144;font-variant-numeric:tabular-nums}
+#stat .unit{font:500 11px/1.6 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-top:12px}
+#stat.hide{opacity:0}
+
+/* hero */
+#hero{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:opacity .8s,transform 1.1s var(--ease)}
+#hero .kick{font:500 12px/1 var(--mono);letter-spacing:.3em;text-transform:uppercase;color:var(--l1);margin-bottom:30px}
+#hero h1{font-weight:320;font-size:88px;line-height:1.02;letter-spacing:-.025em;font-variation-settings:'opsz' 144}
+#hero h1 i{color:var(--l1);font-weight:300}
+#hero p{margin-top:30px;font-size:21px;line-height:1.55;color:var(--dim);max-width:640px;font-weight:330}
+#hero .go{margin-top:46px;font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--faint)}
+#hero.out{opacity:0;transform:translateY(-30px) scale(.98)}
+
+/* ---------- the window: Finder -> transcript */
+#win{position:absolute;left:540px;top:120px;width:1000px;height:660px;border-radius:12px;background:#1d1c1b;
+  border:1px solid #3a3835;box-shadow:0 40px 90px rgba(0,0,0,.55),0 0 0 .5px rgba(255,255,255,.04) inset;
+  overflow:hidden;font-family:var(--sys);color:#e6e3de;
+  transition:left 1s var(--ease),top 1s var(--ease),width 1s var(--ease),height 1s var(--ease),opacity .7s,transform 1.1s var(--ease);
+  opacity:0;transform:translateY(40px) scale(.96)}
+#win.show{opacity:1;transform:none}
+#win.narrow{left:500px;top:96px;width:570px;height:772px}
+#win.gone{opacity:0;transition:opacity .35s}
+.tbar{height:46px;display:flex;align-items:center;gap:16px;padding:0 16px;background:#2a2927;border-bottom:1px solid #3a3835}
+.lights{display:flex;gap:8px}.lights i{width:12px;height:12px;border-radius:50%;background:#ff5f57}
+.lights i:nth-child(2){background:#febc2e}.lights i:nth-child(3){background:#28c840}
+.navb{color:#77736d;font-size:17px;letter-spacing:10px}
+.wtitle{font-weight:600;font-size:13.5px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.views{display:flex;gap:2px;background:#353330;border-radius:6px;padding:2px}
+.views i{width:28px;height:20px;border-radius:4px;display:block;position:relative}
+.views i.on{background:#55524d}
+.views i::after{content:'';position:absolute;left:9px;top:5px;width:10px;height:10px;border:1.5px solid #aaa49c;border-radius:2px}
+.views i:nth-child(2)::after{border-width:1.5px 0;height:3px;top:5px;box-shadow:0 4px 0 0 #aaa49c}
+.wbody{position:absolute;top:46px;bottom:26px;left:0;right:0;display:flex}
+.side{width:190px;flex:none;background:#242321;border-right:1px solid #33312e;padding:14px 10px;font-size:12.5px;transition:width .9s var(--ease),padding .9s var(--ease),opacity .5s;overflow:hidden;white-space:nowrap}
+.side h6{font-size:10.5px;font-weight:600;color:#7c7872;margin:6px 8px 6px}
+.side div{padding:5px 8px;border-radius:6px;display:flex;align-items:center;gap:8px;color:#d8d4ce;transition:background .4s}
+.side div.on{background:#3a3835}
+.side .fi{width:15px;height:11px;border-radius:2px;background:#5da6ec;position:relative;flex:none}
+.side .fi::before{content:'';position:absolute;left:0;top:-2px;width:6px;height:3px;border-radius:2px 2px 0 0;background:#5da6ec}
+.pane{flex:1;position:relative;overflow:hidden}
+.pane>section{position:absolute;inset:0;transition:opacity .6s,transform .8s var(--ease);opacity:0;transform:translateY(12px)}
+.pane>section.on{opacity:1;transform:none}
+.status{position:absolute;bottom:0;left:0;right:0;height:26px;border-top:1px solid #33312e;background:#242321;font-size:11px;color:#8b8780;display:flex;align-items:center;justify-content:center}
+
+/* icon view */
+.icons{display:flex;gap:70px;padding:120px 60px;justify-content:center}
+.folder{width:150px;text-align:center;font-size:14px;opacity:0;transform:translateY(16px) scale(.9);transition:opacity .6s,transform .7s var(--ease)}
+.on .folder{opacity:1;transform:none}
+.on .folder:nth-child(2){transition-delay:.15s}
+.ficon{width:130px;height:100px;margin:0 auto 14px;position:relative}
+.ficon::before{content:'';position:absolute;left:0;top:0;width:54px;height:18px;border-radius:8px 8px 0 0;background:#4b8fd6}
+.ficon::after{content:'';position:absolute;left:0;top:10px;right:0;bottom:0;border-radius:5px 9px 9px 9px;background:linear-gradient(#78b8f5,#5a9ee6)}
+.ficon i{position:absolute;z-index:1;left:50%;top:50px;transform:translateX(-50%)}
+.folder small{display:block;color:#8b8780;font-size:12px;margin-top:5px}
+
+/* list view */
+.lhead,.lrow{display:grid;grid-template-columns:1fr 130px 110px 70px;gap:12px;padding:0 18px;align-items:center}
+.lhead{height:30px;font-size:11px;font-weight:600;color:#8b8780;border-bottom:1px solid #33312e;background:#1d1c1b;position:relative;z-index:1}
+.lrows{position:absolute;top:30px;left:0;right:0;will-change:transform}
+.lrow{height:26px;font-size:12.5px;white-space:nowrap;transition:background .4s,color .4s}
+.lrow:nth-child(even){background:#232220}
+.lrow .nm{overflow:hidden;text-overflow:ellipsis;display:flex;gap:9px;align-items:center}
+.lrow .kd,.lrow .dt,.lrow .sz{color:#8b8780;font-size:11.5px}
+.lrow .sz{text-align:right}
+.badge{width:16px;height:12px;border-radius:3px;flex:none;position:relative;display:block}
+.badge.yt{background:#e5443b}.badge.yt::after{content:'';position:absolute;left:6px;top:3px;border-left:5px solid #fff;border-top:3px solid transparent;border-bottom:3px solid transparent}
+.badge.lm{background:#7a5af5}.badge.lm::after{content:'';position:absolute;left:4px;top:3px;width:6px;height:6px;border-radius:50%;border:1.5px solid #fff}
+.ficon .badge{width:30px;height:22px;border-radius:5px}
+.ficon .badge.yt::after{left:11px;top:6px;border-left-width:9px;border-top-width:5px;border-bottom-width:5px}
+.ficon .badge.lm::after{left:8px;top:4px;width:11px;height:11px;border-width:2px}
+.badge.li{background:#0a66c2}.badge.li::after{content:'in';position:absolute;left:3px;top:0;font:700 8px/12px var(--sys);color:#fff}
+.badge.wb{background:#6c8a5a}.badge.wb::after{content:'';position:absolute;left:4px;top:2px;width:6px;height:6px;border-radius:50%;border:1.5px solid #fff}
+.lrow.sel{background:#2f5fb3!important;color:#fff}
+.lrow.sel .kd,.lrow.sel .dt,.lrow.sel .sz{color:#dfe8fa}
+
+/* document view */
+.doc{padding:16px 22px 16px 18px;font-size:13.5px;line-height:1.42}
+.fm{font:12px/1.6 var(--mono);color:#8b8780;white-space:pre;overflow:hidden;max-height:120px;transition:max-height .9s var(--ease),opacity .6s,margin .9s var(--ease);margin-bottom:12px}
+.doc.clean .fm{max-height:0;opacity:0;margin:0}
+.ln{position:relative;padding:4px 8px 4px 8px;border-radius:7px;transition:background .5s,box-shadow .5s,opacity .5s;margin-bottom:2px}
+.rh{font:12px/1.5 var(--mono);color:#9a958d;max-height:20px;overflow:hidden;transition:max-height .8s var(--ease),opacity .5s}
+.rh .h{color:#6c6862}
+.row{display:flex;gap:10px;align-items:baseline}
+.ts{font:11px/1 var(--mono);color:#77736d;width:0;overflow:hidden;opacity:0;flex:none;transition:width .8s var(--ease),opacity .6s}
+.who{font:600 10.5px/1 var(--sys);letter-spacing:.04em;text-transform:uppercase;width:0;overflow:hidden;opacity:0;flex:none;transition:width .8s var(--ease),opacity .6s;padding-top:1px}
+.who.o{color:var(--l1)}.who{white-space:nowrap}.who.s{color:#9fb8d6}
+.txt{flex:1;font:12.5px/1.5 var(--mono);color:#cfcac2}
+.txt .c{display:none}.doc.clean .txt .r{display:none}.doc.clean .txt .c{display:inline}
+.doc.clean .rh{max-height:0;opacity:0}
+.doc.clean .ts{width:46px;opacity:1}
+.doc.clean .who{width:var(--who,54px);opacity:1}
+.doc.clean .txt{font:13.4px/1.4 var(--sys);color:#ece8e2}
+.doc.focus .ln{opacity:.32}
+.doc.focus .ln.key{opacity:1;box-shadow:inset 0 0 0 1px rgba(226,169,59,.75);background:rgba(226,169,59,.1)}
+
+/* ---------- right column panels */
+.rpanel{position:absolute;left:1120px;top:110px;width:420px;opacity:0;transform:translateX(30px);transition:opacity .6s,transform .9s var(--ease)}
+.rpanel.on{opacity:1;transform:none}
+.plabel{font:500 10.5px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin-bottom:16px}
+
+/* frames */
+#frames{top:100px;height:760px}
+#frames .plabel{position:absolute;top:-28px}
+.fc{position:absolute;left:0;width:420px;padding:6px 11px 7px 12px;border-radius:8px;background:#1b211f;border:1px solid rgba(79,169,160,.35);
+  font-size:12.8px;line-height:1.32;color:#dbeee9;font-weight:340;opacity:0;transform:translateX(24px);transition:opacity .5s,transform .7s var(--ease),border-color .5s,background .5s,box-shadow .5s}
+.fc .k{display:inline;font:600 9px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--l2);margin-right:8px}
+.fc .k em{font-style:normal;color:var(--l1);margin-left:8px}
+#frames.on .fc{opacity:1;transform:none}
+#frames.focus .fc{opacity:.25}
+#frames.focus .fc.key{opacity:1;border-color:var(--l2);background:#1d2a27;box-shadow:0 0 30px rgba(79,169,160,.18)}
+.wire{fill:none;stroke:var(--l2);stroke-width:1.2;opacity:0;transition:opacity .6s}
+.wire.on{opacity:.45}
+.wire.dim{opacity:.08}
+.wire.key{opacity:.95;stroke-width:1.8}
+
+/* layer cards */
+#cards{top:150px}
+.card{position:absolute;left:0;top:0;width:420px;padding:22px 24px 22px;border-radius:12px;background:rgba(32,29,24,.94);border:1px solid var(--line2);
+  opacity:0;transform:translateY(16px);transition:opacity .55s,transform .8s var(--ease);backdrop-filter:blur(6px)}
+.card.on{opacity:1;transform:none;transition-delay:.35s}
+.card .lv{font:600 10px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;margin-bottom:14px}
+.card h3{font-weight:400;font-size:23px;line-height:1.22;margin-bottom:12px;font-variation-settings:'opsz' 72}
+.card p{font-size:15px;line-height:1.5;color:var(--dim);font-weight:330}
+.card .pair{display:grid;grid-template-columns:62px 1fr;gap:10px 12px;margin-top:6px}
+.card .pair dt{font:600 9.5px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.card .pair dd{font-size:15px;line-height:1.45;color:var(--ink);font-weight:340}
+.card .pair dd.q{font-style:italic}
+.card .foot{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font:500 10px/1.6 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.card blockquote{font-size:20px;line-height:1.38;font-weight:360;color:var(--ink);margin:4px 0 14px;font-style:italic}
+
+/* finale legend */
+#legend{top:170px;left:1270px;width:290px}
+.lg{display:grid;grid-template-columns:14px 1fr auto;gap:12px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line);opacity:0;transform:translateX(14px);transition:opacity .5s,transform .7s var(--ease)}
+#legend.on .lg{opacity:1;transform:none}
+.lg i{width:9px;height:9px;border-radius:50%;display:block;transform:translateY(-1px)}
+.lg span{font:500 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.lg b{font:300 26px/1 var(--serif);font-variant-numeric:tabular-nums}
+#tip{position:fixed;max-width:360px;padding:9px 12px;border-radius:8px;background:rgba(21,19,16,.95);border:1px solid var(--line2);font-size:14px;line-height:1.4;color:var(--ink);pointer-events:none;opacity:0;transition:opacity .15s;z-index:5}
+#tip small{display:block;font:600 9.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px}
+/* ---------- findings: a docs page, one layer per page */
+#fd{position:absolute;left:60px;right:60px;top:96px;bottom:34px;display:grid;grid-template-columns:280px 1fr;gap:56px;
+  opacity:0;visibility:hidden;transform:translateY(16px);transition:opacity .6s,transform .9s var(--ease),visibility 0s .6s;cursor:default}
+#fd.on{opacity:1;visibility:visible;transform:none;transition:opacity .6s .2s,transform .9s var(--ease) .2s,visibility 0s}
+#stage #fd,#stage #fd *{pointer-events:auto}
+#fd .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin:24px 0 20px}
+#fd .lead h1{font-weight:380;font-size:32px;line-height:1.14;margin-bottom:16px;font-variation-settings:'opsz' 96}
+#fd .lead p{font-size:15px;line-height:1.55;color:var(--dim);font-weight:330}
+#fd nav{margin-top:30px;border-top:1px solid var(--line)}
+#fd nav a{display:grid;grid-template-columns:12px 1fr;gap:12px;align-items:center;padding:14px 10px;border-bottom:1px solid var(--line);
+  cursor:pointer;color:var(--dim);transition:background .3s,color .3s}
+#fd nav a:hover{background:rgba(255,255,255,.03);color:var(--ink)}
+#fd nav a.on{background:rgba(255,255,255,.05);color:var(--ink)}
+#fd nav a i{width:9px;height:9px;border-radius:50%}
+#fd nav a span{font:500 11px/1.35 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+#fd nav a b{font:600 9px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:5px 7px;border-radius:4px;border:1px solid currentColor;opacity:.85}
+#fd .keys{margin-top:18px;font:500 10px/1.6 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+#fd .page{overflow-y:auto;padding:24px 36px 40px 0;scrollbar-width:thin;scrollbar-color:var(--line2) transparent}
+#fd article{display:none;max-width:920px}
+#fd article.on{display:block;animation:fdin .5s var(--ease)}
+@keyframes fdin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#fd .lv{font:600 10.5px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;margin-bottom:16px}
+#fd h2{font-weight:380;font-size:40px;line-height:1.1;margin-bottom:14px;font-variation-settings:'opsz' 120;display:flex;align-items:center;gap:18px}
+#fd h2 b{font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;padding:7px 10px;border-radius:5px;border:1px solid currentColor}
+#fd .what{font-size:19px;line-height:1.5;color:var(--dim);font-weight:330;max-width:760px}
+#fd .what em{color:var(--ink)}
+#fd .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:30px 0 8px}
+#fd .nums div{border-top:1px solid var(--line2);padding-top:14px}
+#fd .nums strong{display:block;font:300 40px/1 var(--serif);font-variant-numeric:tabular-nums;font-variation-settings:'opsz' 144}
+#fd .nums small{display:block;margin-top:10px;font:500 10px/1.5 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+#fd h4{font:600 10.5px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--faint);margin:38px 0 14px}
+#fd .how{font-size:16px;line-height:1.6;color:var(--ink);font-weight:340;max-width:800px}
+#fd .how code,#fd li code,#fd .ex code{font:12.5px var(--mono);color:var(--l1);background:rgba(226,169,59,.08);padding:1px 5px;border-radius:4px}
+#fd .exs{display:grid;gap:12px}
+#fd .ex{padding:16px 18px;border-radius:10px;background:rgba(32,29,24,.9);border:1px solid var(--line2);border-left-width:3px}
+#fd .ex.good{border-left-color:var(--l5)}#fd .ex.bad{border-left-color:var(--l6)}
+#fd .ex .tag{font:600 9.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;margin-bottom:10px}
+#fd .ex.good .tag{color:var(--l5)}#fd .ex.bad .tag{color:#e0715a}
+#fd .ex q{display:block;font-size:17px;line-height:1.42;font-style:italic;color:var(--ink);font-weight:350;quotes:'“' '”'}
+#fd .ex p{margin-top:9px;font-size:14px;line-height:1.5;color:var(--dim);font-weight:330}
+#fd .ex p q{display:inline;font-size:14px;color:#d8d0c2}
+#fd ul{list-style:none;display:grid;gap:10px;max-width:820px}
+#fd li{position:relative;padding-left:22px;font-size:16px;line-height:1.5;color:var(--ink);font-weight:340}
+#fd li::before{content:'';position:absolute;left:2px;top:10px;width:7px;height:7px;border-radius:50%;background:#e0715a}
+#fd li strong{font-weight:560}
+#fd .todo{margin-top:34px;padding:18px 20px;border-radius:10px;border:1px dashed var(--line2);font-size:16px;line-height:1.55;color:var(--ink);font-weight:340}
+#ab{position:absolute;left:60px;right:60px;top:96px;bottom:34px;display:grid;grid-template-columns:280px 1fr;gap:56px;
+  opacity:0;visibility:hidden;transform:translateY(16px);transition:opacity .6s,transform .9s var(--ease),visibility 0s .6s;cursor:default}
+#ab.on{opacity:1;visibility:visible;transform:none;transition:opacity .6s .2s,transform .9s var(--ease) .2s,visibility 0s}
+#stage #ab,#stage #ab *{pointer-events:auto}
+#ab .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin:24px 0 20px}
+#ab .lead h1{font-weight:380;font-size:32px;line-height:1.14;margin-bottom:16px;font-variation-settings:'opsz' 96}
+#ab .lead p{font-size:15px;line-height:1.55;color:var(--dim);font-weight:330}
+#ab .found{margin-top:26px;border-top:1px solid var(--line)}
+#ab .found div{padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;line-height:1.35}
+#ab .found b{font-weight:520}#ab .found em{font-style:normal;color:var(--l5);float:right}
+#ab .found small{display:block;margin-top:4px;font:500 9.5px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+#ab .page{padding-top:24px}
+#ab h2{font-weight:380;font-size:40px;line-height:1.1;margin-bottom:10px;font-variation-settings:'opsz' 120}
+#ab .what{font-size:17px;line-height:1.5;color:var(--dim);font-weight:330}
+#ab .sheet{max-width:1080px;margin-top:22px;padding:4px 24px;border-radius:12px;border:1px solid var(--line2);background:rgba(32,29,24,.9)}
+#ab .row{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--line)}
+#ab .row:last-child{border-bottom:0}
+#ab .row>span{font:600 10px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+#ab .chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#ab .chip{font:400 14px/1 var(--serif);color:var(--dim);padding:8px 13px;border-radius:999px;border:1px solid var(--line2);background:transparent;cursor:pointer;transition:all .2s}
+#ab .chip:hover{color:var(--ink);border-color:var(--dim)}
+#ab .chip[aria-pressed=true]{color:#1b1712;background:var(--l1);border-color:var(--l1);font-weight:500}
+#ab .ev{flex-basis:100%;margin-top:4px;font:500 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+/* who you are / who you are not (standard from 17 Nov 2026): two columns per row */
+#ab .page{overflow-y:auto;scrollbar-width:thin;padding-right:6px}
+#ab .sheet.two{max-width:1180px;padding:4px 24px 6px}
+#ab .sheet.two .row{grid-template-columns:130px 1fr}
+#ab .cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+#ab .col .ev{display:block;margin-top:9px}
+#ab .row.heads{padding:12px 0 6px;border-bottom:1px solid var(--line2)}
+#ab .heads b{font:600 10px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase}
+#ab .heads b.is{color:var(--l1)}#ab .heads b.no{color:#e0715a}
+#ab .chip.no::before{content:'\2715';margin-right:7px;font-size:11px;color:#e0715a}
+#ab .chip.no[aria-pressed=true]{color:var(--ink);background:transparent;border-color:#e0715a;font-weight:400}
+#fd .todo span{display:block;font:600 10px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--l5);margin-bottom:10px}
+
+/* ---------- source badges for the other kinds */
+.badge.ig{background:#c13584}.badge.ig::after{content:'';position:absolute;left:4px;top:2px;width:6px;height:6px;border-radius:2px;border:1.5px solid #fff}
+.badge.tw{background:#3a3a3a}.badge.tw::after{content:'X';position:absolute;left:4px;top:0;font:700 8px/12px var(--sys);color:#fff}
+/* ---------- do's & don'ts page */
+#fd .principle-count{margin-top:20px;border-top:1px solid var(--line);padding-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#fd .principle-count b{display:block;font:300 56px/1 var(--serif);color:var(--ink)}
+#fd .principle-count span{display:block;margin-top:10px;font:500 10px/1.5 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+#fd .ptabs{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line2);border-radius:999px;margin:2px 0 4px}
+#fd .ptab{font:500 13px/1 var(--serif);color:var(--dim);padding:9px 16px;border-radius:999px;border:0;background:transparent;cursor:pointer;transition:all .2s}
+#fd .ptab:hover{color:var(--ink)}
+#fd .ptab[aria-selected=true]{color:#1b1712;background:var(--l1);font-weight:600}
+#fd .dd-cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:18px;max-width:1080px}
+#fd .dd-head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;font-size:19px;font-weight:450}
+#fd .dd-head small{font-size:13.5px;color:var(--dim);font-weight:330}
+#fd .dd-head.do i{color:var(--l5);font-style:normal}#fd .dd-head.dont i{color:#e0715a;font-style:normal}
+#fd .dd-row{display:grid;grid-template-columns:22px 1fr;gap:12px;padding:10px 16px;margin-bottom:8px;border:1px solid var(--line2);border-radius:10px;background:rgba(32,29,24,.9)}
+#fd .dd-row>i{font-style:normal;font-size:15px;line-height:1.4}
+#fd .dd-row.do>i{color:var(--l5)}#fd .dd-row.dont>i{color:#e0715a}
+#fd .dd-row p{font-size:15.5px;line-height:1.4;color:var(--ink);font-weight:340}
+#fd .dd-row p b{font-weight:600}
+#fd .dd-row small{display:block;margin-top:6px;font:500 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+#fd .keys{cursor:pointer}
+
+/* ---------- phones (config `mobile: true`): one portrait column instead of the scaled 16:9 slide */
+#vis,#mback,#rot{display:none}
+body.m{touch-action:none}
+body.m canvas#cv{width:100%;height:100%}
+body.m #stage{width:100%;height:100%;transform:none!important;padding:0 18px;display:grid;grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto minmax(0,1fr) auto auto auto;grid-template-areas:'hd' 'vis' 'st' 'cap' 'ft'}
+body.m #vis{display:block;grid-area:vis}
+body.m header{grid-area:hd;position:relative;left:auto;right:auto;top:auto;padding:max(16px,env(safe-area-inset-top)) 0 12px;font-size:10px}
+body.m #hdr{display:none}
+body.m header{flex-wrap:wrap}
+body.m #psw{order:2;display:flex;width:100%;margin-top:12px}
+body.m #psw .ptab{flex:1;padding:10px 8px;font-size:13px}
+body.m #psw .ptab small{display:block;margin:5px 0 0;font-size:9px}
+body.m #rail{gap:12px;width:100%;justify-content:space-between}
+body.m #rail .ch{gap:7px}
+body.m #rail .ch>span:first-child{display:none}
+body.m #rail .dots{gap:6px}
+body.m #rail .dots i{width:7px;height:7px}
+body.m header{min-height:44px}
+/* hero */
+body.m #hero{padding:0 26px}
+body.m #hero .kick{font-size:10px;letter-spacing:.24em;margin-bottom:22px;line-height:1.6}
+body.m #hero h1{font-size:52px}
+body.m #hero p{font-size:17px;margin-top:22px}
+body.m #hero .go{margin-top:34px}
+/* narrative */
+body.m #cap{grid-area:cap;position:relative;left:auto;top:auto;width:auto;padding:12px 0 4px}
+body.m #cap .kick{font-size:10px;margin-bottom:10px}
+body.m #cap h1{font-size:24px;line-height:1.15;margin-bottom:9px}
+body.m #cap p{font-size:15px;line-height:1.5}
+body.m #stat{grid-area:st;position:relative;left:auto;bottom:auto;width:auto;display:flex;align-items:baseline;gap:12px;padding-top:14px}
+body.m #stat .num{font-size:34px}
+body.m #stat .unit{margin-top:0;font-size:10px;line-height:1.4}
+body.m #hint{grid-area:ft;position:relative;left:auto;bottom:auto;display:flex;justify-content:space-between;align-items:center;
+  padding:14px 0 max(18px,env(safe-area-inset-bottom));font-size:10px}
+body.m #mback{display:inline-block;padding:8px 12px 8px 0;margin:-8px 0;color:var(--dim)}
+/* the window */
+body.m #win{grid-area:vis;position:relative;left:auto;top:auto;width:auto;height:auto;min-height:0;margin-top:4px}
+body.m #win.narrow{opacity:0;transform:translateY(20px) scale(.97)}
+body.m .side{display:none}
+body.m .tbar{height:38px;gap:10px;padding:0 12px}
+body.m .lights i{width:10px;height:10px}
+body.m .navb,body.m .views{display:none}
+body.m .wtitle{font-size:12px}
+body.m .wbody{top:38px;bottom:22px}
+body.m .status{height:22px;font-size:10px}
+body.m .lhead,body.m .lrow{grid-template-columns:minmax(0,1fr) 78px;padding:0 12px}
+body.m .lhead span:nth-child(2),body.m .lhead span:nth-child(4),body.m .lrow .kd,body.m .lrow .sz{display:none}
+body.m .lrow{font-size:12px}
+body.m .doc{padding:12px 12px}
+body.m .doc .txt{font-size:11.5px}
+body.m .doc.clean .txt{font-size:12.5px}
+body.m .doc.clean .ts{width:0;opacity:0}
+body.m .doc.clean .who{width:var(--who,56px)}
+/* frames */
+body.m #wires{display:none}
+body.m .rpanel{transform:translateY(16px)}
+body.m .rpanel.on{transform:none}
+body.m #frames{grid-area:vis;position:relative;left:auto;top:auto;height:auto;width:auto;min-height:0;overflow:hidden;padding-top:8px}
+body.m #frames .plabel{position:static;margin-bottom:10px}
+body.m .fc{position:relative;width:auto;top:auto!important;margin-bottom:6px;font-size:12px;transform:translateY(12px)}
+/* layer cards and the legend sit under the layered space */
+body.m #cards,body.m #legend{grid-area:vis;align-self:end;position:relative;left:auto;top:auto;width:auto}
+body.m .card{position:absolute;left:0;right:0;top:auto;bottom:0;width:auto;padding:16px 18px}
+body.m .card.on{position:relative}
+body.m .card .lv{margin-bottom:10px}
+body.m .card h3{font-size:19px;margin-bottom:8px}
+body.m .card p,body.m .card .pair dd{font-size:14px}
+body.m .card blockquote{font-size:18px}
+body.m .card .foot{margin-top:12px;padding-top:10px}
+body.m #legend{display:grid;grid-template-columns:1fr 1fr;column-gap:16px}
+body.m #legend .plabel{grid-column:1 / -1;margin-bottom:6px}
+body.m .lg{padding:8px 0;gap:9px}
+body.m .lg span{font-size:9px;letter-spacing:.1em;line-height:1.3}
+/* about you, do's & don'ts: scrolling pages */
+body.m #ab,body.m #fd{position:absolute;left:0;right:0;top:var(--hdh,44px);bottom:0;display:block;overflow-y:auto;background:var(--bg);padding:0 18px max(40px,env(safe-area-inset-bottom));touch-action:pan-y;-webkit-overflow-scrolling:touch}
+body.m #ab{bottom:52px;padding-bottom:28px}
+body.m #ab .kick,body.m #fd .kick{margin:18px 0 14px}
+body.m #ab .lead h1,body.m #fd .lead h1{font-size:30px}
+body.m #ab .page,body.m #fd .page{overflow:visible;padding:30px 0 0}
+body.m #ab h2,body.m #fd h2{font-size:30px;flex-wrap:wrap}
+body.m #ab .what,body.m #fd .what{font-size:16px}
+body.m #ab .sheet{padding:2px 16px}
+body.m #ab .row{grid-template-columns:1fr;gap:10px}
+body.m #ab .sheet.two .row{grid-template-columns:1fr}
+body.m #ab .cols{grid-template-columns:1fr;gap:18px}
+body.m #ab .row.heads{display:none}
+body.m #ab .col::before{display:block;margin-bottom:8px;font:600 10px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--l1);content:'Who you are'}
+body.m #ab .col+.col::before{color:#e0715a;content:'Who you are not'}
+body.m #ab .page{overflow:visible}
+body.m #ab .chip{font-size:13.5px;padding:8px 12px}
+body.m #fd .lead .principle-count b{font-size:44px}
+body.m #fd .keys{display:inline-block;margin-top:16px;padding:8px 0;font-size:11px;color:var(--dim)}
+body.m #fd .ptabs{display:flex;width:100%;margin:6px 0 2px}
+body.m #fd .ptab{flex:1;padding:10px 8px;font-size:13px}
+body.m #fd .dd-cols{grid-template-columns:1fr;gap:26px}
+body.m #fd .dd-row{padding:10px 14px}
+body.m #fd .dd-row p{font-size:15px}
+body.m #tip{display:none}
+/* a phone turned sideways */
+body.rot #stage,body.rot #cv{display:none}
+body.rot #rot{display:flex;position:fixed;inset:0;z-index:9;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px}
+#rot b{font-weight:330;font-size:30px;font-variation-settings:'opsz' 96}
+#rot span{font:500 10.5px/1.6 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="tip"></div>
+<div id="rot"><b>Turn your phone upright</b><span>This page reads best in portrait</span></div>
+<div id="stage">
+  <div id="vis"></div>
+  <header><div id="hdr"></div><div id="psw" class="hit" role="tablist" hidden></div><nav id="rail" class="hit"></nav></header>
+
+  <div id="hero">
+    <div class="kick">One real exchange, followed all the way through</div>
+    <h1 id="hero-h"></h1>
+    <p id="hero-p"></p>
+    <div class="go" id="go">Click to begin →</div>
+  </div>
+
+  <div id="cap" class="out"><div class="kick" id="kick"></div><h1 id="title"></h1><p id="body"></p></div>
+  <div id="stat" class="hide"><div class="num" id="num">0</div><div class="unit" id="unit"></div></div>
+
+  <div id="win">
+    <div class="tbar"><span class="lights"><i></i><i></i><i></i></span><span class="navb">‹ ›</span><span class="wtitle" id="wtitle"></span><span class="views"><i class="on" id="v1"></i><i id="v2"></i></span></div>
+    <div class="wbody">
+      <div class="side" id="side"></div>
+      <div class="pane">
+        <section id="list"><div class="lhead"><span>Name</span><span>Kind</span><span>Date</span><span style="text-align:right">Size</span></div><div class="lrows" id="lrows"></div></section>
+        <section id="docs"><div class="doc" id="doc"></div></section>
+      </div>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <svg id="wires"></svg>
+  <div class="rpanel" id="frames"></div>
+  <div class="rpanel" id="cards"></div>
+  <div class="rpanel" id="legend"></div>
+  <div id="ab"></div>
+  <div id="fd">
+    <div class="lead">
+      <div class="kick">06 · Do’s &amp; Don’ts</div>
+      <h1>Do’s &amp; Don’ts</h1>
+      <p id="dd-lead"></p>
+      <div class="principle-count" id="dd-count"></div>
+      <div class="keys">← back</div>
+    </div>
+    <div class="page" id="fdpage"></div>
+  </div>
+  <div id="hint">Click or <kbd>→</kbd> to continue · <kbd>←</kbd> back</div>
+</div>
+
+<script>
+/* Filled in by build.py: STORY is the data, CONFIG is the written copy (configs/<slug>.yaml). */
+const STORY = {"files":[{"n":"4 Steps to Becoming an AI Engineer | Ep11","d":"2025-01-23","s":74862,"k":"youtube"},{"n":"Social media and the age of AI misinformation | Aishwarya Reganti | TEDxJacksonville","d":"2025-03-17","s":12010,"k":"youtube"},{"n":"Building non-deterministic AI products differently from traditional products","d":"2025-08-20","s":398,"k":"twitter"},{"n":"CI/CD Fails for AI & How CC/CD Fixes It | Aishwarya Reganti (LevelUp Labs) & Kiriti Badam (OpenAI)","d":"2025-11-20","s":32470,"k":"youtube"},{"n":"Why most AI products fail: Lessons from 50+ AI deployments at OpenAI, Google & Amazon","d":"2026-01-11","s":1742,"k":"twitter"},{"n":"Why most AI products fail: Lessons from 50+ AI deployments at OpenAI, Google & Amazon","d":"2026-01-11","s":93647,"k":"youtube"},{"n":"Stop Building AI Like Traditional Software with Aishwarya Naresh Reganti","d":"2026-01-13","s":28091,"k":"youtube"},{"n":"Behavior calibration without affecting end-user experience","d":"2026-01-14","s":987,"k":"twitter"},{"n":"Aish Reganti Introduction and Applied Enterprise AI Background","d":"2026-01-16","s":2376,"k":"twitter"},{"n":"Debugging, testing, and optimizing AI agents","d":"2026-01-22","s":389,"k":"twitter"},{"n":"AI Evals Course Completion and Notes","d":"2026-01-26","s":389,"k":"twitter"},{"n":"Exploring ClawdBot Usage and Best Practices","d":"2026-01-26","s":476,"k":"twitter"},{"n":"You're Probably Over-Harnessing Your AI Agents","d":"2026-01-26","s":20745,"k":"youtube"},{"n":"Evals Are NOT All You Need: Key Takeaways on LLM Evaluation and Production Flywheels","d":"2026-01-30","s":1239,"k":"twitter"},{"n":"The emerging bottlenecks and challenges of engineering teams using coding agents","d":"2026-02-19","s":1845,"k":"twitter"},{"n":"Building Agentic AI Applications with a Problem-First Approach Course Completion","d":"2026-03-09","s":389,"k":"twitter"},{"n":"Generative AI in the Real World: Aishwarya Naresh Reganti on Making AI Work in Production","d":"2026-04-16","s":37285,"k":"youtube"},{"n":"Why single-person billion-dollar companies will be rare despite AI leverage","d":"2026-05-01","s":2376,"k":"linkedin"},{"n":"Maintaining deep focus and avoiding distraction in the AI era","d":"2026-05-02","s":1469,"k":"linkedin"},{"n":"Weekend Pick-Me-Up Prompt","d":"2026-05-04","s":275,"k":"linkedin"},{"n":"How Claude Code Works Under the Hood","d":"2026-05-06","s":2226,"k":"linkedin"},{"n":"Meta's ProgramBench coding benchmark evaluation","d":"2026-05-06","s":2423,"k":"linkedin"},{"n":"A fun, free 12-week course repo on context engineering","d":"2026-05-07","s":1329,"k":"linkedin"},{"n":"5 easy sentences to help you spot AI influencers and call BS","d":"2026-05-08","s":1055,"k":"linkedin"},{"n":"Open Source Claude Design Alternative Features and Highlights","d":"2026-05-09","s":2060,"k":"linkedin"},{"n":"State and Architecture of Voice AI Agents","d":"2026-05-09","s":1837,"k":"linkedin"},{"n":"Free AI Evals Course Overview and Curriculum","d":"2026-05-11","s":1051,"k":"linkedin"},{"n":"Structured harness for autonomous ML research with ARIS","d":"2026-05-12","s":2148,"k":"linkedin"},{"n":"The mental map for the 2026 agent stack","d":"2026-05-12","s":1023,"k":"linkedin"},{"n":"AI security and the emerging threat of AI Agent Traps","d":"2026-05-13","s":2743,"k":"linkedin"},{"n":"Claude Chat vs. Code vs. Cowork cheat sheet","d":"2026-05-13","s":1174,"k":"linkedin"},{"n":"Enterprises Want Reliable, Predictable Outcomes Over Demos","d":"2026-05-13","s":304,"k":"linkedin"},{"n":"Chapter 1: The Language of Generative and Agentic AI","d":"2026-05-14","s":2468,"k":"linkedin"},{"n":"Understanding and designing memory for AI products","d":"2026-05-16","s":1333,"k":"linkedin"},{"n":"Building a production-ready Partner Agent config","d":"2026-05-18","s":363,"k":"linkedin"},{"n":"Chapter 1: The Language of Generative and Agentic AI","d":"2026-05-18","s":2014,"k":"linkedin"},{"n":"Pursuing excellence rather than making success the main goal","d":"2026-05-18","s":1072,"k":"linkedin"},{"n":"Building effective agent skills","d":"2026-05-19","s":1046,"k":"linkedin"},{"n":"Human-first approach to enterprise AI transformation","d":"2026-05-19","s":653,"k":"linkedin"},{"n":"Instructors' genuine passion drives workshop engagement over hype","d":"2026-05-19","s":333,"k":"linkedin"},{"n":"One, fundraising is painful. It can become a full time job.","d":"2026-05-21","s":1332,"k":"linkedin"},{"n":"Three strategic paths for startups in the context graphs and enterprise software era","d":"2026-05-22","s":1837,"k":"linkedin"},{"n":"Building a content operating system using a multi-agent setup on Claude Code","d":"2026-05-27","s":2240,"k":"linkedin"},{"n":"Impactful Learning Experience Feedback","d":"2026-05-27","s":291,"k":"linkedin"},{"n":"Optimizing AI Agent Skills Over Time with Feedback Loops","d":"2026-05-27","s":1941,"k":"linkedin"},{"n":"Building Agentic Solutions with a Problem First Approach","d":"2026-05-30","s":389,"k":"linkedin"},{"n":"Stanford course","d":"2026-05-30","s":2836,"k":"linkedin"},{"n":"A problem-first mindset is your moat","d":"2026-05-31","s":249,"k":"linkedin"},{"n":"AI Stack in 2026 Event Announcement","d":"2026-05-31","s":271,"k":"linkedin"},{"n":"Salute Emojis Post","d":"2026-05-31","s":197,"k":"linkedin"},{"n":"Bridging infrastructure and AI application development","d":"2026-06-02","s":382,"k":"linkedin"},{"n":"Defining Real Success Beyond Vanity Metrics in Teaching","d":"2026-06-02","s":389,"k":"linkedin"},{"n":"Difficulty of having casual conversations in San Francisco due to constant founder mindset","d":"2026-06-02","s":1393,"k":"linkedin"},{"n":"Invest in yourself with trending course on Maven and Lenny's list","d":"2026-06-02","s":335,"k":"linkedin"},{"n":"Learning from Top Industry Minds","d":"2026-06-02","s":310,"k":"linkedin"},{"n":"Think Before Building in the AI Era","d":"2026-06-02","s":1322,"k":"linkedin"},{"n":"AI Builder Pass Launch","d":"2026-06-03","s":2302,"k":"linkedin"},{"n":"Participating with Confidence in AI Architecture Discussions","d":"2026-06-03","s":388,"k":"linkedin"},{"n":"Cursor and LevelUp Labs Partnership for AI Native Building","d":"2026-06-04","s":1389,"k":"linkedin"},{"n":"Agentic AI Evaluation Workflows with Arize Alyx 2.0","d":"2026-06-06","s":1974,"k":"linkedin"},{"n":"No-BS AI learning resource","d":"2026-06-06","s":285,"k":"linkedin"},{"n":"Hosting in-person Bay Area AI community cohort meetups","d":"2026-06-09","s":1635,"k":"linkedin"},{"n":"Understanding reinforcement learning without heavy math","d":"2026-06-09","s":1322,"k":"linkedin"},{"n":"7 golden rules for production agent evaluations","d":"2026-06-13","s":1540,"k":"linkedin"},{"n":"Claude Code's bias toward Anthropic API keys over OpenAI keys in benchmarking scripts","d":"2026-06-16","s":541,"k":"linkedin"},{"n":"Learning to code and building with agents in 2026","d":"2026-06-16","s":3229,"k":"linkedin"},{"n":"Systematically evolving agent harnesses beyond the model","d":"2026-06-16","s":2701,"k":"linkedin"},{"n":"Voice agents in enterprise AI and Vapi partnership","d":"2026-06-16","s":1099,"k":"linkedin"},{"n":"Horizontal copilots are not enough","d":"2026-06-17","s":2455,"k":"linkedin"},{"n":"LevelUp Labs Joins the Claude Partner Network for Human-First AI Transformation","d":"2026-06-17","s":1762,"k":"linkedin"},{"n":"Voice Coding Prompt Instruction for Transcription Errors","d":"2026-06-17","s":712,"k":"linkedin"},{"n":"Build smarter model orchestration and routing pipelines internally","d":"2026-06-18","s":2149,"k":"linkedin"},{"n":"Thinking about Claude Code as a progressive system and context management problem","d":"2026-06-20","s":2028,"k":"linkedin"},{"n":"How to Use AI Agents Better Than 99% of People | Ex-Amazon AI Scientist","d":"2026-06-24","s":18610,"k":"youtube"},{"n":"Claude Tag Costs and Unintended API Invocations","d":"2026-06-25","s":849,"k":"linkedin"},{"n":"AI Engineering Explained in 17 mins | The Ultimate Beginner’s Guide","d":"2026-07-01","s":19371,"k":"youtube"},{"n":"AI Engineering Explained: What to Learn to Build AI Systems","d":"2026-07-06","s":2005,"k":"linkedin"},{"n":"Joining iTradeNetwork as a new grad under Sid's leadership","d":"2026-07-06","s":620,"k":"linkedin"},{"n":"Composio Partnership for the AI Builder Pass","d":"2026-07-07","s":1469,"k":"linkedin"},{"n":"Continuous evaluation feedback loop for production AI","d":"2026-07-07","s":367,"k":"linkedin"},{"n":"Unplugging from entrepreneurship and taking yourself less seriously","d":"2026-07-07","s":1859,"k":"linkedin"},{"n":"Agentic AI and multiplayer workspaces solving context switching","d":"2026-07-08","s":809,"k":"linkedin"},{"n":"Productionizing Voice AI Agents","d":"2026-07-08","s":2270,"k":"linkedin"},{"n":"The authors widen the definition of state beyond memory","d":"2026-07-08","s":1950,"k":"linkedin"},{"n":"Why AI automation raised the bar for cold outreach and marketing","d":"2026-07-09","s":1045,"k":"linkedin"},{"n":"Why Technical AI PMs Excel as Forward Deployed Engineers","d":"2026-07-09","s":2444,"k":"linkedin"},{"n":"Deepgram Partnership with AI Builder Pass for Voice AI Learning","d":"2026-07-10","s":1505,"k":"linkedin"},{"n":"Learning from practitioners at the frontier","d":"2026-07-10","s":375,"k":"linkedin"},{"n":"The first camp makes evals extremely pedantic","d":"2026-07-10","s":2473,"k":"linkedin"},{"n":"Frame the right problem","d":"2026-07-11","s":2441,"k":"linkedin"},{"n":"Hugging Face's Open-Source Coding Agent Tau for Studying System Design","d":"2026-07-11","s":1388,"k":"linkedin"},{"n":"I Automate My Entire Company With Codex (Full System)","d":"2026-07-13","s":21331,"k":"youtube"},{"n":"Cognitive Burnout and Low-Effort Content Consumption from AI Work","d":"2026-07-14","s":661,"k":"linkedin"},{"n":"Identifying AI opportunities through operators rather than leadership","d":"2026-07-14","s":420,"k":"linkedin"},{"n":"Part 1: The Map","d":"2026-07-14","s":2395,"k":"linkedin"},{"n":"Rule of thumb for identifying slop","d":"2026-07-14","s":332,"k":"linkedin"},{"n":"Teaching the Mindset and Tradeoffs of Building AI Systems Instead of Surface-Level Tools","d":"2026-07-14","s":2432,"k":"linkedin"},{"n":"Chai & AI Alumni Community and Weekly Learning Sessions","d":"2026-07-15","s":2194,"k":"linkedin"},{"n":"AI Evals 101","d":"2026-07-16","s":562,"k":"linkedin"},{"n":"AI Transformation as Orchestration","d":"2026-07-16","s":341,"k":"linkedin"},{"n":"Auditing data sources to clean contradictions before building an LLM wiki","d":"2026-07-16","s":1238,"k":"linkedin"},{"n":"Build a knowledge base that gives Codex real context about your work","d":"2026-07-16","s":1754,"k":"linkedin"},{"n":"Is Learning to Code Still Worth It in 2026? | Ex-Amazon AI Scientist","d":"2026-07-21","s":19410,"k":"youtube"},{"n":"Loop models and internal recurrence in Transformers","d":"2026-07-21","s":1441,"k":"linkedin"},{"n":"Open Source AI Interview Hub and System Design Guide","d":"2026-07-21","s":2414,"k":"linkedin"},{"n":"Auditing workflows and educating teams for AI adaptation","d":"2026-07-22","s":690,"k":"linkedin"},{"n":"Limitations and gaming of AI detection tools","d":"2026-07-22","s":978,"k":"linkedin"},{"n":"The AI Builder Bundle Maven Course Offer","d":"2026-07-22","s":1553,"k":"linkedin"},{"n":"AI Agents LinkedIn Learning Course Milestone and Overview","d":"2026-07-23","s":1327,"k":"linkedin"},{"n":"AI Interview Hub System Design Use Cases and Roles","d":"2026-07-23","s":1935,"k":"linkedin"},{"n":"Super super excited for this one!","d":"2026-07-23","s":253,"k":"linkedin"},{"n":"Is Learning to Code Still Worth It in 2026?","d":"2026-07-24","s":1589,"k":"linkedin"},{"n":"2026-07-25-timeless","d":"2026-07-25","s":229,"k":"linkedin"},{"n":"Overestimating task completion time compared to actual execution","d":"2026-07-26","s":336,"k":"linkedin"},{"n":"NVIDIA Partnership with LevelUp Labs for AI Infrastructure and Learning","d":"2026-07-28","s":1548,"k":"linkedin"},{"n":"Proliferation of AI Agent Engineering Terminology","d":"2026-07-29","s":2288,"k":"linkedin"},{"n":"Reducing AI inference costs and latency with predictive agent layers","d":"2026-07-29","s":1274,"k":"linkedin"},{"n":"Why Operators Should Create Content From Real Experience","d":"2026-07-29","s":524,"k":"linkedin"},{"n":"Hosting The AI Builders Summit","d":"2026-07-30","s":1664,"k":"linkedin"},{"n":"AI Builder Bundle Maven Courses","d":"2026-07-31","s":2080,"k":"linkedin"},{"n":"Becoming an AI Engineer in 2026: Interviewing, System Design, Evals. Aishwarya Reganti","d":"2026-08-01","s":54297,"k":"youtube","sel":1},{"n":"CC/CD philosophy and the agency-control tradeoff in building AI agents","d":"2026-08-01","s":2714,"k":"linkedin"},{"n":"Learning AI Engineering and Interviews","d":"2026-08-03","s":339,"k":"linkedin"},{"n":"AI Builders Summit Momentum and Speaker Lineup Announcement","d":"2026-08-04","s":835,"k":"linkedin"},{"n":"Building AI Agents That Actually Work","d":"2026-08-04","s":18807,"k":"youtube"},{"n":"Cracking the AI System Design Interview Handbook","d":"2026-08-04","s":1659,"k":"linkedin"},{"n":"Setting up systems around agent harnesses","d":"2026-08-04","s":705,"k":"linkedin"},{"n":"Stop attaching self-worth to execution and think like a designer setting up processes for AI agents","d":"2026-08-04","s":666,"k":"linkedin"},{"n":"Start with why","d":"2026-08-05","s":229,"k":"linkedin"},{"n":"What it takes to build AI native products in 2026","d":"2026-08-05","s":1043,"k":"linkedin"},{"n":"Context design as architecture in problem solving","d":"2026-08-06","s":379,"k":"linkedin"},{"n":"Building a mental model and vocabulary to evaluate AI engineering trade-offs","d":"2026-08-07","s":413,"k":"linkedin"},{"n":"Podcast chat on AI engineering, evals, and enterprise workflows with Arjay McCandless","d":"2026-08-07","s":1123,"k":"linkedin"},{"n":"Turning Meeting Information into Useful Workflows with Grain's MCP","d":"2026-08-07","s":968,"k":"linkedin"},{"n":"AI Builders Summit Kickoff and Lineup","d":"2026-08-08","s":676,"k":"linkedin"},{"n":"Building Agentic AI Applications with Cursor Workshop","d":"2026-08-10","s":812,"k":"linkedin"},{"n":"Claude refuses an image prompt request due to post-training behavior","d":"2026-08-10","s":497,"k":"linkedin"},{"n":"Free sign-up reminder for upcoming AI event","d":"2026-08-10","s":298,"k":"linkedin"},{"n":"Event Announcement and Registration","d":"2026-08-11","s":295,"k":"linkedin"},{"n":"@yourgirlhils learned the va…","d":"2026-08-12","s":391,"k":"twitter"},{"n":"How AI shifts human discussions from execution to high-level product judgment","d":"2026-08-12","s":2170,"k":"linkedin"},{"n":"Token Economics and Cost Optimization for Scalable Solutions","d":"2026-08-12","s":467,"k":"linkedin"},{"n":"What enterprise leaders are thinking about in 2026 feels like a complete flip from 2025","d":"2026-08-13","s":2092,"k":"linkedin"},{"n":"Balancing workflow reimagination with user adoption in enterprise AI UX","d":"2026-08-14","s":2396,"k":"linkedin"},{"n":"Codex Best Practices and Workflows Session by Kiriti Badam","d":"2026-08-17","s":626,"k":"linkedin"},{"n":"Catastrophes and detection challenges of AI-generated videos anchored to real events","d":"2026-08-18","s":1497,"k":"linkedin"},{"n":"DeepSeek Harness features and impressions","d":"2026-08-18","s":1516,"k":"linkedin"},{"n":"Is RAG Dead? How Top Companies Build in 2026 Explained","d":"2026-08-18","s":20919,"k":"youtube"},{"n":"A first-principles evaluation of loop engineering in AI systems","d":"2026-08-19","s":1805,"k":"linkedin"},{"n":"AI Builder Summit In-Person After-Party in SF","d":"2026-08-20","s":933,"k":"linkedin"},{"n":"What It Actually Means to Build RAG in 2026","d":"2026-08-20","s":1198,"k":"linkedin"},{"n":"Chris Alexiuk from NVIDIA deep dive on open-source AI and Nemotron","d":"2026-08-21","s":425,"k":"linkedin"},{"n":"AI Engineering in 2026: Prompt, Context, Harness, Loop, Graph Explained!","d":"2026-08-27","s":26340,"k":"youtube"},{"n":"Understanding AI engineering terms and how they relate","d":"2026-09-01","s":869,"k":"linkedin"},{"n":"LevelUp Labs x Mem0 Meetup in SF Announcement","d":"2026-09-03","s":817,"k":"linkedin"},{"n":"Set Up Claude Code Like This: Cheaper Tokens, Actual 10x Results","d":"2026-09-03","s":21718,"k":"youtube"},{"n":"Yay! Super stoked for this","d":"2026-09-03","s":244,"k":"linkedin"},{"n":"Problem-First Agentic AI Applications Demo Day","d":"2026-09-04","s":1686,"k":"linkedin"},{"n":"Recommendation of Mihail's course","d":"2026-09-04","s":303,"k":"linkedin"},{"n":"Designing the workflow around the agent","d":"2026-09-07","s":458,"k":"linkedin"},{"n":"Astra + Codex integration experience and key features","d":"2026-09-08","s":1225,"k":"linkedin"},{"n":"Designing end-to-end agentic AI applications","d":"2026-09-08","s":393,"k":"linkedin"},{"n":"Lecturer involvement and practical approach in cohort-based AI training","d":"2026-09-08","s":626,"k":"linkedin"},{"n":"LevelUp Labs x Mem0 Meetup in SF","d":"2026-09-08","s":775,"k":"linkedin"},{"n":"AI voice agents and real-time speech generation with Cartesia","d":"2026-09-09","s":788,"k":"linkedin"},{"n":"Converting Technical Books into Skills for Coding Agents with book-to-skill","d":"2026-09-09","s":952,"k":"linkedin"},{"n":"Workflow memory","d":"2026-09-09","s":1738,"k":"linkedin"},{"n":"Architectural Rigor over Hype","d":"2026-09-10","s":390,"k":"linkedin"},{"n":"Creation","d":"2026-09-10","s":1497,"k":"linkedin"},{"n":"How does Claude watermark its text?","d":"2026-09-10","s":686,"k":"linkedin"},{"n":"Productionizing Voice AI with Vapi","d":"2026-09-10","s":820,"k":"linkedin"},{"n":"Automated LLM wiki generator and desktop app","d":"2026-09-11","s":1355,"k":"linkedin"},{"n":"Context audit and setup: clean up stale or conflicting information and set up the instructions and tools an agent needs.","d":"2026-09-11","s":1195,"k":"linkedin"},{"n":"Forward Deployed Engineer: Hype, Reality & a Realistic Roadmap","d":"2026-09-11","s":23538,"k":"youtube"},{"n":"Inference Engineering 101","d":"2026-09-12","s":799,"k":"linkedin"},{"n":"Full Stack AI Bundle for pivoting into AI","d":"2026-09-15","s":1525,"k":"linkedin"},{"n":"Carnegie Mellon's Free AI Agents Course on YouTube","d":"2026-09-16","s":1065,"k":"linkedin"},{"n":"Lessons on Building and Shipping AI-Native Products at Scale","d":"2026-09-16","s":2741,"k":"linkedin"},{"n":"Problem-first approach to agentic AI","d":"2026-09-16","s":554,"k":"linkedin"},{"n":"AI Generated Misinformation and the Impact on Trust","d":"2026-09-17","s":1197,"k":"linkedin"},{"n":"Evals must exist before scaling","d":"2026-09-17","s":304,"k":"linkedin"},{"n":"IISc Bangalore Lecture on Pedagogy and Identity in the Age of AI","d":"2026-09-17","s":1654,"k":"linkedin"},{"n":"Online AI courses often lean into hype","d":"2026-09-17","s":302,"k":"linkedin"},{"n":"Read the traces before you optimize","d":"2026-09-17","s":305,"k":"linkedin"},{"n":"Real AI is 'boring': Working systems are hard and complex","d":"2026-09-17","s":299,"k":"linkedin"},{"n":"The Most Important Skill for AI Engineers: Evals Explained","d":"2026-09-17","s":22144,"k":"youtube"},{"n":"Headroom: Local Context Compression for AI Agents","d":"2026-09-18","s":1353,"k":"linkedin"},{"n":"LevelUp Labs x Mem0 Meetup in SF","d":"2026-09-18","s":901,"k":"linkedin"},{"n":"Debunking Myths About the Forward Deployed Engineer Role","d":"2026-09-19","s":1323,"k":"linkedin"},{"n":"Why AI evals are essential for AI roles in 2026","d":"2026-09-21","s":960,"k":"linkedin"},{"n":"How models like Jev work under the hood compared to LLMs","d":"2026-09-23","s":1190,"k":"linkedin"},{"n":"Teaching Harness Engineering Announcement","d":"2026-09-23","s":221,"k":"linkedin"},{"n":"Teaching Harness Engineering at Horowitz Andreessen Academy","d":"2026-09-23","s":452,"k":"linkedin"},{"n":"Harness Engineering course and curriculum","d":"2026-09-24","s":1836,"k":"linkedin"},{"n":"Jev Explained in 12 mins (Without the Hype)","d":"2026-09-24","s":15931,"k":"youtube"},{"n":"Questioning Frontier Model Necessity with Packaged General Intelligence","d":"2026-09-24","s":992,"k":"linkedin"},{"n":"Taste-Bench and Measuring Decision-Making 'Taste' in AI Agents","d":"2026-09-24","s":1808,"k":"linkedin"},{"n":"Stanford's Course on the Economics of the AI Supercycle","d":"2026-09-25","s":1382,"k":"linkedin"},{"n":"The Coding Agent Moment for Graphics and Computer Use","d":"2026-09-29","s":2013,"k":"linkedin"},{"n":"Welcome Kiriti Badam and reflecting on his time at OpenAI","d":"2026-09-29","s":352,"k":"linkedin"},{"n":"You need to learn Local AI in 2026","d":"2026-10-01","s":23040,"k":"youtube"},{"n":"Architecture and design decisions of OpenMuse personal agent","d":"2026-10-02","s":2649,"k":"linkedin"},{"n":"Cracking the AI System Design Interview","d":"2026-10-03","s":1445,"k":"linkedin"},{"n":"Why bigger context windows don’t kill retrieval","d":"2026-10-06","s":1439,"k":"linkedin"},{"n":"Anthropic on Automating Eval Design with Claude Code","d":"2026-10-07","s":1730,"k":"linkedin"},{"n":"Corporate politics becoming nastier as AI cheapens pure execution","d":"2026-10-07","s":1148,"k":"linkedin"},{"n":"AWS AI Lead: 6 Real-World AI Projects I Wish I Saw on Resumes","d":"2026-10-08","s":26471,"k":"youtube"},{"n":"Token economics","d":"2026-10-08","s":2733,"k":"linkedin"},{"n":"Unlearning silent recognition and learning to speak for your work","d":"2026-10-09","s":2616,"k":"linkedin"},{"n":"AI Evals for Everyone Course Overview","d":"2026-10-10","s":1373,"k":"linkedin"},{"n":"Effort in video creation and distilling ideas clearly","d":"2026-10-11","s":397,"k":"linkedin"},{"n":"Good builders should write more","d":"2026-10-12","s":247,"k":"linkedin"},{"n":"Appreciating the human craft of sales as an engineer","d":"2026-10-13","s":1677,"k":"linkedin"},{"n":"Document intelligence","d":"2026-10-13","s":1330,"k":"linkedin"},{"n":"AI slop comments on LinkedIn and authentic engagement","d":"2026-10-14","s":1982,"k":"linkedin"},{"n":"AI Evals Deep Dive Overview and Milestone","d":"2026-10-15","s":1066,"k":"linkedin"},{"n":"How MCP Works in 2026 Explained For Beginners","d":"2026-10-15","s":25374,"k":"youtube"},{"n":"You connect REA to your coding agent.","d":"2026-10-15","s":2435,"k":"linkedin"},{"n":"Problem-first approach to building AI prototypes","d":"2026-10-17","s":1284,"k":"linkedin"},{"n":"2026-10-18-takeaways","d":"2026-10-18","s":230,"k":"linkedin"},{"n":"Building Agentic AI Applications with a Problem-First Approach Cohort Kickoff and Unlearning","d":"2026-10-18","s":1067,"k":"linkedin"},{"n":"NVIDIA Nemotron adoption and enterprise open-source model distribution","d":"2026-10-20","s":1964,"k":"linkedin"},{"n":"For open-ended work, there may be no perfect answer to check against","d":"2026-10-21","s":1873,"k":"linkedin"},{"n":"Using personal agents as orchestrators rather than primary task executors","d":"2026-10-21","s":1375,"k":"linkedin"},{"n":"2,000+ Hours of Learning Agentic AI System Design in 20 Minutes","d":"2026-10-22","s":26783,"k":"youtube"},{"n":"Claude Duet release and the potential of personal AI agents","d":"2026-10-22","s":811,"k":"linkedin"},{"n":"We're entering the era of resume slop","d":"2026-10-24","s":2160,"k":"linkedin"},{"n":"Five-layer framework for agentic AI system design interviews","d":"2026-10-27","s":950,"k":"linkedin"},{"n":"Headroom","d":"2026-10-28","s":1377,"k":"linkedin"},{"n":"Measure first","d":"2026-10-28","s":1924,"k":"linkedin"},{"n":"2,000+ Hours of Learning Harness Engineering in 18 Minutes","d":"2026-10-29","s":23511,"k":"youtube"},{"n":"Why Jev Raised $870M Despite Market Copies","d":"2026-10-30","s":610,"k":"linkedin"},{"n":"Teaching and learning exchange with Parveen Khan","d":"2026-11-02","s":280,"k":"linkedin"},{"n":"First, check if the agent is even loading the skill","d":"2026-11-04","s":1151,"k":"linkedin"},{"n":"SPAR: Self-improving agents in multi-session B2B sales through dual learning loops","d":"2026-11-04","s":1777,"k":"linkedin"},{"n":"Super stoked for this!","d":"2026-11-04","s":233,"k":"linkedin"},{"n":"How RAG, Fine-Tuning, LoRA & RL Fit Together in One AI System","d":"2026-11-05","s":22532,"k":"youtube"},{"n":"Optimizing Prompt Caching to Reduce LLM Inference Costs","d":"2026-11-05","s":2507,"k":"linkedin"},{"n":"1. Build projects that solve problems companies actually have.","d":"2026-11-10","s":2615,"k":"linkedin"},{"n":"Hybrid Reasoning Agents: Latent Space Reasoning for Faster AI Agents","d":"2026-11-10","s":1588,"k":"linkedin"},{"n":"The AI Security Framework Every Engineer Needs to Know","d":"2026-11-12","s":24809,"k":"youtube"},{"n":"The Voice AI War and the Lack of Product Moats","d":"2026-11-12","s":2061,"k":"linkedin"},{"n":"Creating Original, Experience-Driven AI Evals Educational Content","d":"2026-11-16","s":1705,"k":"linkedin"},{"n":"Maven Year-End Fast Track Sale and Cohort Access","d":"2026-11-18","s":2732,"k":"linkedin"},{"n":"Problem-first approach to building agentic AI applications","d":"2026-11-18","s":533,"k":"linkedin"},{"n":"How to Build a Personal AI Agent That Works 24/7","d":"2026-11-19","s":27879,"k":"youtube"}],"totals":{"conversations":246,"actions":2024,"frames":1466,"tactics":116,"scenes":44,"phases":6,"beliefs":6,"words":164286},"session":{"title":"Becoming an AI Engineer in 2026: Interviewing, System Design, Evals. Aishwarya Reganti","date":"2026-08-01","kind":"YouTube · Arjay McCandless","turns":70,"other":"Arjay","lines":[{"id":"t0114","ts":"¶50","raw":"speaker_2","coach":false,"who":"Arjay","text":"That makes sense And this reminds me of something I wanted to bring up when we talked about token maxing at the beginning But are you now seeing a shift especially with companies wanting to use these open source models in companies …"},{"id":"t0116","ts":"¶51","raw":"speaker_1","coach":true,"who":"Aishwarya","text":"One is companies who are trying to save costs I dont think theyre quickly moving into open source because remember that once you move into open source theres a lot of infrastructure issues that you need to be dealing with right Its …"},{"id":"t0118","ts":"¶52","raw":"speaker_2","coach":false,"who":"Arjay","text":"Do you think theres a world where you know cloud providers have GPUs Like AWS just rolls out Kimi K3 at half the price of Opus and then it is just API billing"},{"id":"t0120","ts":"¶53","raw":"speaker_1","coach":true,"who":"Aishwarya","text":"Yes but I mean even now theres all of this Fireworks and all of these folks who have open source models and they are competitive as well but I think they will also catch up to the heat because The bottleneck is at the hardware layer …"},{"id":"t0122","ts":"¶54","raw":"speaker_2","coach":false,"who":"Arjay","text":"That makes sense Im curious if you well a specific architecture pattern I guess that Im interested in is multi agent systems Im curious if thats common in what youre implementing or more of just like things that people are doing in …"},{"id":"t0124","ts":"¶55","raw":"speaker_1","coach":true,"who":"Aishwarya","text":"It is common but I think when people say multi agent systems theres the notion is that you have a swarm of agents that are just communicating with each other making their own decisions handing off whenever they feel like But that is …"},{"id":"t0126","ts":"¶56","raw":"speaker_2","coach":false,"who":"Arjay","text":"Yeah that makes sense To touch on Claude code and whatnot Im curious what your personal coding workflow looks like Do you use any crazy setup of skills and tools or anything or is it more like just a vanilla setup"},{"id":"t0128","ts":"¶57","raw":"speaker_1","coach":true,"who":"Aishwarya","text":"I think its vanilla given how much Ive seen on YouTube and all of those crazy mission control boards and stuff I dont have any of that I do have an operating system and then I have folders organized across all of my tracks like my …"},{"id":"t0130","ts":"¶58","raw":"speaker_2","coach":false,"who":"Arjay","text":"Completely agree Im planning on making a video on this this week because I keep seeing those posts and it pisses me off Im like you dont need to download all this stuff Just build your own skills keep them simple I am curious though …"},{"id":"t0132","ts":"¶59","raw":"speaker_1","coach":true,"who":"Aishwarya","text":"Ideally yes I dont but you should be doing that just because its burning into your tokens I also think at some point I had 100 MCP connections and then I was just eating up into all of those tokens I do think skills are very For …"}]},"frames":[{"id":"f-00","span":"asking what strategies companies use to save tokens","kind":"question","from":["t0114"]},{"id":"f-01","span":"explaining that most companies route between smaller and bigger hosted models rather than move to open source","kind":"statement","from":["t0116"]},{"id":"f-02","span":"asking whether cloud providers will offer open models at half the price","kind":"question","from":["t0118"]},{"id":"f-03","span":"saying the bottleneck is at the hardware layer, and everyone will get there in time","kind":"statement","from":["t0120"]},{"id":"f-04","span":"asking whether multi-agent systems are common in real work, or just something people try on the command line","kind":"question","from":["t0122"]},{"id":"f-05","span":"separating the swarm idea from what enterprises run: one main agent with sub-agents that are easy to audit","kind":"reframe","from":["t0124"]},{"id":"f-06","span":"asking what her own coding setup looks like","kind":"question","from":["t0126"]},{"id":"f-07","span":"describing a simple setup: folders for each track, a wiki and her own skills","kind":"statement","from":["t0128"]},{"id":"f-08","span":"asking whether she ever retires skills she no longer needs","kind":"question","from":["t0130"]},{"id":"f-09","span":"saying her skills change over time, and unused ones burn tokens","kind":"statement","from":["t0132"]}],"thread":{"cue":"f-04","move":"f-05","cueLine":"t0122","moveLine":"t0124"},"labels":{"tactics":["enterprise agentic AI adoption","hitting token limits with Claude Code or Codex","raising VC funding","designing AI evaluation frameworks","looking for entry-level roles in AI","encountering exaggerated AI marketing claims","distraction from AI and social media possibilities","weekend pick me up","evaluating autonomous software engineering agents","evaluating single-person billion-dollar company hype","evaluating enterprise AI","course feedback","evaluating personal career milestones","casual conversation turning into startup talk","transitioning from infrastructure background to AI","navigating AI hype and new developments","deploying AI agents to production","improving agent performance through modular infrastructure and failure tracing","voice-to-text transcription errors in AI instructions","learning to code in 2026","running benchmark simulator scripts with multiple API keys","unintended bot invocations in threads","high token costs and hardware bottlenecks","founder burnout and work-life balance","enterprise AI deployments","context switching and tool switching","prospects ignoring AI-generated outreach","multitasking and context switching in tech work","identifying workflow automation opportunities","building an LLM wiki with contradictory documents","bypassing AI text detectors","AI code generation tools replacing manual coding","overestimating time required for focused work","competing with regurgitated AI slop","enterprises managing rising token costs and latency","building agents for large scale production use cases","enterprise concerns about LLM token costs","shifting enterprise AI priorities from adoption to operationalization","team collaboration when using AI tools","integrating AI into non-technical user workflows","asking an LLM for an image prompt to use elsewhere","RAG architecture evolution","confused by various AI engineering terms","overwhelmed by AI agent hype","conversation starts going off track","scaling systems","evaluating hype in AI courses","optimizing high cost in agentic AI steps","long agent sessions with large tool outputs","critics dismissing new AI tools as existing tech","tool call fails","execution becoming less expensive due to AI","climbing the corporate ladder or building a company","Job market hype and misconceptions","engineers learning sales","automated commentary discouraging engagement","enterprise token costs and model lock-in","open-ended work with no perfect ground truth","deploying autonomous self-improving agents in enterprise","screening AI-generated resumes and candidate profiles","getting stuck in AI system design interviews","personal agents underperforming on complex knowledge work compared to frontier models","competitors copying product","building AI agents","agent picking the wrong skill or security issues","saved credentials and settings hiding failures","agents gaming evaluation via answer files","overwhelmed by new AI tools without clear use cases","interview technical questions","managing teams adopting AI-generated code","transitioning from AI augmentation to automation","synthetic data diverges from live production traffic","agent attempting unauthorized access","expensive domain expert reviews","moving from prototype to production","evaluating generative AI applications","balancing performance cost and latency","monitoring production AI failures","handling compliance and governance","selecting foundational models","standing out in AI hiring","transition from research to applied AI lead","clients wanting AI without appropriate use cases","handling non-deterministic model behaviors","candidates lacking practical enterprise project experience","debugging failing LLM applications","evaluating unstructured domain responses","enterprise adoption of AI","calibrating autonomy","prompt injection","recalibrating systems","speculation that software engineering is obsolete","new automation tools changing developer roles","automating business workflows","choosing tasks to automate","automation errors and failure","drift and high-stakes error management","launching multiple automations simultaneously","claims that RAG is dead","criticism of one-shot RAG","large context windows vs retrieval","handling complex multi-part queries","auditable and trusted RAG guardrails","agent thread rot","hiring hype and salary claims","origin at Palantir","AI software breaking in customer environments","breaking into AI engineering","targeting specific AI engineering roles","AI engineering interviews","scaling AI models to end-to-end production tasks","guardrailing agent actions in enterprise systems","automating enterprise workflows","gathering SME intuition","production data distribution shift","reducing token costs"],"scenes":["AI evaluations","harness engineering","Agentic AI","AI agents","loop engineering","retrieval augmented generation","context engineering","Claude Code","production AI","multi-agent systems","Agentic AI Applications","context management","AI system design interviews","autonomous agents","agent memory distillation","prompt caching","AI product development","human-in-the-loop","AI agent harnesses","forward deployed engineering","agency control trade-off","Enterprise AI applications","Problem-first AI design","AI system design","AI product design","AI transformation","Generative and Agentic AI terminology","Prompting and context engineering","Code-based evals","LLM-as-a-judge","Input and output guardrails","Agent architecture","Workflow and router patterns","Agent memory","Observability and tracing","Production readiness checklist","Role-based learning tracks","AI coding education","AI learning resources","AI agent evaluations","coding agents","system design","LLM evaluation","tool integrations"],"phases":["Start with the problem","Learn the foundations","Design the system","Evaluate it","Ship it safely","Grow as a builder"],"beliefs":["Problem first: A problem-first mindset is your moat","Earn autonomy step by step: Do not automate fully on day one.","Evals are the hard part: Building an agent is honestly the easiest part of building AI systems.","One agent before many: As a practitioner I would always start with a single agent and build for some form of interoperability.","Judgment over building: It's not the time to be just building because it's so easy to build. Your edge should probably be in the judgment.","Understand what you build: Use as much AI as you want, but understand your code."]},"floors":{"1":[626,417,259,-249,-205,599,26,-390,-334,397,-179,203,-174,91,-56,-55,-92,183,92,54,827,465,135,-155,-154,-222,-93,-330,-91,739,-206,478,-240,198,-671,10,-232,-345,-16,-343,-4,-125,90,-67,328,-756,24,-71,-40,-361,-468,-617,355,193,-445,288,32,-493,20,-152,25,-308,38,699,137,279,530,473,-201,493,203,-520,-377,-86,-155,-44,31,268,308,13,-30,-653,-466,-480,-475,-588,85,46,446,556,662,-321,213,-3,-613,507,200,-559,-350,434,-154,-346,-344,-420,544,82,-206,569,369,-42,10,-283,-116,-272,148,-90,-554,-133,503,464,-201,421,62,687,-335,-440,-151,-220,430,-630,363,-630,424,-597,-22,-181,149,-218,-86,-713,167,451,-40,-286,229,56,273,-305,260,-284,-96,-385,-692,255,658,-601,127,-30,-452,-573,209,-570,336,185,637,-612,-44,-199,156,-697,106,-698,-676,-362,-172,20,91,597,-35,-231,-667,340,225,-224,-67,-16,-650,122,470,-617,-48,-201,518,149,-47,-246,246,321,-22,-321,345,-378,163,-289,343,-627,391,104,-652,-534,345,-129,40,-321,-18,-303,-773,-196,-691,-67,-102,-279,-282,-113,-220,572,78,-242,433,355,72,327,73,-363,-353,-459,-185,-303,-292,-382,314,-314,-492,539,102,-185,313,278,27,-216,454,244,-139,-304,-331,-601,124,-469,99,384,199,-492,-574,-130,-193,-295,368,-980,55,-373,-450,-429,-496,591,454,-505,427,-30,213,162,114,-214,-69,-178,65,-158,-69,240,101,-343,244,-624,-37,-161,-115,-201,640,109,-174,804,468,-546,260,362,-555,-185,15,-125,-593,229,363,503,-52,-312,-435,-624,-29,-309,-832,-428,-101,-276,123,-712,-139,-250,92,-431,-595,-248,757,589,402,-495,622,-502,-199,-28,-251,-461,-580,-145,137,-159,50,-677,-174,-265,175,-532,544,555,507,443,499,20,650,486,-211,-264,-581,-370,229,-565,73,-386,51,-157,-113,-259,-641,406,-112,-437,-273,395,-436,707,195,-213,595,246,383,104,-63,-180,-659,394,224,-589,-585,-343,-15,-119,492,-810,53,-460,649,26,767,-470,305,280,-34,-99,450,-511,-424,-529,426,386,-162,-187,-92,-698,-402,-153,532,-677,-376,593,502,497,-131,-219,-234,328,66,-125,115,4,-159,-285,-636,-367,-24,-305,-117,-304,-413,240,-39,-293,661,-21,-479,740,168,-428,26,-363,-53,-77,-124,-611,-204,388,-117,-364,-209,-139,-8,610,455,-98,-64,-128,-558,-422,-119,-37,-510,-528,130,-606,74,-384,571,449,670,-725,108,-194,-14,-426,-226,-680,364,-474,224,-281,-482,-49,-550,-587,704,-213,-820,387,-149,-105,-502,-323,690,-514,-273,460,638,-325,-129,-341,-108,-240,-58,318,373,425,-225,524,-95,-73,-594,-369,-180,-326,-840,-309,-215,-763,-800,-365,532,-433,-151,272,366,476,324,423,-755,-450,604,-496,125,-205,-107,-136,-359,260,390,318,110,-533,-84,-338,-502,24,279,58,9,-243,-39,-697,-281,482,182,-70,-500,-315,410,-570,241,287,-164,-496,-555,774,233,-6,-402,-172,172,-205,-673,225,-578,-642,-234,-196,-698,-20,-612,0,-661,208,-178,389,344,-382,364,-376,-148,-263,429,445,152,-310,210,-529,100,89,308,226,419,-590,32,-420,734,502,-450,648,-171,-63,4,-473,-317,-614,100,-735,-13,-254,450,-320,10,-267,157,-70,-41,-270,-314,463,71,-81,-883,-510,165,27,447,232,345,287,431,-423,412,-314,-95,693,310,413,-245,-204,584,182,232,142,0,-591,116,-226,568,467,348,-634,-118,-262,548,561,-354,-492,-435,-708,300,394,753,584,87,-104,-140,-55,245,-356,343,-618,-6,-287,-562,-301,53,-203,-4,136,360,415,-730,-169,323,-214,653,561,70,-154,-234,-223,746,4,-221,-432,214,-324,80,-220,-777,-40,113,-128,-39,-340,-759,-398,-132,-131,377,-165,110,-200,-465,-467,-715,-325,-63,834,203,97,189,-267,-126,235,618,278,622,167,121,-297,608,138,297,-325,538,-84,509,-444,-155,-251,487,184,185,-600,-51,-340,-78,240,129,329,267,-687,220,-648,-104,12,-86,-675,95,-314,-154,209,-87,-255,-77,-298,-55,-318,469,-395,-56,-489,-301,-342,10,174,-238,-447,-366,307,-621,-326,-395,-264,466,489,601,-529,-679,97,-249,-130,258,370,334,-120,393,-267,-7,-290,167,-615,-30,211,131,824,445,-468,567,90,191,-566,-360,-656,714,11,166,-332,304,613,443,457,454,314,-241,-514,132,-489,-10,184,-310,648,87,-333,-379,165,231,421,-75,-142,-231,560,32,-38,285,245,-351,789,395,109,-3,-239,311,-724,-95,-167,-120,-728,-393,-723,-120,-121,-659,-72,-290,116,195,-691,12,-175,-479,-521,104,-304,-65,-144,555,24,363,-593,-320,419,-378,399,-64,-173,-219,-294,-329,678,-96,-193,213,-153,-86,303,494,562,592,121,-276,-157,518,-580,335,-715,-177,-141,-300,2,631,551,-507,74,466,-562,-347,-372,292,-451,322,480,363,-133,-102,-153,-182,-275,-305,410,-14,-80,-17,-436,-118,-356,492,93,23,-260,439,-28,61,-107,-692,-361,-75,-279,-102,-263,37,729,644,-173,-301,245,81,391,426,389,-146,-78,112,-121,329,-524,633,523,-238,593,-599,87,-378,-479,40,-726,586,-102,-985,-73,26,-256,-55,-137,27,-301,177,-427,497,28,599,-160,353,236,-92,-213,-116,-429,-18,-241,76,-86,-549,-540,682,189,203,-455,-100,-277,272,133,-818,193,154,-566,-38,32,378,-312,42,-80,-296,31,247,374,-589,589,-440,95,-151,-244,-45,-136,-116,-356,-153,-542,-741,333,-83,-194,326,-722,250,-151,-98,-413,-142,389,77,-406,51,-499,-129,-268,-197,-210,87,-296,-18,-77,-59,-205,-561,-154,779,222,140,-328,76,-309,-163,-256,538,468,34,-603,-399,-132,-572,-61,-81,-140,14,-192,95,-504,-431,-572,-65,-117,-158,-197,-30,-303,-523,62,-297,166,445,-397,412,-560,89,236,237,-196,-82,629,2,-123,366,-618,-56,-347,218,-379,-176,-172,526,223,33,-272,519,-513,76,-178,107,-308,-216,748,-257,423,336,-657,-171,-230,-124,-404,-13,-354,457,397,507,-488,-52,-247,404,-185,130,-179,-117,-635,1,-291,61,-451,-692,341,386,236,63,-179,10,53,109,182,246,-796,59,738,-439,629,72,-732,-171,-83,-566,-382,-552,-426,371,549,45,-220,-80,-63,-188,-135,-594,55,4,-284,476,-577,606,704,-252,74,-338,-721,-174,859,-347,527,27,-514,-348,-371,-60,-299,-167,-650,130,598,592,-689,-678,176,-147,94,-36,206,294,-676,19,-159,648,-329,-190,-164,-446,-386,558,612,267,412,-188,-749,-713,-215,246,296,401,169,-305,494,344,-307,274,278,-111,-132,-37,-310,33,-410,414,391,-302,191,31,807,-7,-610,612,-458,-304,395,-448,-218,-580,-327,8,-278,62,823,-101,-224,338,-548,0,-418,396,-387,-535,-424,340,136,142,-658,-608,347,-362,614,177,-52,275,-764,322,-122,-14,-278,343,458,-178,444,-721,233,-109,497,-132,696,-51,-410,24,-426,-596,159,616,-433,-81,643,-135,-254,-32,-402,198,-609,-319,606,-214,-341,205,140,-44,-61,123,-345,-528,740,-661,119,477,392,241,-509,684,583,138,-666,525,-76,648,28,-527,-241,-277,-87,450,-554,-258,-409,-170,-161,54,-123,-168,-62,396,330,378,842,-733,-94,-350,-428,326,243,-66,-181,5,0,452,85,676,-246,-697,-312,99,-509,158,-754,118,368,-57,-278,-822,-312,-95,-68,-137,575,79,-312,-391,-607,-556,206,-59,-428,620,426,-173,-273,594,706,-333,-203,-610,-473,-313,-86,352,146,-71,-272,560,46,-129,147,165,-220,30,-39,393,469,-139,-466,-23,505,560,-26,695,50,345,-337,-99,-161,302,539,-86,286,406,-670,-197,-828,332,-182,424,-656,435,-346,-222,-139,-825,490,-146,-615,451,-716,58,-394,630,194,-677,-425,-493,-507,-703,333,-170,-266,752,-125,-293,635,68,-375,470,218,-181,371,66,-98,-280,-239,285,96,284,-328,10,621,-529,-567,-854,117,-613,-15,-12,-226,-224,157,402,-282,-325,308,42,-665,704,522,-129,-228,585,-574,-39,272,-684,387,-36,-33,281,419,-58,-389,406,-209,-162,492,64,-514,262,389,-331,-678,-381,398,-273,317,-707,-449,1,-438,499,-85,-38,-518,38,-208,-135,399,-185,-295,64,-243,-45,-414,408,-409,-181,159,16,-401,748,454,-616,-170,726,348,162,-290,345,243,-102,-507,-5,-421,50,-442,2,-195,524,-659,261,316,513,-624,-242,-623,44,-234,587,-355,83,-280,-373,-735,-338,-640,-74,-229,-79,-274,207,-310,70,-634,-160,-379,-22,13,-649,243,265,149,-42,-137,-39,-172,-366,110,47,-46,372,-611,324,-699,-234,-311,147,249,-80,-401,-716,-366,180,-205,728,-28,-189,-528,-136,-269,39,-193,-285,612,60,-112,-32,-251,134,-191,362,-25,301,7,109,-753,-110,18,655,426,126,373,548,252,-428,-156,-3,364,-63,-146,-418,-116,393,444,162,-408,507,464,653,338,665,600,-497,-155,40,35,-25,-201,-321,-86,-82,-303,616,343,-148,536,-271,495,-32,-325,-611,261,193,185,-417,526,-48,-199,-77,-248,345,506,-116,-348,-229,-471,-37,-123,-797,146,255,-679,308,284,-561,131,-428,-668,521,432,45,39,-72,-300,-251,-212,293,358,683,169,-623,225,-340,679,-324,401,-716,187,142,-419,-247,-512,-21,-163,-604,-142,-116,-339,191,-509,147,-454,62,-153,-336,-554,27,146,-87,-217,-46,-114,101,-295,-166,-246,-248,-327,-447,449,452,-473,-22,-191,44,-640,430,-638,43,-184,129,-164,-106,-230,-180,-389,-142,-375,-115,-257,208,-340,437,626,-233,314,534,-530,-496,95,337,-59,247,-595,494,316,-175,-138,156,-184,-170,-218,-71,-308,12,-117,93,-238,157,-268,-518,17,-563,-668,295,307,-486,-667,22,-173,-422,-84,379,-696,-4,-264,-701,295,-12,-323,150,-460,144,-274,162,154,484,-336,-338,-482,-343,608,-243,815,203,-413,-112,-501,-36,-593,-107,-331,220,-326,590,-294,-29,-253,-138,-74,-439,-389,537,-16,-191,-670,563,419,-502,-110,367,520,-582,44,39,-33,-249,-515,-174,-689,-414,848,538,-571,-28,-366,51,-380,-706,-205,-122,-397,-383,-166,336,124,-48,-329,32,-447,327,95,707,352,-31,-632,-16,60,722,-344,444,-778,286,-270,236,-244,-63,-323,415,103,221,255,-77,-859,157,429,-50,-197,300,-496,-588,-39,176,-45,-91,-263,40,-270,-589,-151,-136,-252,354,-546,-113,-244,-220,-402,-319,-344,-6,-208,-5,-451,-734,167,442,363,-224,362,121,-21,414,9,6,-417,543,12,-25,-292,-122,-324,-151,297,429,532,-20,-348,320,437,133,-618,-401,219,958,538,127,-170,-47,-197,-739,-293,-93,-411,-412,324,142,-729,-311,-465,329,371,212,-391,-360,578,-231,729,-111,-533,-27,-353,482,-69,82,-306,-686,-337,-335,-365,522,304,103,-735,-119,334,789,145,195,-405,-20,-138,409,-726,421,526,138,-224,-13,-79,300,98,-136,-241,-1,-290,-215,230,331,576,-345,-415,439,-738,13,-465,-636,-25,49,-178,-59,57,5,-219,-364,-81,-664,-381,293,-727,451,565,-41,-345,317,226,54,-570,339,567,-45,189,363,-666,-322,474,442,13,-343,-224,450,741,12,-4,56,-101,-314,-619,432,301,435,-381,-65,-294,-183,655,69,-7,562,-89,-27,-214,-300,-256,548,-416,-522,-514,-100,-289,-751,72,167,-323,239,-370,-10,-26,-530,505,-223,-230,-426,-762,-321,-690,757,558,-393,-581,70,323,398,307,49,-240,412,87,9,-169,62,-118,-330,-466,312,156,-223,140,-303,540,-238,-160,117,-128,522,-250,-112,-340,161,-186,-133,-110,648,421,-193,-295,655,112,189,-390,448,40,261,-350,185,-363,17,2,-234,-778,64,-579,511,247,-54,-662,-409,-44,-489,-290,-281,963,479,571,-237,804,36,-202,16,-172,434,14,59,-687,457,-608,97,-205,352,545,-292,-419,25,-204,773,157,547,513,1,-136,-175,-316,-87,-133,-516,-102,89,-28,-152,-357,-575,-235,525,327,455,-132,414,-125,128,-435,-185,228,-38,-248,508,-634,-202,-317,-145,-525,-79,-136,45,-241,314,90,-126,-353,90,-47,-166,-654,272,2,611,625,-532,189,-697,-322,40,-182,-556,-520,-513,144,420,539,3,-75,-324,-487,509,-184,-48,-519,-732,111,852,525,-81,-89,272,39,-292,456,-124,906,-82,-231,0,-86,-47,-343,400,-330,-794,100,558,191,-233,-205,314,-654,372,-374,-480,-690,359,26,300,-449,187,-454,354,277,130,-325,-483,-437,-124,-234,557,-465,260,555,-747,-196,-127,-237,-142,-142,460,-643,33,-172,-809,-519,-297,-206,406,-453,-134,-117,-82,-64,-103,-200,278,-154,-469,-739,668,460,463,779,-658,-130,67,-592,-731,258,-90,-429,99,929,-592,-138,189,-387,-551,-304,113,-116,165,608,133,435,-503,-703,-110,-159,-540,-395,429,450,538,-420,664,202,-515,-246,305,-779,-323,-218,52,-304,-472,-543,-134,-70,322,-293,-514,-546,-441,-630,582,331,-58,-198,821,552,-31,-171,-276,-128,-67,-355,512,-461,-111,79,-138,-242,-223,-263,-292,-626,-164,293,-26,-109,615,417,179,-470,45,258,193,-467,539,489,157,375,97,161,554,629,-149,-286,523,19,-50,103,88,-113,-311,-386,16,-435,43,-172,546,744,345,-398,-213,-119,416,292,593,575,74,-361,-268,465,-135,615,328,309,51,-188,189,538,-57,509,-63,-166,563,68,-133,109,-153,-241,45,-77,-11,-416,-426,-420,551,436,295,-406,-63,-465,89,-104,302,384,88,-251,-150,-371,395,437,-116,-143,-20,-181,-328,158,-306,272,-6,-259,771,-4,-50,-173,39,-250,-244,573,-144,-42,428,502,254,459,519,-348,34,63,281,321,524,-477,-103,-383,213,-436,-55,-164,-18,-86,61,1,235,305,637,-92,113,-554,325,-293,-28,-85,402,365,274,-370,429,-539,-482,692,5,-456,121,5,183,-772,207,525,194,-135,-117,-148,46,380,-543,507,-1,853,-192,-73,760,-278,122,-374,230,-239,655,41,456,420,-97,-137,117,-542,-395,547,-387,-515,385,8,575,483,169,-443,-232,-297,-691,-81,-439,124,-463,-391,274,599,-563,-186,-48,-142,-186,-284,-123,-405,-548,-521,-99,-259,263,264,-117,-658,66,402,14,383,21,564,105,-527,86,415,-758,-161,41,-156,677,494,-332,-505,-255,441,205,-492,-627,-770,36,-411,-722,345,-289,621,389,566,-191,417,369,279,-41,-455,-364,32,186,-502,-137,-213,156,-206,185,-246,624,295,349,-123,-291,-266,-605,8,500,-224,-448,356,-159,-90,-117,-47,-700,-95,660,-270,6,-407,-563,-136,-14,-189,288,-365,-618,500,-228,592,47,-108,-242,820,711,-515,-260,-155,162,-305,188,196,429,380,33,-231,400,-576,106,-183,294,357,11,-316,642,559,-19,-153,28,-184,632,117,-287,-811,302,339,-260,-98,467,-425,-101,-375,-559,-32,84,-458,-25,-203,94,-250,780,458,63,-185,613,130,-230,-91,127,-775,130,-762,38,-148,-47,-258,-60,-375,-691,325,547,330,-29,-807,733,256,544,-546,-78,-391,12,-273,-127,48,701,631,340,-306,-185,-118,43,-370,152,-321,-378,335,-320,660,205,-420,255,-271,88,-212,390,553,195,-438,-92,-65,-540,-47,32,-231,311,-705,-69,-265,224,-689,-133,-154,4,187,296,499,-517,-387,-779,-14,268,376,92,-221,-432,-114,471,415,235,402,491,-399,157,-201,360,-96,-155,-58,591,577,736,-339,-228,719,301,621,-487,1,176,-89,323,16,366,329,-127,-161,166,-414,195,-609,139,547,624,463,-23,-49,85,-443,547,-623,222,-206,-309,-344,500,437,-343,801,538,-429,387,291,281,423,720,437,194,-220,-22,-288,224,357,-150,-210,596,227,-275,12,-20,-391,-531,590,395,230,428,35,-594,-738,-174,31,415,-545,168,-542,-175,-469,-156,-198,120,-323,-2,-319,-657,356,168,781,-620,369,-4,-259,609,96,-582,-253,-78,414,-575,-470,237,418,-465,-673,-634,-519,507,509,-374,-103,-1,-216,370,515,-542,-157,8,750,212,224,-174,-238,-151,-232,325,-542,247,276,199,-483,-157,-519,37,935,662,79,27,691,169,-161,94,-315,-910,-211,-127,-330,-48,-829,-111,685,-25,-324,-730,-191,65,-400,-188,-266,-82,-280,-692,-173,657,113,-152,671,261,-295,-394,-238,81,-50,55,-388,-715,-272,708,535,-481,-69,230,306,552,735,489,-4,127,-125,350,307,26,-246,-148,233,53,-359,20,-385,638,162,39,-384,-410,344,-97,-590,746,49,323,355,235,351,620,-458,692,69,274,473,-74,-279,-80,-166,128,-778,429,-600,139,-513,235,-366,-764,-286,-87,-87,564,-590,24,-305,-100,-187,413,-14,-146,-225,-76,-197,-510,195,-85,-206,-504,-494,-214,721,7,-160,-335,-55,-56,-97,88,-132,-55,-228,603,-568,236,-69,-248,612,-248,-350,-154,-9,255,-188,-366,-855,163,392,-133,-539,76,649,258,-120,-19,-274,15,-474,-55,-761,-67,-245,-426,-563,47,-123,18,829,-28,-204,-137,-34,175,-352,-293,-595,435,269,-219,-683,-30,-280,-235,-230,-68,-278,54,-475,434,472,210,-761,-184,-237,238,484,-318,215,374,-593,695,583,100,661,112,-77,87,-220,-691,275,396,168,127,-412,-115,-332,466,599,284,233,-403,-571,340,-392,53,-73,-491,-477,-723,457,301,147,96,508,-42,43,-101,852,-596,-3,704,24,-61,-103,38,-155,519,247,594,284,-143,-237,353,683,522,413,314,-331,602,429,-600,63,359,-159,-160,181,553,619,-164,-252,-42,-270,-111,-130,328,-628,-197,-397,-84,-94,-310,-53,644,-468,427,325,687,600,-163,651,-12,-593,-243,-82,-724,-276,-34,-272,284,-406,277,-376,268,-219,350,-420,36,-66,12,-251,278,296,-177,-180,-38,-210,-712,66,155,-244,-32,-211,47,-151,431,203,542,-10,181,524,-85,-203,10,250,-14,-296,-42,-190,-276,811,263,810,723,457,36,-192,-134,624,76,-166,299,211,-114,-485,459,-612,421,442,23,-246,240,330,121,-446,113,-317,-148,-309,-88,-265,466,438,193,268,-606,345,16,-247,-720,-261,-530,-538,111,-204,-5,70,412,183,713,416,-237,-169,-169,789,662,-86,289,-480,180,-81,-39,-281,-100,-350,572,-453,-737,156,67,-646,-125,-283,-67,-240,-107,-99,-34,32,355,514,229,283,-97,-253,-38,-85,-208,-177,-43,-115,-140,-303,-45,-308,203,536,550,82,396,-274,-642,118,401,-646,516,-63,660,-545,401,434,-258,253,-217,926,733,5,-735,-234,58,-418,217,82,-244,-633,61,-596,-337,-461,467,-140,22,-339,-275,890,225,-235,181,-305,-713,-221,-14,-39,159,-355,-754,-398,-659,342,67,-26,-61,-247,155,608,408,272,504,-448,66,-226,-582,89,33,-168,-101,-241,-119,-354,-74,-47,-102,-214,-514,-106,3,-464,-559,-231,137,-433,-224,8,38,-310,346,315,538,-65,284,521,-9,-665,-371,328,423,-340,234,479,-40,-476,-418,-723,457,-689,137,-345,-156,-366,699,520,151,571,610,-83,494,-569,85,-274,328,293,-583,-601,70,-121,45,-121,378,-623,161,-287,248,638,84,-107,-61,726,-20,-241,-108,-608,78,-426,-880,347,373,-679,129,-500,-42,-113,-685,-363,-507,-654,71,328,664,422,-215,-249,443,226,45,-259,-97,-140,620,40,820,364,-302,-677,-529,-659,-160,-215,552,163,8,827,95,-406,-24,11,284,131,-622,-278,-529,-461,-308,700,300,-423,-216,-353,-723,-124,764,441,568,-8,224,77,93,-174,417,684,-320,-648,481,490,484,-539,188,-402,702,136,208,291,-5,-202,214,335,93,-301,337,-327,-271,206,197,-476,653,675,-99,-140,-630,86,-154,411,488,677,100,-905,406,405,572,24,-658,-756,322,-650,-572,570,249,398,498,380,-415,-683,-217,-141,-796,-336,-223,369,711,-241,112,-264,-532,174,326,-326,263,-464,-72,-166,139,58,-168,-241,-189,642,56,-199,21,-122,-152,264,-504,-51,514,-327,-70,-168,174,930,-32,-248,-87,-861,688,155,884,178,493,361,130,-330,10,248,-68,-154,599,482,-208,-180,-46,419,-258,-272,-330,-391,-564,-298,-261,313,173,352,-137,-520,693,452,662,563,778,490,-75,767,104,-698,-3,-145,507,365,207,-460,-477,545,-139,-290,12,-214,-162,-272,-28,66,352,322,-492,-285,-41,-173,114,111,6,712,538,-508,-25,73,200,311,289,-78,5,-294,55,-235,503,-663,-519,-249,302,564,-2,567,-491,-344,420,-770,-131,149,64,-144,314,-284,532,347,-570,-234,-284,-398,-209,-496,-437,-567,227,-211,19,-659,-36,-120,-94,699,9,-287,-191,253,-318,-227,-30,-173,453,-357,-75,-144,691,-440,-473,-336,-572,341,344,-563,312,-602,-412,-183,485,273,-163,-522,-165,-48,473,141,-88,-581,201,-667,-416,-234,-50,-217,285,-395,414,543,57,-322,551,475,-81,-198,608,427,-55,-133,259,569,-482,514,-388,-100,-539,247,-131,-358,-420,-175,-182,-271,-580,215,-28,-635,351,594,-679,-221,303,317,-260,-194,-210,-244,-18,-293,109,-121,-12,652,-37,-172,118,-83,283,-112,-209,88,163,572,104,-858,-34,-74,-132,-363,605,144],"2":[669,425,263,-263,-212,585,17,-391,-332,407,-160,189,-145,74,-66,-55,-89,179,110,93,400,-173,342,506,-1,-470,-254,517,-11,-376,-178,842,151,-484,77,818,-666,415,11,-614,-251,559,-842,-268,-123,-108,-39,-122,-149,-290,13,-271,186,-627,608,21,721,672,383,565,785,-6,491,-556,-576,-651,-241,-208,-5,-92,-204,312,-235,734,421,-383,-89,-207,11,-97,-229,-551,-169,487,432,-146,330,17,-168,816,639,288,-816,-306,-118,-277,-71,-130,-122,-404,112,-296,31,-185,410,565,351,-307,-364,598,458,-476,226,-344,374,-479,-486,-503,-359,604,38,-310,651,475,445,358,616,-467,-56,-229,363,-96,-27,-271,-212,-488,196,-408,309,582,15,336,335,215,-23,-427,-106,-325,-73,-84,-52,58,-294,-438,386,-657,771,157,-600,-9,-425,-406,-538,-190,176,-65,-80,-180,261,-393,449,-306,-798,-244,-189,-315,145,-297,-223,-396,252,-327,-280,881,-72,-680,-538,698,21,-120,-230,622,234,161,80,-759,-549,-436,-776,-60,83,-88,-252,-168,-101,212,224,97,-386,-67,249,-526,30,-105,639,-183,-43,482,53,-503,-55,301,-71,-223,-209,-97,-610,-362,211,-316,34,-463,224,-42,-15,-191,-12,-344,-172,-35,79,-334,35,-563,573,-476,-459,-717,6,-349,727,-344,366,-601,488,-332,21,-242,560,-678,-359,-481,-359,711,-60,228,-68,-288,-176,388,-94,-514,368,833,481,142,488,11,376,534,25,-292,667,509,-665,145,338,-399,-116,471,-15,-111,69,659,-66,-180,-598,-247,6,-63,-303,-609,-54,-205,71,-225,-304,-272,32,-186,-185,-341,59,-605,-263,222,-61,787,-10,56,22,-212,-76,844,108,446,-49,-679,-345,-634,392,-608,107,-339,431,494,274,-391,-605,363,-505,-38,119,-255,-413,-513,-91,-272,350,441,-631,-264,21,-304,-35,-397,-771,-392,45,-220,-99,-166,109,-356,-79,705,-334,-704,612,124,634,-455,409,-9,-573,-636,131,370,283,-341,-280,576,-369,-396,430,-550,-31,-315,84,-418,518,444,409,418,273,-241,655,-593,-156,-317,-128,-61,261,320,-276,482,357,-323,-727,-386,2,-314,424,322,-30,-356,1,809,-162,-105,-512,673,604,283,-417,-168,336,303,22,-201,-163,-57,0,-627,-655,359,94,-737,-72,-281,-175,250,533,-225,452,-597,690,138,-688,-57,494,432,515,-525,-566,-161,-379,402,279,-432,805,-215,-550,241,-15,-207,-219,-766,-187,475,492,-560,-11,-225,82,-512,-469,524,-147,-234,249,-300,87,-118,66,-122,-18,-338,-171,-27,-197,-195,-511,-20,-97,-65,84,542,301,-709,70,-71,-161,-491,-247,-86,-503,502,384,-376,-772,105,54,-226,181,-643,-593,364,-18,-264,293,236,-60,-628,696,187,-33,30,-494,-104,-287,712,116,-332,-583,-603,52,-368,-73,-626,-43,-322,45,-376,-395,317,85,-60,-379,-535,939,522,59,-159,29,-144,-227,-262,15,-349,417,298,-262,-221,227,469,0,-125,4,-277,-732,277,579,100,-260,257,113,391,-185,609,-76,-316,571,57,533,-637,249,-246,103,-394,-54,-209,434,-557,-81,-78,-11,-196,-101,-401,14,-331,-219,-428,259,357,-944,-261,-174,-172,-558,213,761,-17,-220,-689,-94,-104,246,-200,2,616,-89,-85,-317,-119,-317,-582,248,292,145,-231,-106,-160,377,-622,-566,7,226,-412,-62,-280,-242,419,745,-107,58,-436,614,-500,-808,499,659,311,-9,-123,-24,-426,702,-456,-126,-32,402,176,423,-453,154,-233,309,-783,-83,-235,-143,-398,33,-444,733,186,-411,-574,-211,-294,203,-307,226,150,-296,-615,152,-101,-67,-254,641,32,-160,-56,-95,-559,-516,484,-133,-731,81,-282,-84,-295,14,-318,-43,-312,-80,-188,730,-477,-145,-266,-132,-735,311,-343,-188,-345,519,-101,-319,-351,470,674,81,-5,53,-187,-16,7,-725,144,114,-323,-30,285,-268,474,67,-346,-374,347,-224,324,422,-366,-229,-145,624,404,326,-667,405,443,215,-595,22,-91,-92,-208,-5,-115,231,394,-139,-240,-540,-34,-327,-64,349,-570,-607,-114,14,-365,244,427,43,-43,-81,-233,199,367,377,-621,-656,196,-298,244,-84,-119,528,-611,-158,-192,26,-147,310,397,-692,302,218,135,-352,609,-611,-6,292,289,233,-473,413,143,30,737,-251,-174,108,-127,-397,533,1,-301,542,98,62,864,-9,-294,-8,714,-296,-362,-130,268,517,358,-430,79,409,-759,-131,-563,17,-242,687,-334,521,493,184,-761,-596,-732,-366,-597,25,-198,62,-200,-111,-388,604,208,-94,650,-605,573,117,-447,605,5,-174,-688,4,642,256,-569,-332,-6,467,-392,534,484,-58,-372,-369,-31,189,-402,733,557,-534,-333,-254,-309,-114,-567,17,-292,40,-439,141,-485,-617,33,596,-117,65,-334,591,-443,515,-420,-513,-243,-108,368,11,-163,680,175,531,82,-322,-699,79,-63,87,-123,-322,-518,-757,372,-39,-324,-454,-147,-193,-233,-86,-341,12,47,-7,-73,471,-795,192,16,435,-499,409,-682,98,-489,341,-314,558,181,713,398,83,-95,127,-216,157,-727,34,-290,395,32,253,462,196,-79,129,-496,369,337,-131,-268,-114,-163,367,-76,265,-306,-412,390,72,-189,-59,-330,-755,-106,-92,-663,-407,-641,-298,-594,97,-174,-54,-26,3,-454,552,-14,-33,-155,217,-221,546,533,162,-172,439,460,182,-628,291,296,-2,-267,-710,435,-168,-335,-130,-478,-164,-331,-275,-267,201,533,261,414,278,428,-715,-279,499,112,408,-629,202,-192,526,-550,299,-420,521,249,624,-352,480,-695,642,451,296,-406,-402,-707,456,-710,-186,-119,-249,-446,588,482,-77,-472,-212,792,125,-663,-227,740,104,-102,-742,131,210,-119,-243,-117,9,-477,177,372,598,-353,-43,260,-148,-62,-324,749,629,381,168,-167,63,-217,38,105,-302,-283,-58,218,-103,-293,190,-588,218,319,46,-128,-98,330,37,10,-85,-229,-2,-160,-8,11,333,-118,-744,168,-114,-221,-254,-103,30,-205,737,595,-98,-143,-84,-98,253,291,-721,-270,182,-36,616,210,11,-293,405,44,38,-418,19,137,76,-364,-166,-316,179,-301,112,-692,-377,-125,-420,638,392,434,550,750,97,-221,-292,600,-141,884,212,-377,-323,-570,-595,-132,410,-512,-739,245,-293,62,773,571,-153,-223,-355,-653,-324,-82,-68,-248,46,-171,108,-447,455,448,265,443,381,-296,3,-266,387,432,707,-247,-51,-113,-586,-391,772,363,364,150,-132,-226,23,-589,234,347,13,-639,-25,-154,-43,-102,395,-604,74,-160,519,-446,-135,-254,186,-352,-126,-375,605,265,-378,329,248,250,-222,-133,758,266,62,-198,224,-182,47,249,-353,-476,246,-267,-528,-472,496,-442,243,255,4,-383,238,-446,329,-287,743,357,-238,-652,247,-376,162,-614,355,264,454,326,-657,510,412,-591,400,92,38,-176,-423,-204,109,3,13,-613,-641,321,-373,408,643,-571,-770,-207,466,39,512,-348,-142,-481,599,-529,493,370,304,-354,-9,152,-88,-207,55,-147,465,327,-550,511,234,-271,-299,456,130,-320,193,-545,-517,134,-186,-298,84,-112,107,322,-252,599,57,-136,-240,-375,319,333,81,-693,600,728,-28,-292,35,-186,56,-256,102,-512,156,795,-366,-428,78,-187,732,-369,677,-198,-34,-278,206,-512,-47,-36,-467,-345,587,-676,170,-783,1,-274,337,-597,-123,-231,-508,16,-746,332,-32,-263,-464,-558,683,578,-128,-382,289,47,-503,-485,537,59,-490,720,411,-721,-599,332,-34,-446,-60,-78,189,-207,-187,-243,-165,-32,-135,-383,-429,651,271,-344,66,-194,-64,-578,277,360,260,302,-17,-115,-329,-407,680,-250,-473,-590,76,-183,478,422,-37,-143,336,-269,153,615,81,306,-132,-254,-37,-282,194,-225,99,-186,-77,-290,288,319,553,511,84,91,144,-576,-56,-236,99,-336,216,-319,499,-438,-80,-68,-160,110,173,594,428,537,-495,-21,-560,-172,26,-64,328,137,-128,-226,61,-158,-451,-562,273,141,407,298,-347,-202,29,-178,-638,140,115,-253,234,484,-168,-531,-6,-221,417,-467,285,26,472,-566,-212,-839,699,25,165,-334,-57,-193,-287,-178,442,177,5,-178,85,307,422,193,6,-241,-710,-411,-448,-619,-170,-227,410,95,300,-674,216,-471,9,-295,636,-87,-70,-188,679,436,85,-266,51,-117,-195,397,-659,211,-289,-598,-40,-227,287,80,380,697,76,-354,-37,-117,-470,-489,197,-824,-985,-43,-92,-886,-816,-438,-360,643,448,403,-474,-233,438,575,21,99,-65,502,-133,-251,-111,-329,-92,-272,171,-505,677,-495,-176,671,401,367,-155,-504,-497,-642,553,463,-153,-142,694,489,119,-154,47,-227,75,193,-600,-625,415,-394,67,-188,-166,-217,-200,-467,-585,352,-43,417,61,-654,300,-722,-42,-185,67,-291,-122,-236,-198,-194,-179,-229,181,-352,-168,-163,-371,-149,-37,-314,-143,-352,-533,56,120,-883,-256,585,-137,-250,189,-153,590,-145,423,-756,195,-462,325,430,421,-20,-96,-248,453,224,-592,-323,12,592,-156,519,-67,-34,278,501,-131,-70,655,517,546,477,471,223,405,202,203,-476,-486,-329,606,142,373,312,350,-590,-648,84,476,275,495,714,253,94,-433,-138,-867,-469,-135,-179,338,338,562,31,344,-763,-47,-114,347,133,-565,610,78,-314,-542,-652,295,-361,-677,-736,-32,-120,-455,465,186,-175,10,687,-156,-241,693,462,124,-756,68,-172,65,-18,-82,-252,-125,-351,-222,796,-827,-520,355,547,-62,-311,9,-179,-113,65,-448,-479,331,438,122,-54,-535,-82,290,517,-516,-543,-667,90,-476,760,-7,-76,-223,571,203,-435,-217,135,360,-378,-221,190,-224,231,-15,-300,335,189,151,-438,120,-153,325,-690,-233,-314,151,-358,-167,-222,83,-727,614,81,-276,-396,-143,301,785,543,-59,-187,447,263,-40,-217,-96,-220,564,-78,516,-499,-46,-194,439,-8,-268,-86,-138,-290,-85,667,-176,-262,67,-402,279,150,-383,-867,687,64,30,-419,201,328,62,-314,324,-545,-39,-91,-355,-145,-133,-263,110,947,-76,-217,261,-304,338,-685,-739,-452,441,486,-282,431,54,-441,633,54,323,-180,49,379,41,-450,-197,-39,-235,-643,-325,-485,330,276,529,-650,107,814,138,-428,428,-532,-626,384,313,290,-173,196,-373,-139,-48,-429,-44,-198,636,390,-30,-124,-368,-422,8,-15,271,-752,-4,-326,-42,-222,-94,-393,-145,-366,558,-641,-97,692,-145,-399,7,-267,352,528,142,320,212,-385,132,-303,-306,-200,-241,-209,-14,-212,372,98,-118,-148,-72,-300,267,392,-434,-685,281,-145,-706,-49,-493,-691,-626,-173,-193,-249,-154,-333,-590,-514,143,-164,-101,-304,311,-396,-26,-268,74,-437,-71,-271,293,242,-464,-733,-339,-457,761,71,-125,-230,97,401,-153,-257,-133,-45,-190,-263,-29,-99,328,-712,862,531,644,566,-110,357,299,-465,104,-224,248,273,242,231,106,-183,-200,-384,264,584,-177,-281,-121,-119,57,-654,185,-532,-78,-306,49,-240,360,321,110,254,208,-236,570,571,10,-281,364,-544,323,-280,-324,398,-800,-5,274,-101,98,-253,307,-320,-411,-593,-254,-126,598,700,364,-188,-667,340,490,-539,-332,-374,333,-673,-97,-864,-442,-417,-62,-81,384,508,451,-356,216,-803,-413,-26,93,-570,-74,-150,497,800,-34,-87,-284,836,-697,-205,204,-655,-147,382,46,-375,614,135,-27,-274,159,237,-230,25,422,382,237,-543,64,-215,450,-442,34,-180,200,-562,-13,-211,-680,83,10,-120,-194,-254,-227,-552,281,609,301,374,-63,-88,-166,-376,488,-534,431,-623,420,445,-197,102,-251,504,-733,-319,492,-484,516,534,-586,221,-24,827,319,493,-238,241,375,546,673,622,-161,-209,-352,-443,-6,-153,141,-46,-384,-140,-32,631,268,-676,-5,-4,245,-386,-261,-356,-178,-43,148,-163,-3,-121,352,-555,617,-531,26,-712,-234,621,-103,-285,7,-154,51,-143,140,-359,-98,-669,-134,-332,-62,-170,-69,-304,-47,-150,559,-472,282,355,438,453,-25,-191,509,-90,152,590,311,-655,-10,-190,-665,-531,-86,-169,738,481,-626,-402,154,-286,-95,-398,534,-510,-522,180,276,105,-199,398,644,-318,-189,-682,-408,-632,13,-293,282,592,-673,-349,158,-432,476,241,-296,31,392,-261,106,-301,333,-624,-49,-176,-274,-363,-36,-307,445,-544,355,275,117,-261,21,-364,498,-636,376,-163,123,-484,584,-605,813,576,-282,645,-127,-548,549,412,153,-335,316,183,-317,691,597,-74,344,330,59,-415,661,3,759,5,-262,407,-284,-889,147,-422,73,-845,679,522,-62,-331,272,316,662,507,143,590,-202,-756,17,-259,22,-22,184,-507,472,404,-237,-450,-899,371,416,360,-143,-603,-613,-779,-145,-247,1,594,-1,-790,352,-560,-99,-167,618,527,333,247,661,-473,151,-769,282,-86,-44,-319,423,-611,548,-33,-530,767,278,-627,-223,369,511,-576,565,428,-606,446,488,580,49,-77,73,-567,642,560,-142,-318,-74,-470,113,-13,242,-247,361,311,-571,-218,189,-272,106,-427,514,-497,-457,147,334,287,400,-671,104,431,-526,-539,-337,-383,678,165,-111,-313,-56,-268,-84,300,67,-279,-127,-626,452,446,-52,-687,-678,-130,575,414,632,693,566,623,-767,-465,318,-597,438,-666,-563,-97,560,482,-106,-394,-50,-181,-39,42,-147,-334,263,-369,-178,398,441,-715,666,-222,5,-290,56,-443,-250,103,56,-114,-156,367,242,484,-116,-244,-137,272,242,343,-197,-509,100,-115,479,-404,537,-409,274,309,-172,-244,105,-272,-90,822,-331,-662,291,-457,503,-434,59,-249,96,-755,-47,-196,606,138,207,317,-207,-55,688,-76,14,-237,-272,414,108,-352,-632,-459,398,264,-365,-233,-228,406,35,-191,486,16,275,-153,262,343,86,-343,601,486,494,-366,305,-290,-45,-304,-32,-363,103,-791,474,-554,1,-329,98,-213,170,-436,454,620,-572,572,669,-533,327,-691,202,-205,-18,215,41,-408,-432,-733,-667,-63,454,-113,-122,-395,-2,-715,-65,-134,-106,-65,-388,212,-57,-138,-252,-164,-312,-227,-500,504,28,-247,439,357,167,465,-679,262,738,8,-57,-340,-393,600,-114,-210,823,471,-429,-702,438,-636,180,-510,-76,-205,116,-125,-79,-188,-232,-764,-94,-216,-589,-238,-378,-445,20,-376,572,252,-6,19,523,452,343,327,294,419,-310,385,-718,-207,251,-9,-631,18,-139,-344,451,209,-467,-227,547,-56,636,587,321,458,-571,-462,203,-290,263,-460,-60,-119,-117,-301,-186,-234,-32,-320,386,-340,3,-423,-102,-148,-442,-640,-202,-289,-433,-585,674,611,179,-552,-41,-712,327,558,-41,-257,-214,482,316,-515,575,68,57,-488,209,-286,-129,-119,84,-53,27,-70,-386,-516,542,-262,-156,-348,58,-228,695,-545,-519,-514,-107,-373,-149,-393,818,483,-535,-382,12,169,226,45,543,-652,493,-340,-120,-321,-174,-89,-410,-583,144,-150,118,-727,550,210,-210,-418,111,-98,246,118,94,-248,-168,661,-571,-383,-70,-302,-78,-235,-336,924,509,130,205,-685,37,-365,-820,426,170,-214,441,-474,-348,472,662,384,746,458,-160,-174,63,-162,-640,377,55,-518,160,-520,-597,-562,-494,-661,571,478,-148,-167,4,-272,262,-430,636,216,-378,-462,345,-83,-320,-148,215,-714,-43,-414,10,-191,124,52,316,364],"3":[285,-220,-192,147,460,519,-81,-230,572,493,40,-300,-90,686,-39,241,-59,-202,-105,-248,316,134,343,-616,200,-369,-668,98,599,497,-73,-195,665,-369,509,-593,-253,544,241,-236,-345,-620,-517,-681,-106,-222,244,-21,-129,722,44,-557,44,-279,97,-356,-19,-53,-595,-8,-30,-123,-531,247,9,-216,192,83,-196,-251,388,376,-702,-360,499,56,-75,-196,159,-649,-116,-232,252,-166,-72,-201,-3,-687,-130,-595,-32,-49,-86,-252,-58,23,-177,514,-3,631,-480,-18,-63,-196,-521,325,-163,754,-614,82,-120,-212,-31,-296,455,-534,394,-336,-124,-232,-561,-318,312,301,194,173,-141,-759,662,132,-65,808,591,191,531,434,-418,-695,456,334,391,401,-647,186,308,-326,245,169,385,386,76,-292,-171,-636,-645,40,535,34,-349,-222,-117,726,566,47,-146,413,-29,-570,501,405,26,-159,559,109,488,498,-483,109,-105,-291,11,58,701,577,281,-108,318,-584,533,315,-682,-286,-500,67,-430,-441,-112,192,-102,108,-51,645,-76,-102,290,91,150,-125,-721,189,-697,244,-734,103,328,-121,-631,-297,-636,314,-81,-238,-246,-247,568,480,-207,581,-178,-328,-173,165],"4":[-34,-238,-404,-202,30,-562,294,309,-339,-411,331,-90,-219,540,-384,-586,310,462,-80,72,317,-695,286,619,-694,-311,682,-203,-578,518,-79,-639,495,469,-622,83,447,-543,-115,770,-550,-411,488,-9,-196,264,173,-582,80,680,-756,-111,139,101,32,287,-48,-103,330,105,-148,126,240,-286,91,181,-430,-41,225,44,-10,224,136,-118,643,462,-660,273,627,-391,-331,655,-222,-622,594,133,-439,250],"5":[117,191,216,131,-146,-222,43,-185,-243,106,8,363],"6":[-12,37,-233,-53,-88,-71,-196,60,80,235,38,311]},"edges":[0,2024,1,2025,2,2026,3,2027,4,2028,5,2029,6,2030,7,2031,8,2032,9,2033,978,2036,867,2037,431,2047,424,2064,1151,2066,1739,2068,1387,2069,233,2072,1542,2091,1955,2093,1141,2102,1002,2113,670,2139,24,2142,1214,2147,316,2151,143,2156,1253,2174,1521,2193,364,2202,1459,2203,1970,2206,1096,2207,672,2209,868,2217,604,2238,1907,2244,1391,2245,59,2249,785,2252,1123,2257,555,2261,63,2263,981,2285,1914,2286,1566,2288,541,2290,748,2292,1653,2298,29,2300,910,2322,400,2325,1413,2326,1548,2327,1211,2335,863,2336,1390,2342,1375,2347,1357,2364,870,2366,816,2367,1461,2369,107,2377,440,2382,1562,2388,1708,2405,70,2414,568,2418,1647,2426,679,2427,1109,2434,1494,2442,1928,2447,1588,2451,961,2462,648,2472,888,2486,2013,2490,2003,2494,929,2495,120,2504,999,2516,924,2518,565,2532,1231,2535,760,2543,1890,2545,1024,2547,747,2559,1292,2563,407,2570,413,2582,861,2588,1606,2599,1361,2600,116,2608,1157,2609,598,2613,932,2616,906,2626,1728,2632,521,2634,1709,2661,1507,2667,1315,2668,1240,2669,926,2675,66,2677,215,2681,1693,2692,898,2701,50,2703,1607,2707,983,2719,279,2736,188,2739,1755,2743,1688,2751,301,2764,1137,2767,1791,2776,1481,2781,1668,2785,740,2800,2010,2804,1840,2807,1242,2811,313,2824,1831,2825,1669,2827,501,2832,159,2834,130,2844,1262,2855,1237,2866,2022,2874,1967,2879,1749,2885,402,2887,866,2889,495,2893,1509,2896,451,2901,1701,2902,1849,2916,1717,2926,393,2928,737,2932,384,2933,432,2945,55,2951,1597,2971,238,2976,1221,2987,797,3009,1778,3018,14,3023,974,3024,1118,3028,516,3046,1228,3052,1903,3057,1022,3069,820,3074,175,3081,30,3082,1467,3086,1247,3091,366,3093,591,3094,574,3095,155,3101,596,3103,791,3120,1354,3129,1205,3134,472,3143,1455,3145,686,3146,172,3162,1529,3181,94,3210,1377,3215,1772,3223,2020,3229,1817,3230,1324,3242,1880,3249,1619,3254,145,3259,1672,3262,952,3269,986,3271,1153,3275,584,3276,394,3285,629,3294,1055,3306,1396,3307,1585,3313,527,3322,1295,3323,1276,3337,1961,3349,1635,3350,252,3359,295,3365,124,3376,114,3377,1770,3380,1345,3382,1813,3385,798,3395,1397,3419,42,3423,450,3431,1056,3432,916,3439,360,3440,1423,3443,1296,3444,426,3447,1492,3449,99,3463,756,3468,415,3471,1994,3482,559,3484,2293,3495,3111,3495,2212,3495,2763,3495,2077,3495,2278,3495,3495,3613,3495,3642,2126,3496,2582,3496,2298,3496,2787,3496,3496,3641,2827,3497,2052,3497,3497,3627,2423,3498,2332,3498,3498,3611,3267,3499,3293,3499,3499,3627,2063,3500,2152,3500,3500,3611,3023,3501,2564,3501,3501,3630,2950,3502,2134,3502,3502,3638,3091,3503,3049,3503,3503,3611,2292,3504,3042,3504,3504,3611,2438,3505,3224,3505,3505,3632,2797,3506,2740,3506,3506,3621,2707,3507,2333,3507,3507,3642,3402,3508,3241,3508,3508,3628,2827,3509,2852,3509,3509,3627,2113,3510,2280,3510,3510,3611,3102,3511,2969,3511,3511,3650,3276,3512,3121,3512,3512,3629,2289,3513,2117,3513,3513,3651,3344,3514,2610,3514,3514,3642,2091,3515,2367,3515,3515,3618,2207,3516,2664,3516,3516,3618,2908,3517,2538,3517,3517,3611,2788,3518,2905,3518,3518,3637,3398,3519,2053,3519,2041,3519,2068,3519,3519,3627,3519,3630,2297,3520,2473,3520,3290,3520,2503,3520,3520,3611,3520,3613,2328,3521,3128,3521,3521,3611,3165,3522,2171,3522,3522,3611,3072,3523,3128,3523,3523,3611,2593,3524,2478,3524,3524,3628,3383,3525,3432,3525,3525,3611,2539,3526,2731,3526,3526,3649,2130,3527,3236,3527,3527,3639,2310,3528,2580,3528,3528,3645,3493,3529,3159,3529,3529,3611,3267,3530,3409,3530,2941,3530,2228,3530,3530,3627,3530,3631,2887,3531,2834,3531,3531,3623,2813,3532,2461,3532,3532,3632,3011,3533,2768,3533,3533,3611,2876,3534,2187,3534,3534,3634,2179,3535,2201,3535,3535,3611,3403,3536,2736,3536,3536,3616,2371,3537,2583,3537,3537,3611,3119,3538,2514,3538,3538,3613,3074,3539,3162,3539,3539,3626,3370,3540,2885,3540,3540,3639,2912,3541,2340,3541,3541,3611,3117,3542,3397,3542,3542,3620,2699,3543,2458,3543,3543,3617,2433,3544,2272,3544,3544,3635,2781,3545,3371,3545,2459,3545,3477,3545,3545,3644,3545,3625,2305,3546,2297,3546,3546,3611,2252,3547,2329,3547,3547,3654,2068,3548,2041,3548,3548,3630,2492,3549,2942,3549,3549,3628,2598,3550,2629,3550,3550,3611,3228,3551,2157,3551,3551,3611,2146,3552,2316,3552,3552,3629,3045,3553,2793,3553,3553,3642,2504,3554,2328,3554,3554,3611,2907,3555,2547,3555,3555,3623,3251,3556,2784,3556,3556,3614,2186,3557,3557,3643,3229,3558,2462,3558,3558,3626,3257,3559,3114,3559,3559,3653,2182,3560,2068,3560,3560,3630,2979,3561,3198,3561,3561,3653,3347,3562,2838,3562,3562,3627,2154,3563,3090,3563,3563,3618,2366,3564,2826,3564,3564,3614,2085,3565,2024,3565,2199,3565,2856,3565,3565,3627,3565,3631,3086,3566,2702,3566,3566,3628,3211,3567,3450,3567,3567,3642,2511,3568,2641,3568,3568,3640,2850,3569,2076,3569,3569,3619,3478,3570,2667,3570,3570,3611,3325,3571,3227,3571,3571,3652,2523,3572,2702,3572,3572,3628,3331,3573,2355,3573,3573,3632,2494,3574,2442,3574,3574,3612,2232,3575,2041,3575,3575,3630,2162,3576,2210,3576,3576,3632,3362,3577,2397,3577,3577,3633,2701,3578,2464,3578,3578,3613,2163,3579,2691,3579,3579,3627,3176,3580,2575,3580,3580,3639,2963,3581,2161,3581,3581,3653,2691,3582,2450,3582,3582,3627,2902,3583,3379,3583,3583,3628,2944,3584,3122,3584,3584,3611,2575,3585,2851,3585,3585,3639,2819,3586,2400,3586,3586,3648,2500,3587,3403,3587,3587,3616,2189,3588,3297,3588,3588,3629,2817,3589,2553,3589,3589,3653,2936,3590,3298,3590,3590,3623,2702,3591,2478,3591,3591,3628,3030,3592,3076,3592,3592,3615,2156,3593,2126,3593,3593,3641,3117,3594,2443,3594,3594,3620,2334,3595,2716,3595,3595,3635,2928,3596,3124,3596,3596,3611,2588,3597,3343,3597,3597,3640,2290,3598,2631,3598,3598,3642,2419,3599,2683,3599,3599,3649,2193,3600,2676,3600,3600,3649,3469,3601,2419,3601,3601,3649,3403,3602,3254,3602,3602,3616,2936,3603,2887,3603,3603,3623,2861,3604,3469,3604,3604,3649,2729,3605,2567,3605,3605,3611,2201,3606,2510,3606,3606,3611,2350,3607,2053,3607,3607,3627,2962,3608,2026,3608,3608,3617,3238,3609,2927,3609,3609,3611,2126,3610,2582,3610,3610,3641,3611,3658,3612,3657,3613,3657,3614,3657,3615,3657,3616,3656,3617,3656,3618,3657,3619,3659,3620,3657,3621,3657,3622,3656,3623,3657,3624,3657,3625,3657,3626,3656,3627,3655,3628,3659,3629,3657,3630,3660,3631,3659,3632,3655,3633,3655,3634,3657,3635,3655,3636,3655,3637,3656,3638,3656,3639,3658,3640,3656,3641,3659,3642,3657,3643,3655,3644,3657,3645,3658,3646,3659,3647,3660,3648,3660,3649,3660,3650,3657,3651,3657,3652,3657,3653,3656,3654,3657,3655,3661,3657,3661,3657,3662,3659,3662,3658,3663,3659,3663,3657,3664,3659,3664,3655,3665,3660,3665,3656,3666,3660,3666,4,3495,5,3495],"sessNodes":[0,1,2,3,4,5,6,7,8,9],"sessFrameNodes":{"f-00":2024,"f-01":2025,"f-02":2026,"f-03":2027,"f-04":2028,"f-05":2029,"f-06":2030,"f-07":2031,"f-08":2032,"f-09":2033},"threadNodes":[4,5,2028,2029,3495,3620,3657,3664]};
+const CONFIG = {"coach":{"name":"Aishwarya","full_name":"Aishwarya Reganti","slug":"aishwarya-reganti","pronouns":["she","her","her"]},"session":{"other_role":"Host"},"steps":{"collect":{"t":"246 sources, gathered in one place","b":"We read 27 of her YouTube videos, 208 of her LinkedIn posts and 11 of her posts on X: <em>164,286 words across 2,024 lines.<\/em> From this collection, we follow one conversation with Arjay McCandless about becoming an AI engineer in 2026."},"transcript":{"t":"A video becomes text","b":"The conversation is transcribed line by line. At first, it is simply a record of what was said."},"speakers":{"t":"Who said what","b":"We separate Arjay’s questions from Aishwarya’s answers, and mark the line she responds to."},"layer1":{"t":"Layer 1 · What was said","b":"Arjay asks whether multi-agent systems are <em>&ldquo;common in what you're implementing or more of just like things that people are doing in their command line.&rdquo;<\/em> In the very next turn, Aishwarya answers. These exact lines are the evidence for everything that follows."},"meaning":{"t":"What happened next?","b":"Arjay has heard a lot about multi-agent systems. Instead of saying yes or no, Aishwarya separates the popular picture, a swarm of agents, from the pattern she sees in production: one main agent with sub-agents."},"cue":{"t":"What Aishwarya does in response","b":"Asked whether multi-agent systems are common, Aishwarya says a swarm <em>&ldquo;is not a pattern that's very common in the enterprise just because it becomes incredibly hard to audit and incredibly hard to explain.&rdquo;<\/em>"},"layer2":{"t":"Layer 2 · Aishwarya’s response","b":"She moves the question from &ldquo;are multi-agent systems popular?&rdquo; to &ldquo;what can a company audit and explain?&rdquo; The answer stays linked to the exact moment."},"layer3":{"t":"Layer 3 · The situation","b":"A company wants to use agents and has heard that swarms of agents are the future. In Aishwarya’s material this shows up as <em>enterprise agentic AI adoption<\/em>."},"layer4":{"t":"Layer 4 · The recurring pattern","b":"Aishwarya keeps coming back to how agents are put together: multi-agent systems come up in 18 of her sources and sub-agents in 17, across her videos and posts."},"layer5":{"t":"Layer 5 · The teaching purpose","b":"The purpose is to move builders from &ldquo;more agents is better&rdquo; to &ldquo;start with one agent, and add sub-agents only for narrow tasks&rdquo;."},"layer6":{"t":"Layer 6 · The principle","b":"<em>As a practitioner I would always start with a single agent.<\/em> This is the principle behind Aishwarya’s answer."},"trace":{"t":"One answer becomes a principle","b":"We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the exact moment Aishwarya answered Arjay."}},"cards":{"layer1":{"cue":"I'm curious if that's common in what you're implementing or more of just like things that people are doing in their command line","move":"That is not a pattern that's very common in the enterprise just because it becomes incredibly hard to audit and incredibly hard to explain","foot":"Two exact lines &middot; back to back in the conversation"},"layer2":{"cue":"Asks whether multi-agent systems are common","move":"Separates swarms from what enterprises actually run"},"layer3":{"title":"Adopting agents in a company","text":"A team wants to use agents in production and has heard that swarms of agents are the way to do it.","foot":"Situation in her material &middot; &ldquo;enterprise agentic AI adoption&rdquo; in 5 sources"},"layer4":{"title":"Orchestrate, don't swarm","text":"Aishwarya keeps steering builders to one main agent with sub-agents that get a narrow task, finish it and report back.","foot":"Recurring pattern &middot; multi-agent in 18 sources, sub-agents in 17"},"layer5":{"title":"One agent before many","text":"Start with a single agent. Add sub-agents for narrow, parallel tasks, and keep the system easy to audit.","starts":"&ldquo;More agents is better&rdquo;","moves_to":"&ldquo;Start with one, add only what you can explain&rdquo;"},"layer6":{"quote":"As a practitioner I would always start with a single agent and build for some form of interoperability.","text":"The same idea runs through her work: <em>&ldquo;Multi agent systems are not like microservices. You don&rsquo;t build tons of them just for the heck of it.&rdquo;<\/em>"}},"about":{"sources":[["LinkedIn","in/areganti","208 posts · 133,375 followers"],["YouTube","Aish Reganti","27 videos · solo videos, talks and podcasts"],["X","@aish_reganti","11 posts"]],"rows":[["Type of teacher",[["AI educator",1],["Founder and CEO",1],["AI consultant",1],["Visiting lecturer",1]],[["An AI influencer",0],["A research-only academic",0],["A roadmap seller",0]],"LinkedIn headline: “Founder & CEO @ LevelUp Labs” · visiting lecturer at MIT and Oxford","“5 easy sentences to help you spot AI influencers” · “not another recycled AI engineer roadmap”"],["Who you teach",[["Software engineers moving into AI",1],["AI engineers",1],["Enterprise teams",1]],[["Model researchers",0],["People who want shortcuts",0]],"“Becoming an AI Engineer in 2026” · enterprise clients such as Deloitte, Hitachi and Visa","“You don't need to cram machine learning and deep learning” · “stop filling your GitHub with AI generated projects”"],["How you teach",[["YouTube explainers",1],["Courses and workshops",1],["Free books and cheat sheets",1],["Community sessions",1]],[["Clickbait",0],["Single-day cram events",0]],"weekly videos · LinkedIn Learning and workshops · the free AI product book · Chai and AI","“goes beyond surface level takes” · “everything is packed into a single day”"],["Your topics",[["Evals",1],["Agents and harnesses",1],["RAG and retrieval",1],["AI careers",1]],[["Prompt tricks",0],["Leaderboard chasing",0]],"evals in 62 sources, harness in 44, RAG or retrieval in 35","“so obsessed with just that leaderboard that you dont build evals for yourself”"],["Named frameworks",[["CC/CD",1],["Agency-control trade-off",1],["Problem-first design",1],["The Builder's Loop",1]],[["Agent swarms",0],["Automating on day one",0]],"CC/CD, introduced with Kiriti Badam · problem-first in 29 sources","“they are not just swarms” · “do not automate fully on day one”"],["Your style",[["Direct",1],["Practical",1],["Playful",1],["Hype-free",1]],[["Fear-based",0],["Vague",0]],"a first read of your posts and videos: cheat sheets, step-by-step processes, jokes","“Classic fear based marketing” · “Please do yourself a favor and ask for better”"]]},"dos":[["start from the problem, not the technology","Frequent pattern · problem-first in 29 sources"],["start with one agent, and add sub-agents for narrow tasks","Frequent pattern · multi-agent in 18 sources, sub-agents in 17"],["build evals before you scale","Frequent pattern · evals discussed in 62 sources"],["give the agent more autonomy one version at a time","Frequent pattern · agency or autonomy in 16 sources, human in the loop in 10"],["explain the trade-offs behind each design choice","Frequent pattern · system design in 19 sources"],["ground advice in what holds up in production","Frequent pattern · production in 56 sources"]],"donts":[["build a swarm of agents that nobody can audit","YouTube · Becoming an AI Engineer in 2026"],["treat a public leaderboard as your evals","YouTube · Making AI Work in Production"],["automate fully on day one","YouTube · Stop Building AI Like Traditional Software"],["repeat the hype","Frequent pattern · hype discussed in 24 sources"],["ship code you can't explain","LinkedIn · a humble request to aspiring AI engineers"]],"personas":[],"mobile":true,"words":{"coaching":"teaching","Coaching":"Teaching","coaches":"teaches"},"about_lead":"","dd_lead":"Aishwarya's twin follows these in every answer. They come from patterns that run through her videos and posts."};
+</script>
+<script>
+(() => {
+const S = STORY, CF = CONFIG, T = S.totals, TH = S.thread, sess = S.session, L = sess.lines;
+const NM = CF.coach.name, [HE, HIM, HIS] = CF.coach.pronouns;
+const WD = Object.assign({coaching: 'coaching', Coaching: 'Coaching', coaches: 'coaches'}, CF.words || {});
+const $ = s => document.querySelector(s);
+const fmt = n => n.toLocaleString('en-US');
+const css = getComputedStyle(document.documentElement);
+const C = {}; for (let l = 1; l <= 6; l++) C[l] = css.getPropertyValue('--l' + l).trim();
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const day = d => d ? `${+d.slice(8, 10)} ${MON[+d.slice(5, 7) - 1]} ${d.slice(0, 4)}` : '—';
+const kb = b => Math.max(1, Math.round(b / 1e3)) + ' KB';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const lineOf = id => L.find(l => l.id === id);
+const cueL = lineOf(TH.cueLine), moveL = lineOf(TH.moveLine);
+// the pyramid labels use the same words as the layer cards in the box on the right (cards: layer 4 recurring pattern, layer 5 purpose, layer 6 principle)
+const NAMES = ['', 'Lines', 'Moves', 'Situations', 'Recurring pattern', 'Purpose', 'Principle'];
+const KIND = {youtube: ['YouTube video', 'yt', 'YouTube'], linkedin: ['LinkedIn post', 'li', 'LinkedIn'], web: ['Web page', 'wb', 'Website'],
+  medium: ['Medium article', 'wb', 'Medium'], doc: ['Document', 'wb', 'Documents'], recording: ['Recording', 'lm', 'Recordings'],
+  instagram: ['Instagram post', 'ig', 'Instagram'], twitter: ['Post on X', 'tw', 'X']};
+
+/* ================= the states ================= */
+const P = CF.steps;
+const CH = ['Collect', 'About you', 'Read', 'Follow', 'Understand', 'Do’s & Don’ts'];
+const STATES = [
+  {ch: -1},
+  {ch: 0, ...P.collect, stat: [T.conversations, `sources · ${(T.words / 1e6).toFixed(1)}m words`]},
+  {ch: 1, ab: true},                       // About you comes straight after Collect (standard from 17 Nov 2026)
+  {ch: 2, ...P.transcript},
+  {ch: 2, ...P.speakers},
+  {ch: 2, ...P.layer1, stat: [T.actions, 'lines spoken or written'], lvl: 1},
+  {ch: 3, ...P.meaning, stat: [S.frames.length, `frames from these ${L.length} lines`]},
+  {ch: 3, ...P.cue},
+  {ch: 4, ...P.layer2, stat: [T.frames, `substantive lines by ${NM}`], lvl: 2},
+  {ch: 4, ...P.layer3, stat: [T.tactics, 'situations'], lvl: 3},
+  {ch: 4, ...P.layer4, stat: [T.scenes, 'recurring topics'], lvl: 4},
+  {ch: 4, ...P.layer5, stat: [T.phases, WD.coaching + ' purposes'], lvl: 5},
+  {ch: 4, ...P.layer6, stat: [T.beliefs, 'principles'], lvl: 6},
+  {ch: 4, ...P.trace, lvl: 7},
+  {ch: 5, fd: true},
+];
+const N = STATES.length, ST_L1 = STATES.findIndex(s => s.lvl === 1), ST_L2 = STATES.findIndex(s => s.lvl === 2);
+const ST_FR = ST_L1 + 1, ST_CUE = ST_L1 + 2, ST_AB = STATES.findIndex(s => s.ab);
+
+/* ================= build the DOM ================= */
+document.title = `How ${NM}'s Twin Learns`;
+// long speaker names (more than 7 letters) get a wider column; shorter ones keep the 54px one
+{ const n = Math.max(...L.map(l => l.who.length)); if (n > 7) document.documentElement.style.setProperty('--who', Math.ceil(n * 7.8) + 'px'); }
+$('#hdr').innerHTML = `Twin-memory · <b>From ${esc(NM)}'s words to a ${WD.coaching} principle</b>`;
+if (CF.switch && CF.switch.length > 1) {
+  $('#psw').hidden = false; $('#hdr').hidden = true;   // the switch takes the strapline's place
+  $('#psw').innerHTML = CF.switch.map(q => `<button type="button" class="ptab" role="tab" data-href="${esc(q.href)}" aria-selected="${!!q.current}">${esc(q.label)}${q.count ? `<small>${esc(q.count)}</small>` : ''}</button>`).join('');
+}
+$('#hero-h').innerHTML = `How ${esc(NM)}'s twin<br><i>learns</i>`;
+$('#hero-p').textContent = `Start with what was said. Follow what ${NM} does next, the situation ${HE} recognizes, and the principle behind ${HIS} response.`;
+
+const stage = $('#stage');
+const rail = $('#rail');
+CH.forEach((name, c) => {
+  const el = document.createElement('div'); el.className = 'ch';
+  el.innerHTML = `<span>${pad(c + 1)} ${name}</span><span class="dots">${
+    STATES.map((s, i) => s.ch === c ? `<i data-i="${i}" class="hit"></i>` : '').join('')}</span>`;
+  rail.appendChild(el);
+});
+
+// finder list: every source, oldest first; the session is selected
+const files = S.files;
+const selIdx = files.findIndex(f => f.sel);
+const kinds = [...new Set(files.map(f => f.k))];
+$('#side').innerHTML = `<h6>Favourites</h6><div class="on"><i class="fi"></i>${esc(CF.coach.slug)}</div>
+  <h6 style="margin-top:14px">Sources</h6>${kinds.map(k => `<div><i class="fi"></i>${(KIND[k] || KIND.doc)[2]}</div>`).join('')}`;
+$('#lrows').innerHTML = files.map(f => { const K = KIND[f.k] || KIND.doc;
+  return `<div class="lrow"><span class="nm"><i class="badge ${K[1]}"></i>${esc(f.n)}</span><span class="kd">${K[0]}</span><span class="dt">${day(f.d)}</span><span class="sz">${kb(f.s)}</span></div>`; }).join('');
+
+// transcript
+const keyLines = new Set([TH.cueLine, TH.moveLine]);
+$('#doc').innerHTML = `<div class="fm">---\ntitle: '${esc(sess.title)}'\ndate: '${sess.date}'\nturns: ${sess.turns}\n---</div>` +
+  L.map(l => `<div class="ln${keyLines.has(l.id) ? ' key' : ''}" data-id="${l.id}">
+    <div class="rh"><span class="h">### </span>${l.ts} · ${l.raw}</div>
+    <div class="row"><span class="ts">${l.ts}</span><span class="who ${l.coach ? 'o' : 's'}">${esc(l.who)}</span><span class="txt"><span class="r">${esc(l.text)}</span><span class="c">${esc(l.text)}</span></span></div></div>`).join('');
+
+// frames
+$('#frames').innerHTML = `<div class="plabel">Frames · <b style="color:var(--l2)">what each line meant</b></div>` +
+  S.frames.map(f => `<div class="fc${f.id === TH.cue || f.id === TH.move ? ' key' : ''}"><span class="k">${f.kind}${f.id === TH.cue ? '<em>cue</em>' : f.id === TH.move ? `<em>${esc(NM)}’s move</em>` : ''}</span>${esc(f.span)}</div>`).join('');
+
+// layer cards (copy is trusted HTML from the config)
+const K = CF.cards;
+$('#cards').innerHTML = `
+  <div class="card" id="c1"><div class="lv" style="color:var(--l1)">Layer 1 · What was said</div>
+    <dl class="pair"><dt>${esc(sess.other)}</dt><dd class="q">“${K.layer1.cue}”</dd><dt>${esc(NM)}</dt><dd class="q">“${K.layer1.move}”</dd></dl>
+    <div class="foot">${K.layer1.foot || `${day(sess.date)} · ${cueL.ts} and ${moveL.ts} · stored word for word`}</div></div>
+  <div class="card" id="c2"><div class="lv" style="color:var(--l2)">Layer 2 · What ${esc(NM)} does</div>
+    <dl class="pair"><dt>${esc(CF.session.other_role)}</dt><dd>${K.layer2.cue}</dd><dt>${esc(NM)}</dt><dd>${K.layer2.move}</dd></dl>
+    <div class="foot">The response stays linked to the exact exchange</div></div>
+  <div class="card" id="c3"><div class="lv" style="color:var(--l3)">Layer 3 · The situation</div><h3>${K.layer3.title}</h3><p>${K.layer3.text}</p>
+    <div class="foot">${K.layer3.foot}</div></div>
+  <div class="card" id="c4"><div class="lv" style="color:var(--l4)">Layer 4 · The recurring pattern</div><h3>${K.layer4.title}</h3><p>${K.layer4.text}</p>
+    <div class="foot">${K.layer4.foot}</div></div>
+  <div class="card" id="c5"><div class="lv" style="color:var(--l5)">Layer 5 · The ${WD.coaching} purpose</div><h3>${K.layer5.title}</h3><p>${K.layer5.text}</p>
+    <dl class="pair" style="margin-top:14px"><dt>Starts</dt><dd>${K.layer5.starts}</dd><dt>Moves to</dt><dd>${K.layer5.moves_to}</dd></dl>
+    <div class="foot">Why ${esc(NM)}’s reply matters</div></div>
+  <div class="card" id="c6"><div class="lv" style="color:var(--l6)">Layer 6 · The ${WD.coaching} principle</div><blockquote>“${K.layer6.quote}”</blockquote><p>${K.layer6.text}</p>
+    <div class="foot">Derived from the recorded pattern</div></div>`;
+
+const LG = ['What was said', `What ${NM} does`, 'The situation', 'Recurring pattern', WD.Coaching + ' purpose', 'Derived principle'];
+$('#legend').innerHTML = `<div class="plabel">This exchange, layer by layer</div>` + [6, 5, 4, 3, 2, 1].map((l, i) =>
+  `<div class="lg" style="transition-delay:${.1 + i * .08}s"><i style="background:${C[l]}"></i><span>L${l} ${esc(LG[l - 1])}</span></div>`).join('');
+
+// about you
+const A = CF.about;
+$('#ab').innerHTML = `<div class="lead">
+    <div class="kick">${pad(STATES[ST_AB].ch + 1)} · About you</div>
+    <h1>Where we found you</h1>
+    <p>${CF.about_lead || 'Your twin starts from what you have already shared in public.'}</p>
+    <div class="found">${A.sources.map(([k, where, meta]) => `<div><b>${k}</b> ${where}<em>✓</em><small>${meta}</small></div>`).join('')}</div>
+  </div>
+  <div class="page">
+    <h2>Here’s who we think you are</h2>
+    <p class="what">From your ${(n => n.length > 1 ? n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1] : n[0])(A.sources.map(s => s[0]))}. Tap to correct anything.</p>
+    ${A.rows.some(r => r.length >= 5) ? `<div class="sheet two"><div class="row heads"><span></span><div class="cols"><b class="is">Who you are</b><b class="no">Who you are not</b></div></div>${
+      A.rows.map(([label, yes, not, evYes, evNot]) => `<div class="row"><span>${label}</span><div class="cols">
+        <div class="col"><div class="chips">${yes.map(([v, on]) => `<button type="button" class="chip" aria-pressed="${!!on}">${v}</button>`).join('')}</div><span class="ev">${evYes}</span></div>
+        <div class="col"><div class="chips">${not.map(([v, on]) => `<button type="button" class="chip no" aria-pressed="${!!on}">${v}</button>`).join('')}</div><span class="ev">${evNot}</span></div>
+      </div></div>`).join('')}</div>` : `<div class="sheet">${A.rows.map(([label, opts, ev]) => `<div class="row"><span>${label}</span><div class="chips">${
+      opts.map(([v, on]) => `<button type="button" class="chip" aria-pressed="${!!on}">${v}</button>`).join('')}<span class="ev">${ev}</span></div></div>`).join('')}</div>`}
+  </div>`;
+
+// do's & don'ts (optionally one set per persona, e.g. a professor who also teaches Sanskrit chanting)
+const PERS = (CF.personas && CF.personas.length) ? CF.personas : [{label: '', dd_lead: CF.dd_lead, dos: CF.dos, donts: CF.donts}];
+const ddRow = (kind, [text, meta]) => `<div class="dd-row ${kind}"><i>${kind === 'do' ? '✓' : '✕'}</i><div><p><b>${kind === 'do' ? 'Do' : 'Don’t'}</b> ${text}</p><small>${meta}</small></div></div>`;
+function showPersona(k) {
+  const P = PERS[k];
+  $('#dd-lead').innerHTML = P.dd_lead || CF.dd_lead;
+  $('#dd-count').innerHTML = `<div><b>${P.dos.length}</b><span>Do’s</span></div><div><b>${P.donts.length}</b><span>Don’ts</span></div>`;
+  const tabs = PERS.length > 1 ? `<div class="ptabs" role="tablist">${PERS.map((q, n) =>
+    `<button type="button" class="ptab" role="tab" data-p="${n}" aria-selected="${n === k}">${esc(q.label)}</button>`).join('')}</div>` : '';
+  $('#fdpage').innerHTML = `<article class="on">
+  <h2>How ${esc(NM)} ${WD.coaches}</h2>${tabs}
+  <div class="dd-cols">
+    <section><div class="dd-head do"><i>✓</i> Do’s <small>how ${HIS} twin behaves</small></div>${P.dos.map(x => ddRow('do', x)).join('')}</section>
+    <section><div class="dd-head dont"><i>✕</i> Don’ts <small>lines ${HIS} twin never crosses</small></div>${P.donts.map(x => ddRow('dont', x)).join('')}</section>
+  </div>
+</article>`;
+}
+showPersona(0);
+
+/* ================= the layered space ================= */
+const FLOOR = {1: 1.0, 2: .84, 3: .68, 4: .52, 5: .36, 6: .2}, FY = l => -1 + (l - 1) * .4;
+const counts = {}, off = {}; let NN = 0;
+for (let l = 1; l <= 6; l++) { counts[l] = S.floors[l].length / 2; off[l] = NN; NN += counts[l]; }
+const X = new Float32Array(NN), Y = new Float32Array(NN), Z = new Float32Array(NN), LAY = new Uint8Array(NN);
+for (let l = 1; l <= 6; l++) {
+  const f = S.floors[l], w = FLOOR[l];
+  for (let k = 0; k < counts[l]; k++) { const i = off[l] + k; X[i] = f[2 * k] / 1000 * w; Z[i] = f[2 * k + 1] / 1000 * w; Y[i] = FY(l); LAY[i] = l; }
+}
+// draw order: a shuffle per layer, so a floor fills evenly as it appears
+const ORDER = {};
+for (let l = 1; l <= 6; l++) {
+  const a = new Uint32Array(counts[l]); for (let k = 0; k < a.length; k++) a[k] = off[l] + k;
+  for (let k = a.length - 1; k > 0; k--) { const j = (Math.random() * (k + 1)) | 0; const t = a[k]; a[k] = a[j]; a[j] = t; }
+  ORDER[l] = a;
+}
+const EDGE = {};                               // links grouped by the upper layer they reach
+for (let k = 0; k < S.edges.length; k += 2) { const a = S.edges[k], b = S.edges[k + 1], l = LAY[b]; (EDGE[l] ||= []).push(a, b); }
+const SN = S.sessNodes;                        // the lines we followed, in transcript order
+const SF = S.frames.map(f => ({node: S.sessFrameNodes[f.id], from: SN[L.findIndex(l => l.id === f.from.at(-1))]}));
+const thr = S.threadNodes;                     // [line cue, line move, frame cue, frame move, situation, topic, phase, belief]
+const thrEdges = [[thr[0], thr[2]], [thr[1], thr[3]], [thr[2], thr[4]], [thr[3], thr[4]], [thr[4], thr[5]], [thr[5], thr[6]], [thr[6], thr[7]]];
+const PX = new Float32Array(NN), PYs = new Float32Array(NN);
+const LBL = i => { const l = LAY[i], k = i - off[l]; return l === 3 ? S.labels.tactics[k] : l === 4 ? S.labels.scenes[k] : l === 5 ? S.labels.phases[k] : l === 6 ? S.labels.beliefs[k] : ''; };
+
+/* ================= animated values ================= */
+const V = {}, TG = {};
+const val = (k, v) => { V[k] = TG[k] = v; };
+[['ry', .55], ['rx', .62], ['zoom', .82], ['ty', -1], ['cx', 790], ['cy', 520], ['spin', 0], ['thrA', 0]].forEach(([k, v]) => val(k, v));
+for (let l = 1; l <= 6; l++) { val('L' + l, 0); val('E' + l, 0); }
+let rot = 0, drag = 0, cur = -1, thrUpTo = 0, cardLevel = 0, fly = null, flyF = null, wiresLeft = 0;
+
+/* ================= layout ================= */
+const cv = $('#cv'), ctx = cv.getContext('2d');
+let W = 0, H = 0, DPR = 1, KS = 1, OX = 0, OY = 0, KD = 1, M = false;
+const sx = x => OX + x * KS, sy = y => OY + y * KS;
+const HINT = $('#hint').innerHTML;
+// media queries, not innerWidth: a phone zooms out to fit the 1600px slide, which inflates innerWidth
+const MQ = matchMedia('(orientation: portrait) and (max-width: 899px)'), MQR = matchMedia('(orientation: landscape) and (max-height: 499px)');
+function fit() {
+  // phones: a portrait column (opt-in per coach); a phone held sideways is asked to turn upright
+  M = !!CF.mobile && MQ.matches;
+  document.body.classList.toggle('m', M);
+  document.body.classList.toggle('rot', !!CF.mobile && MQR.matches);
+  W = innerWidth; H = innerHeight; DPR = Math.min(2, devicePixelRatio || 1);
+  cv.width = W * DPR; cv.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  $('#hint').innerHTML = M ? '<span id="mback" class="hit">← Back</span><span>Tap to continue</span>' : HINT;
+  $('#go').textContent = M ? 'Tap to begin →' : 'Click to begin →';
+  // with a persona switch the phone header is taller: the About and Do's pages start below it
+  if (M && CF.switch) document.documentElement.style.setProperty('--hdh', document.querySelector('header').getBoundingClientRect().height + 'px');
+  if (M) { camM(0); wiresLeft = 0; return; }
+  KS = Math.min(W / 1600, H / 900); KD = KS; OX = (W - 1600 * KS) / 2; OY = (H - 900 * KS) / 2;
+  stage.style.transform = `translate(${OX}px,${OY}px) scale(${KS})`;
+  wiresLeft = 30;
+}
+// phones: fit the layered space into the free part of the visual area (above a card or the legend), easing as it changes
+function camM(dt) {
+  const v = $('#vis').getBoundingClientRect(), panel = ['#cards', '#legend'].map(s => $(s)).find(el => el.classList.contains('on'));
+  const top = v.top + 6, bottom = panel ? panel.getBoundingClientRect().top - 10 : v.bottom - 6, h = Math.max(120, bottom - top);
+  const ks = Math.min(W / 860, h / 560), ox = W / 2 - 800 * ks, oy = top + h / 2 - 470 * ks;
+  const k = dt ? 1 - Math.exp(-dt * 5) : 1;
+  KS += (ks - KS) * k; OX += (ox - OX) * k; OY += (oy - OY) * k; KD = Math.max(KS, .62);
+}
+
+/* ================= state application ================= */
+const cls = (sel, c, on) => $(sel).classList.toggle(c, !!on);
+// camera per layer: start low and close on the dense floors, rise with each layer, end on the whole
+const CAM = {1: [.62, .82, -1.0, 790, 520], 2: [.44, .8, -.78, 790, 530], 3: [.4, .78, -.52, 790, 520], 4: [.37, .76, -.28, 790, 505],
+             5: [.4, .76, -.05, 790, 490], 6: [.44, .74, .12, 790, 470], 7: [.5, .7, 0, 840, 470]};
+function go(i) {
+  i = Math.max(0, Math.min(N - 1, i)); if (i === cur) return;
+  const prev = cur; cur = i; const st = STATES[i], now = performance.now();
+  // the lines drop from the transcript onto the floor
+  fly = null;
+  if (i === ST_L1 && prev === ST_L1 - 1)
+    fly = {t0: now, from: [...document.querySelectorAll('.ln')].map(el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r.width, r.height]; })};
+  flyF = null;
+  if (i === ST_L2 && prev === ST_CUE)
+    flyF = {t0: now, from: [...document.querySelectorAll('.fc')].map(el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r.width, r.height]; })};
+
+  cls('#hero', 'out', i > 0);
+  const cap = $('#cap');
+  cap.classList.add('out');
+  if (i > 0 && !st.fd && !st.ab) setTimeout(() => {
+    if (cur !== i) return;
+    $('#kick').textContent = `${pad(st.ch + 1)} · ${CH[st.ch]}`;
+    $('#title').innerHTML = st.t; $('#body').innerHTML = st.b; cap.classList.remove('out');
+  }, 380);
+  if (st.stat) { countTo(st.stat[0]); $('#unit').textContent = st.stat[1]; }
+  cls('#stat', 'hide', !st.stat);
+  $('#hint').style.opacity = i === N - 1 ? 0 : 1;
+  document.body.classList.toggle('final', st.lvl === 7);
+  cls('#fd', 'on', st.fd);
+  cls('#ab', 'on', st.ab);
+  document.querySelectorAll('#rail .ch').forEach((el, c) => { el.classList.toggle('on', c === st.ch); el.classList.toggle('done', c < st.ch); });
+  document.querySelectorAll('#rail i').forEach(el => { const k = +el.dataset.i; el.classList.toggle('on', k === i); el.classList.toggle('done', k < i); });
+
+  // ----- the window
+  const win = $('#win');
+  const shown = i >= 1 && i < ST_L1 && i !== ST_AB || i === ST_FR || i === ST_CUE;
+  win.classList.toggle('show', shown);
+  win.classList.toggle('gone', !shown && i > 0);
+  win.classList.toggle('narrow', i === ST_FR || i === ST_CUE);
+  $('#side').style.cssText = i <= 1 ? '' : 'width:0;padding:14px 0;opacity:0';
+  cls('#list', 'on', i === 1); cls('#docs', 'on', i > ST_AB);
+  $('#wtitle').textContent = i <= 1 ? CF.coach.slug : `${sess.date} · ${sess.title}.md`;
+  $('#status').textContent = i > ST_AB ? `${sess.kind} · ${day(sess.date)}` : '';
+  if (i === 1) runList(); else listAnim++;
+  const doc = $('#doc');
+  doc.classList.toggle('clean', i > ST_AB + 1); doc.classList.toggle('focus', i === ST_CUE);
+
+  // ----- right panels
+  cls('#frames', 'on', i === ST_FR || i === ST_CUE); cls('#frames', 'focus', i === ST_CUE);
+  for (let l = 1; l <= 6; l++) cls('#c' + l, 'on', st.lvl === l);
+  cls('#cards', 'on', st.lvl >= 1 && st.lvl <= 6);
+  cls('#legend', 'on', st.lvl === 7);
+  wiresLeft = 100;
+
+  // ----- canvas targets
+  const lv = st.lvl || 0, t = TG;
+  for (let l = 1; l <= 6; l++) { t['L' + l] = lv && l <= lv ? 1 : 0; t['E' + l] = lv && l <= lv && l > 1 ? 1 : 0; }
+  t.thrA = lv ? 1 : 0; thrUpTo = Math.min(lv, 6); cardLevel = lv >= 1 && lv <= 6 ? lv : 0;
+  t.spin = lv === 7 ? .07 : lv ? .02 : 0;
+  if (lv) { const [rx, zoom, ty, cx, cy] = CAM[lv]; Object.assign(t, {rx, zoom, ty, cx, cy}); }
+}
+
+let numCur = 0, numAnim = 0;
+function countTo(v) {
+  const from = numCur, t0 = performance.now(), id = ++numAnim;
+  const tick = now => {
+    if (id !== numAnim) return;
+    const p = Math.min(1, (now - t0) / 1100), e = 1 - Math.pow(1 - p, 3);
+    numCur = Math.round(from + (v - from) * e); $('#num').textContent = fmt(numCur);
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* the list scrolls through every source, then selects our session */
+let listAnim = 0;
+function runList() {
+  const rows = $('#lrows'), id = ++listAnim, t0 = performance.now();
+  rows.querySelectorAll('.sel').forEach(r => r.classList.remove('sel'));
+  const target = Math.max(0, Math.min(selIdx * 26 - 300, files.length * 26 - 556)), dur = 3600;
+  rows.style.transform = 'translateY(0)';
+  const tick = now => {
+    if (id !== listAnim || cur !== 1) return;
+    const p = Math.min(1, (now - t0) / dur), e = p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+    rows.style.transform = `translateY(${-e * target}px)`;
+    if (p < 1) requestAnimationFrame(tick);
+    else setTimeout(() => id === listAnim && rows.children[selIdx].classList.add('sel'), 250);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* wires: transcript lines -> frame cards */
+function wires() {
+  const svg = $('#wires'), fr = $('#frames'), on = cur === ST_FR || cur === ST_CUE;
+  const lineBox = {};
+  document.querySelectorAll('.ln').forEach(el => { const r = el.getBoundingClientRect(); lineBox[el.dataset.id] = ((r.top + r.bottom) / 2 - OY) / KS; });
+  const cards = [...fr.querySelectorAll('.fc')], frTop = 100;
+  let y = 0;
+  const pos = cards.map((el, k) => {
+    const h = el.offsetHeight || 54, a = lineBox[S.frames[k].from.at(-1)];
+    const want = a !== undefined ? a - frTop - h / 2 : y;
+    y = Math.max(want, y); const top = y; y += h + 6; return {top, h};
+  });
+  const over = y - 765;
+  if (over > 0) pos.forEach((p, k) => p.top -= over * k / Math.max(1, pos.length - 1));
+  cards.forEach((el, k) => { el.style.top = pos[k].top + 'px'; el.style.transitionDelay = (on && cur === ST_FR ? .25 + k * .1 : 0) + 's'; });
+  if (!svg.childElementCount) S.frames.forEach(f => f.from.forEach(() => svg.appendChild(document.createElementNS('http://www.w3.org/2000/svg', 'path'))));
+  let n = 0;
+  cards.forEach((el, k) => {
+    const f = S.frames[k], key = f.id === TH.cue || f.id === TH.move, ty = frTop + pos[k].top + pos[k].h / 2, tx = 1120;
+    f.from.forEach(id => {
+      const p = svg.children[n++], a = lineBox[id]; if (a === undefined) return;
+      const x0 = 1072, mx = (x0 + tx) / 2;
+      p.setAttribute('d', `M${x0},${a} C${mx},${a} ${mx},${ty} ${tx},${ty}`);
+      p.setAttribute('class', `wire${on ? ' on' : ''}${cur === ST_CUE ? (key ? ' key' : ' dim') : ''}`);
+      p.style.transitionDelay = (on && cur === ST_FR ? .35 + k * .1 : 0) + 's';
+    });
+  });
+}
+
+/* ================= canvas ================= */
+function project(x, y, z, out) {
+  const ry = rot + V.ry + drag, rx = V.rx, s = KS * 380 * V.zoom;
+  y -= V.ty;
+  const cy = Math.cos(ry), sy_ = Math.sin(ry), cx = Math.cos(rx), sx_ = Math.sin(rx);
+  const x1 = x * cy + z * sy_, z1 = -x * sy_ + z * cy;
+  const y2 = y * cx - z1 * sx_, z2 = y * sx_ + z1 * cx;
+  const p = 3.4 / (3.4 + z2);
+  out[0] = sx(V.cx) + x1 * p * s; out[1] = sy(V.cy) - y2 * p * s;
+  return out;
+}
+const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${n >> 8 & 255},${n & 255},${a})`; };
+const ease = t => t <= 0 ? 0 : t >= 1 ? 1 : t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const pt = [0, 0];
+const DOT = {1: 1.1, 2: 1.3, 3: 2.3, 4: 4, 5: 5.4, 6: 6};
+const ALPHA = {1: .5, 2: .55, 3: .8, 4: .9, 5: .9, 6: .95};
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  for (const k in TG) {
+    const rate = k[0] === 'L' ? 1.1 : k[0] === 'E' ? 1.4 : 2.6;
+    V[k] += (TG[k] - V[k]) * (1 - Math.exp(-dt * rate));
+  }
+  rot += dt * V.spin;
+  if (M) camM(dt);
+  else if (wiresLeft > 0) { wiresLeft--; wires(); }
+  ctx.clearRect(0, 0, W, H);
+  if ([1, 2, 3, 4, 5, 6].some(l => V['L' + l] > .005)) drawLayers(now);
+  requestAnimationFrame(frame);
+}
+
+function drawLayers(now) {
+  for (let l = 1; l <= 6; l++) {
+    if (V['L' + l] < .005) continue;
+    for (let i = off[l], e = off[l] + counts[l]; i < e; i++) { project(X[i], Y[i], Z[i], pt); PX[i] = pt[0]; PYs[i] = pt[1]; }
+  }
+  // floors
+  for (let l = 1; l <= 6; l++) {
+    const a = Math.min(1, V['L' + l] * 1.5); if (a < .01) continue;
+    const w = FLOOR[l], y = FY(l), cs = [[-w, -w], [w, -w], [w, w], [-w, w]].map(([x, z]) => project(x, y, z, [0, 0]));
+    ctx.beginPath(); cs.forEach((p, k) => k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath();
+    ctx.fillStyle = rgba(C[l], .04 * a); ctx.fill(); ctx.strokeStyle = rgba(C[l], .28 * a); ctx.lineWidth = 1; ctx.stroke();
+    const right = cs.reduce((m, p) => p[0] > m[0] ? p : m);
+    ctx.fillStyle = rgba(C[l], .9 * a); ctx.font = `600 ${M ? 9 : 10.5 * KS}px 'IBM Plex Mono',monospace`;
+    const lbl = `L${l} · ${NAMES[l].toUpperCase()}`, lx = right[0] + 12 * KD;
+    ctx.fillText(lbl, M ? Math.min(lx, W - 4 - ctx.measureText(lbl).width) : lx, right[1] + 4 * KD);
+  }
+  // links up into each layer, one path per layer
+  for (let l = 2; l <= 6; l++) {
+    const a = V['E' + l] * Math.min(V['L' + l], V['L' + (l - 1)]); if (a < .01 || !EDGE[l]) continue;
+    const E = EDGE[l], n = Math.floor(E.length / 2 * Math.min(1, a * 1.2));
+    ctx.strokeStyle = rgba(C[l], (l >= 5 ? .2 : l === 4 ? .13 : .07) * a); ctx.lineWidth = l >= 4 ? .8 : .5;
+    ctx.beginPath();
+    for (let k = 0; k < n; k++) { const p = E[2 * k], q = E[2 * k + 1]; ctx.moveTo(PX[p], PYs[p]); ctx.lineTo(PX[q], PYs[q]); }
+    ctx.stroke();
+  }
+  // atoms: each floor fills in as it appears
+  for (let l = 1; l <= 6; l++) {
+    const v = V['L' + l]; if (v < .005) continue;
+    const ord = ORDER[l], n = Math.floor(ord.length * Math.min(1, v * 1.15)), r = DOT[l] * KD;
+    ctx.fillStyle = rgba(C[l], ALPHA[l] * (cardLevel && cardLevel - l >= 2 ? .45 : 1));
+    if (l <= 3) for (let k = 0; k < n; k++) { const i = ord[k]; ctx.fillRect(PX[i] - r / 2, PYs[i] - r / 2, r, r); }
+    else {
+      ctx.strokeStyle = rgba(C[l], .3);
+      for (let k = 0; k < n; k++) {
+        const i = ord[k]; ctx.beginPath(); ctx.arc(PX[i], PYs[i], r, 0, 6.283); ctx.fill();
+        ctx.beginPath(); ctx.arc(PX[i], PYs[i], r + 3 * KD, 0, 6.283); ctx.stroke();
+      }
+    }
+  }
+  drawSession(now);
+  drawThread(now);
+}
+
+// the session's lines (and their frames) stay lit, so the eye can follow them
+function drawSession(now) {
+  const a1 = V.L1; if (a1 < .01) return;
+  SN.forEach((i, k) => {
+    let x = PX[i], y = PYs[i];
+    if (fly) {
+      const p = ease((now - fly.t0 - k * 55) / 1500), f = fly.from[k];
+      if (p < 1) {
+        x = f[0] + (x - f[0]) * p; y = f[1] + (y - f[1]) * p;
+        const w = f[2] + (5 * KD - f[2]) * p, h = f[3] + (5 * KD - f[3]) * p;
+        ctx.fillStyle = rgba(C[1], .16 + .5 * p); ctx.strokeStyle = rgba(C[1], .8); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(x - w / 2, y - h / 2, w, h, Math.min(7, h / 2)); ctx.fill(); ctx.stroke();
+        return;
+      }
+    }
+    ctx.fillStyle = rgba('#f6d48a', a1); ctx.beginPath(); ctx.arc(x, y, 2.6 * KD, 0, 6.283); ctx.fill();
+  });
+  if (V.L2 < .01) return;
+  SF.forEach((f, k) => {
+    let x = PX[f.node], y = PYs[f.node];
+    if (flyF) {
+      const p = ease((now - flyF.t0 - k * 55) / 1500), r = flyF.from[k];
+      if (p < 1) {
+        x = r[0] + (x - r[0]) * p; y = r[1] + (y - r[1]) * p;
+        const w = r[2] + (5 * KD - r[2]) * p, h = r[3] + (5 * KD - r[3]) * p;
+        ctx.fillStyle = rgba(C[2], .16 + .5 * p); ctx.strokeStyle = rgba(C[2], .85); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(x - w / 2, y - h / 2, w, h, Math.min(8, h / 2)); ctx.fill(); ctx.stroke();
+        return;
+      }
+    }
+    ctx.strokeStyle = rgba(C[2], .6 * V.L2); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(PX[f.from], PYs[f.from]); ctx.lineTo(x, y); ctx.stroke();
+    ctx.fillStyle = rgba('#9fe3da', V.L2); ctx.beginPath(); ctx.arc(x, y, 2.6 * KD, 0, 6.283); ctx.fill();
+  });
+}
+
+function drawThread(now) {
+  if (V.thrA < .02) return;
+  const pulse = .75 + .25 * Math.sin(now / 420), flying = (fly && now - fly.t0 < 2300) || (flyF && now - flyF.t0 < 2300);
+  ctx.lineWidth = 2 * KD;
+  for (const [a, b] of thrEdges) {
+    const lb = LAY[b]; if (lb > thrUpTo) continue;
+    const al = Math.min(V['L' + LAY[a]], V['L' + lb]) * V.thrA * (flyF && lb >= 2 ? ease((now - flyF.t0 - 1500) / 700) : 1);
+    ctx.strokeStyle = rgba('#f3ead9', .85 * al);
+    ctx.beginPath(); ctx.moveTo(PX[a], PYs[a]); ctx.lineTo(PX[b], PYs[b]); ctx.stroke();
+  }
+  for (const i of thr) {
+    const l = LAY[i]; if (l > thrUpTo || (flying && l === thrUpTo)) continue;
+    const al = V['L' + l] * V.thrA, big = l >= 4;
+    ctx.fillStyle = rgba(C[l], al); ctx.beginPath(); ctx.arc(PX[i], PYs[i], (big ? 7 : 4.5) * KD, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = rgba('#f3ead9', .95 * al); ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(PX[i], PYs[i], (big ? 11 : 9) * KD * pulse, 0, 6.283); ctx.stroke();
+  }
+  // leaders from this layer's thread atoms to its card
+  if (cardLevel && !flying) {
+    const r = $('#c' + cardLevel).getBoundingClientRect();
+    ctx.strokeStyle = rgba(C[cardLevel], .75 * V.thrA); ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+    thr.filter(i => LAY[i] === cardLevel).forEach((i, k) => {
+      ctx.beginPath(); ctx.moveTo(PX[i] + (M ? 0 : 10 * KS), PYs[i] + (M ? 10 * KD : 0));
+      if (M) ctx.lineTo(r.left + r.width * (.3 + k * .4), r.top - 6); else ctx.lineTo(r.left - 8, r.top + (cardLevel <= 2 ? 56 + k * 74 : 26) * KS);
+      ctx.stroke();
+    });
+    ctx.setLineDash([]);
+  }
+}
+
+/* ================= input ================= */
+let down = null, moved = false;
+addEventListener('pointerdown', e => { down = {x: e.clientX, d: drag}; moved = false; });
+addEventListener('pointermove', e => {
+  if (down && Math.abs(e.clientX - down.x) > 5 && STATES[cur].lvl) { moved = true; drag = down.d + (e.clientX - down.x) * .006; }
+  hover(e);
+});
+addEventListener('pointerup', e => {
+  const was = down; down = null;
+  if (!was || moved) return;
+  const dot = e.target.closest && e.target.closest('#rail i');
+  if (dot) { go(+dot.dataset.i); return; }
+  if (e.target.closest && e.target.closest('#mback, #fd .keys')) { go(cur - 1); return; }
+  const sw = e.target.closest && e.target.closest('#psw .ptab');
+  if (sw) { if (sw.getAttribute('aria-selected') !== 'true') location.replace(sw.dataset.href + '#' + Math.max(0, cur)); return; }
+  const ptab = e.target.closest && e.target.closest('#fd .ptab');
+  if (ptab) { showPersona(+ptab.dataset.p); return; }
+  const chip = e.target.closest && e.target.closest('#ab .chip');
+  if (chip) { chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true')); return; }
+  if (STATES[cur].fd) return;                  // reading the last page: clicks do not advance
+  go(cur + 1);
+});
+addEventListener('keydown', e => {
+  if (['ArrowRight', ' ', 'Enter', 'PageDown'].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+  if (['ArrowLeft', 'Backspace', 'PageUp'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+  if (e.key === 'Home') go(0);
+});
+const tip = $('#tip');
+function hover(e) {
+  if (M || STATES[cur].lvl !== 7 || down) { tip.style.opacity = 0; return; }
+  let best = -1, bd = 12 * 12;
+  for (let i = off[3]; i < NN; i++) { const dx = PX[i] - e.clientX, dy = PYs[i] - e.clientY, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = i; } }
+  if (best < 0) { tip.style.opacity = 0; return; }
+  const l = LAY[best];
+  tip.innerHTML = `<small style="color:${C[l]}">L${l} · ${NAMES[l]}</small>${esc(LBL(best))}`;
+  tip.style.left = Math.min(W - 380, e.clientX + 16) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; tip.style.opacity = 1;
+}
+addEventListener('resize', fit);
+MQ.addEventListener && MQ.addEventListener('change', fit);
+fit(); requestAnimationFrame(fit);
+go(+location.hash.slice(1) || 0);
+addEventListener('hashchange', () => go(+location.hash.slice(1) || 0));
+requestAnimationFrame(frame);
+if (document.fonts) document.fonts.ready.then(() => { wiresLeft = 30; });
+})();
+</script>
+</body>
+</html>
