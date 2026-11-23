@@ -248,7 +248,7 @@ export const AISHWARYA_REGANTI = {
   name: 'Aishwarya Reganti',
   firstName: 'Aishwarya',
   initials: 'AR',
-  face: '/media/aishwarya-reganti-face.svg',
+  face: '/media/aishwarya-reganti-face.jpg',
   room: {
     kind: 'Ask me anything in Slack · Demo',
     title: 'Ask about building AI',
