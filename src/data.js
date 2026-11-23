@@ -260,6 +260,23 @@ export const AISHWARYA_REGANTI = {
   },
 }
 
+export const COLLY_GRAHAM = {
+  id: 'colly-graham',
+  name: 'Colly Graham',
+  // The agent answers the welcome-page starter as the first message (needs starter_reply in agents.json).
+  starterInRoom: true,
+  firstName: 'Colly',
+  initials: 'CG',
+  participantName: 'User', // the learner's tile label in the live room (default is 'Candidate')
+  face: '/media/colly-graham-headshot.jpg',
+  portrait: '/media/colly-graham-portrait.jpg',
+  room: {
+    kind: 'Ask me anything · Demo',
+    title: 'Ask about selling, buyers and your sales mindset',
+    scenario: 'Colly’s AI twin will help you with brain-based selling, handling objections, discovery questions, your sales mindset and using AI in sales. It was made only for this demo and is not a replacement for Colly.',
+  },
+}
+
 export const SOURCES = [
   ['YouTube', '108 videos · 211 Shorts', [
     ['Dubai 2008 vs 2026: Is 2008 Happening Again?', '134K views'],
@@ -614,5 +631,22 @@ AISHWARYA_REGANTI.sources = [
   ]],
   ['Website', '10 pages', [
     ['maven.com/aishwarya-kiriti', 'Course pages and profile'],
+  ]],
+]
+
+COLLY_GRAHAM.sourceSummary = '18 videos · 345 LinkedIn posts · 29 website pages'
+COLLY_GRAHAM.sources = [
+  ['YouTube', '18 videos', [
+    ['Art Sobczak talks to Colly Graham', 'Interview, 2020'],
+    ['Colly Graham talks to Patrick Tinney', 'Interview, 2020'],
+    ['Niraj Kapur, author of Everyone Works in Sales', 'Interview, 2021'],
+    ['Reframing Sales Objections', 'His own video, 2021'],
+    ['Colly Graham Keynote Showreel', 'Keynote, 2026'],
+  ]],
+  ['LinkedIn', '345 posts', [
+    ['Colly Graham on LinkedIn', 'His own posts and newsletters, December 2024 to November 2026'],
+  ]],
+  ['Website', '29 pages', [
+    ['collygraham.com and salesxcellence.com', 'Keynotes, books, programmes and approach'],
   ]],
 ]
