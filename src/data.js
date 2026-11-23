@@ -610,7 +610,7 @@ AISHWARYA_REGANTI.sources = [
   ['X', '11 posts', [['@aish_reganti', 'Her own posts']]],
 ]
 
-COLLY_GRAHAM.sourceSummary = '18 videos · 345 LinkedIn posts · 24 website pages'
+COLLY_GRAHAM.sourceSummary = '18 videos · 345 LinkedIn posts · 29 website pages'
 COLLY_GRAHAM.sources = [
   ['YouTube', '18 videos', [
     ['Art Sobczak talks to Colly Graham', 'Interview, 2020'],
@@ -622,7 +622,7 @@ COLLY_GRAHAM.sources = [
   ['LinkedIn', '345 posts', [
     ['Colly Graham on LinkedIn', 'His own posts and newsletters, December 2024 to November 2026'],
   ]],
-  ['Website', '24 pages', [
+  ['Website', '29 pages', [
     ['collygraham.com and salesxcellence.com', 'Keynotes, books, programmes and approach'],
   ]],
 ]
