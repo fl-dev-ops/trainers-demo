@@ -327,6 +327,12 @@ svg{flex:none}
 .slk-send{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border:none;border-radius:6px;background:#007a5a;color:#fff}
 .slk-send:disabled{background:var(--fill);color:var(--muted);cursor:default}
 @media (max-width:480px){.slk-compose>.slk-mention{display:none}.slk-list,.slk-head{padding-inline:14px}.slk-compose{margin-inline:14px}.slk-try{padding-inline:14px}}
+.slk-more{width:100%;max-width:760px;margin:64px auto 0;display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+.slk-more h2{font-size:22px;font-weight:600}
+.slk-more>p{color:var(--ink-2,inherit);opacity:.8}
+.slk-wrap--small{width:100%;margin-top:6px}
+.slk-wrap--small .slk{height:400px}
+.slk-more .slk-steps{margin-top:14px;text-align:left}
 .slk-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;width:100%}
 @media (max-width:760px){.slk-steps{grid-template-columns:minmax(0,1fr);gap:14px}}
 .slk-step{display:flex;flex-direction:column;gap:6px}
