@@ -251,7 +251,7 @@ export const AISHWARYA_REGANTI = {
   firstName: 'Aishwarya',
   initials: 'AR',
   participantName: 'User', // the learner's tile label in the live room (default is 'Candidate')
-  face: '/media/aishwarya-reganti-face.jpg',
+  face: '/media/aishwarya-reganti-dp.jpg',
   portrait: '/media/aishwarya-reganti-portrait.jpg',
   room: {
     kind: 'Ask me anything · Demo',
