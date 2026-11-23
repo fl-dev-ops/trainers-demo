@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { AISHWARYA_REGANTI, ANTONI, BEVAN_BROADBENT, CLIVE_MILLER, DARREN_MITCHELL, FLO_AKINBIYI, GOPAL_RAJGURU, JAMEEL, JOHNNY_DANIELE, MARCUS_CAUCHI, PRATHOSH, SEAN_WEAFER, NATALIE_SEREBRENNIK, SHEHZAD_MUKADAM, SHELLEY_WALTERS, TONY_LATIMER, TWIN } from '../data.js'
+import { AISHWARYA_REGANTI, COLLY_GRAHAM, ANTONI, BEVAN_BROADBENT, CLIVE_MILLER, DARREN_MITCHELL, FLO_AKINBIYI, GOPAL_RAJGURU, JAMEEL, JOHNNY_DANIELE, MARCUS_CAUCHI, PRATHOSH, SEAN_WEAFER, NATALIE_SEREBRENNIK, SHEHZAD_MUKADAM, SHELLEY_WALTERS, TONY_LATIMER, TWIN } from '../data.js'
 
 export const metadata: Metadata = {
   title: 'Trainer demos · TrainerTwin',
@@ -293,6 +293,24 @@ export default function Home() {
               <div className="row">
                 <Link href="/shelley-walters" className="btn btn--strong">
                   Explore Shelley’s demo
+                </Link>
+              </div>
+            </div>
+          </article>
+          <article className="path">
+            <div className="path-b">
+              <Image
+                src={COLLY_GRAHAM.face}
+                alt={COLLY_GRAHAM.name}
+                width={76}
+                height={76}
+                style={{ borderRadius: '50%', objectFit: 'cover' }}
+              />
+              <h2>{COLLY_GRAHAM.name}</h2>
+              <p>Ask Colly’s AI twin about brain-based selling, objections and your sales mindset.</p>
+              <div className="row">
+                <Link href="/colly-graham" className="btn btn--strong">
+                  Explore Colly’s demo
                 </Link>
               </div>
             </div>
