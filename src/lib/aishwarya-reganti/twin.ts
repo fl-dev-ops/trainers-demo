@@ -6,7 +6,7 @@ const MAX_TURNS = 10
 const MAX_CHARS = 1500
 
 /* One reply from Aishwarya's twin, through OpenRouter with the same model as the voice agents. */
-export async function askAishwarya(turns: Turn[], askerName?: string): Promise<string> {
+export async function askAishwarya(turns: Turn[], askerName?: string, extraSystem?: string): Promise<string> {
   const key = process.env.OPENROUTER_API_KEY
   if (!key) throw new Error('OPENROUTER_API_KEY is not set')
 
@@ -14,7 +14,8 @@ export async function askAishwarya(turns: Turn[], askerName?: string): Promise<s
     .filter((t) => t.content.trim())
     .slice(-MAX_TURNS)
     .map((t) => ({ role: t.role, content: t.content.slice(0, MAX_CHARS) }))
-  const system = askerName ? `${AISHWARYA_PROMPT}\n# WHO IS ASKING\nTheir name is ${askerName}.\n` : AISHWARYA_PROMPT
+  const base = askerName ? `${AISHWARYA_PROMPT}\n# WHO IS ASKING\nTheir name is ${askerName}.\n` : AISHWARYA_PROMPT
+  const system = extraSystem ? `${base}\n${extraSystem}\n` : base
 
   const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
