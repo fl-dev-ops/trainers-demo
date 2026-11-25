@@ -1,0 +1,147 @@
+# Colly Graham. Build with:
+#   python build.py build colly-graham
+# Source: lore users/colly-graham (lore 83d7c852): 26 videos from his own YouTube channel, 5 guest interviews and panels,
+# 345 LinkedIn posts, 29 website pages (collygraham.com and salesxcellence.com).
+# Exchange: "Colly Graham talks to Patrick Tinney", 10 Aug 2020 (youtube.com/watch?v=Tb1VIcZav2c), transcript turn 42
+# (0-based in the AssemblyAI JSON). Colly is the host and speaker_1 (he welcomes Patrick; Patrick calls him Colly).
+# He tells a client's case: field engineers love the client's app but it isn't closing; Colly takes them to the person who
+# signs the cheque and works the lost paperwork into pounds. One long turn, so the page uses session.segments, as Gopal's.
+# Picked by Lalith and by Cathy's Claude (25 Nov 2026). Every quote was checked against the JSON transcript; the lore
+# markdown drops punctuation and the pound sign ("80 sterling", "400 a week"), so card quotes use the JSON wording.
+# Ties to his role play "We have no budget" (re-based on this same case). Pronouns he/him: his own website.
+
+coach:
+  slug: colly-graham
+  name: Colly
+  full_name: Colly Graham
+  pronouns: [he, him, his]
+
+mobile: true
+
+session:
+  file: youtube/video/2020-08-10-colly-graham-talks-to-patrick-tinney-Tb1VIcZav2c.md
+  kind: YouTube · interview with Patrick Tinney
+  start: another another of my clients
+  coach_speaker: speaker_1
+  other: The client
+  other_role: Client
+  cue: 0
+  move: 5
+  # one long turn, split where each of these phrases begins; the last part ends at `end`
+  segments:
+    - another another of my clients
+    - And I said yeah youve got to talk to the guy
+    - and then the other thing is that the guy who signs the check
+    - What happens with a service engineer
+    - And I discovered in
+    - And I go what youve got to work out
+    - But its getting the salespeople to say
+  end: And thats for the relationship
+  frames:
+    - ["statement", "the client's problem: the people they speak to love the app, but it isn't closing"]
+    - ["reframe", "his first move: talk to the person who is going to sign the cheque"]
+    - ["statement", "the person who signs doesn't want to hear about saving paperwork or saving time"]
+    - ["story", "walking through what a service engineer does, from the job to the invoice"]
+    - ["statement", "finding that five percent of invoices go missing because the paperwork gets lost"]
+    - ["reframe", "working out the cost: £80 an invoice, 100 a week, £400 a week against £200 a month, then keep quiet"]
+    - ["statement", "lost paperwork means nothing to the buyer; what it is costing them does"]
+
+thread:
+  situation: client-agrees-but-deal-stalls
+  situation_label: buyers who love the product, but the sale isn't closing
+  topic: consultative-selling
+  phase: 3
+  belief: 0
+
+default_phase: 2
+phases:
+  - title: Open the sale
+    keywords: [prospecting, prospect, prospects, telephone, phone, calling, cold, voicemail, opening, open, rapport, letter, linkedin]
+  - title: Make buying feel safe
+    keywords: [trust, safe, safety, brain, emotional, emotion, rapport, relationship, relationships, neuroscience, psychology]
+  - title: Discover with questions
+    keywords: [question, questions, discovery, listen, listening, background, ambitions, results, challenges, understand]
+  - title: Put a number on the problem
+    keywords: [cost, costing, value, price, budget, impact, invoice, money, roi, objection, objections, discount]
+  - title: Talk to who decides
+    keywords: [decision, decide, decides, sign, signs, cheque, check, finance, stakeholder, stakeholders, director, ceo]
+  - title: Win the inner game
+    keywords: [mindset, belief, believe, resilience, rejection, habits, goals, motivation, confidence, purpose]
+
+beliefs:
+  - {title: The cost of doing nothing, text: 'When the cost of doing nothing becomes larger than the cost of acting, budget has a way of appearing.', phases: [3, 4]}
+  - {title: Resistance comes from the seller, text: 'Any resistance in sales is caused by the salesperson.', phases: [1, 2]}
+  - {title: Open the sale, text: 'The problem with sales is not closing the sales, the problem is opening the sale.', phases: [0, 2]}
+  - {title: Value is discovered, text: 'Value is discovered, not declared.', phases: [2, 3]}
+  - {title: The emotional brain decides, text: 'The thinking brain doesn’t decide. It explains the decision the emotional brain has already made.', phases: [1, 2]}
+  - {title: Talk to somebody else, text: 'When you keep getting no, talk to somebody else.', phases: [4, 0]}
+
+steps:
+  collect: "We read {youtube} of his videos and interviews, {linkedin} of his LinkedIn posts and {web} pages from his websites: <em>{words} words across {lines} lines.</em> From this collection, we follow one interview. Colly tells the case of a client whose buyers love the product, and shows what he did about it."
+  transcript: ["A recording becomes text", "The interview is transcribed word for word. At first, it is simply a record of what was said."]
+  trace: ["One answer becomes a principle", "We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the moment Colly answered his client's problem."]
+  speakers: ["Who said what", "Colly tells this case in one long answer, so every line is his. We mark the client's problem as he reports it, and the moment he works out what it costs."]
+  layer1: "His client's problem, in his words: <em>&ldquo;The people they spoke to, they love the app, but it&rsquo;s not closing.&rdquo;</em> A few lines later, Colly works out what the problem costs the buyer. These exact lines are the evidence for everything that follows."
+  meaning: "The salespeople think the buyer needs more reasons to like the app. Colly doesn&rsquo;t add reasons. He finds the person who signs, turns lost paperwork into pounds, puts it next to the price, and stops talking."
+  cue: "Asked why a product everyone loves isn&rsquo;t closing, Colly answers, <em>&ldquo;What you&rsquo;ve got to work out is what is it costing the company?&rdquo;</em>"
+  layer2: "He turns a stalled sale into a sum: what the problem costs each week against what the product costs each month. The response stays linked to the exact moment."
+  layer3: "The buyers like the product, but nobody signs. In Colly&rsquo;s material this shows up as <em>a buyer who agrees but the deal stalls</em>."
+  layer4: "Colly keeps coming back to putting a cost on the problem and talking to the person who decides: the cost of the problem comes up in 9 of the sources in his own words, and finding who signs or controls the budget in 6."
+  layer5: "The purpose is to move salespeople from &ldquo;they love it, so why won&rsquo;t they buy?&rdquo; to &ldquo;I know what the problem costs them, and so does the person who signs&rdquo;."
+  layer6: "<em>When the cost of doing nothing becomes larger than the cost of acting, budget has a way of appearing.</em> This is the principle behind Colly&rsquo;s answer."
+
+cards:
+  layer1:
+    cue: "The people they spoke to, they love the app, but it’s not closing."
+    move: "What you’ve got to work out is what is it costing the company? &hellip; So, okay, so this is costing you £400 a week and we are asking you to invest £200 a month, and then you just keep quiet."
+    foot: Two exact lines &middot; one speaker &middot; one answer
+  layer2:
+    cue: Hears that buyers love the product, but it isn't closing
+    move: Works out what the problem costs, puts it next to the price, then keeps quiet
+  layer3:
+    title: Loved, but not bought
+    text: The users like the product, but the person who signs the cheque hasn't heard why it matters to the business.
+    foot: Situation in {his} material &middot; a buyer who agrees but the deal stalls
+  layer4:
+    title: Cost first, then the person who decides
+    text: Colly keeps coming back to what a problem is costing the buyer, and to selling to the person who signs.
+    foot: Recurring pattern &middot; the cost of the problem in 9 sources, who decides in 6
+  layer5:
+    title: Make the cost visible
+    text: Talk to the person who signs, turn the problem into money, put it next to the price, and let the number do the work.
+    starts: '&ldquo;They love it, so why won&rsquo;t they buy?&rdquo;'
+    moves_to: '&ldquo;I know what the problem costs them&rdquo;'
+  layer6:
+    quote: When the cost of doing nothing becomes larger than the cost of acting, budget has a way of appearing.
+    text: 'The same idea runs through his interview: <em>&ldquo;Lost paperwork doesn&rsquo;t mean anything. What&rsquo;s lost paperwork costing you?&rdquo;</em>'
+
+about:
+  sources:
+    - ["YouTube", "His channel and guest interviews", "{youtube} videos and interviews"]
+    - ["LinkedIn", "in/salesxcellence", "{linkedin} posts and newsletters"]
+    - ["Website", "collygraham.com and salesxcellence.com", "{web} pages"]
+  # Standard from 17 Nov 2026: 3-4 "who you are" and 3-4 "who you are not" tags per row, each side with evidence.
+  rows:
+    - ["Type of coach", [["Sales trainer", 1], ["Keynote speaker", 1], ["Author", 1], ["NLP Master Practitioner", 1]], [["A hard-sell trainer", 0], ["Theory from a lecture theatre", 0], ["A silver-bullet seller", 0]], "collygraham.com: “international sales trainer, keynote speaker and author” · “a Master Practitioner of NLP, trained under Richard Bandler”", "“I won’t teach them to be hard sellers. I’ll teach them to be soft sellers” (Business Conversations, 2022) · “I do not teach theory. I teach what works because I have done it” (collygraham.com) · “the silver bullet in sales doesn’t work” (Success Vitamin, 2024)"]
+    - ["Region", [["Belfast", 1], ["Northern Ireland", 1], ["UK and Ireland", 1], ["Eleven countries", 1]], [["US-based", 0], ["London-based", 0], ["Local only", 0]], "“I founded salesxcellence in Belfast in 1996” (collygraham.com) · Business Conversations calls you a living legend in Northern Ireland", "the eleven countries on your site run from the UK and Ireland to the UAE, Mauritius, Thailand, Malaysia, Singapore, Spain, Australia, the USA and Canada"]
+    - ["Who you coach", [["B2B sales teams", 1], ["Sales leaders", 1], ["New salespeople", 1], ["Business owners", 1]], [["Teams that want hard sellers", 0], ["Anyone after a script", 0], ["Pushy closers", 0]], "“sales teams” and “sales leaders” across your posts and newsletters · a 30-60-90 day onboarding for new salespeople (Build and Balance, 2021) · startup owners who need to sell (Patrick Tinney interview)", "“any resistance in sales is caused by the salesperson … so don’t push people” (Business Conversations, 2022) · “Scripts. Reframes. Feel–felt–found.” is what you say we were all taught (LinkedIn, Feb 2026)"]
+    - ["How you deliver", [["Keynotes", 1], ["Workshops and masterclasses", 1], ["Books and newsletters", 1], ["Sales coaching", 1]], [["PowerPoint pitches", 0], ["Jargon", 0], ["Hype", 0]], "Winning Mindset for High Performance in an AI World and The Brain-Based Sale keynotes · the Sales Leadership Masterclass · three books and three newsletters", "“I don’t bring any brochures, I don’t bring any PowerPoint” (Success Vitamin, 2024) · “I keep the language plain. No jargon. No hype.” (collygraham.com)"]
+    - ["Your topics", [["Winning mindset", 1], ["Brain-based selling", 1], ["Prospecting and the telephone", 1], ["Objections and value", 1], ["AI in sales", 1]], [["Closing tricks", 0], ["Discounting", 0], ["Features and benefits", 0]], "index topics: sales mindset in 40 sources, brain-based selling in 17, buyer psychology in 13, objection handling in 8 · your telephone-selling talks and Smart Calling conversation", "“the problem is not closing the sales, the problem is opening the sale” (Build and Balance) · “resist the urge to discount” (LinkedIn, Nov 2026) · “don’t talk product features or price” (your 2020 video)"]
+    - ["Named frameworks", [["BRAIN Selling System", 1], ["CALM", 1], ["Three Cs: collaborate, connect, convince", 1], ["Winning Mindset", 1]], [["Feel-felt-found scripts", 0], ["Silver bullets", 0], ["Hard closes", 0]], "BRAIN in your book and newsletters · CALM: Cushion, Ask, Listen, Meet · the three Cs (Business Conversations, 2022) · the six pillars of a winning sales mindset", "“Stop countering. Start calming.” (LinkedIn, Feb 2026) · “the silver bullet in sales doesn’t work” · “I won’t teach them to be hard sellers”"]
+    - ["Your style", [["Storyteller", 1], ["Puts numbers on it", 1], ["Humour", 1], ["Credits his mentors", 1]], [["Hard sell", 0], ["Jargon", 0], ["PowerPoint-led", 0]], "client cases in every interview · £400 a week against £200 a month · “I can talk to God every day, why can’t I talk to you?” · Zig Ziglar, Brian Tracy and Tom Hopkins named (Success Vitamin)", "“so don’t push people” · “No jargon. No hype.” · he walks into a sales meeting with a blank pad"]
+
+dd_lead: Colly's twin follows these in every answer. They come from patterns that run through his interviews, talks and posts.
+dos:
+  - ["talk to the person who signs the cheque", "Patrick Tinney interview · 2020"]
+  - ["work out what the problem is costing, in money", "Patrick Tinney interview · 2020"]
+  - ["put the cost next to the price, then keep quiet", "Patrick Tinney interview · 2020"]
+  - ["ask questions before you present anything", "LinkedIn · March 2026"]
+  - ["make buying feel safe before you sell", "LinkedIn · February 2026"]
+  - ["use a little humour when a prospect goes quiet", "Build and Balance interview · 2021"]
+donts:
+  - ["push people: resistance comes from the seller", "Business Conversations · 2022"]
+  - ["sell “saving paperwork” to the person who signs", "Patrick Tinney interview · 2020"]
+  - ["discount when you hear “we have no budget”", "LinkedIn · November 2026"]
+  - ["“handle” objections with scripts", "LinkedIn · February 2026"]
+  - ["keep chasing one prospect for years", "Patrick Tinney interview · 2020"]
+  - ["walk into a first meeting with a PowerPoint", "Success Vitamin podcast · 2024"]
