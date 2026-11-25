@@ -9,7 +9,7 @@ import { SPOKEN_REPLY, speak, transcribe } from '@/lib/aishwarya-reganti/voice'
    - In direct messages: answers every message.
    - If the message carries a voice recording, it transcribes it and replies with a voice message in her
      cloned voice, with the text underneath. Text messages get a text reply.
-   Needs SLACK_AISHWARYA_COURSE_SIGNING_SECRET, SLACK_AISHWARYA_COURSE_BOT_TOKEN, OPENROUTER_API_KEY,
+   Needs SLACK_AISHWARYA_BOT_DEMO_SIGNING_SECRET, SLACK_AISHWARYA_BOT_DEMO_BOT_TOKEN, OPENROUTER_API_KEY,
    DEEPGRAM_API_KEY and TTS_SERVICE_KEY. Manifest: slack/aishwarya-course-manifest.json. */
 
 export const maxDuration = 60
@@ -20,10 +20,13 @@ type SlackEvent = SlackMessage & { type: string; channel: string; channel_type?:
 
 const FALLBACK_ERROR = 'Sorry, I could not answer that just now. Please try again in a minute.'
 const NOT_HEARD = "Sorry, I couldn't make out that recording. Could you try again, or type your question?"
-const TOKEN = () => process.env.SLACK_AISHWARYA_COURSE_BOT_TOKEN
+// Env names chosen by Lalith (26 Nov 2026); the older COURSE names still work.
+const TOKEN = () =>
+  process.env.SLACK_AISHWARYA_BOT_DEMO_BOT_TOKEN || process.env.SLACK_AISHWARYA_BOT_DEMO_TOKEN || process.env.SLACK_AISHWARYA_COURSE_BOT_TOKEN
+const SIGNING_SECRET = () => process.env.SLACK_AISHWARYA_BOT_DEMO_SIGNING_SECRET || process.env.SLACK_AISHWARYA_COURSE_SIGNING_SECRET
 
 function verified(req: Request, raw: string): boolean {
-  const secret = process.env.SLACK_AISHWARYA_COURSE_SIGNING_SECRET
+  const secret = SIGNING_SECRET()
   const ts = req.headers.get('x-slack-request-timestamp')
   const sig = req.headers.get('x-slack-signature')
   if (!secret || !ts || !sig) return false
