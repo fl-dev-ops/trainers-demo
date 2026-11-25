@@ -2,7 +2,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 import { after, NextResponse } from 'next/server'
 import { askAishwarya, type Turn } from '@/lib/aishwarya-reganti/twin'
 import { SPOKEN_REPLY, speak, transcribe } from '@/lib/aishwarya-reganti/voice'
-import { CALL_URL } from '@/lib/aishwarya-reganti/slack-demo'
+import { CALL_URL, HOME_VIEW, demoSlack } from '@/lib/aishwarya-reganti/slack-demo'
 
 /* Slack Events API endpoint for Aishwarya's twin in the mock course workspace (a separate Slack app from the
    first demo bot, which keeps using /api/slack/aishwarya-reganti).
@@ -167,6 +167,11 @@ export async function POST(req: Request) {
 
   const event: SlackEvent = body.event
   const botUserId: string = body.authorizations?.[0]?.user_id ?? ''
+  // Clicking "Aishwarya's twin" under Apps opens its Home tab: show the call button there.
+  if (event.type === 'app_home_opened' && (body.event as { tab?: string }).tab === 'home') {
+    after(() => demoSlack('views.publish', { user_id: event.user, view: HOME_VIEW }).catch((e) => console.error('[slack:aishwarya-course] home tab failed', e)))
+    return new NextResponse(null, { status: 200 })
+  }
   // Only plain messages and messages with files from people; never the bot's own posts or edits.
   const fromPerson = !event.bot_id && event.user !== botUserId && (!event.subtype || event.subtype === 'file_share')
   if (event.type !== 'message' || !fromPerson) return new NextResponse(null, { status: 200 })

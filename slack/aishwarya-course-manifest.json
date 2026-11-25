@@ -7,7 +7,7 @@
   },
   "features": {
     "app_home": {
-      "home_tab_enabled": false,
+      "home_tab_enabled": true,
       "messages_tab_enabled": true,
       "messages_tab_read_only_enabled": false
     },
@@ -21,6 +21,14 @@
         "url": "https://trainers.trainertwin.com/api/slack/aishwarya-course/command",
         "description": "Start a one-to-one voice call with Aishwarya's twin",
         "should_escape": false
+      }
+    ],
+    "shortcuts": [
+      {
+        "name": "Call Aishwarya's twin",
+        "type": "global",
+        "callback_id": "call_twin",
+        "description": "Start a one-to-one voice call with Aishwarya's twin"
       }
     ]
   },
@@ -45,7 +53,8 @@
       "bot_events": [
         "message.channels",
         "message.groups",
-        "message.im"
+        "message.im",
+        "app_home_opened"
       ]
     },
     "org_deploy_enabled": false,
