@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 import { after, NextResponse } from 'next/server'
 import { askAishwarya, type Turn } from '@/lib/aishwarya-reganti/twin'
 import { SPOKEN_REPLY, speak, transcribe } from '@/lib/aishwarya-reganti/voice'
+import { CALL_URL } from '@/lib/aishwarya-reganti/slack-demo'
 
 /* Slack Events API endpoint for Aishwarya's twin in the mock course workspace (a separate Slack app from the
    first demo bot, which keeps using /api/slack/aishwarya-reganti).
@@ -93,6 +94,24 @@ async function postVoice(channel: string, threadTs: string, text: string) {
   })
 }
 
+
+/* Someone asking for a live voice conversation ("can I do a voice huddle?", "can I call you?").
+   Slack can't put an app into a huddle, so the twin offers its one-to-one voice call instead. */
+const WANTS_CALL = /\b(huddles?|voice calls?|video calls?|phone calls?|on a call|a call with|hop on a call|call (you|me|her|aishwarya)|talk (to|with) you (live|by voice|on a call)|speak (to|with) you)\b/i
+const wantsCall = (text: string) => WANTS_CALL.test(text) && !/\b(tool|function|api) call/i.test(text)
+
+async function offerCall(channel: string, threadTs: string | undefined) {
+  await slack('chat.postMessage', {
+    channel,
+    thread_ts: threadTs,
+    text: `Slack doesn't let me join a huddle, but you can talk to me by voice here: ${CALL_URL}`,
+    blocks: [
+      { type: 'section', text: { type: 'mrkdwn', text: "Slack doesn't let me join a huddle, but you can talk to me by voice. It opens a one-to-one call in your browser; allow the microphone when asked." } },
+      { type: 'actions', elements: [{ type: 'button', style: 'primary', action_id: 'open_call', text: { type: 'plain_text', text: 'Start the call' }, url: CALL_URL }] },
+    ],
+  })
+}
+
 async function answer(event: SlackEvent, botUserId: string, inThread: boolean) {
   const threadTs = event.thread_ts || (inThread ? event.ts : undefined)
   const say = (text: string) => slack('chat.postMessage', { channel: event.channel, thread_ts: threadTs, text })
@@ -106,6 +125,7 @@ async function answer(event: SlackEvent, botUserId: string, inThread: boolean) {
       console.log('[slack:aishwarya-course] heard:', JSON.stringify(spoken))
     }
     if (!question) return
+    if (!audio && wantsCall(question)) return void (await offerCall(event.channel, threadTs))
 
     let turns: Turn[] = [{ role: 'user', content: question }]
     if (event.thread_ts) {
