@@ -12,8 +12,11 @@ const ROLE_PLAYS = [
   {
     slug: 'we-have-no-budget',
     title: '“We have no budget”',
-    coachee: { role: 'Sales rep', text: 'A sales rep for a job-sheet app for field service engineers. The engineers loved the trial, but the service director is about to say there is no budget this year.', practises: ['Handling “no budget” calmly', 'Costing the problem'] },
-    persona: { role: 'Service Director', name: 'Martin Doyle', photo: '/media/colly-roleplay-martin.jpg', behaviour: ['Cautious & Reserved'], speaking: ['Casual', 'Medium answers'], text: 'Service Director of a commercial refrigeration servicing company in Belfast with about 25 engineers. Polite and careful, he liked the app on the trial but does not like being pushed.' },
+    meta: 'Practice drill · about 6 minutes · Skills: CALM, BRAIN (Impact, Next Steps)',
+    goal: 'Leave the meeting with a dated next step with the person who signs off the spend, without offering a discount.',
+    good: 'Stay calm if he pushes back. Understand how his business works before you talk about the app. Let him put the numbers into his own words.',
+    coachee: { role: 'Sales rep', text: 'You sell a job-sheet app that lets field engineers log each job on their phone and send it straight to the office for invoicing. It costs £200 a month. Martin’s engineers used it on a free trial and loved it. This is your follow-up meeting to agree next steps.', practises: ['CALM', 'BRAIN: Impact, Next Steps'] },
+    persona: { role: 'Service Director', name: 'Martin Doyle', photo: '/media/colly-roleplay-martin.jpg', behaviour: ['Cautious & Reserved'], speaking: ['Casual', 'Medium answers'], text: 'Service Director, a commercial refrigeration servicing company in Belfast. A small team of service engineers, roughly a hundred jobs a week. Friendly, practical, straight-talking. Not a pushover.' },
   },
 ]
 
@@ -65,6 +68,9 @@ export default function Welcome() {
               <RoleplayPair coachee={r.coachee} persona={r.persona} label="Your client" />
               <div className="path-b">
                 <h2>{r.title}</h2>
+                <p className="meta">{r.meta}</p>
+                <p><strong>Your goal:</strong> {r.goal}</p>
+                <p><strong>What good looks like:</strong> {r.good}</p>
                 <div className="row">
                   <a href={DASH + r.slug} target="_blank" rel="noopener noreferrer" className="btn btn--strong card-link">Start the role play</a>
                   <span className="meta">Opens the role-play app</span>
