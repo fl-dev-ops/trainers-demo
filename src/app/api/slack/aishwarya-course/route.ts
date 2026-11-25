@@ -38,8 +38,11 @@ function verified(req: Request, raw: string): boolean {
 async function slack(method: string, args: Record<string, unknown>) {
   const res = await fetch(`https://slack.com/api/${method}`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${TOKEN()}`, 'Content-Type': 'application/json; charset=utf-8' },
-    body: JSON.stringify(args),
+    headers: { Authorization: `Bearer ${TOKEN()}`, 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8' },
+    // Form encoding works for every Slack method; several read methods ignore JSON bodies. Objects and arrays go as JSON strings.
+    body: new URLSearchParams(
+      Object.entries(args).filter(([, v]) => v !== undefined).map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v) : String(v)]),
+    ),
   })
   const data = await res.json()
   if (!data.ok) throw new Error(`Slack ${method}: ${data.error}`)
@@ -100,6 +103,7 @@ async function answer(event: SlackEvent, botUserId: string, inThread: boolean) {
       const spoken = await heard(audio)
       if (!spoken) return void (await say(NOT_HEARD))
       question = [question, spoken].filter(Boolean).join(' ')
+      console.log('[slack:aishwarya-course] heard:', JSON.stringify(spoken))
     }
     if (!question) return
 
@@ -113,10 +117,12 @@ async function answer(event: SlackEvent, botUserId: string, inThread: boolean) {
       }
     }
     const reply = await askAishwarya(turns, await firstName(event.user), audio ? SPOKEN_REPLY : undefined)
+    console.log('[slack:aishwarya-course] reply:', JSON.stringify(reply.slice(0, 200)))
 
     if (audio) {
       try {
         await postVoice(event.channel, threadTs || event.ts, reply)
+        console.log('[slack:aishwarya-course] voice reply posted')
         return
       } catch (error) {
         console.error('[slack:aishwarya-course] voice reply failed, sending text', error)

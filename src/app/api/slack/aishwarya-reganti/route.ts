@@ -23,8 +23,11 @@ function verified(req: Request, raw: string): boolean {
 async function slack(method: string, args: Record<string, string | number | undefined>) {
   const res = await fetch(`https://slack.com/api/${method}`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${process.env.SLACK_AISHWARYA_BOT_TOKEN}`, 'Content-Type': 'application/json; charset=utf-8' },
-    body: JSON.stringify(args),
+    headers: { Authorization: `Bearer ${process.env.SLACK_AISHWARYA_BOT_TOKEN}`, 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8' },
+    // Form encoding works for every Slack method; several read methods ignore JSON bodies. Objects and arrays go as JSON strings.
+    body: new URLSearchParams(
+      Object.entries(args).filter(([, v]) => v !== undefined).map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v) : String(v)]),
+    ),
   })
   const data = await res.json()
   if (!data.ok) throw new Error(`Slack ${method}: ${data.error}`)
