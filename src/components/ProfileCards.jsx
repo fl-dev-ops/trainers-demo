@@ -55,7 +55,7 @@ function Tags({ items }) {
 
 // Your coachee (a blank profile picture the coach can picture as one of their own) practises with the AI persona.
 // Portrait cards in the style of the role-play dashboard's persona cards.
-export function RoleplayPair({ coachee, persona }) {
+export function RoleplayPair({ coachee, persona, label = 'Your coachee' }) {
   return (
     <div className="peek peek--wrap peek--pair">
       <span className="peek-k">Role play</span>
@@ -63,7 +63,7 @@ export function RoleplayPair({ coachee, persona }) {
         <div className="pc pc--coachee">
           <span className="pc-role">{coachee.role}</span>
           <BlankAvatar />
-          <span className="pc-name">Your coachee</span>
+          <span className="pc-name">{label}</span>
           <Tags items={coachee.practises} />
           <p className="pc-text">{coachee.text}</p>
         </div>
