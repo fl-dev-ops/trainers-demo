@@ -49,7 +49,7 @@ export default function Welcome() {
           </article>
           {ROLE_PLAYS.map((r) => (
             <article key={r.slug} className="path path--wide">
-              <RoleplayPair coachee={r.coachee} persona={r.persona} />
+              <RoleplayPair coachee={r.coachee} persona={r.persona} label="Your client" />
               <div className="path-b">
                 <h2>{r.title}</h2>
                 <div className="row">
