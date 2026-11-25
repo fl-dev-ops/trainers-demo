@@ -634,14 +634,14 @@ AISHWARYA_REGANTI.sources = [
   ]],
 ]
 
-COLLY_GRAHAM.sourceSummary = '18 videos · 345 LinkedIn posts · 29 website pages'
+COLLY_GRAHAM.sourceSummary = '31 videos and interviews · 345 LinkedIn posts · 29 website pages'
 COLLY_GRAHAM.sources = [
-  ['YouTube', '18 videos', [
-    ['Art Sobczak talks to Colly Graham', 'Interview, 2020'],
+  ['YouTube', '26 videos on his channel and 5 guest interviews', [
     ['Colly Graham talks to Patrick Tinney', 'Interview, 2020'],
-    ['Niraj Kapur, author of Everyone Works in Sales', 'Interview, 2021'],
-    ['Reframing Sales Objections', 'His own video, 2021'],
-    ['Colly Graham Keynote Showreel', 'Keynote, 2026'],
+    ['From Homeless to Sales Expert', 'Build and Balance interview, 2021'],
+    ['Top Sales Tips with Colly Graham', 'Business Conversations, 2022'],
+    ['Elevating Sales Potential in the Changing Face of Sales', 'Success Vitamin podcast, 2024'],
+    ['Why Do We Trust Influencers Over Experts?', 'Global Business Networking panel, 2026'],
   ]],
   ['LinkedIn', '345 posts', [
     ['Colly Graham on LinkedIn', 'His own posts and newsletters, December 2024 to November 2026'],

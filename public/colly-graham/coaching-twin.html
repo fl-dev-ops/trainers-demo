@@ -1,0 +1,979 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How a Coach's Twin Learns</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#151310; --ink:#ece5d8; --dim:#a89e8c; --faint:#6f6759; --line:#37322a; --line2:#4a443a;
+  --l1:#e2a93b; --l2:#4fa9a0; --l3:#d4746a; --l4:#9a86c9; --l5:#8fae62; --l6:#c94f33;
+  --ease:cubic-bezier(.65,0,.25,1);
+  --serif:'Fraunces',Georgia,serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --sys:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--serif)}
+body{cursor:pointer;user-select:none;-webkit-user-select:none}
+body.final{cursor:grab}
+canvas#cv{position:fixed;inset:0;width:100vw;height:100vh;display:block}
+#stage{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0;pointer-events:none}
+#stage *{pointer-events:none}
+#stage .hit{pointer-events:auto}
+svg#wires{position:absolute;inset:0;width:1600px;height:900px;overflow:visible}
+
+/* ---------- header & chapter rail */
+header{position:absolute;left:60px;right:60px;top:34px;display:flex;align-items:center;justify-content:space-between;
+  font:500 11px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+header b{color:var(--l1);font-weight:600}
+/* persona switch (config `switch`): one page per persona, on every screen */
+#psw{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line2);border-radius:999px;letter-spacing:normal;text-transform:none}
+#psw[hidden],#hdr[hidden]{display:none!important}
+#stage #psw,#stage #psw *{pointer-events:auto}
+#psw .ptab{white-space:nowrap;font:500 13px/1 var(--serif);color:var(--dim);padding:9px 16px;border-radius:999px;border:0;background:transparent;cursor:pointer;transition:all .2s}
+#psw .ptab:hover{color:var(--ink)}
+#psw .ptab small{margin-left:8px;font:500 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+#psw .ptab[aria-selected=true]{color:#1b1712;background:var(--l1);font-weight:600;cursor:default}
+#rail{display:flex;gap:28px}
+#rail .ch{display:flex;flex-direction:column;gap:9px;align-items:flex-start;transition:color .5s}
+#rail .ch.on{color:var(--ink)}
+#rail .ch.done{color:var(--dim)}
+#rail .dots{display:flex;gap:5px}
+#rail .dots i{width:6px;height:6px;border-radius:50%;background:var(--line2);transition:background .4s,transform .4s}
+#rail .dots i.done{background:var(--dim)}
+#rail .dots i.on{background:var(--l1);transform:scale(1.35)}
+#hint{position:absolute;left:60px;bottom:34px;font:500 10.5px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--faint);transition:opacity .6s}
+#hint kbd{font:inherit;color:var(--dim);border:1px solid var(--line2);border-radius:4px;padding:3px 6px;margin:0 2px}
+
+/* ---------- narrative column */
+#cap{position:absolute;left:60px;top:150px;width:390px;transition:opacity .45s}
+#cap.out{opacity:0}
+#cap .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin-bottom:22px}
+#cap h1{font-weight:380;font-size:38px;line-height:1.12;letter-spacing:-.01em;margin-bottom:22px;font-variation-settings:'opsz' 96}
+#cap p{font-size:18px;line-height:1.55;color:var(--dim);font-weight:330}
+#cap p em{color:var(--ink);font-style:italic}
+#stat{position:absolute;left:60px;bottom:96px;width:390px;transition:opacity .5s}
+#stat .num{font:300 64px/1 var(--serif);letter-spacing:-.02em;font-variation-settings:'opsz' 144;font-variant-numeric:tabular-nums}
+#stat .unit{font:500 11px/1.6 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-top:12px}
+#stat.hide{opacity:0}
+
+/* hero */
+#hero{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:opacity .8s,transform 1.1s var(--ease)}
+#hero .kick{font:500 12px/1 var(--mono);letter-spacing:.3em;text-transform:uppercase;color:var(--l1);margin-bottom:30px}
+#hero h1{font-weight:320;font-size:88px;line-height:1.02;letter-spacing:-.025em;font-variation-settings:'opsz' 144}
+#hero h1 i{color:var(--l1);font-weight:300}
+#hero p{margin-top:30px;font-size:21px;line-height:1.55;color:var(--dim);max-width:640px;font-weight:330}
+#hero .go{margin-top:46px;font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--faint)}
+#hero.out{opacity:0;transform:translateY(-30px) scale(.98)}
+
+/* ---------- the window: Finder -> transcript */
+#win{position:absolute;left:540px;top:120px;width:1000px;height:660px;border-radius:12px;background:#1d1c1b;
+  border:1px solid #3a3835;box-shadow:0 40px 90px rgba(0,0,0,.55),0 0 0 .5px rgba(255,255,255,.04) inset;
+  overflow:hidden;font-family:var(--sys);color:#e6e3de;
+  transition:left 1s var(--ease),top 1s var(--ease),width 1s var(--ease),height 1s var(--ease),opacity .7s,transform 1.1s var(--ease);
+  opacity:0;transform:translateY(40px) scale(.96)}
+#win.show{opacity:1;transform:none}
+#win.narrow{left:500px;top:96px;width:570px;height:772px}
+#win.gone{opacity:0;transition:opacity .35s}
+.tbar{height:46px;display:flex;align-items:center;gap:16px;padding:0 16px;background:#2a2927;border-bottom:1px solid #3a3835}
+.lights{display:flex;gap:8px}.lights i{width:12px;height:12px;border-radius:50%;background:#ff5f57}
+.lights i:nth-child(2){background:#febc2e}.lights i:nth-child(3){background:#28c840}
+.navb{color:#77736d;font-size:17px;letter-spacing:10px}
+.wtitle{font-weight:600;font-size:13.5px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.views{display:flex;gap:2px;background:#353330;border-radius:6px;padding:2px}
+.views i{width:28px;height:20px;border-radius:4px;display:block;position:relative}
+.views i.on{background:#55524d}
+.views i::after{content:'';position:absolute;left:9px;top:5px;width:10px;height:10px;border:1.5px solid #aaa49c;border-radius:2px}
+.views i:nth-child(2)::after{border-width:1.5px 0;height:3px;top:5px;box-shadow:0 4px 0 0 #aaa49c}
+.wbody{position:absolute;top:46px;bottom:26px;left:0;right:0;display:flex}
+.side{width:190px;flex:none;background:#242321;border-right:1px solid #33312e;padding:14px 10px;font-size:12.5px;transition:width .9s var(--ease),padding .9s var(--ease),opacity .5s;overflow:hidden;white-space:nowrap}
+.side h6{font-size:10.5px;font-weight:600;color:#7c7872;margin:6px 8px 6px}
+.side div{padding:5px 8px;border-radius:6px;display:flex;align-items:center;gap:8px;color:#d8d4ce;transition:background .4s}
+.side div.on{background:#3a3835}
+.side .fi{width:15px;height:11px;border-radius:2px;background:#5da6ec;position:relative;flex:none}
+.side .fi::before{content:'';position:absolute;left:0;top:-2px;width:6px;height:3px;border-radius:2px 2px 0 0;background:#5da6ec}
+.pane{flex:1;position:relative;overflow:hidden}
+.pane>section{position:absolute;inset:0;transition:opacity .6s,transform .8s var(--ease);opacity:0;transform:translateY(12px)}
+.pane>section.on{opacity:1;transform:none}
+.status{position:absolute;bottom:0;left:0;right:0;height:26px;border-top:1px solid #33312e;background:#242321;font-size:11px;color:#8b8780;display:flex;align-items:center;justify-content:center}
+
+/* icon view */
+.icons{display:flex;gap:70px;padding:120px 60px;justify-content:center}
+.folder{width:150px;text-align:center;font-size:14px;opacity:0;transform:translateY(16px) scale(.9);transition:opacity .6s,transform .7s var(--ease)}
+.on .folder{opacity:1;transform:none}
+.on .folder:nth-child(2){transition-delay:.15s}
+.ficon{width:130px;height:100px;margin:0 auto 14px;position:relative}
+.ficon::before{content:'';position:absolute;left:0;top:0;width:54px;height:18px;border-radius:8px 8px 0 0;background:#4b8fd6}
+.ficon::after{content:'';position:absolute;left:0;top:10px;right:0;bottom:0;border-radius:5px 9px 9px 9px;background:linear-gradient(#78b8f5,#5a9ee6)}
+.ficon i{position:absolute;z-index:1;left:50%;top:50px;transform:translateX(-50%)}
+.folder small{display:block;color:#8b8780;font-size:12px;margin-top:5px}
+
+/* list view */
+.lhead,.lrow{display:grid;grid-template-columns:1fr 130px 110px 70px;gap:12px;padding:0 18px;align-items:center}
+.lhead{height:30px;font-size:11px;font-weight:600;color:#8b8780;border-bottom:1px solid #33312e;background:#1d1c1b;position:relative;z-index:1}
+.lrows{position:absolute;top:30px;left:0;right:0;will-change:transform}
+.lrow{height:26px;font-size:12.5px;white-space:nowrap;transition:background .4s,color .4s}
+.lrow:nth-child(even){background:#232220}
+.lrow .nm{overflow:hidden;text-overflow:ellipsis;display:flex;gap:9px;align-items:center}
+.lrow .kd,.lrow .dt,.lrow .sz{color:#8b8780;font-size:11.5px}
+.lrow .sz{text-align:right}
+.badge{width:16px;height:12px;border-radius:3px;flex:none;position:relative;display:block}
+.badge.yt{background:#e5443b}.badge.yt::after{content:'';position:absolute;left:6px;top:3px;border-left:5px solid #fff;border-top:3px solid transparent;border-bottom:3px solid transparent}
+.badge.lm{background:#7a5af5}.badge.lm::after{content:'';position:absolute;left:4px;top:3px;width:6px;height:6px;border-radius:50%;border:1.5px solid #fff}
+.ficon .badge{width:30px;height:22px;border-radius:5px}
+.ficon .badge.yt::after{left:11px;top:6px;border-left-width:9px;border-top-width:5px;border-bottom-width:5px}
+.ficon .badge.lm::after{left:8px;top:4px;width:11px;height:11px;border-width:2px}
+.badge.li{background:#0a66c2}.badge.li::after{content:'in';position:absolute;left:3px;top:0;font:700 8px/12px var(--sys);color:#fff}
+.badge.wb{background:#6c8a5a}.badge.wb::after{content:'';position:absolute;left:4px;top:2px;width:6px;height:6px;border-radius:50%;border:1.5px solid #fff}
+.lrow.sel{background:#2f5fb3!important;color:#fff}
+.lrow.sel .kd,.lrow.sel .dt,.lrow.sel .sz{color:#dfe8fa}
+
+/* document view */
+.doc{padding:16px 22px 16px 18px;font-size:13.5px;line-height:1.42}
+.fm{font:12px/1.6 var(--mono);color:#8b8780;white-space:pre;overflow:hidden;max-height:120px;transition:max-height .9s var(--ease),opacity .6s,margin .9s var(--ease);margin-bottom:12px}
+.doc.clean .fm{max-height:0;opacity:0;margin:0}
+.ln{position:relative;padding:4px 8px 4px 8px;border-radius:7px;transition:background .5s,box-shadow .5s,opacity .5s;margin-bottom:2px}
+.rh{font:12px/1.5 var(--mono);color:#9a958d;max-height:20px;overflow:hidden;transition:max-height .8s var(--ease),opacity .5s}
+.rh .h{color:#6c6862}
+.row{display:flex;gap:10px;align-items:baseline}
+.ts{font:11px/1 var(--mono);color:#77736d;width:0;overflow:hidden;opacity:0;flex:none;transition:width .8s var(--ease),opacity .6s}
+.who{font:600 10.5px/1 var(--sys);letter-spacing:.04em;text-transform:uppercase;width:0;overflow:hidden;opacity:0;flex:none;transition:width .8s var(--ease),opacity .6s;padding-top:1px}
+.who.o{color:var(--l1)}.who{white-space:nowrap}.who.s{color:#9fb8d6}
+.txt{flex:1;font:12.5px/1.5 var(--mono);color:#cfcac2}
+.txt .c{display:none}.doc.clean .txt .r{display:none}.doc.clean .txt .c{display:inline}
+.doc.clean .rh{max-height:0;opacity:0}
+.doc.clean .ts{width:46px;opacity:1}
+.doc.clean .who{width:var(--who,54px);opacity:1}
+.doc.clean .txt{font:13.4px/1.4 var(--sys);color:#ece8e2}
+.doc.focus .ln{opacity:.32}
+.doc.focus .ln.key{opacity:1;box-shadow:inset 0 0 0 1px rgba(226,169,59,.75);background:rgba(226,169,59,.1)}
+
+/* ---------- right column panels */
+.rpanel{position:absolute;left:1120px;top:110px;width:420px;opacity:0;transform:translateX(30px);transition:opacity .6s,transform .9s var(--ease)}
+.rpanel.on{opacity:1;transform:none}
+.plabel{font:500 10.5px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin-bottom:16px}
+
+/* frames */
+#frames{top:100px;height:760px}
+#frames .plabel{position:absolute;top:-28px}
+.fc{position:absolute;left:0;width:420px;padding:6px 11px 7px 12px;border-radius:8px;background:#1b211f;border:1px solid rgba(79,169,160,.35);
+  font-size:12.8px;line-height:1.32;color:#dbeee9;font-weight:340;opacity:0;transform:translateX(24px);transition:opacity .5s,transform .7s var(--ease),border-color .5s,background .5s,box-shadow .5s}
+.fc .k{display:inline;font:600 9px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--l2);margin-right:8px}
+.fc .k em{font-style:normal;color:var(--l1);margin-left:8px}
+#frames.on .fc{opacity:1;transform:none}
+#frames.focus .fc{opacity:.25}
+#frames.focus .fc.key{opacity:1;border-color:var(--l2);background:#1d2a27;box-shadow:0 0 30px rgba(79,169,160,.18)}
+.wire{fill:none;stroke:var(--l2);stroke-width:1.2;opacity:0;transition:opacity .6s}
+.wire.on{opacity:.45}
+.wire.dim{opacity:.08}
+.wire.key{opacity:.95;stroke-width:1.8}
+
+/* layer cards */
+#cards{top:150px}
+.card{position:absolute;left:0;top:0;width:420px;padding:22px 24px 22px;border-radius:12px;background:rgba(32,29,24,.94);border:1px solid var(--line2);
+  opacity:0;transform:translateY(16px);transition:opacity .55s,transform .8s var(--ease);backdrop-filter:blur(6px)}
+.card.on{opacity:1;transform:none;transition-delay:.35s}
+.card .lv{font:600 10px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;margin-bottom:14px}
+.card h3{font-weight:400;font-size:23px;line-height:1.22;margin-bottom:12px;font-variation-settings:'opsz' 72}
+.card p{font-size:15px;line-height:1.5;color:var(--dim);font-weight:330}
+.card .pair{display:grid;grid-template-columns:62px 1fr;gap:10px 12px;margin-top:6px}
+.card .pair dt{font:600 9.5px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.card .pair dd{font-size:15px;line-height:1.45;color:var(--ink);font-weight:340}
+.card .pair dd.q{font-style:italic}
+.card .foot{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font:500 10px/1.6 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.card blockquote{font-size:20px;line-height:1.38;font-weight:360;color:var(--ink);margin:4px 0 14px;font-style:italic}
+
+/* finale legend */
+#legend{top:170px;left:1270px;width:290px}
+.lg{display:grid;grid-template-columns:14px 1fr auto;gap:12px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line);opacity:0;transform:translateX(14px);transition:opacity .5s,transform .7s var(--ease)}
+#legend.on .lg{opacity:1;transform:none}
+.lg i{width:9px;height:9px;border-radius:50%;display:block;transform:translateY(-1px)}
+.lg span{font:500 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.lg b{font:300 26px/1 var(--serif);font-variant-numeric:tabular-nums}
+#tip{position:fixed;max-width:360px;padding:9px 12px;border-radius:8px;background:rgba(21,19,16,.95);border:1px solid var(--line2);font-size:14px;line-height:1.4;color:var(--ink);pointer-events:none;opacity:0;transition:opacity .15s;z-index:5}
+#tip small{display:block;font:600 9.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px}
+/* ---------- findings: a docs page, one layer per page */
+#fd{position:absolute;left:60px;right:60px;top:96px;bottom:34px;display:grid;grid-template-columns:280px 1fr;gap:56px;
+  opacity:0;visibility:hidden;transform:translateY(16px);transition:opacity .6s,transform .9s var(--ease),visibility 0s .6s;cursor:default}
+#fd.on{opacity:1;visibility:visible;transform:none;transition:opacity .6s .2s,transform .9s var(--ease) .2s,visibility 0s}
+#stage #fd,#stage #fd *{pointer-events:auto}
+#fd .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin:24px 0 20px}
+#fd .lead h1{font-weight:380;font-size:32px;line-height:1.14;margin-bottom:16px;font-variation-settings:'opsz' 96}
+#fd .lead p{font-size:15px;line-height:1.55;color:var(--dim);font-weight:330}
+#fd nav{margin-top:30px;border-top:1px solid var(--line)}
+#fd nav a{display:grid;grid-template-columns:12px 1fr;gap:12px;align-items:center;padding:14px 10px;border-bottom:1px solid var(--line);
+  cursor:pointer;color:var(--dim);transition:background .3s,color .3s}
+#fd nav a:hover{background:rgba(255,255,255,.03);color:var(--ink)}
+#fd nav a.on{background:rgba(255,255,255,.05);color:var(--ink)}
+#fd nav a i{width:9px;height:9px;border-radius:50%}
+#fd nav a span{font:500 11px/1.35 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+#fd nav a b{font:600 9px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:5px 7px;border-radius:4px;border:1px solid currentColor;opacity:.85}
+#fd .keys{margin-top:18px;font:500 10px/1.6 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+#fd .page{overflow-y:auto;padding:24px 36px 40px 0;scrollbar-width:thin;scrollbar-color:var(--line2) transparent}
+#fd article{display:none;max-width:920px}
+#fd article.on{display:block;animation:fdin .5s var(--ease)}
+@keyframes fdin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#fd .lv{font:600 10.5px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;margin-bottom:16px}
+#fd h2{font-weight:380;font-size:40px;line-height:1.1;margin-bottom:14px;font-variation-settings:'opsz' 120;display:flex;align-items:center;gap:18px}
+#fd h2 b{font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;padding:7px 10px;border-radius:5px;border:1px solid currentColor}
+#fd .what{font-size:19px;line-height:1.5;color:var(--dim);font-weight:330;max-width:760px}
+#fd .what em{color:var(--ink)}
+#fd .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:30px 0 8px}
+#fd .nums div{border-top:1px solid var(--line2);padding-top:14px}
+#fd .nums strong{display:block;font:300 40px/1 var(--serif);font-variant-numeric:tabular-nums;font-variation-settings:'opsz' 144}
+#fd .nums small{display:block;margin-top:10px;font:500 10px/1.5 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+#fd h4{font:600 10.5px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--faint);margin:38px 0 14px}
+#fd .how{font-size:16px;line-height:1.6;color:var(--ink);font-weight:340;max-width:800px}
+#fd .how code,#fd li code,#fd .ex code{font:12.5px var(--mono);color:var(--l1);background:rgba(226,169,59,.08);padding:1px 5px;border-radius:4px}
+#fd .exs{display:grid;gap:12px}
+#fd .ex{padding:16px 18px;border-radius:10px;background:rgba(32,29,24,.9);border:1px solid var(--line2);border-left-width:3px}
+#fd .ex.good{border-left-color:var(--l5)}#fd .ex.bad{border-left-color:var(--l6)}
+#fd .ex .tag{font:600 9.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;margin-bottom:10px}
+#fd .ex.good .tag{color:var(--l5)}#fd .ex.bad .tag{color:#e0715a}
+#fd .ex q{display:block;font-size:17px;line-height:1.42;font-style:italic;color:var(--ink);font-weight:350;quotes:'“' '”'}
+#fd .ex p{margin-top:9px;font-size:14px;line-height:1.5;color:var(--dim);font-weight:330}
+#fd .ex p q{display:inline;font-size:14px;color:#d8d0c2}
+#fd ul{list-style:none;display:grid;gap:10px;max-width:820px}
+#fd li{position:relative;padding-left:22px;font-size:16px;line-height:1.5;color:var(--ink);font-weight:340}
+#fd li::before{content:'';position:absolute;left:2px;top:10px;width:7px;height:7px;border-radius:50%;background:#e0715a}
+#fd li strong{font-weight:560}
+#fd .todo{margin-top:34px;padding:18px 20px;border-radius:10px;border:1px dashed var(--line2);font-size:16px;line-height:1.55;color:var(--ink);font-weight:340}
+#ab{position:absolute;left:60px;right:60px;top:96px;bottom:34px;display:grid;grid-template-columns:280px 1fr;gap:56px;
+  opacity:0;visibility:hidden;transform:translateY(16px);transition:opacity .6s,transform .9s var(--ease),visibility 0s .6s;cursor:default}
+#ab.on{opacity:1;visibility:visible;transform:none;transition:opacity .6s .2s,transform .9s var(--ease) .2s,visibility 0s}
+#stage #ab,#stage #ab *{pointer-events:auto}
+#ab .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin:24px 0 20px}
+#ab .lead h1{font-weight:380;font-size:32px;line-height:1.14;margin-bottom:16px;font-variation-settings:'opsz' 96}
+#ab .lead p{font-size:15px;line-height:1.55;color:var(--dim);font-weight:330}
+#ab .found{margin-top:26px;border-top:1px solid var(--line)}
+#ab .found div{padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;line-height:1.35}
+#ab .found b{font-weight:520}#ab .found em{font-style:normal;color:var(--l5);float:right}
+#ab .found small{display:block;margin-top:4px;font:500 9.5px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+#ab .page{padding-top:24px}
+#ab h2{font-weight:380;font-size:40px;line-height:1.1;margin-bottom:10px;font-variation-settings:'opsz' 120}
+#ab .what{font-size:17px;line-height:1.5;color:var(--dim);font-weight:330}
+#ab .sheet{max-width:1080px;margin-top:22px;padding:4px 24px;border-radius:12px;border:1px solid var(--line2);background:rgba(32,29,24,.9)}
+#ab .row{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--line)}
+#ab .row:last-child{border-bottom:0}
+#ab .row>span{font:600 10px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+#ab .chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#ab .chip{font:400 14px/1 var(--serif);color:var(--dim);padding:8px 13px;border-radius:999px;border:1px solid var(--line2);background:transparent;cursor:pointer;transition:all .2s}
+#ab .chip:hover{color:var(--ink);border-color:var(--dim)}
+#ab .chip[aria-pressed=true]{color:#1b1712;background:var(--l1);border-color:var(--l1);font-weight:500}
+#ab .ev{flex-basis:100%;margin-top:4px;font:500 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+/* who you are / who you are not (standard from 17 Nov 2026): two columns per row */
+#ab .page{overflow-y:auto;scrollbar-width:thin;padding-right:6px}
+#ab .sheet.two{max-width:1180px;padding:4px 24px 6px}
+#ab .sheet.two .row{grid-template-columns:130px 1fr}
+#ab .cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+#ab .col .ev{display:block;margin-top:9px}
+#ab .row.heads{padding:12px 0 6px;border-bottom:1px solid var(--line2)}
+#ab .heads b{font:600 10px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase}
+#ab .heads b.is{color:var(--l1)}#ab .heads b.no{color:#e0715a}
+#ab .chip.no::before{content:'\2715';margin-right:7px;font-size:11px;color:#e0715a}
+#ab .chip.no[aria-pressed=true]{color:var(--ink);background:transparent;border-color:#e0715a;font-weight:400}
+#fd .todo span{display:block;font:600 10px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--l5);margin-bottom:10px}
+
+/* ---------- source badges for the other kinds */
+.badge.ig{background:#c13584}.badge.ig::after{content:'';position:absolute;left:4px;top:2px;width:6px;height:6px;border-radius:2px;border:1.5px solid #fff}
+.badge.tw{background:#3a3a3a}.badge.tw::after{content:'X';position:absolute;left:4px;top:0;font:700 8px/12px var(--sys);color:#fff}
+/* ---------- do's & don'ts page */
+#fd .principle-count{margin-top:20px;border-top:1px solid var(--line);padding-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#fd .principle-count b{display:block;font:300 56px/1 var(--serif);color:var(--ink)}
+#fd .principle-count span{display:block;margin-top:10px;font:500 10px/1.5 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+#fd .ptabs{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line2);border-radius:999px;margin:2px 0 4px}
+#fd .ptab{font:500 13px/1 var(--serif);color:var(--dim);padding:9px 16px;border-radius:999px;border:0;background:transparent;cursor:pointer;transition:all .2s}
+#fd .ptab:hover{color:var(--ink)}
+#fd .ptab[aria-selected=true]{color:#1b1712;background:var(--l1);font-weight:600}
+#fd .dd-cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:18px;max-width:1080px}
+#fd .dd-head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;font-size:19px;font-weight:450}
+#fd .dd-head small{font-size:13.5px;color:var(--dim);font-weight:330}
+#fd .dd-head.do i{color:var(--l5);font-style:normal}#fd .dd-head.dont i{color:#e0715a;font-style:normal}
+#fd .dd-row{display:grid;grid-template-columns:22px 1fr;gap:12px;padding:10px 16px;margin-bottom:8px;border:1px solid var(--line2);border-radius:10px;background:rgba(32,29,24,.9)}
+#fd .dd-row>i{font-style:normal;font-size:15px;line-height:1.4}
+#fd .dd-row.do>i{color:var(--l5)}#fd .dd-row.dont>i{color:#e0715a}
+#fd .dd-row p{font-size:15.5px;line-height:1.4;color:var(--ink);font-weight:340}
+#fd .dd-row p b{font-weight:600}
+#fd .dd-row small{display:block;margin-top:6px;font:500 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+#fd .keys{cursor:pointer}
+
+/* ---------- phones (config `mobile: true`): one portrait column instead of the scaled 16:9 slide */
+#vis,#mback,#rot{display:none}
+body.m{touch-action:none}
+body.m canvas#cv{width:100%;height:100%}
+body.m #stage{width:100%;height:100%;transform:none!important;padding:0 18px;display:grid;grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto minmax(0,1fr) auto auto auto;grid-template-areas:'hd' 'vis' 'st' 'cap' 'ft'}
+body.m #vis{display:block;grid-area:vis}
+body.m header{grid-area:hd;position:relative;left:auto;right:auto;top:auto;padding:max(16px,env(safe-area-inset-top)) 0 12px;font-size:10px}
+body.m #hdr{display:none}
+body.m header{flex-wrap:wrap}
+body.m #psw{order:2;display:flex;width:100%;margin-top:12px}
+body.m #psw .ptab{flex:1;padding:10px 8px;font-size:13px}
+body.m #psw .ptab small{display:block;margin:5px 0 0;font-size:9px}
+body.m #rail{gap:12px;width:100%;justify-content:space-between}
+body.m #rail .ch{gap:7px}
+body.m #rail .ch>span:first-child{display:none}
+body.m #rail .dots{gap:6px}
+body.m #rail .dots i{width:7px;height:7px}
+body.m header{min-height:44px}
+/* hero */
+body.m #hero{padding:0 26px}
+body.m #hero .kick{font-size:10px;letter-spacing:.24em;margin-bottom:22px;line-height:1.6}
+body.m #hero h1{font-size:52px}
+body.m #hero p{font-size:17px;margin-top:22px}
+body.m #hero .go{margin-top:34px}
+/* narrative */
+body.m #cap{grid-area:cap;position:relative;left:auto;top:auto;width:auto;padding:12px 0 4px}
+body.m #cap .kick{font-size:10px;margin-bottom:10px}
+body.m #cap h1{font-size:24px;line-height:1.15;margin-bottom:9px}
+body.m #cap p{font-size:15px;line-height:1.5}
+body.m #stat{grid-area:st;position:relative;left:auto;bottom:auto;width:auto;display:flex;align-items:baseline;gap:12px;padding-top:14px}
+body.m #stat .num{font-size:34px}
+body.m #stat .unit{margin-top:0;font-size:10px;line-height:1.4}
+body.m #hint{grid-area:ft;position:relative;left:auto;bottom:auto;display:flex;justify-content:space-between;align-items:center;
+  padding:14px 0 max(18px,env(safe-area-inset-bottom));font-size:10px}
+body.m #mback{display:inline-block;padding:8px 12px 8px 0;margin:-8px 0;color:var(--dim)}
+/* the window */
+body.m #win{grid-area:vis;position:relative;left:auto;top:auto;width:auto;height:auto;min-height:0;margin-top:4px}
+body.m #win.narrow{opacity:0;transform:translateY(20px) scale(.97)}
+body.m .side{display:none}
+body.m .tbar{height:38px;gap:10px;padding:0 12px}
+body.m .lights i{width:10px;height:10px}
+body.m .navb,body.m .views{display:none}
+body.m .wtitle{font-size:12px}
+body.m .wbody{top:38px;bottom:22px}
+body.m .status{height:22px;font-size:10px}
+body.m .lhead,body.m .lrow{grid-template-columns:minmax(0,1fr) 78px;padding:0 12px}
+body.m .lhead span:nth-child(2),body.m .lhead span:nth-child(4),body.m .lrow .kd,body.m .lrow .sz{display:none}
+body.m .lrow{font-size:12px}
+body.m .doc{padding:12px 12px}
+body.m .doc .txt{font-size:11.5px}
+body.m .doc.clean .txt{font-size:12.5px}
+body.m .doc.clean .ts{width:0;opacity:0}
+body.m .doc.clean .who{width:var(--who,56px)}
+/* frames */
+body.m #wires{display:none}
+body.m .rpanel{transform:translateY(16px)}
+body.m .rpanel.on{transform:none}
+body.m #frames{grid-area:vis;position:relative;left:auto;top:auto;height:auto;width:auto;min-height:0;overflow:hidden;padding-top:8px}
+body.m #frames .plabel{position:static;margin-bottom:10px}
+body.m .fc{position:relative;width:auto;top:auto!important;margin-bottom:6px;font-size:12px;transform:translateY(12px)}
+/* layer cards and the legend sit under the layered space */
+body.m #cards,body.m #legend{grid-area:vis;align-self:end;position:relative;left:auto;top:auto;width:auto}
+body.m .card{position:absolute;left:0;right:0;top:auto;bottom:0;width:auto;padding:16px 18px}
+body.m .card.on{position:relative}
+body.m .card .lv{margin-bottom:10px}
+body.m .card h3{font-size:19px;margin-bottom:8px}
+body.m .card p,body.m .card .pair dd{font-size:14px}
+body.m .card blockquote{font-size:18px}
+body.m .card .foot{margin-top:12px;padding-top:10px}
+body.m #legend{display:grid;grid-template-columns:1fr 1fr;column-gap:16px}
+body.m #legend .plabel{grid-column:1 / -1;margin-bottom:6px}
+body.m .lg{padding:8px 0;gap:9px}
+body.m .lg span{font-size:9px;letter-spacing:.1em;line-height:1.3}
+/* about you, do's & don'ts: scrolling pages */
+body.m #ab,body.m #fd{position:absolute;left:0;right:0;top:var(--hdh,44px);bottom:0;display:block;overflow-y:auto;background:var(--bg);padding:0 18px max(40px,env(safe-area-inset-bottom));touch-action:pan-y;-webkit-overflow-scrolling:touch}
+body.m #ab{bottom:52px;padding-bottom:28px}
+body.m #ab .kick,body.m #fd .kick{margin:18px 0 14px}
+body.m #ab .lead h1,body.m #fd .lead h1{font-size:30px}
+body.m #ab .page,body.m #fd .page{overflow:visible;padding:30px 0 0}
+body.m #ab h2,body.m #fd h2{font-size:30px;flex-wrap:wrap}
+body.m #ab .what,body.m #fd .what{font-size:16px}
+body.m #ab .sheet{padding:2px 16px}
+body.m #ab .row{grid-template-columns:1fr;gap:10px}
+body.m #ab .sheet.two .row{grid-template-columns:1fr}
+body.m #ab .cols{grid-template-columns:1fr;gap:18px}
+body.m #ab .row.heads{display:none}
+body.m #ab .col::before{display:block;margin-bottom:8px;font:600 10px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--l1);content:'Who you are'}
+body.m #ab .col+.col::before{color:#e0715a;content:'Who you are not'}
+body.m #ab .page{overflow:visible}
+body.m #ab .chip{font-size:13.5px;padding:8px 12px}
+body.m #fd .lead .principle-count b{font-size:44px}
+body.m #fd .keys{display:inline-block;margin-top:16px;padding:8px 0;font-size:11px;color:var(--dim)}
+body.m #fd .ptabs{display:flex;width:100%;margin:6px 0 2px}
+body.m #fd .ptab{flex:1;padding:10px 8px;font-size:13px}
+body.m #fd .dd-cols{grid-template-columns:1fr;gap:26px}
+body.m #fd .dd-row{padding:10px 14px}
+body.m #fd .dd-row p{font-size:15px}
+body.m #tip{display:none}
+/* a phone turned sideways */
+body.rot #stage,body.rot #cv{display:none}
+body.rot #rot{display:flex;position:fixed;inset:0;z-index:9;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px}
+#rot b{font-weight:330;font-size:30px;font-variation-settings:'opsz' 96}
+#rot span{font:500 10.5px/1.6 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="tip"></div>
+<div id="rot"><b>Turn your phone upright</b><span>This page reads best in portrait</span></div>
+<div id="stage">
+  <div id="vis"></div>
+  <header><div id="hdr"></div><div id="psw" class="hit" role="tablist" hidden></div><nav id="rail" class="hit"></nav></header>
+
+  <div id="hero">
+    <div class="kick">One real exchange, followed all the way through</div>
+    <h1 id="hero-h"></h1>
+    <p id="hero-p"></p>
+    <div class="go" id="go">Click to begin →</div>
+  </div>
+
+  <div id="cap" class="out"><div class="kick" id="kick"></div><h1 id="title"></h1><p id="body"></p></div>
+  <div id="stat" class="hide"><div class="num" id="num">0</div><div class="unit" id="unit"></div></div>
+
+  <div id="win">
+    <div class="tbar"><span class="lights"><i></i><i></i><i></i></span><span class="navb">‹ ›</span><span class="wtitle" id="wtitle"></span><span class="views"><i class="on" id="v1"></i><i id="v2"></i></span></div>
+    <div class="wbody">
+      <div class="side" id="side"></div>
+      <div class="pane">
+        <section id="list"><div class="lhead"><span>Name</span><span>Kind</span><span>Date</span><span style="text-align:right">Size</span></div><div class="lrows" id="lrows"></div></section>
+        <section id="docs"><div class="doc" id="doc"></div></section>
+      </div>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <svg id="wires"></svg>
+  <div class="rpanel" id="frames"></div>
+  <div class="rpanel" id="cards"></div>
+  <div class="rpanel" id="legend"></div>
+  <div id="ab"></div>
+  <div id="fd">
+    <div class="lead">
+      <div class="kick">06 · Do’s &amp; Don’ts</div>
+      <h1>Do’s &amp; Don’ts</h1>
+      <p id="dd-lead"></p>
+      <div class="principle-count" id="dd-count"></div>
+      <div class="keys">← back</div>
+    </div>
+    <div class="page" id="fdpage"></div>
+  </div>
+  <div id="hint">Click or <kbd>→</kbd> to continue · <kbd>←</kbd> back</div>
+</div>
+
+<script>
+/* Filled in by build.py: STORY is the data, CONFIG is the written copy (configs/<slug>.yaml). */
+const STORY = {"files":[{"n":"Creating Customers on the Telephone","d":"2006-12-18","s":5396,"k":"youtube"},{"n":"The Sales Process","d":"2008-06-26","s":4050,"k":"youtube"},{"n":"What Would You Do If You Knew You Couldn't Fail?","d":"2009-06-27","s":2340,"k":"youtube"},{"n":"Cold Calling - Ten Mistakes Made on the Telephone Part 1","d":"2009-07-01","s":6861,"k":"youtube"},{"n":"Ten Mistakes Made on the Telephone Part Two","d":"2009-07-08","s":4821,"k":"youtube"},{"n":"Sales Training Answering Objections on the Telephone","d":"2009-10-05","s":1913,"k":"youtube"},{"n":"The Ideal Prospect sales training","d":"2012-05-14","s":5112,"k":"youtube"},{"n":"Don't Sell the Benefits Final Cut","d":"2015-08-20","s":1611,"k":"youtube"},{"n":"Building a Sales Strategy","d":"2015-11-08","s":2037,"k":"youtube"},{"n":"Sales Coaching for Sales Success","d":"2016-06-17","s":1518,"k":"youtube"},{"n":"Colly Graham Key Accounts","d":"2018-10-03","s":31240,"k":"youtube"},{"n":"Jonny Kane Ridgeway","d":"2019-05-31","s":961,"k":"youtube"},{"n":"Alternative to Email Marketing","d":"2020-06-05","s":1517,"k":"youtube"},{"n":"Art Sobczak talks to Colly Graham","d":"2020-07-10","s":34273,"k":"youtube"},{"n":"Colly Graham talks to Patrick Tinney","d":"2020-08-10","s":43075,"k":"youtube","sel":1},{"n":"Adding Value to Your Customers when Selling","d":"2020-09-17","s":1514,"k":"youtube"},{"n":"Niraj Kapur author of Everyone Works in Sales Talks to Colly Graham","d":"2021-02-25","s":44308,"k":"youtube"},{"n":"Online Virtual Sales Training","d":"2021-03-03","s":3025,"k":"youtube"},{"n":"Online Sales Training","d":"2021-03-24","s":1517,"k":"youtube"},{"n":"Sales Training Strategy","d":"2021-03-26","s":2580,"k":"youtube"},{"n":"Reframing Sales Objections","d":"2021-09-10","s":4874,"k":"youtube"},{"n":"From Homeless to Sales Expert! Interview with Colly Graham from Salesxcellence","d":"2021-11-19","s":19110,"k":"youtube"},{"n":"Harnessing Your Mindset","d":"2022-04-22","s":3785,"k":"youtube"},{"n":"Sales Leadership Masterclass","d":"2022-07-20","s":3333,"k":"youtube"},{"n":"Top Sales Tips with Colly Graham","d":"2022-08-04","s":53602,"k":"youtube"},{"n":"Elevating Sales Potential in the Changing Face of Sales | Colly Graham- Ep 4","d":"2024-02-22","s":42590,"k":"youtube"},{"n":"Recommendation of Keenan Recruitment","d":"2024-12-02","s":256,"k":"linkedin"},{"n":"Predictions and trends impacting the year ahead","d":"2024-12-04","s":334,"k":"linkedin"},{"n":"17 December 2024","d":"2024-12-17","s":2802,"k":"youtube"},{"n":"The Seven Habits of Successful Salespeople","d":"2024-12-17","s":362,"k":"linkedin"},{"n":"Mastering the First Impression: Your intriguing post title goes here - salesxcellence","d":"2025-01-13","s":1754,"k":"web"},{"n":"Hiring Announcement","d":"2025-02-11","s":244,"k":"linkedin"},{"n":"Patrick Tinney's sales negotiations update","d":"2025-03-31","s":267,"k":"linkedin"},{"n":"The enduring value of sales wisdom over technology","d":"2025-04-03","s":1729,"k":"linkedin"},{"n":"2025-04-09-have-a-read","d":"2025-04-09","s":229,"k":"linkedin"},{"n":"Bespoke Sales Training for Prospecting, Value Selling, and Closing Deals","d":"2025-04-12","s":1309,"k":"linkedin"},{"n":"Don’t miss out on this from a friend and a top global trainer","d":"2025-04-22","s":272,"k":"linkedin"},{"n":"From Homeless to Sales Expert! Interview with Colly Graham","d":"2025-04-22","s":464,"k":"linkedin"},{"n":"The Future of AI in Sales: Transforming How We Connect and Convert","d":"2025-04-22","s":1416,"k":"linkedin"},{"n":"Welcome to Star Wars Day May 4th be with you","d":"2025-05-04","s":260,"k":"linkedin"},{"n":"Embracing Courage: The Next Chapter of Salesxcellence","d":"2025-05-06","s":2747,"k":"linkedin"},{"n":"Courage closes the gap in sales and business growth","d":"2025-05-20","s":1121,"k":"linkedin"},{"n":"Salesxcellence: Relaunching with Purpose","d":"2025-05-20","s":882,"k":"linkedin"},{"n":"Rebuilding a human-centered sales training business to address core sales challenges","d":"2025-05-21","s":1086,"k":"linkedin"},{"n":"Glimpse of my new website","d":"2025-05-23","s":297,"k":"linkedin"},{"n":"Here's the future","d":"2025-05-23","s":289,"k":"linkedin"},{"n":"Now is the time","d":"2025-05-24","s":189,"k":"linkedin"},{"n":"salesxcellence sales process framework","d":"2025-05-26","s":518,"k":"linkedin"},{"n":"Effective Sales Leadership","d":"2025-05-27","s":397,"k":"linkedin"},{"n":"Selling with Purpose, Confidence, and Professional Growth","d":"2025-05-27","s":648,"k":"linkedin"},{"n":"Prayer Request for Rebekah","d":"2025-05-30","s":237,"k":"linkedin"},{"n":"Starting a new position as coach and sales growth consultant at salesxcellence","d":"2025-05-30","s":350,"k":"linkedin"},{"n":"Five Myths of Cold Calling","d":"2025-06-02","s":401,"k":"linkedin"},{"n":"Problem-solving","d":"2025-06-02","s":982,"k":"linkedin"},{"n":"Sales Manager’s Diagnostic Questionnaire Offer","d":"2025-06-04","s":384,"k":"linkedin"},{"n":"Sales Leadership","d":"2025-06-06","s":3324,"k":"youtube"},{"n":"Sales Leadership Masterclass announcement","d":"2025-06-06","s":409,"k":"linkedin"},{"n":"Developing a winning sales strategy through strategic selling","d":"2025-06-10","s":862,"k":"linkedin"},{"n":"Developing a winning sales strategy","d":"2025-06-13","s":845,"k":"linkedin"},{"n":"Developing Sales and Marketing Skills through Theory, Practice, and Data","d":"2025-06-21","s":795,"k":"linkedin"},{"n":"Neurosales: Where Brain Science Meets Buying Behavior","d":"2025-06-24","s":1744,"k":"linkedin"},{"n":"Shifting from a seller's mindset to a partner's mindset","d":"2025-06-25","s":1635,"k":"linkedin"},{"n":"Embrace Personalization at Scale","d":"2025-07-01","s":1287,"k":"linkedin"},{"n":"Travel updates and returning home from Vancouver trip","d":"2025-07-11","s":466,"k":"linkedin"},{"n":"Closing more sales lesson","d":"2025-07-15","s":537,"k":"linkedin"},{"n":"Hyper-Personalisation","d":"2025-07-15","s":1709,"k":"linkedin"},{"n":"Superman creates value","d":"2025-07-16","s":464,"k":"linkedin"},{"n":"Sales Leaders Master Class","d":"2025-08-18","s":429,"k":"linkedin"},{"n":"Dare to Change Event Reflections and Acknowledgements","d":"2025-08-20","s":705,"k":"linkedin"},{"n":"Long-term impact of sales training and mentoring","d":"2025-08-28","s":1214,"k":"linkedin"},{"n":"High-Caliber Area Sales Manager Candidate Availability","d":"2025-08-29","s":265,"k":"linkedin"},{"n":"Salesxcellence First Newsletter Announcement","d":"2025-09-02","s":492,"k":"linkedin"},{"n":"Latest salesxcellence Newsletter Announcement","d":"2025-09-09","s":266,"k":"linkedin"},{"n":"Mastering Sales Mindset and Daily Habits for Consistency","d":"2025-09-09","s":2077,"k":"linkedin"},{"n":"Applying neuroscience and emotional precision to sales decisions","d":"2025-09-10","s":1323,"k":"linkedin"},{"n":"The Evolution of Sales from the 1970s to the 2020s","d":"2025-09-11","s":1547,"k":"linkedin"},{"n":"Why storytelling works in B2B","d":"2025-09-15","s":915,"k":"linkedin"},{"n":"The joys of semi-retirement break in Palma Nova","d":"2025-09-20","s":461,"k":"linkedin"},{"n":"Lead Nurturing: Date, Don’t Sell Cold","d":"2025-09-22","s":492,"k":"linkedin"},{"n":"Scheduling recovery as part of sales performance","d":"2025-09-22","s":1409,"k":"linkedin"},{"n":"Success is built twice—first in the mind, then in reality","d":"2025-09-23","s":919,"k":"linkedin"},{"n":"Business lesson on avoiding unnecessary risks and needing help when stuck","d":"2025-09-24","s":521,"k":"linkedin"},{"n":"The Hidden Driver of Sales Performance","d":"2025-09-30","s":1373,"k":"linkedin"},{"n":"Criticism of Ticketmaster's digital ticketing process and age discrimination against the elderly","d":"2025-10-04","s":883,"k":"linkedin"},{"n":"Resilience in Action: How Sales Teams Recover and Win","d":"2025-10-07","s":549,"k":"linkedin"},{"n":"Resilience in Action: How Sales Teams Recover and Win","d":"2025-10-07","s":957,"k":"linkedin"},{"n":"Stills link announcement","d":"2025-10-08","s":227,"k":"linkedin"},{"n":"Membership - salesxcellence","d":"2025-10-09","s":739,"k":"web"},{"n":"Training Programs - salesxcellence","d":"2025-10-10","s":539,"k":"web"},{"n":"Your Mindset is Your Edge in Sales","d":"2025-10-13","s":1737,"k":"linkedin"},{"n":"Impression of Tangerine Twist","d":"2025-10-14","s":268,"k":"linkedin"},{"n":"Salesxcellence AI Playbook Announcement","d":"2025-10-14","s":417,"k":"linkedin"},{"n":"Understanding Sales Enablement","d":"2025-10-14","s":441,"k":"linkedin"},{"n":"Understanding Sales Enablement","d":"2025-10-14","s":1089,"k":"linkedin"},{"n":"Understanding Sales Enablement","d":"2025-10-16","s":322,"k":"linkedin"},{"n":"Mastering the Inner Game of Sales","d":"2025-10-20","s":570,"k":"linkedin"},{"n":"The Winning Mindset in Sales: It’s Not About Features, It’s About Belief","d":"2025-10-20","s":1546,"k":"linkedin"},{"n":"Beyond Resilience: Rituals That Reinforce the Winning Mindset","d":"2025-10-27","s":1225,"k":"linkedin"},{"n":"Learning Resilience and Positivity to Build a Winning Mindset","d":"2025-10-27","s":843,"k":"linkedin"},{"n":"Overcoming Early Nerves and Anticipating What's Next","d":"2025-10-27","s":337,"k":"linkedin"},{"n":"Winning Sales: Building Commitment","d":"2025-10-28","s":705,"k":"linkedin"},{"n":"The Inner Game of Sales","d":"2025-10-29","s":1275,"k":"linkedin"},{"n":"Mastering Discovery and Opening Architecture Over Closing Techniques","d":"2025-10-31","s":666,"k":"linkedin"},{"n":"Beyond Resilience: Build the Winning Sales Mindset","d":"2025-11-03","s":945,"k":"linkedin"},{"n":"Recovering from customer rejection in 90 seconds","d":"2025-11-06","s":642,"k":"linkedin"},{"n":"Sales Success is Built in the Invisible","d":"2025-11-07","s":530,"k":"linkedin"},{"n":"An Audience with Colly Graham: The Winning Mindset for Salespeople","d":"2025-11-10","s":562,"k":"linkedin"},{"n":"What a Winning Mindset Really Means","d":"2025-11-10","s":936,"k":"linkedin"},{"n":"Discovery: The Ritual That Earns the Right to Sell","d":"2025-11-11","s":978,"k":"linkedin"},{"n":"Share your healed wounds rather than open scars","d":"2025-11-11","s":409,"k":"linkedin"},{"n":"The Real Battleground of Sales Success","d":"2025-11-17","s":957,"k":"linkedin"},{"n":"Rapport: Your Sales Superpower","d":"2025-11-18","s":891,"k":"linkedin"},{"n":"Winning Mindset for Sales People","d":"2025-11-18","s":1279,"k":"linkedin"},{"n":"Book launch and release updates","d":"2025-11-24","s":805,"k":"linkedin"},{"n":"Book printing collection announcement","d":"2025-11-24","s":354,"k":"linkedin"},{"n":"Embodied Influence: Turning Inner Mastery into Outer Impact","d":"2025-11-24","s":844,"k":"linkedin"},{"n":"An Audience with Colly Graham: Winning Mindset for Salespeople Book Launch","d":"2025-11-25","s":701,"k":"linkedin"},{"n":"The Real Battleground of Sales Success","d":"2025-11-25","s":687,"k":"linkedin"},{"n":"Book release and launch event for Winning Mindset for Sales People","d":"2025-11-26","s":665,"k":"linkedin"},{"n":"From Mindset to Momentum: The Daily Discipline Behind Consistent Sales Success","d":"2025-12-01","s":1257,"k":"linkedin"},{"n":"My book goes live on Amazon today","d":"2025-12-02","s":388,"k":"linkedin"},{"n":"The Hidden Continuity of Sales Excellence: The Rituals That Sustain Momentum","d":"2025-12-02","s":879,"k":"linkedin"},{"n":"Gratitude and Acknowledgments for Book Launch Event","d":"2025-12-03","s":716,"k":"linkedin"},{"n":"Niraj and Rachel’s wedding day celebration","d":"2025-12-04","s":318,"k":"linkedin"},{"n":"First Amazon Review for The Winning Mindset for Sales People","d":"2025-12-05","s":903,"k":"linkedin"},{"n":"Winning Mindset for Sales People review and impact on practical sales thinking","d":"2025-12-06","s":1733,"k":"linkedin"},{"n":"Book Launch and Amazon Reviews","d":"2025-12-08","s":250,"k":"linkedin"},{"n":"Review for Winning Mindset for Sales People Book","d":"2025-12-08","s":301,"k":"linkedin"},{"n":"The Invisible Mind at Work: Identifying Limiting Beliefs in Sales","d":"2025-12-08","s":1229,"k":"linkedin"},{"n":"Five Daily Disciplines for Sales Success","d":"2025-12-09","s":1329,"k":"linkedin"},{"n":"Review of Winning Mindset for Salespeople","d":"2025-12-09","s":1703,"k":"linkedin"},{"n":"Tribute to Raul Malo of The Mavericks","d":"2025-12-10","s":770,"k":"linkedin"},{"n":"Winning Mind set for Sales People Book Release and Reviews","d":"2025-12-10","s":465,"k":"linkedin"},{"n":"The Winning Mindset for Salespeople Book Launch and Recognition","d":"2025-12-11","s":788,"k":"linkedin"},{"n":"Overcoming Self-Limiting Beliefs","d":"2025-12-15","s":1516,"k":"linkedin"},{"n":"The Five Disciplines of Sales Prospecting","d":"2025-12-16","s":1466,"k":"linkedin"},{"n":"Happy Christmas to LinkedIn Community","d":"2025-12-23","s":441,"k":"linkedin"},{"n":"Supporting Radio Cracker's Christmas Charity Appeal for Third World Causes","d":"2025-12-23","s":1458,"k":"linkedin"},{"n":"Three gifts that elevate commercial conversations fast","d":"2025-12-23","s":1331,"k":"linkedin"},{"n":"What’s Your Purpose in 2026?","d":"2025-12-23","s":844,"k":"linkedin"},{"n":"Winning Mindset for Sales People Announcement","d":"2025-12-24","s":283,"k":"linkedin"},{"n":"The Winning Mindset for Salespeople in 2026: Why the Future Belongs to Value-Creators","d":"2025-12-29","s":1601,"k":"linkedin"},{"n":"Turning Sales Intentions into Results with PRAMKU Goal Setting","d":"2025-12-30","s":1155,"k":"linkedin"},{"n":"Reflecting on New Beginnings and Past Success for the New Year","d":"2026-01-04","s":475,"k":"linkedin"},{"n":"The Hidden Reason Sales Performance Breaks Down","d":"2026-01-05","s":1157,"k":"linkedin"},{"n":"Closing the Execution Gap in Sales","d":"2026-01-06","s":1426,"k":"linkedin"},{"n":"Transitioning to Keynote Speaking and Celebrating Industry Colleagues","d":"2026-01-08","s":857,"k":"linkedin"},{"n":"Closing the Execution Gap — From Intention to Behaviour","d":"2026-01-12","s":1739,"k":"linkedin"},{"n":"Leading with Value in Modern Sales","d":"2026-01-12","s":1123,"k":"linkedin"},{"n":"Mastering sales fundamentals over chasing new methodologies","d":"2026-01-19","s":1137,"k":"linkedin"},{"n":"Overcoming Blue Monday with 'The Winning Mindset for Salespeople'","d":"2026-01-19","s":495,"k":"linkedin"},{"n":"The Power of “Yet”","d":"2026-01-19","s":1015,"k":"linkedin"},{"n":"Discovery and Probing Questions as a Thinking Methodology","d":"2026-01-21","s":1417,"k":"linkedin"},{"n":"Sales Career Opportunity","d":"2026-01-22","s":285,"k":"linkedin"},{"n":"Using reciprocity to build trust and drive long-term sales success","d":"2026-01-22","s":1388,"k":"linkedin"},{"n":"Reciprocity in selling is widely misunderstood","d":"2026-01-23","s":953,"k":"linkedin"},{"n":"Understanding true reciprocity in sales","d":"2026-01-23","s":658,"k":"linkedin"},{"n":"the resilience of the staff","d":"2026-01-25","s":1765,"k":"linkedin"},{"n":"Reciprocity In Sales It's a Response, Not a Technique","d":"2026-01-26","s":949,"k":"linkedin"},{"n":"Power, Usefulness, and the Winning Mindset: Why the Best Salespeople Make Decisions Feel Safer","d":"2026-01-27","s":1546,"k":"linkedin"},{"n":"Attending Maire Nawaz's Book Launch and Catching Up with NI Sales Summit Collaborators","d":"2026-01-30","s":488,"k":"linkedin"},{"n":"The Power of Presence in Modern Selling","d":"2026-02-02","s":1260,"k":"linkedin"},{"n":"Trust Is the Invisible Advantage in Modern Sales","d":"2026-02-03","s":1038,"k":"linkedin"},{"n":"Emotional Control Under Pressure in Sales Conversations","d":"2026-02-09","s":1137,"k":"linkedin"},{"n":"Reflecting on a Career in Sales Training at 81","d":"2026-02-09","s":1223,"k":"linkedin"},{"n":"The Four Pillars of Modern Sales Performance: Trust, Safety, Discovery & Value","d":"2026-02-10","s":1464,"k":"linkedin"},{"n":"The Quiet Advantage: Why Emotional Control Wins More Deals Than Perfect Words","d":"2026-02-11","s":1369,"k":"linkedin"},{"n":"Using AI for Sales Prospecting and Cadence Setup","d":"2026-02-12","s":1169,"k":"linkedin"},{"n":"Here’s man with a lot to offer and something money can’t buy - experience","d":"2026-02-13","s":297,"k":"linkedin"},{"n":"Learning from your worst sales year by facing reality","d":"2026-02-13","s":1032,"k":"linkedin"},{"n":"Attending Jason Lear’s Event","d":"2026-02-16","s":304,"k":"linkedin"},{"n":"AI Will Not Find Your Prospects. But It Will Help You Find the Right Ones — Faster Than Ever Before","d":"2026-02-17","s":1795,"k":"linkedin"},{"n":"AI Will Not Find Your Prospects. But It Will Help You Find the Right Ones — Faster Than Ever Before","d":"2026-02-17","s":501,"k":"linkedin"},{"n":"Colly Graham: Eight Decades of Grit, Grace, and the Relentless Pursuit of Adding Value - ValiantCEO","d":"2026-02-18","s":5352,"k":"web"},{"n":"Delivering Key Account Management Masterclass from In-Person to Online","d":"2026-02-18","s":361,"k":"linkedin"},{"n":"Stop teaching salespeople to handle objections and focus on objection prevention","d":"2026-02-19","s":1722,"k":"linkedin"},{"n":"The Winning Mindset Advantage: Why Skill Is No Longer Enough","d":"2026-02-23","s":1780,"k":"linkedin"},{"n":"Most objections aren't commercial — they're neurological","d":"2026-02-24","s":1567,"k":"linkedin"},{"n":"The Four Pillars of Modern Sales Performance","d":"2026-02-24","s":1950,"k":"linkedin"},{"n":"Assessing cross-operational KPIs across every strand of business","d":"2026-02-27","s":2005,"k":"linkedin"},{"n":"The Mindset Shift Buyers Reward in 2026","d":"2026-03-02","s":1551,"k":"linkedin"},{"n":"Using AI as a Systematic Tool to Accelerate B2B Prospecting","d":"2026-03-02","s":2162,"k":"linkedin"},{"n":"Clarity Precedes Velocity: Defining the Ideal Customer Profile Before Optimizing Conversion","d":"2026-03-03","s":890,"k":"linkedin"},{"n":"The AI Revenue System Most Businesses Are Missing","d":"2026-03-03","s":1336,"k":"linkedin"},{"n":"Voting endorsement for Shelley Cowan","d":"2026-03-03","s":390,"k":"linkedin"},{"n":"AI isn’t replacing sales teams. It’s exposing outdated prospecting.","d":"2026-03-04","s":1174,"k":"linkedin"},{"n":"The Single-Thread Risk and Multi-Stakeholder Engagement","d":"2026-03-04","s":952,"k":"linkedin"},{"n":"The Proposal Drift Problem","d":"2026-03-05","s":863,"k":"linkedin"},{"n":"New Website Launch Preview and Feedback Request","d":"2026-03-06","s":364,"k":"linkedin"},{"n":"Celebrating the Influential Women on International Women's Day","d":"2026-03-08","s":1058,"k":"linkedin"},{"n":"The Question That Changes Everything in Sales","d":"2026-03-09","s":1346,"k":"linkedin"},{"n":"Winning Mindset for High Performance Live Keynote Recording","d":"2026-03-09","s":1234,"k":"linkedin"},{"n":"Merchant Hotel Free Event Invitation","d":"2026-03-10","s":335,"k":"linkedin"},{"n":"Your Pipeline Is Lying to You","d":"2026-03-10","s":1807,"k":"linkedin"},{"n":"How to identify the belief that's placing an invisible ceiling on your performance","d":"2026-03-11","s":1204,"k":"linkedin"},{"n":"The Brain-Based Sale Decision Sequence","d":"2026-03-11","s":1258,"k":"linkedin"},{"n":"The future of sales will not be decided by AI, but by who learns to use it first","d":"2026-03-12","s":1393,"k":"linkedin"},{"n":"Winning Mindset for High Performance in an AI World","d":"2026-03-12","s":1788,"k":"linkedin"},{"n":"Combining AI Automation with Sales Mindset and Human Judgement","d":"2026-03-13","s":1295,"k":"linkedin"},{"n":"Don't miss out on this key workshop","d":"2026-03-13","s":253,"k":"linkedin"},{"n":"From \"Competitor\" to \"Intern\"","d":"2026-03-13","s":1982,"k":"linkedin"},{"n":"New web page announcement","d":"2026-03-15","s":267,"k":"linkedin"},{"n":"Emotional Mastery and End-of-Day Reflection in Sales","d":"2026-03-16","s":1100,"k":"linkedin"},{"n":"New website progress update","d":"2026-03-17","s":606,"k":"linkedin"},{"n":"Stop Presenting - Start Asking","d":"2026-03-17","s":1387,"k":"linkedin"},{"n":"Why Your Buyer's Brain Decides Before Your Presentation Begins","d":"2026-03-18","s":463,"k":"linkedin"},{"n":"Why Your Buyer's Brain Decides Before Your Presentation Begins","d":"2026-03-18","s":1304,"k":"linkedin"},{"n":"Integrating AI into the sales process to win new business","d":"2026-03-19","s":477,"k":"linkedin"},{"n":"Bring a problem workshop","d":"2026-03-20","s":266,"k":"linkedin"},{"n":"Mindset determines who wins with AI","d":"2026-03-20","s":989,"k":"linkedin"},{"n":"The lasting impact and unique perspective of sales coaching","d":"2026-03-20","s":1775,"k":"linkedin"},{"n":"Winning Mindset for High Performance in an AI World Event Sold Out","d":"2026-03-21","s":1338,"k":"linkedin"},{"n":"The Only Place a Deal Is Ever Won","d":"2026-03-23","s":1180,"k":"linkedin"},{"n":"Six eras of selling and the unchanging human decision process","d":"2026-03-24","s":1421,"k":"linkedin"},{"n":"Emotion drives buying decisions","d":"2026-03-25","s":760,"k":"linkedin"},{"n":"The Neuroscience of Decision-Making in Sales","d":"2026-03-25","s":1054,"k":"linkedin"},{"n":"Why the brain decides to trust someone online","d":"2026-03-25","s":925,"k":"linkedin"},{"n":"Handling the 'I need to think about it' objection","d":"2026-03-26","s":639,"k":"linkedin"},{"n":"New website launch preview","d":"2026-03-26","s":292,"k":"linkedin"},{"n":"Speaking to the Three Brains in Sales Conversations","d":"2026-03-26","s":698,"k":"linkedin"},{"n":"The Neuroscience of Online Trust","d":"2026-03-26","s":1170,"k":"linkedin"},{"n":"How Oxytocin and Genuine Connection Build Trust to Lower Risk Perception","d":"2026-03-27","s":595,"k":"linkedin"},{"n":"Feedback on new website launch","d":"2026-04-01","s":285,"k":"linkedin"},{"n":"Quarter 1 service performance and efficiency metrics for Diamond Systems","d":"2026-04-02","s":2026,"k":"linkedin"},{"n":"The Neuroscience of Online Trust","d":"2026-04-03","s":2099,"k":"linkedin"},{"n":"Preempting sales objections by establishing safety and emotional trust","d":"2026-04-06","s":734,"k":"linkedin"},{"n":"Our Approach - salesxcellence","d":"2026-04-07","s":8468,"k":"web"},{"n":"The Frame Shift: Winning Sales Through Buyer Psychological Safety","d":"2026-04-07","s":858,"k":"linkedin"},{"n":"The Smartest Sales Prospector in the Room Is Not Who You Think It Is","d":"2026-04-07","s":1547,"k":"linkedin"},{"n":"Most salespeople don’t have a prospecting problem, they have a starting problem","d":"2026-04-09","s":1353,"k":"linkedin"},{"n":"Why Logic Alone Never Closes a Sale - salesxcellence","d":"2026-04-11","s":8034,"k":"web"},{"n":"The Rejection That Didn’t Kill You Is the One That Will Make You","d":"2026-04-13","s":1664,"k":"linkedin"},{"n":"A Winning Mindset for High Performance in an AI World Keynote","d":"2026-04-14","s":715,"k":"linkedin"},{"n":"The Sale Doesn’t Close — It Continues","d":"2026-04-14","s":1473,"k":"linkedin"},{"n":"Discover the Brain Based Sale","d":"2026-04-15","s":234,"k":"linkedin"},{"n":"The Moment That Decides Everything: Managing Rejection and the Recovery Gap","d":"2026-04-15","s":1351,"k":"linkedin"},{"n":"Brain-based selling and buyer decision sequence","d":"2026-04-16","s":1684,"k":"linkedin"},{"n":"Rejection Is Not the End. It Is the Data.","d":"2026-04-20","s":1148,"k":"linkedin"},{"n":"The Moment After the No","d":"2026-04-20","s":379,"k":"linkedin"},{"n":"The Moment After the No","d":"2026-04-20","s":1750,"k":"linkedin"},{"n":"The Moment After the No","d":"2026-04-20","s":1931,"k":"linkedin"},{"n":"The Human Edge: Why Winning in an AI World Demands More of You, Not Less","d":"2026-04-21","s":2204,"k":"linkedin"},{"n":"The Invisible Engine of Your Success","d":"2026-04-27","s":1298,"k":"linkedin"},{"n":"Emotional processing in decision-making and sales","d":"2026-04-28","s":399,"k":"linkedin"},{"n":"Jim","d":"2026-04-28","s":1543,"k":"linkedin"},{"n":"What Happens in the Room","d":"2026-04-28","s":1185,"k":"linkedin"},{"n":"Attending Augmented Intelligence: Meet Briggs & Co.","d":"2026-04-29","s":297,"k":"linkedin"},{"n":"THE BRAIN-BASED SALE","d":"2026-04-29","s":1376,"k":"linkedin"},{"n":"The human edge in sales versus AI tools","d":"2026-04-29","s":961,"k":"linkedin"},{"n":"Trust Is Not Built at the End of a Sales Conversation","d":"2026-05-02","s":1800,"k":"linkedin"},{"n":"Most revenue problems are clarity problems, not volume problems","d":"2026-05-04","s":1490,"k":"linkedin"},{"n":"Regulating Emotional State and Detaching from Outcome in Sales Conversations","d":"2026-05-04","s":1334,"k":"linkedin"},{"n":"Star Wars Day greeting","d":"2026-05-04","s":262,"k":"linkedin"},{"n":"The Winning Mindset for Everyone sample release","d":"2026-05-04","s":545,"k":"linkedin"},{"n":"Winning Mindset and The Practice of Return","d":"2026-05-04","s":1066,"k":"linkedin"},{"n":"Scott Bewley Testmonial","d":"2026-05-06","s":674,"k":"youtube"},{"n":"The Sales Accelerator Course - salesxcellence","d":"2026-05-07","s":17843,"k":"web"},{"n":"The Sales Prospecting Advantage with AI","d":"2026-05-07","s":1837,"k":"linkedin"},{"n":"Sales Prospecting Advantage with AI Workshop","d":"2026-05-08","s":1259,"k":"linkedin"},{"n":"Understanding and Demystifying Sales Enablement","d":"2026-05-08","s":401,"k":"linkedin"},{"n":"Maintaining a Winning Mindset After Setbacks","d":"2026-05-11","s":1820,"k":"linkedin"},{"n":"Winning Mondset Newsletter","d":"2026-05-12","s":298,"k":"linkedin"},{"n":"Using ChatGPT prompts for targeted prospect lists and outreach sequences","d":"2026-05-13","s":792,"k":"linkedin"},{"n":"Finding better-fit sales leads using AI prompts","d":"2026-05-14","s":1018,"k":"linkedin"},{"n":"Keynote Speaker - salesxcellence","d":"2026-05-14","s":936,"k":"web"},{"n":"Sales Accelerator Programme - salesxcellence","d":"2026-05-14","s":2635,"k":"web"},{"n":"Sales Leadership Masterclass - salesxcellence","d":"2026-05-14","s":1732,"k":"web"},{"n":"Using a Simple AI Prompt for Sales Prospecting Without Technical Skills","d":"2026-05-14","s":1018,"k":"linkedin"},{"n":"The Sale Begins Before the Sales Conversation Starts","d":"2026-05-15","s":1042,"k":"linkedin"},{"n":"The Miracle Mindset","d":"2026-05-18","s":1306,"k":"linkedin"},{"n":"The Sales Prospecting Advantage with AI Email Campaign","d":"2026-05-18","s":1478,"k":"linkedin"},{"n":"The Real Reason Your Sales Team Is Not Hitting Quota","d":"2026-05-20","s":1690,"k":"linkedin"},{"n":"Fundraiser for Epilepsy Action","d":"2026-05-21","s":431,"k":"linkedin"},{"n":"The Brain Does Not Buy in the Wrong Order","d":"2026-05-21","s":2370,"k":"linkedin"},{"n":"The Belief Beneath the Behaviour","d":"2026-05-25","s":1571,"k":"linkedin"},{"n":"Combining AI and Human Intelligence in Sales Leadership","d":"2026-05-26","s":1714,"k":"linkedin"},{"n":"Why Sales Process, Pipeline and Prospecting Matter More Than Most Salespeople Realise","d":"2026-05-26","s":1641,"k":"linkedin"},{"n":"Meet Your Customer's Brain","d":"2026-05-27","s":1734,"k":"linkedin"},{"n":"Pursuing PhD Research on Neuroscience in Sales Leadership and the Sales Function","d":"2026-05-27","s":1239,"k":"linkedin"},{"n":"Why so many sales conversations go wrong","d":"2026-05-28","s":1055,"k":"linkedin"},{"n":"Shared Resource Link","d":"2026-06-01","s":199,"k":"linkedin"},{"n":"The Belief Beneath the Behaviour","d":"2026-06-01","s":1456,"k":"linkedin"},{"n":"The Belief Beneath the Behaviour","d":"2026-06-01","s":1427,"k":"linkedin"},{"n":"Winning Mind in Sales","d":"2026-06-06","s":281,"k":"linkedin"},{"n":"The Salesperson Who Feels Everything","d":"2026-06-08","s":1174,"k":"linkedin"},{"n":"Understanding Buyer Decision-Making and Neuroscience in Sales","d":"2026-06-08","s":1476,"k":"linkedin"},{"n":"The importance of sales mindset over skills when adapting to market shifts","d":"2026-06-09","s":1686,"k":"linkedin"},{"n":"The Ninety-Five Per Cent You Never See","d":"2026-06-10","s":1461,"k":"linkedin"},{"n":"What Happens After The Conversation Ends","d":"2026-06-11","s":1369,"k":"linkedin"},{"n":"Colly Graham Keynote Showreel","d":"2026-06-15","s":2582,"k":"youtube"},{"n":"New website taking shape","d":"2026-06-23","s":402,"k":"linkedin"},{"n":"The Customer Feels It Too","d":"2026-06-23","s":1613,"k":"linkedin"},{"n":"Staying positive after missing Jason Lear's TEDx event due to illness","d":"2026-06-25","s":554,"k":"linkedin"},{"n":"The Invisible Engine of Your Success","d":"2026-06-29","s":1616,"k":"linkedin"},{"n":"The Seller Who Asks, Leads","d":"2026-06-30","s":1439,"k":"linkedin"},{"n":"The Winning Mindset for High Performance in an AI World","d":"2026-06-30","s":1122,"k":"linkedin"},{"n":"Thirty-Year Anniversary of salesxcellence and Career Reflections","d":"2026-07-01","s":1597,"k":"linkedin"},{"n":"When the Buyer Pushes Back, Lower the Pressure","d":"2026-07-01","s":1422,"k":"linkedin"},{"n":"What are your best daily habits?","d":"2026-07-02","s":472,"k":"linkedin"},{"n":"Books - Colly Graham","d":"2026-07-03","s":3285,"k":"web"},{"n":"Contact - Colly Graham","d":"2026-07-03","s":1008,"k":"web"},{"n":"Download the Speaker Pack - Colly Graham","d":"2026-07-03","s":696,"k":"web"},{"n":"The Success System That Never Fails, and Where It Meets the Winning Mindset","d":"2026-07-06","s":1303,"k":"linkedin"},{"n":"Attending granddaughter's graduation ceremony","d":"2026-07-07","s":345,"k":"linkedin"},{"n":"Attending granddaughter's graduation ceremony","d":"2026-07-07","s":436,"k":"linkedin"},{"n":"Cold outreach succeeds by targeting warm intent signals and keeping messaging personal","d":"2026-07-07","s":1253,"k":"linkedin"},{"n":"Sales has always rewarded honesty over hype","d":"2026-07-07","s":1205,"k":"linkedin"},{"n":"Brain Based Sale and BRAIN Sales System Announcement","d":"2026-07-09","s":666,"k":"linkedin"},{"n":"Congratulating Serena Dorsett on Graduation","d":"2026-07-09","s":267,"k":"linkedin"},{"n":"The Seller Who Listens, Wins","d":"2026-07-09","s":1725,"k":"linkedin"},{"n":"Attending Seen & Heard Pop-up CoWorking Day","d":"2026-07-10","s":326,"k":"linkedin"},{"n":"The Brain on Trust","d":"2026-07-10","s":999,"k":"linkedin"},{"n":"The Invisible Engine: Why One Salesperson Wins and Another Struggles","d":"2026-07-13","s":1876,"k":"linkedin"},{"n":"The Invisible Engine: Why One Salesperson Wins and Another Struggles","d":"2026-07-13","s":1858,"k":"linkedin"},{"n":"Martin Irvine Presentation Recommendation","d":"2026-07-16","s":417,"k":"linkedin"},{"n":"Colly Graham | International Keynote Speaker","d":"2026-07-17","s":2760,"k":"web"},{"n":"Martin Gilchrist Breaking the Internet and LinkedIn","d":"2026-07-17","s":307,"k":"linkedin"},{"n":"Sales Kick-Off Keynote Speaker | Colly Graham","d":"2026-07-17","s":8092,"k":"web"},{"n":"Why Artificial Intelligence Needs Human Intelligence in Sales","d":"2026-07-20","s":1794,"k":"linkedin"},{"n":"Why are more men not watching this?","d":"2026-07-29","s":251,"k":"linkedin"},{"n":"Creating Lasting Change and Reconnecting with Yourself with Jo Rose","d":"2026-07-30","s":1407,"k":"linkedin"},{"n":"Kate’s fundraiser for PIPS Suicide Prevention","d":"2026-08-01","s":422,"k":"linkedin"},{"n":"The 6 Pillars of a Winning Sales Mindset","d":"2026-08-04","s":1121,"k":"linkedin"},{"n":"Before You Can Sell Anything, the Brain Must Feel Safe","d":"2026-08-05","s":914,"k":"linkedin"},{"n":"AI Prospecting Training: Sales-Ready Leads + CRM Cadence - salesxcellence","d":"2026-08-06","s":3240,"k":"web"},{"n":"AI in Sales - salesxcellence","d":"2026-08-06","s":15661,"k":"web"},{"n":"Articles - salesxcellence","d":"2026-08-06","s":1742,"k":"web"},{"n":"Prospecting & Pipeline - salesxcellence","d":"2026-08-06","s":12103,"k":"web"},{"n":"Revenue Growth - salesxcellence","d":"2026-08-06","s":16195,"k":"web"},{"n":"Revenue Operations - salesxcellence","d":"2026-08-06","s":12609,"k":"web"},{"n":"Sales Accelerator — Elite Cohort - salesxcellence","d":"2026-08-06","s":11969,"k":"web"},{"n":"Sales Enablement - salesxcellence","d":"2026-08-06","s":10981,"k":"web"},{"n":"Sales Strategy - salesxcellence","d":"2026-08-06","s":8813,"k":"web"},{"n":"What We Do - salesxcellence","d":"2026-08-06","s":8175,"k":"web"},{"n":"Why salesxcellence - salesxcellence","d":"2026-08-06","s":10193,"k":"web"},{"n":"A Day in Belfast for Sales Meetings and Cultural Visits","d":"2026-08-07","s":888,"k":"linkedin"},{"n":"Have you a Wining Mindset","d":"2026-08-09","s":226,"k":"linkedin"},{"n":"Another great day at the Fleadh in Belfast","d":"2026-08-10","s":416,"k":"linkedin"},{"n":"About Us - salesxcellence","d":"2026-08-12","s":2334,"k":"web"},{"n":"salesxcellence — BRAIN Based Sales Training","d":"2026-08-12","s":4761,"k":"web"},{"n":"Colly Graham | Keynote Sales Speaker & Sales Kick-Off Speaker","d":"2026-08-14","s":4181,"k":"web"},{"n":"Fractional VP of Sales built with Claude Opus","d":"2026-08-17","s":1367,"k":"linkedin"},{"n":"Monday AI Sales Brief: Proving AI ROI in Sales Leadership","d":"2026-08-17","s":1294,"k":"linkedin"},{"n":"The Cost of Doing Nothing: 4 Levels of Impact That Move a Buyer","d":"2026-08-18","s":1256,"k":"linkedin"},{"n":"Warm fresh scones inquiry","d":"2026-08-18","s":272,"k":"linkedin"},{"n":"Identifying Clickbait Offers and Vetting Business Models","d":"2026-08-19","s":1363,"k":"linkedin"},{"n":"3 AI Developments That Change How You Sell This Week","d":"2026-08-24","s":1619,"k":"linkedin"},{"n":"Registration Closure Announcement","d":"2026-08-24","s":287,"k":"linkedin"},{"n":"The Selling Brain Under Pressure: Staying in the Performance Zone","d":"2026-08-25","s":1569,"k":"linkedin"},{"n":"Winning Mindset for High Performance in an AI World","d":"2026-08-25","s":858,"k":"linkedin"},{"n":"Reviewing printer's proof copies for BRAIN Based Sales book","d":"2026-08-26","s":788,"k":"linkedin"},{"n":"AI in Sales: 3 Signals This Week That Change How You Train","d":"2026-08-31","s":1300,"k":"linkedin"},{"n":"Closing the gap between insight and behavioural change in sales","d":"2026-08-31","s":1310,"k":"linkedin"},{"n":"Monday Morning AI Sales Brief: Balancing AI Adoption and Human Skills Training","d":"2026-08-31","s":1345,"k":"linkedin"},{"n":"Findings From the 2026 AI in Revenue Enablement Report","d":"2026-09-01","s":1463,"k":"linkedin"},{"n":"Factors That Decide If a Buyer Trusts You","d":"2026-09-02","s":1284,"k":"linkedin"},{"n":"Use AI for sales groundwork while keeping human trust-building for conversations","d":"2026-09-02","s":1540,"k":"linkedin"},{"n":"Reflecting on Marriage, Support, and Partnership Over Thirty-One Years","d":"2026-09-03","s":1949,"k":"linkedin"},{"n":"AI Is Making Human Sales Skills More Valuable and Harder to Learn: 3 Findings for Sales Leaders","d":"2026-09-07","s":496,"k":"linkedin"},{"n":"AI Is Making Human Sales Skills More Valuable and Harder to Learn: 3 Findings for Sales Leaders","d":"2026-09-07","s":1704,"k":"linkedin"},{"n":"From Insight to Impact: 6 Practices That Turn Awareness into Sales Results","d":"2026-09-07","s":1388,"k":"linkedin"},{"n":"Winning Mindset Newsletter","d":"2026-09-08","s":250,"k":"linkedin"},{"n":"The Role of Intent in Sales Discovery and Building Buyer Trust","d":"2026-09-10","s":2029,"k":"linkedin"},{"n":"The Three-Brain Model That Explains Why Skilled Salespeople Still Lose the Sale","d":"2026-09-10","s":1797,"k":"linkedin"},{"n":"Do Not Automate Away the Apprenticeship: 6 Rules for Building Sales Judgement in an AI World","d":"2026-09-14","s":1938,"k":"linkedin"},{"n":"6 Ways Brain Based Sales Removes the Struggle from Selling","d":"2026-09-15","s":1244,"k":"linkedin"},{"n":"BRAIN Based Sales System","d":"2026-09-15","s":945,"k":"linkedin"},{"n":"Closing the Gap Between AI Adoption and Trust in Sales","d":"2026-09-16","s":1387,"k":"linkedin"},{"n":"Adoption of AI in SMB sales and the shift toward directing AI workflows","d":"2026-09-18","s":1132,"k":"linkedin"},{"n":"Announcement of Forthcoming Book BRAIN Based Sales","d":"2026-09-18","s":323,"k":"linkedin"},{"n":"Why Do We Trust Influencers Over Experts?","d":"2026-09-20","s":28755,"k":"youtube"},{"n":"When AI Can Do the Workflow, Judgement Becomes the Job","d":"2026-09-21","s":1804,"k":"linkedin"},{"n":"7 Human Skills Sales Teams Need to Succeed with AI in 2026","d":"2026-09-23","s":1113,"k":"linkedin"},{"n":"Brain Based Sales Preface Summary","d":"2026-09-28","s":1921,"k":"linkedin"},{"n":"Measuring AI value in sales results and governance of autonomous AI agents","d":"2026-09-28","s":1538,"k":"linkedin"},{"n":"Why Purpose Matters More Than Quotas: Building Resilience That Lasts","d":"2026-09-29","s":1377,"k":"linkedin"},{"n":"Success Belongs to the Trust-Based Salesperson: 6 Brain-Based Principles for a Changing World","d":"2026-09-30","s":1782,"k":"linkedin"},{"n":"Presenting BRAIN Based Sales to the Mayor of Ballymena","d":"2026-10-02","s":332,"k":"linkedin"},{"n":"Integrating AI Agents into Sales Leadership and the Customer Journey","d":"2026-10-05","s":1642,"k":"linkedin"},{"n":"WHAT COMMERCIALLY MEANINGFUL RESULT IMPROVED?","d":"2026-10-05","s":1816,"k":"linkedin"},{"n":"Turning Sales Insight into Behaviour","d":"2026-10-06","s":1232,"k":"linkedin"},{"n":"Your team has too many AI tools slowing sales","d":"2026-10-07","s":1595,"k":"linkedin"},{"n":"The Two-Way AI Apprenticeship","d":"2026-10-12","s":1060,"k":"linkedin"},{"n":"Stop Waiting to Feel Confident","d":"2026-10-13","s":1130,"k":"linkedin"},{"n":"Winning Mindset Newsletter for Building Sales Resilience and Focus","d":"2026-10-14","s":377,"k":"linkedin"},{"n":"Ten Problems Sales Leaders Talk About, and the One Conversation Behind Seven of Them","d":"2026-10-15","s":1635,"k":"linkedin"},{"n":"Impact and Limitations of AI in Sales Outreach and Revenue","d":"2026-10-19","s":1398,"k":"linkedin"},{"n":"Feedback on BRAIN Based Sales and Launch Update","d":"2026-10-22","s":1112,"k":"linkedin"},{"n":"The Leadership Gap Hiding Inside Your AI Rollout","d":"2026-10-26","s":1628,"k":"linkedin"},{"n":"The Order Is the Strategy","d":"2026-10-27","s":1384,"k":"linkedin"},{"n":"Calm Before the Objection","d":"2026-10-28","s":1405,"k":"linkedin"},{"n":"New website for Brain Based Sales","d":"2026-10-28","s":359,"k":"linkedin"},{"n":"Measuring Structure Gaps in Sales Conversations with the BRAIN Sales Assessment","d":"2026-10-29","s":1783,"k":"linkedin"},{"n":"Not Wishing, Wiring: How Inner State Shapes Sales Conversations","d":"2026-11-02","s":1362,"k":"linkedin"},{"n":"Brain Sales Assessment","d":"2026-11-05","s":1671,"k":"linkedin"},{"n":"Why sales teams choose salesxcellence","d":"2026-11-07","s":430,"k":"linkedin"},{"n":"Do Not Automate a Conclusion You Cannot Explain","d":"2026-11-09","s":1516,"k":"linkedin"},{"n":"Handling the 'We Have No Budget' Objection by Building Value","d":"2026-11-09","s":1675,"k":"linkedin"},{"n":"The Sales Culture Your Buyers Can Feel","d":"2026-11-09","s":1341,"k":"linkedin"},{"n":"Five Discovery Questions Built on BRAIN","d":"2026-11-10","s":1436,"k":"linkedin"},{"n":"Value Is Discovered, Not Declared","d":"2026-11-10","s":1705,"k":"linkedin"},{"n":"The Brain-Based Sale Book Launch","d":"2026-11-12","s":864,"k":"linkedin"},{"n":"The Brain-Based Sale: The Science of Selling the Way the Brain Decides","d":"2026-11-12","s":1397,"k":"linkedin"},{"n":"The Brain-Based Sale and Human Conversations in the Age of AI","d":"2026-11-13","s":2116,"k":"linkedin"},{"n":"Write the goal down","d":"2026-11-13","s":1383,"k":"linkedin"}],"totals":{"conversations":405,"actions":3905,"frames":2416,"tactics":141,"scenes":44,"phases":6,"beliefs":6,"words":130204},"session":{"title":"Colly Graham talks to Patrick Tinney","date":"2020-08-10","kind":"YouTube · interview with Patrick Tinney","turns":137,"other":"The client","lines":[{"id":"t0100-0","ts":"¶43.1","raw":"speaker_1","coach":true,"who":"Colly","text":"another another of my clients they sell sell an app for field engineers field workers um and one of the things they were having The people they spoke to they love the app but its not closing"},{"id":"t0100-1","ts":"¶43.2","raw":"speaker_1","coach":true,"who":"Colly","text":"And I said yeah youve got to talk to the guy whos going to sign the check Yes You know and the hope you know"},{"id":"t0100-2","ts":"¶43.3","raw":"speaker_1","coach":true,"who":"Colly","text":"and then the other thing is that the guy who signs the check he doesnt want to know that Its about saving paperwork Its about saving time And I did an interesting one was one of the things is about this particular app"},{"id":"t0100-3","ts":"¶43.4","raw":"speaker_1","coach":true,"who":"Colly","text":"What happens with a service engineer He goes out to service your refrigeration He does the job He logs the call Gives his paperwork back to the office and they invoice the client for the time spent servicing"},{"id":"t0100-4","ts":"¶43.5","raw":"speaker_1","coach":true,"who":"Colly","text":"And I discovered in Ive got one company that 5 percent of their invoices go missing because the paperwork gets lost And this actually has a foolproof way"},{"id":"t0100-5","ts":"¶43.6","raw":"speaker_1","coach":true,"who":"Colly","text":"And I go what youve got to work out is what is it costing the company Whats the average invoice The average invoice was 80 sterling 5 percent how many have you Oh weve got about 100 a week So okay so this is costing you 400 a week and …"},{"id":"t0100-6","ts":"¶43.7","raw":"speaker_1","coach":true,"who":"Colly","text":"But its getting the salespeople to say that lost paperwork doesnt mean anything Whats lost paperwork costing you"}]},"frames":[{"id":"f-00","span":"the client's problem: the people they speak to love the app, but it isn't closing","kind":"statement","from":["t0100-0"]},{"id":"f-01","span":"his first move: talk to the person who is going to sign the cheque","kind":"reframe","from":["t0100-1"]},{"id":"f-02","span":"the person who signs doesn't want to hear about saving paperwork or saving time","kind":"statement","from":["t0100-2"]},{"id":"f-03","span":"walking through what a service engineer does, from the job to the invoice","kind":"story","from":["t0100-3"]},{"id":"f-04","span":"finding that five percent of invoices go missing because the paperwork gets lost","kind":"statement","from":["t0100-4"]},{"id":"f-05","span":"working out the cost: £80 an invoice, 100 a week, £400 a week against £200 a month, then keep quiet","kind":"reframe","from":["t0100-5"]},{"id":"f-06","span":"lost paperwork means nothing to the buyer; what it is costing them does","kind":"statement","from":["t0100-6"]}],"thread":{"cue":"f-00","move":"f-05","cueLine":"t0100-0","moveLine":"t0100-5"},"labels":{"tactics":["client agrees but deal stalls","lead stops responding","facing rejection","prospect says no","underperforming salesperson","customer chooses a competitor","stalled opportunities","buyer resistance","buyer stalls or says let me think about it","fear of AI taking jobs","deals stall","facing buyers in high-stakes meetings","former client returning for sales training","doubting opportunities and business relaunch","sales burnout and fear of rejection","top-tier sales manager becomes available","managing sales burnout and peak performance","encountering unexpected trouble or being stuck","buying tickets online for elderly users","stalled deals and missed quarters","starting a business","launching a new initiative","handling rejection and unanswered calls","facing pressure","recovering from rejection","presentation content was good but connection was missing","after the signature is dry","passing of a favorite musician","stuck due to internal script","end-of-year sales conversations","Christmas charitable giving","start of the new year","sales performance breakdown","goals fading under pressure","inconsistent execution due to willpower fatigue","Blue Monday","conversations feel busy but not decisive","aligning daily sales behavior with targets","observing hospital emergency department pressure","encountering an old customer in A&E","sales conversations stalling","high-stakes conversations","conversations under pressure","handling high-pressure sales conversations","long-term unemployment","dealing with a dried pipeline and failing deals","prospect objection","month-end operational review","sales team skepticism about AI replacing them","informed buyers facing complex decisions","unpredictable revenue despite high activity","sales teams resisting AI in favor of relationships","single-threaded deals","expressing gratitude to family and business connections","stalled deals after proposal","transition from routine tasks to AI-assisted selling","infinite information generation","high-volume AI idea generation","handling buyer objections and uncertainty","sale slipping despite strong logic","prospecting hesitation and lack of clarity","facing rejection in sales","sales rejection","client says no","adopting AI tools in sales","loss of belief in sales","retracting inward during high-stakes meetings","failing to follow up on proposals","buyer moves from curiosity into caution","conversation tightens or outcome becomes uncertain","ineffective prospecting activity","recovering from pressure or a bad week","team getting meetings but losing momentum","facing challenges","believing you are not technical enough for AI","prospecting from cold lists","sales team underperforming quota","meeting went well but lead goes cold","sales trainers fearing business loss to AI","pitching the solution too early","losing a deal in the first few minutes","market shift and sales setback","handling fear and rejection on sales calls","missing an event due to sudden illness","managing team performance under high pressure","granddaughter's graduation","unrealistic AI sales promises and hype","family milestone","low response rates on cold messages","handling buyer objections","struggling despite having the same product and training","feeling stuck or overwhelmed","first meeting","sales teams struggling to prove measurable return from AI","selling under pressure","buyer stalls because problem feels manageable","encountering polished clickbait offers","registration deadline reached","buyer research via AI","sale goes quiet or quarter turns hard","automating sales workflows","wedding anniversary","recovering from a lost sale","distrust in AI outputs","new salespeople using AI before developing judgement","skilled salespeople losing sales despite strong presentations","automating workflows with AI","evaluating AI impact on sales performance","procrastinating on sales follow-ups","sales stack overload","junior sales staff being more AI-capable than leadership","evaluating AI automation in sales prospecting","automating customer outreach with AI agents","pipeline that never qualifies","evaluating AI tools for sales teams","employee insecurity around AI implementation","hesitation to act","recurring objections","buyer says there is no budget","early sales conversation","salespeople losing sales","AI in sales","misalignment between sales, marketing, and customer success","handling rejection in sales","prospect does not follow up after logical pitch","handling price objection","working from home","rebuilding after crisis","skeptical prospect","handling receptionists","call reluctance","fear of phone selling","client kicks salesperson out","clients challenging expertise based on social media content","pipeline generation","prospecting follow-up","ego-driven communication","fear of cold calling","prospect pushes for quick pitch","customer questions product value","overselling during a demonstration"],"scenes":["sales mindset","brain-based selling","buyer psychology","AI in sales","sales training","sales psychology","resilience","objection handling","consultative selling","handling rejection","neuroscience in sales","AI prospecting","trust building","sales enablement","sales prospecting","cold calling","winning mindset","pipeline management","website launch","book launch","mindset","sales resilience","AI sales prospecting","value-based selling","emotional control","sales leadership","relationship building","sales strategy","sales fundamentals","reciprocity in sales","discovery questions","event registration","sales management","social selling","relationship selling","limiting beliefs","sales negotiations","career journey","Star Wars Day","problem-solving","neurosales","continuous learning","trust-based selling","sales coaching"],"phases":["Open the sale","Make buying feel safe","Discover with questions","Put a number on the problem","Talk to who decides","Win the inner game"],"beliefs":["The cost of doing nothing: When the cost of doing nothing becomes larger than the cost of acting, budget has a way of appearing.","Resistance comes from the seller: Any resistance in sales is caused by the salesperson.","Open the sale: The problem with sales is not closing the sales, the problem is opening the sale.","Value is discovered: Value is discovered, not declared.","The emotional brain decides: The thinking brain doesn’t decide. It explains the decision the emotional brain has already made.","Talk to somebody else: When you keep getting no, talk to somebody else."]},"floors":{"1":[235,-47,402,-35,74,20,307,-111,138,48,236,-12,85,-95,149,93,122,-301,-269,201,53,-436,-139,735,-38,487,530,-391,-375,-176,23,-597,-457,-733,-71,675,-319,-169,-103,198,146,305,-202,-66,157,92,59,83,-237,-417,-227,154,-215,5,-798,254,-714,-7,-98,639,741,87,-222,-62,-43,-17,-526,-467,731,-60,274,748,287,540,-237,86,-281,95,23,-47,543,646,-147,-282,87,390,-550,-67,814,-138,81,631,138,389,672,-166,60,-92,-446,445,-102,-467,110,733,-376,-636,19,916,-225,139,781,-89,171,510,781,-134,287,125,-438,-793,-226,-299,687,85,-395,-123,639,-262,-223,133,-130,288,412,-394,439,323,942,-46,-308,494,173,133,562,-152,273,174,146,585,166,-184,-262,9,-673,140,-116,-190,-250,45,-247,-140,-90,-164,-421,723,-324,415,344,699,111,468,362,-222,483,364,-589,635,-304,-39,-260,-300,442,-286,-387,-263,-531,-430,-415,396,-649,-353,-151,-438,-556,-540,-153,-59,215,11,301,338,-446,297,-274,315,-869,148,33,-87,111,985,-7,199,-290,-102,-643,107,-6,116,-523,-300,-853,30,196,343,-431,-45,-339,38,-128,-325,108,127,117,57,689,578,757,44,639,-146,-360,-258,-588,-64,-157,389,568,712,259,374,422,297,-333,-261,-813,35,-222,-56,-375,-266,-220,174,54,416,-50,-64,-528,-663,-15,-612,-257,370,-298,-119,884,-13,590,-8,76,49,136,-112,-598,97,133,95,138,160,576,124,-379,-238,-52,-686,330,324,874,-141,-228,-167,-415,582,39,86,46,-467,-416,-269,-215,211,15,58,267,-408,-24,602,677,-508,235,556,-263,-320,-292,-283,197,305,-367,123,-277,-424,-694,384,166,347,-511,1,770,-154,-192,-294,8,184,144,-418,18,120,94,181,213,470,-473,389,-234,-123,977,164,14,204,783,-435,-569,-154,-62,311,-432,172,133,536,454,245,20,71,-320,639,235,-453,305,-552,643,254,64,-118,558,-229,4,53,357,494,371,-141,206,106,162,493,-509,-290,222,-726,-547,-101,-447,-153,-368,-5,-269,-529,207,396,75,-698,-348,238,460,-724,62,-461,-618,5,-409,-274,237,542,649,143,233,312,660,-111,302,365,-367,70,-395,267,293,833,-348,-190,138,498,438,-818,-90,865,-305,266,-194,220,103,240,-24,500,182,-693,391,36,364,-198,-92,-512,-238,-87,762,49,149,-3,-494,-22,292,-485,-314,21,515,97,-335,-159,-464,-36,102,-304,-642,284,-107,19,28,149,-224,538,128,-557,435,754,60,-224,159,466,231,647,156,503,832,74,-629,-296,520,-13,156,-719,-283,766,694,563,18,-62,-59,-296,364,-627,700,-347,358,-64,-434,271,167,219,536,-308,-334,-41,449,504,175,624,-299,75,-845,182,86,-320,577,554,-487,158,-537,-73,-62,-273,-239,12,367,-464,-319,-256,-371,91,-921,-12,-746,-395,-52,-352,-494,271,-434,314,-712,71,-591,170,42,9,-361,-262,-90,-518,-20,-624,-140,-369,-100,-178,45,-72,119,-314,-196,532,492,44,-781,198,332,232,-614,438,-545,-644,147,-9,596,-268,-78,-641,63,-755,318,722,-258,769,72,-200,148,522,-295,160,-532,-304,-107,885,78,546,-284,-235,-526,-97,186,448,-20,-626,-65,-162,-199,-180,-296,51,130,713,-227,206,155,428,3,-308,130,449,-303,80,292,384,287,11,-366,-195,-280,0,-642,83,204,437,-408,-120,-3,247,-243,-144,-385,211,-110,44,-239,-154,-349,-325,42,-595,184,-150,-432,-415,424,-562,-549,-117,110,-272,574,574,-529,471,213,-431,-112,741,-553,43,-259,-4,-100,328,341,58,-133,442,-415,-24,-136,-142,119,105,152,445,286,-87,-446,32,273,554,-578,-377,193,-416,71,601,-263,-378,-54,752,66,268,-263,-345,-516,-242,-66,-254,-384,229,-244,202,-524,174,74,434,-251,746,176,-49,-399,133,-815,-227,-124,147,-124,-116,-196,708,-721,-260,521,-414,-265,-104,-260,-99,-234,71,42,88,-71,183,-365,120,-432,-40,-77,42,-55,419,-367,-203,204,372,70,-316,-264,99,18,147,-97,771,209,190,14,-72,-668,5,457,-92,328,-677,362,540,-462,-550,433,-58,-509,-543,-439,-29,56,561,-452,-547,176,621,-603,-296,469,-479,-268,62,-83,-12,264,138,-536,-209,-558,520,-170,549,-227,-209,-243,251,-417,596,-133,505,491,441,42,161,-474,158,-510,-8,-604,-32,-308,-296,-549,-316,-227,352,61,-635,-16,764,-445,453,256,-400,-279,-186,-399,-440,-127,-723,41,85,-704,142,-555,428,-292,157,43,-91,266,43,130,-223,18,352,287,-14,129,-562,-396,323,836,-208,-333,-78,180,1,-610,-94,-225,-92,-348,-374,-174,-74,120,417,-68,-36,110,389,240,-765,-351,-375,495,-411,168,114,-550,-79,219,-689,158,503,459,223,-58,-126,-137,181,-603,-41,238,530,168,101,-246,330,29,80,-231,449,-28,46,578,-49,-495,-185,348,74,-40,-163,278,687,433,-351,905,-293,87,-358,-96,-67,594,216,-624,41,47,-479,100,-55,61,-108,-56,-286,278,-74,-333,-138,-264,12,-624,-343,-357,-189,-409,224,726,-87,-229,-307,-374,-574,90,95,671,-36,-854,300,-667,-138,-173,-151,132,-68,-461,-259,-214,-722,-84,-426,100,219,277,-223,-539,67,349,-702,39,573,191,-9,307,-235,357,286,43,32,-174,-73,101,616,834,148,295,-374,-252,303,564,-521,125,-315,-222,-94,377,310,11,16,119,521,-549,-470,-248,553,229,-243,-179,162,469,404,-279,-621,-681,226,319,511,-337,-284,-95,-350,-320,-55,-145,-62,133,501,597,558,384,187,4,671,172,143,178,770,-843,-46,-142,-442,201,355,-654,-57,-460,352,-551,-79,-323,-259,-695,-12,-285,-394,344,577,332,-479,157,-506,-284,155,-18,-71,-90,-98,17,375,177,747,503,-506,-119,-427,51,447,667,-361,-526,582,-763,-179,-248,473,156,34,730,-97,261,245,-31,273,-311,379,270,-753,236,114,421,241,-324,-49,120,-188,118,466,-165,-135,108,-50,-413,489,-91,-553,-618,331,-2,505,-84,284,-364,578,87,-371,518,334,-351,-257,110,-98,62,86,69,-636,233,530,-288,257,247,412,-643,596,231,-487,-891,-206,52,-535,-309,-43,872,-146,-421,-272,704,319,-201,223,205,223,74,76,130,238,288,549,-319,740,221,227,-328,67,598,332,266,328,-693,-272,-817,-268,-309,749,-378,208,38,574,908,-5,84,-197,111,389,-94,475,223,74,365,-225,-348,533,714,-71,152,143,801,28,-233,-150,321,-382,-642,126,213,-478,446,-172,271,702,-224,380,-444,-15,-472,-124,52,208,306,385,-690,654,-51,-260,433,-328,489,-144,-86,88,32,352,-80,-22,-846,-389,62,38,-372,239,516,143,-493,-288,-250,-541,-421,-34,-43,1,36,259,374,-24,26,601,24,203,562,-419,694,-347,-516,96,-392,-126,307,-93,411,532,-207,-115,596,725,-857,319,-474,333,-372,-226,-89,757,-29,516,-444,381,-310,589,213,-378,-410,508,121,-500,-508,-181,222,267,-202,-515,-530,64,-224,-669,-7,-42,-22,-381,-181,443,-734,-49,103,68,-611,132,318,-384,-64,126,-106,208,315,599,386,-113,372,-261,220,782,-189,231,38,91,-165,192,-826,93,95,385,-300,699,70,805,449,-134,-317,-324,-496,-533,278,104,237,-95,-242,143,379,326,-542,430,193,591,-172,120,272,-228,178,304,-80,92,-44,-398,-180,543,-730,423,377,-218,-143,-184,-362,666,69,217,-539,336,720,298,101,70,128,-420,198,198,187,-709,-13,-612,621,306,370,-227,273,-43,-68,197,414,496,-250,381,-399,604,148,-234,-819,438,-438,-28,122,-373,100,-8,65,-26,43,17,-491,-712,-417,-312,72,936,354,-128,-444,-159,410,579,124,-490,406,568,-401,39,-602,-351,-140,-60,-278,-306,-775,132,-214,-76,-79,-16,217,-524,-145,479,139,681,-135,-8,88,-383,-548,-353,-254,449,-321,44,-480,-37,-260,-281,-342,701,548,353,88,622,-623,-15,-248,-98,-267,573,-159,-59,-240,600,-481,246,-599,-88,-110,-376,126,-83,65,-50,-84,318,-720,98,-329,-20,693,-117,-384,390,173,-378,611,130,-198,553,450,393,-147,321,382,107,122,667,-380,652,-256,511,154,428,-348,-362,-188,411,309,-121,171,386,534,-283,-219,422,829,-194,-469,125,-171,180,273,-17,128,-160,-248,590,-4,-514,-262,-72,-461,-264,-92,-161,-224,341,-294,137,501,-282,-409,289,-282,-269,-563,72,-134,919,-124,-888,-359,400,-60,70,-29,375,-289,237,654,231,-6,634,68,81,304,-233,-567,-185,423,255,16,134,-124,519,299,-10,-15,98,84,452,-223,-158,399,-254,117,168,-406,-294,-380,-228,-751,243,-320,-436,136,-55,-298,132,676,39,217,-580,54,328,-15,-84,-710,12,215,-183,22,105,554,208,257,364,-256,864,-327,-339,18,841,948,31,223,629,-381,25,-268,-157,345,586,-287,-209,127,490,613,-336,-490,-342,478,88,175,-279,115,-507,-401,-256,-320,386,-111,753,-258,-134,-162,-479,323,-849,62,-687,493,300,-264,-541,-664,243,-244,147,-64,-753,412,-350,-118,-450,592,-428,-572,-524,-341,536,274,-56,410,-21,376,520,-541,269,-23,251,-241,397,-135,341,140,245,-119,-269,477,-256,110,-72,-97,458,-413,-13,133,-283,-570,376,267,378,-246,-81,-272,-76,-553,109,-702,525,359,-13,-572,603,94,486,-224,-212,-320,-223,-141,491,162,-441,-521,634,-421,43,-343,68,-431,555,-277,147,80,-314,-203,478,-307,529,-641,-67,282,-322,-158,266,285,-215,-161,-400,-318,-239,-92,304,64,-158,126,320,154,-202,-361,-211,506,12,11,397,-243,582,-337,-147,-225,220,594,-502,385,-217,241,-419,-396,-68,-185,241,370,385,-27,-35,-458,-215,-230,171,-105,137,632,98,-189,-548,-81,547,-69,604,20,20,-494,119,-252,116,-592,-107,520,540,-457,819,-190,-33,-198,-25,289,406,357,443,457,-301,-332,422,230,-423,-140,116,87,-261,246,-177,567,-12,57,-309,68,74,293,-307,-322,-134,-444,56,132,-224,-400,153,-912,-305,416,644,-272,-142,-259,182,-628,23,-708,85,47,-188,-176,278,51,-513,-374,202,-282,-568,-603,175,11,251,-100,665,147,497,-406,-75,20,-8,-447,-42,-494,-81,-124,-224,817,37,370,65,-450,-13,-728,-208,559,-187,16,515,473,616,-105,846,-625,-378,-460,-63,-231,111,347,576,203,598,310,204,291,329,150,510,-143,-6,-360,158,-353,-440,118,-44,264,-564,156,69,118,76,332,643,732,-121,-82,819,75,437,-563,124,166,395,-584,347,521,-136,340,-459,-33,-114,28,-532,-53,60,207,-382,-389,59,-458,85,289,-226,-163,231,-534,-51,370,343,-298,-53,6,105,254,-417,523,-208,333,282,26,698,-410,-192,-419,-236,-322,28,-260,228,381,366,259,138,253,-149,255,55,223,-389,157,753,243,237,-101,233,326,-861,26,-27,-16,600,-342,-156,-171,83,-45,-520,34,750,-210,-225,-45,-446,-410,224,-37,-166,-60,314,355,441,410,708,-364,273,-335,-10,49,303,53,454,61,93,-510,49,-432,403,-370,-90,137,-54,-239,214,-365,-12,771,-115,20,748,610,445,24,-207,-491,-259,653,89,-479,-91,-624,-15,258,354,165,357,-229,38,-140,-730,637,-407,-233,381,-215,174,545,689,-477,119,253,-631,-126,-659,-170,-668,24,125,137,-109,35,22,35,651,139,560,221,578,-280,-216,-403,-97,-350,-601,-85,-145,150,450,190,23,141,441,-340,-555,-460,-252,-44,445,566,-131,-469,469,-358,-138,-622,323,440,-378,-366,-77,97,-628,207,506,-446,-211,440,-342,52,-379,-392,-49,409,-682,239,88,-451,17,58,301,-503,430,-416,192,663,67,128,3,365,-333,456,5,-403,-215,795,162,74,515,451,499,-111,-253,242,-423,-78,645,-247,674,363,-370,-300,-328,-607,181,-621,205,-459,-198,-399,614,-715,-64,-214,-320,-597,32,717,-71,146,578,-41,7,163,539,159,-121,8,-143,533,-606,279,574,-658,-141,-521,364,11,338,255,-553,-419,902,735,10,218,323,-350,62,211,-245,-266,-65,-392,430,169,106,-5,626,-102,315,50,-596,568,57,0,68,50,-177,287,82,112,518,-400,332,-728,485,33,69,546,-276,348,362,66,-204,-428,-200,350,-167,-362,449,-295,-20,-385,-267,-282,105,572,-145,381,-230,-566,-5,282,-501,661,-474,394,23,-207,182,33,488,-785,-10,-258,520,435,-774,100,653,14,609,910,-78,29,-131,492,-179,-620,252,39,410,-291,171,260,132,-966,-302,162,-462,-144,485,517,-354,-45,-477,-286,224,97,-137,157,38,-120,-569,-33,849,599,-341,-391,288,-185,525,-652,521,-457,-309,-191,-228,-389,-666,357,-292,676,140,138,-421,-403,252,-193,524,-624,550,-237,-273,185,135,383,215,310,283,98,-204,-176,-89,138,428,-497,-189,47,-375,452,255,36,58,-25,-11,316,498,56,-473,-1,560,-330,91,-129,-42,350,-84,-624,-112,-552,19,174,521,-522,155,-23,87,100,778,-414,197,-347,-25,-672,-35,-25,253,176,-162,-271,-157,291,339,155,330,-19,-260,68,48,-125,-151,-443,-125,-305,226,526,5,92,309,-450,698,493,416,-627,-477,19,90,223,374,-551,624,24,-317,32,324,-301,832,-386,-333,703,18,445,-269,-773,229,143,486,-45,-83,-324,-216,14,92,457,-284,-464,-50,-371,-114,-303,293,656,251,202,416,18,210,-409,290,87,153,-509,-162,-737,453,100,-233,-525,-506,118,483,-695,-315,-508,286,54,-215,54,96,-60,201,-14,-690,19,-759,35,-329,351,-95,-572,-208,70,488,-524,152,179,-361,-568,407,180,-538,-395,551,-686,-298,163,27,515,-594,-218,-184,-517,-266,-271,-54,-650,142,-202,-331,309,584,-404,450,436,237,-397,-442,169,-17,-444,-137,719,168,-380,486,75,-392,-87,-283,-281,-132,140,163,-325,440,596,-385,-534,553,-237,342,-317,-189,-410,-690,-90,53,119,80,129,506,-205,-100,-91,714,-368,556,-284,563,-248,61,-111,-32,225,-107,-592,-302,32,759,25,-422,-100,930,145,22,-77,511,-518,-198,-516,9,313,-548,451,92,-605,-406,-512,-721,565,493,0,-242,77,105,56,281,241,-13,-328,515,750,-35,-319,162,-211,-212,508,-307,62,-239,-69,-1,-535,-270,262,832,212,-615,-324,319,498,-176,-411,-472,-48,38,-254,-115,-104,-716,-188,-217,-178,584,-8,73,26,524,-308,545,-709,99,328,220,-260,738,268,-419,-142,345,257,190,304,541,-53,395,-139,888,587,-75,-699,270,329,-341,293,-265,380,125,-46,-168,-484,-34,5,171,-424,-172,507,-484,-222,337,51,181,38,-7,-76,43,-579,524,-568,382,-138,546,-141,-126,539,-164,-562,-183,475,407,178,522,-402,-99,-379,423,618,-353,239,85,-75,628,-364,409,625,69,442,-173,-326,-252,62,-37,-647,238,-491,-524,87,125,-370,499,462,-89,105,326,33,166,-517,-346,-239,195,-247,-113,116,-15,-85,-737,514,569,744,115,-248,-145,248,289,-103,115,-53,157,-168,-445,105,266,295,334,-272,-263,-453,-156,-492,32,256,-159,556,-104,106,127,344,45,195,-317,-351,-74,-113,24,190,527,260,-451,147,576,482,136,-409,-460,-239,598,-479,45,762,-77,-225,-587,128,169,68,-566,-94,43,-299,173,295,589,251,508,-301,236,71,417,-392,-492,579,403,-250,104,24,122,-826,149,124,-42,-621,-35,97,-381,-627,212,133,84,-298,216,419,-403,-213,128,-642,-183,-686,-41,-414,195,-353,-122,-377,123,180,-454,452,-133,-550,120,185,264,12,-336,-135,95,730,651,-547,380,-111,267,343,-692,-543,-251,-585,197,-43,736,34,400,189,57,350,430,-435,-274,422,-254,-43,183,-396,111,705,-422,-434,-68,214,-777,640,593,-143,55,-573,392,-582,428,-225,-182,560,704,109,99,-237,569,-73,-61,-279,-325,120,-560,-507,255,150,-601,-3,173,-91,271,-531,-619,123,78,-278,-94,-276,-147,-195,124,344,357,-251,-91,-118,-218,224,477,649,-219,89,127,448,458,203,-754,306,-467,359,-542,104,239,-320,-467,-303,676,667,-410,-343,-11,-724,169,-479,-359,-11,814,-4,175,-306,639,780,21,365,-293,-240,300,-412,200,252,16,-210,327,148,-206,-205,-408,431,-254,-465,689,65,116,323,485,88,502,13,81,19,57,270,614,7,391,-277,587,234,411,-299,-187,-196,230,-516,-57,-112,-706,-531,-118,-116,84,391,-334,-635,303,-348,192,-252,-197,-286,-67,4,-194,-377,-143,-101,744,-462,354,-56,-150,-626,199,-308,-370,154,9,105,587,-461,521,422,-554,-152,-406,-12,123,180,-178,-733,287,-156,-224,48,418,337,-335,-665,269,565,450,468,-475,433,55,-50,462,-222,569,312,-729,-81,-30,308,674,-704,177,-161,470,678,168,-33,105,190,-547,-429,85,-180,20,814,-252,-269,-6,-112,680,296,-201,509,-570,186,-1,146,670,-422,-239,-276,-281,103,-586,141,508,-634,-291,-313,160,116,-548,-124,371,-167,-78,-494,8,91,-154,35,69,-126,383,-306,-9,688,96,-27,24,-101,141,636,-26,-822,298,-315,71,-273,-259,277,-358,-156,391,-331,92,-233,-186,209,206,103,-45,948,-42,-54,-229,-33,61,-199,240,292,-372,-141,252,-575,88,-300,-428,270,261,79,32,96,374,272,-254,-415,412,-524,-329,87,111,17,732,602,60,-457,-83,34,-428,289,-82,-207,517,109,-61,-274,612,-23,-312,-288,171,-121,645,-16,-102,237,-659,175,-16,-205,311,249,351,171,-654,687,-65,-70,3,9,93,140,69,97,210,-155,493,330,-384,805,-84,-828,-75,121,-97,-559,4,47,-578,567,-324,-64,52,335,-2,-527,-181,-400,413,-471,-148,-30,220,-65,-127,628,4,-249,-234,478,-143,412,517,377,-125,-554,70,30,615,-599,26,74,273,374,964,220,361,-595,-10,-479,798,173,17,-607,55,-346,226,221,-184,-557,-63,620,-338,149,293,377,422,-473,423,37,-129,340,-217,324,192,833,-6,-390,-129,293,-321,-143,267,204,-307,631,332,-531,-244,158,655,181,-443,-665,-586,-180,608,830,341,5,-258,23,-59,-74,710,-406,-144,-512,433,-22,233,287,591,-282,-285,383,502,-398,22,-502,-203,-589,197,-769,-80,71,-464,603,77,-111,96,-236,-295,494,301,-156,88,-266,566,-323,530,-503,329,-278,-214,-178,-231,4,-208,150,-163,390,189,-238,352,187,375,-168,237,202,-319,-443,-496,-297,-172,168,215,-270,277,171,-196,108,332,-666,170,-152,-394,-94,455,-364,-41,-357,-185,-456,-73,13,155,-258,226,98,300,223,-576,264,124,-240,-153,766,-138,-417,6,279,459,157,237,-447,-226,-394,-227,-535,47,396,518,-343,74,412,-362,43,-28,-74,638,-53,-506,-355,461,-575,-114,-83,-128,446,-133,-684,-216,-464,-64,167,356,510,588,194,-694,-144,740,128,238,137,401,-539,-446,548,-280,243,-57,288,-282,73,201,-307,20,-550,129,180,431,245,-616,-495,-22,209,81,203,-392,136,-280,-673,-362,24,-368,-388,-351,-230,-298,-311,-83,-478,920,146,-589,-172,-31,432,497,-244,-437,23,573,66,531,-233,4,-247,-423,58,-81,362,299,-571,15,596,447,190,26,-223,3,79,-33,133,508,170,-59,-242,-232,261,450,-259,399,131,322,-245,329,-7,621,193,-105,369,313,284,-655,-132,-353,93,662,-283,126,-574,-18,-115,44,-296,-357,424,714,-18,210,-221,-184,741,190,-425,184,-187,-157,-366,-153,15,840,476,28,-257,120,-107,606,248,-436,446,-79,341,-320,-59,462,-362,296,-202,176,-385,7,201,-91,-50,-464,-335,382,644,-235,-251,-86,-200,270,-44,179,-555,-35,307,417,475,-131,-243,349,616,175,638,-235,158,43,-637,527,-223,-531,301,-163,-307,57,-322,251,69,477,-484,-173,383,348,368,-22,-4,-228,-235,323,-289,-84,187,159,-307,417,-427,-737,-457,-139,-354,204,-505,632,-363,-217,78,-27,92,-608,-411,408,150,393,123,400,74,-35,86,-89,-375,363,-267,311,-428,133,-444,146,-401,-114,-424,-571,402,301,170,635,49,-501,196,-259,94,390,831,212,-31,46,135,731,245,68,-25,-82,-490,271,-107,-137,-321,161,-5,-201,182,-363,-607,589,-478,-278,-19,504,-825,-141,420,426,202,-149,-497,191,-446,-468,141,-517,256,250,11,546,-224,152,-207,-483,72,102,-818,-211,-453,83,-444,-381,-424,228,-60,39,-162,164,91,-380,-358,-252,-87,219,96,511,-696,-117,-442,414,419,-118,224,-498,-352,235,563,-285,729,326,472,-289,-148,510,-292,7,6,68,609,148,-471,31,-400,542,468,-377,-401,-504,8,498,114,-127,148,416,-90,825,97,161,-920,-301,182,388,-148,-414,42,-31,221,36,153,594,-195,189,108,582,-131,342,153,496,-156,314,207,-341,-680,-370,60,-116,479,253,-223,-401,110,-754,-293,-53,-1,704,272,206,49,429,-9,105,-237,68,-447,320,262,-264,310,-94,578,602,-307,-606,-239,439,224,10,225,99,-23,-131,177,329,-65,-308,29,655,-49,-772,-548,-217,569,-219,8,-644,216,593,-501,-174,125,-372,-307,-588,780,-103,215,375,469,-288,447,406,-239,-281,220,-548,113,446,85,-26,-579,-404,-496,3,462,-122,-116,-206,494,425,573,-316,28,92,-367,215,-645,39,41,133,-30,463,-356,328,282,184,690,45,-710,-357,-595,-156,-85,454,-486,-44,512,95,354,305,52,-616,-302,14,-222,-242,170,-279,450,-294,-385,-214,-512,-242,-456,-264,-442,-286,-389,548,-123,-209,-437,-70,-588,-130,-469,92,-223,-41,-490,-463,-83,538,551,644,-40,263,-81,-153,-18,458,231,444,679,49,-843,202,49,543,595,-457,-529,-50,-161,282,180,-473,91,133,-396,-632,580,385,244,-353,387,162,-440,351,-2,-620,225,430,354,176,191,-600,-160,-340,180,270,-214,217,766,-407,-109,164,128,469,187,547,281,-218,-4,-13,37,7,-362,-174,59,317,445,-625,63,557,-93,121,270,-93,18,-65,51,228,256,-332,291,163,307,-478,-85,-115,271,345,313,564,-462,-314,41,257,-513,-181,102,619,-53,355,-467,-64,283,373,-148,508,-551,-395,670,297,-64,780,-253,-183,-394,-151,-744,-48,-27,-140,-405,515,-107,661,176,363,139,-652,564,-308,-510,593,231,217,-514,612,-266,469,251,719,54,-240,-688,63,-888,-139,-97,465,534,387,539,372,-533,125,98,731,-3,-199,-488,-244,209,281,216,-167,-94,-77,-334,692,-516,-376,-362,-217,693,405,521,-271,-176,61,-301,-559,531,-239,713,-352,185,343,-260,337,-363,459,186,511,-202,421,221,545,-448,198,29,534,-410,103,-545,97,143,218,-391,425,298,28,-612,55,174,510,-325,-702,-205,-257,256,329,-118,107,-12,-128,204,593,-168,731,907,31,-113,-90,286,415,-29,116,146,60,177,-637,318,619,364,380,-386,-94,-10,236,340,-650,-378,620,61,-252,217,518,-320,598,83,-621,-425,-312,66,403,-285,540,63,-74,-625,-217,-382,-244,162,137,-172,181,-318,188,315,96,-346,107,541,413,-321,93,-430,-601,-217,-139,181,-546,399,-624,582,-395,775,-513,-631,214,-344,182,353,450,-491,464,-284,-444,-324,600,-403,-38,-522,-175,-646,352,-667,496,90,77,53,190,330,576,579,495,628,28,199,475,-575,47,509,-328,152,184,137,437,-609,150,-9,266,-290,563,-362,180,342,-11,-509,340,182,-263,24,-255,-287,-153,-321,193,176,-18,-269,324,728,-96,-220,184,-528,59,-40,209,-541,-292,-481,-115,-189,639,-293,-372,577,-254,129,602,-347,-204,-389,-705,283,297,-621,-140,-472,-152,60,-343,265,-821,-203,183,-378,-348,137,240,65,128,99,171,-172,380,159,-6,-389,784,385,465,163,90,-499,124,809,-106,489,-281,-707,107,-120,764,-316,294,-277,-179,-311,411,-602,-52,59,363,-565,-71,-208,-154,-311,81,766,-182,-453,120,-283,-155,240,555,243,-466,263,281,-204,230,32,119,-89,81,-71,-447,352,-168,-115,-196,-581,248,1,196,-338,-287,-160,109,618,140,-331,-232,561,-133,103,-276,-417,50,37,29,-238,48,206,68,-561,231,-293,466,-140,87,10,632,201,487,-54,277,-135,-520,-49,514,51,416,657,-67,346,-515,631,-148,-324,446,950,-49,289,-574,-20,85,44,156,133,-390,-537,107,-99,206,243,-354,137,440,-234,504,401,-62,-371,430,-344,491,142,439,306,-16,672,0,356,238,-425,373,184,769,357,-25,769,-126,177,543,742,15,265,-368,-26,-129,175,364,206,668,-245,-202,262,250,117,-399,478,-53,-757,37,-219,-252,-64,291,96,-286,199,-199,-6,-98,-592,284,-26,-296,183,-630,-383,202,135,384,280,329,1,-198,30,-537,171,305,-830,353,682,101,-29,-338,-267,141,498,320,206,-419,37,63,245,161,179,424,90,16,251,236,147,158,28,-4,320,462,529,588,298,348,-28,433,23,345,-61,-200,-61,28,417,-303,-410,113,-166,-21,13,0,-95,49,9,175,-538,-204,-337,-362,-116,132,37,-22,-109,279,72,61,-335,-197,-81,80,296,403,-137,-187,-554,-49,165,-241,-545,322,119,252,-229,-97,127,-552,86,183,-207,-93,409,-703,770,-283,-258,-99,364,-280,48,237,283,-481,-418,-103,236,-491,12,386,-235,-34,-127,173,-410,13,-630,153,366,368,-288,488,-165,189,156,435,251,267,-539,324,335,94,-229,185,-855,566,-571,-515,-341,25,-671,-65,114,-554,-233,680,8,-254,247,771,44,-221,-421,-467,-129,132,-195,142,157,-113,518,369,-33,221,-12,190,139,218,47,191,118,113,-257,-100,-719,-268,556,293,-213,-273,-301,-73,546,-218,-7,17,84,127,67,349,276,-82,598,407,-377,528,-271,-83,146,-284,392,461,-394,-226,-576,-476,101,-376,197,514,310,-449,210,642,400,499,-520,252,-213,455,189,340,-471,-57,354,29,-451,212,605,-394,433,111,-59,-329,-413,-310,198,-94,-103,-426,66,-303,-590,479,233,273,-550,-129,-58,202,475,411,157,285,-708,140,529,200,-505,-328,561,112,259,-389,713,-265,-670,450,16,153,533,-244,414,-250,-580,-496,-97,339,500,-397,-522,200,59,257,39,217,-835,-168,609,-42,-625,-84,-261,312,189,458,549,-244,230,564,-338,72,-379,-601,-154,72,279,608,267,-460,-57,304,254,-243,394,138,-322,235,-230,339,-72,-86,-116,64,444,394,-373,400,-201,-38,94,588,505,-368,231,-583,-201,181,253,289,329,675,-472,-330,786,-232,305,-584,-420,506,885,-65,-290,-95,-93,455,836,-1,-517,-446,-214,-594,-453,-239,-276,-75,-87,214,-122,-8,62,128,335,335,124,146,-143,-400,117,540,61,105,448,712,-17,-361,-163,-406,776,-181,116,-237,123,548,30,56,410,763,-265,-105,-282,299,-882,112,1,71,-229,-777,79,176,87,118,18,-518,230,-172,268,-410,-473,101,99,-194,119,229,-68,592,-331,234,949,43,234,-463,117,-347,195,584,203,529,184,24,202,-409,-167,185,474,765,1,53,-446,239,458,243,-292,-161,-90,-180,-354,454,-485,480,81,224,-25,211,-71,587,-32,771,-357,540,-194,19,43,-508,597,-467,-39,27,376,754,2,172,52,-111,159,-270,-643,159,309,477,670,-104,-86,744,678,39,181,466,297,545,-318,-730,-356,-191,-260,-213,-406,510,75,123,-393,482,-276,128,-283,14,405,594,-557,-462,142,304,691,-99,168,-621,-243,-27,537,75,43,608,-314,255,-393,218,-240,377,9,745,-374,613,-243,-65,-522,427,-126,389,-488,-48,-254,456,-172,319,-835,167,-538,596,-231,269,-184,197,-449,78,-306,-160,890,-4,103,597,602,209,204,530,-73,211,-396,769,-175,-246,154,-725,292,146,166,445,-472,-219,411,253,-365,697,275,403,361,-304,-231,-596,-210,-252,209,-561,182,435,-171,351,879,-118,27,222,-727,314,183,639,426,-791,296,236,87,257,67,-56,-472,87,238,-453,705,-164,128,-580,-407,-391,39,-452,-260,-11,-580,207,75,-318,-254,612,-78,-384,-261,-304,-226,-644,-161,-182,-97,45,-414,100,-86,856,-428,-130,-320,423,193,-71,-113,-115,-383,-518,690,-14,191,619,51,-20,-142,167,639,368,-320,475,195,651,0,227,-649,-269,-254,-217,207,32,69,516,65,-279,208,-308,-402,-158,-79,115,665,-472,-596,113,-211,321,343,540,-286,382,-337,-129,432,122,-245,204,348,-744,31,767,145,-500,-15,-584,34,39,-144,-561,-502,601,-257,56,517,-36,-326,180,-212,127,-41,-231,-661,529,-541,301,29,185,-343,336,601,728,157,20,681,388,-271,296,-135,264,-16,180,-118,-72,44,296,-370,-360,682,42,325,325,-341,368,-79,-16,-589,30,-285,36,626,245,307,-31,9,-628,-7,423,106,-130,-755,86,53,118,-385,-169,834,-308,864,-89,-13,-264,-61,696,754,39,-259,-186,385,27,471,562,-129,-203,430,-148,-169,-544,-627,64,-374,433,-142,-504,-608,67,763,-209,-442,-165,287,-319,-44,-146,-295,-18,-81,186,336,-240,-11,-261,531,-532,-345,-433,-565,112,-398,543,162,4,363,209,-607,-76,296,-112,803,-94,30,173,198,598,-667,527,256,-111,-493,163,159,-627,-522,-236,-34,659,-446,367,-165,-605,-176,-249,-278,-320,338,463,-332,568,-401,396,22,664,351,-90,-131,856,-413,645,195,-353,-121,-567,393,372,497,-723,-687,-32,2,428,149,496,405,-365,-428,190,-98,75,-379,21,36,-47,423,-326,-335,-91,-628,-272,176,798,-373,8,124,348,-491,-244,53,329,-286,-718,290,-8,-700,-95,-385,212,110,379,395,402,-296,357,-390,212,99,209,5,161,136,208,-386,540,-25,79,-344,-236,713,68,368,-202,-198,80,-629,-251,244,580,70,196,-196,-46,-357,380,217,81,668,-74,248,30,439,-499,-512,99,225,328,-344,36,-69,144,-11,-299,296,317,-598,145,-557,367,11,224,-220,162,-355,-147,-109,-66,183,735,-552,271,-259,309,-631,-18,361,-62,-59,803,-743,-366,176,-680,-309,-223,-539,5,-13,796,-423,-820,-355,-22,291,257,-365,-747,-281,-342,-214,262,-516,-41,265,-463,-414,-23,133,511,211,-442,432,-454,-114,93,-17,157,650,10,-292,163,654,222,582,-206,6,-113,56,-544,77,-97,-319,418,610,100,176,59,-329,-118,-676,-316,608,-133,-539,-170,35,753,56,-78,175,648,-554,-88,99,-469,-10,-395,376,303,155,-556,31,-182,-656,-239,368,402,-64,-25,-379,68,-486,-350,-453,-239,122,398,-371,-526,-248,137,-619,-151,-405,334,-444,-112,-287,-55,-499,593,335,-372,290,201,-399,516,519,-221,-415,-701,125,-400,-187,435,-280,433,-63,672,34,-478,222,-528,769,240,663,-182,221,-110,320,441,-553,-197,-303,437,-519,-14,308,598,-336,461,-14,448,126,148,250,69,-291,330,-104,-256,-373,22,-89,-765,102,116,115,306,-434,37,-33,-101,308,684,-226,409,-317,152,-29,463,205,31,-299,-218,423,343,151,-48,-19,13,-697,-305,-436,-44,47,-530,58,-77,-388,-226,324,504,259,819,-334,305,-471,-81,-276,-253,-29,-482,315,308,-425,-554,-254,24,394,224,-454,-107,139,691,800,5,-350,7,-408,-302,-518,-340,-378,228,262,265,-486,366,-596,381,522,346,77,-564,254,318,154,610,414,-349,384,539,-116,124,-92,541,-180,41,315,-450,-374,384,17,-181,-425,47,-96,100,-92,474,236,-451,-357,-101,126,716,-13,-397,-590,288,-139,-27,-471,-113,-114,-695,-641,48,85,-333,136,163,317,-97,140,82,-546,26,-323,-105,-233,706,-386,-239,107,-79,-394,-210,89,-68,451,92,255,-65,-54,157,7,66,29,138,-169,446,-219,-228,-582,417,234,-51,763,114,258,410,-75,-335,-484,-234,968,23,142,-712,39,-292,-509,-252,-805,55,313,-590,88,299,-385,-180,-537,-458,308,557,-278,-197,-154,-450,-287,-17,344,-231,348,-424,-584,529,137,13,-136,-617,-251,338,-352,196,200,156,-19,412,-59,-403,387,-393,-459,-360,279,85,-27,-274,-385,-161,207,146,154,305,-439,303,648,325,-443,-339,-210,33,-466,-180,97,-48,-672,537,-239,424,507,-110,487,285,-251,484,-96,-195,-689,506,508,284,-362,133,-620,-29,226,426,-477,-175,-801,199,-24,-228,-372,-181,-239,-45,-599,312,-781,42,-411,383,-91,-23,285,-156,-404,51,240,486,-413,513,-414,-192,-315,113,-136,-213,648,-118,439,-395,47,423,27,-204,-68,-665,588,22,172,116,-207,-284,9,186,133,-697,-557,-71,-376,-167,-320,-263,288,68,-288,-68,-79,857,-656,124,19,-188,33,47,-68,-9,257,414,-299,282,264,548,131,-26,-411,-609,430,-45,-240,-473,142,440,-441,680,31,-87,-187,-128,208,-352,351,-248,-473,144,466,-179,383,292,118,403,310,310,794,-116,-290,557,-352,75,-219,120,515,-374,45,563,-52,325,-508,-145,235,-79,-17,213,-41,339,336,-361,-397,-129,-383,218,260,555,-219,-107,143,-564,-621,128,-424,-13,-12,651,-190,70,673,273,-74,83,-276,271,-478,-249,-238,-506,380,655,55,-412,-152,-520,-395,-577,-609,-338,-328,292,178,541,-708,263,362,-113,94,239,-862,-129,-195,-625,149,-365,-219,-254,-234,111,413,530,-985,4,230,529,-536,74,-26,312,373,332,-238,181,-67,-385,-360,16,-164,-327,-646,227,680,-147,164,581,219,-715,583,184,-19,952,84,-420,-184,38,-574,91,-385,-498,91,-56,-313,-109,-2,53,-247,342,384,-158,-323,448,97,32,709,-177,-572,55,-244,-175,133,19,-587,-184,477,-246,-387,-398,10,136,793,-107,-254,-157,-263,-279,-78,-397,197,376,308,-112,123,39,59,-28,433,322,-231,-196,-446,69,-353,-115,147,63,-554,13,-100,-103,428,583,-12,42,-290,-39,-73,665,204,524,73,-537,-117,495,-184,-562,-550,110,750,-75,39,254,-485,-68,126,302,-425,146,-36,-31,778,-66,-433,444,678,259,94,-600,-403,-376,-317,-25,-211,-721,174,412,458,613,36,-304,-43,212,-594,-366,-285,-203,414,-725,60,219,-310,600,286,-357,-618,146,213,-332,110,458,259,294,-344,-36,-648,-64,351,279,-901,-51,184,362,-689,-197,897,99,103,-82,-490,-163,-374,513,255,484,825,-87,-335,303,-163,388,-203,111,294,605,73,519,283,-475,-194,-36,52,-76,-47,504,-500,-507,-305,-62,-465,349,150,440,-177,-37,-491,109,-223,513,185,-345,156,-720,-906,324,-152,604,-231,429,-601,173,656,96,-253,581,-102,55,-870,291,-203,334,288,358,-421,-28,175,-127,-319,-40,52,683,672,-434,722,-40,-103,545,37,10,-12,-10,-307,-90,28,297,108,130,-153,153,-220,-98,-619,410,264,-406,-376,-56,162,426,128,536,482,629,290,510,17,464,300,624,-259,10,-401,-234,-140,139,531,493,-120,906,74,327,452,-431,60,594,-442,541,-261,-272,-415,92,95,-184,-490,-170,-250,819,-342,-184,285,383,-265,450,411,92,62,-19,-445,-189,220,-146,869,-84,-172,524,-712,33,203,-763,-148,163,-294,698,-432,157,39,445,122,-118,330,358,648,279,687,-42,-52,66,341,-312,8,-145,213,-239,-334,297,-262,813,-580,-84,-87,237,-323,188,376,-41,299,-110,223,453,224,-413,275,142,107,-594,-620,-74,-249,-500,-217,-163,47,-120,-23,-132,-242,186,312,358,-262,590,237,203,-684,-46,173,439,-319,-467,-641,-200,-193,142,-258,-132,-97,-389,111,186,-83,658,-509,-200,-474,-353,535,391,179,109,-278,-77,-240,-173,-585,278,167,2,-398,301,148,-618,162,596,-321,-78,-376,-536,-415,184,100,186,-167,865,544,-316,-430,-985,7,-260,364,259,67,-132,-445,-175,250,44,-20,137,-262,-129,-684,-340,1,119,174,367,-511,322,488,463,284,799,96,366,-593,-274,373,432,-466,-24,53,-164,616,-349,26,-419,189,-81,204,411,-554,495,270,380,-23,-277,-582,35,-262,613,336,-466,237,394,-216,-244,-72,674,-425,343,-61,-324,-48,-364,-774,-58,157,78,-285,249,-226,372,-338,-2,-377,-255,410,559,107,712,-405,354,635,-224,-236,-149,-528,-262,33,393,-369,985,105,-263,317,513,-241,121,-343,-347,-225,313,191,413,202,520,-384,-202,264,-233,-360,-733,156,306,450,-343,-81,361,-676,-219,-370,-382,-56,-252,315,-173,832,252,-695,-345,-159,-640,-373,-73,-354,-250,-260,316,-558,383,130,135,192,324,-207,-43,-734,-372,949,-285,-370,653,670,-82,-557,365,1,52,394,396,-35,-233,206,28,455,-175,199,-144,-87,-392,-118,89,-350,-652,931,-172,-33,-461,530,635,172,-133,-691,584,17,983,-34,640,238,-294,49,399,-623,362,-62,227,-547,87,-304,375,-320,-181,126,493,-207,-978,-468,492,641,-138,-695,437,457,-119,-357,444,-251,-155,-262,-574,-229,116,169,-127,116,-459,-623,311,29,-720,69,-428,-106,150,126,264,273,375,778,-168,673,-353,255,-607,273,-590,530,679,-287,-148,-23,16,233,228,-164,-857,73,82,306,-304,630,428,9,-153,-320,-648,-284,-167,-261,-62,404,571,323,352,-417,-27,597,247,-1,430,413,-10,-93,-98,-324,-175,-408,-349,497,514,-238,-237,-81,-84,-496,663,168,24,10,-46,-224,423,46,666,34,724,-163,-486,691,-529,69,-217,-154,282,254,169,-141,30,-751,270,54,-65,1,73,271,777,-183,-134,-454,-154,232,378,-109,381,-571,-352,-290,463,-569,-463,200,-457,-557,277,371,-553,-416,336,-411,-235,117,318,-46,453,-134,-501,173,62,-182,321,-105,176,35,83,124,426,49,-70,-197,-558,-887,54,147,162,159,363,-343,-139,214,583,92,96,243,456,-569,40,-383,-287,-501,-242,-726,165,265,658,671,12,-94,303,274,-174,710,156,-15,193,196,-694,-812,-118,72,-353,123,80,-231,547,-248,52,-217,98,42,606,118,-180,324,750,-383,501,-690,-50,-322,342,-528,-445,-441,-158,-470,354,241,437,-315,-92,-81,199,50,653,-59,-82,-170,580,-13,-12,67,734,361,616,-342,-494,-632,-347,774,-134,-148,630,-22,326,-140,-565,-104,93,27,299,252,289,185,123,151,-164,162,333,55,431,-630,330,577,62,-63,216,-173,-261,887,-15,290,-274,-277,-54,109,-79,-64,399,-568,-500,-306,-52,210,-432,-728,-232,-157,-162,-121,225,-58,281,553,-363,26,-371,-295,-114,14,-186,702,674,-245,473,60,254,-144,46,-247,104,43,210,445,825,-222,473,270,342,-866,-280,-285,-15,297,505,-360,-688,-209,597,612,-158,-223,-343,692,-138,-392,85,-570,74,33,-149,-582,-519,-357,-695,734,330,32,-490,304,-66,73,-27,-22,559,-467,308,-315,760,68,177,192,-605,-148,-407,279,-836,-412,266,-551,-337,296,348,-45,-186,-551,25,-247,171,-549,17,-30,-175,223,830,16,83,-252,678,-304,-781,31,362,-312,344,-282,-103,331,-264,-222,245,211,281,-359,705,-151,-442,246,118,-559,333,10,67,-656,220,-229,685,-668,31,339,-111,-115,388,-87,-392,76,43,137,433,-713,-67,-191,-85,165,103,489,-573,398,279,-138,421,585,168,-292,319,160,256,-503,-351,-837,183,301,-632,-581,-84,-232,283,-46,-170,471,56,286,223,592,346,-422,348,-295,598,-251,540,-329,-320,7,150,-67,-59,274,-123,122,-558,-446,-89,-345,309,-400,-204,-123,-5,-434,-499,79,642,-269,69,-586,67,-512,-119,-50,373,-332,390,54,485,-255,39,-583,-327,13,-101,159,-316,600,242,-139,62,-431,277,550,-150,-427,3,430,-464,-24,98,-550,516,-687,68,-82,43,-678,42,-110,-138,161,-505,62,118,-121,634,-146,611,-1,22,82,266,-176,275,-463,473,-393,-193,174,528,296,373,110,-528,-617,666,-25,404,-456,687,6,345,-266,-164,-362,-213,-274,218,-269,-264,-718,-190,-687,-437,326,104,133,607,565,-63,130,74,-7,-32,-527,124,762,-259,195,-43,-88,406,-55,-535,493,364,75,11,-550,28,-742,136,724,-255,214,-69,402,156,-336,116,-262,454,-372,372,69,-106,-293,142,142,-263,-796,569,-733,-109,305,-317,-470,-150,-203,6,-469,67,191,402,-224,-38,-521,127,466,617,612,-210,188,-156,110,-150,147,424,505,-38,-231,697,-631,-282,258,462,542,-8,-433,-141,-265,-204,246,-236,-380,-27,500,550,-557,-259,-112,234,-474,-262,514,-281,-17,14,62,-121,474,-375,14,-163,222,299,48,282,-118,-177,-365,201],"2":[224,-72,396,-65,96,3,300,-108,127,79,224,6,113,-86,375,-221,643,-200,289,-414,802,-472,-198,-230,430,-225,-651,35,-474,-265,-672,-347,-442,-271,-347,119,-801,6,-266,636,488,-346,807,-55,355,570,-99,354,-597,-110,-635,339,449,109,-637,39,139,-612,626,158,153,-420,-381,-278,130,-188,-525,-160,479,395,-375,120,-763,-23,-107,447,315,363,-349,-30,-505,555,-518,-34,119,-557,-389,105,-588,-284,30,501,442,81,-71,-146,-731,268,262,279,-9,-389,-232,86,-255,-724,-485,111,191,-363,569,-197,-393,-490,465,-741,-821,-222,-713,-30,-337,351,377,540,-97,-5,-333,377,534,402,-581,3,35,336,373,235,-381,404,-670,-296,428,-164,-374,303,-429,-78,-126,-456,-399,340,362,-234,-442,-254,-490,-207,-204,368,-144,-234,143,326,226,455,515,-366,400,-134,-128,278,-43,382,204,-356,-462,497,142,532,81,14,205,43,381,218,-686,-282,631,-345,244,615,265,-236,508,-412,-107,-308,638,323,-456,93,-480,-158,-65,144,149,434,-209,157,-248,197,914,74,-230,-423,425,398,277,-188,-554,-89,-248,-186,-185,-136,-109,642,-132,-60,-79,447,-363,-29,152,343,179,-468,-157,358,326,377,-391,-243,-240,190,-642,632,-313,-251,653,-68,453,832,-154,-197,-332,166,234,217,287,389,53,19,-85,-369,-627,-182,-609,286,-459,-226,255,21,-286,-178,201,308,-242,218,-717,267,226,383,592,-415,-706,-362,36,546,101,-188,-388,625,59,-214,-157,58,47,-4,140,-678,-313,-106,-323,431,38,502,-186,535,-20,166,-83,-7,72,543,-354,-123,-271,-203,129,488,-411,-188,-599,-65,-286,782,201,176,-515,-268,647,234,-843,436,-37,847,141,53,493,-387,104,542,752,-42,-145,291,532,341,-307,442,-57,-538,-568,93,-474,-110,-643,-199,112,155,343,-638,124,-482,-68,-160,110,208,-196,554,168,25,-312,-192,459,-366,-586,-114,567,112,125,-620,-387,149,233,682,-409,747,151,-57,317,-67,-274,80,-313,-296,-34,143,-421,-671,306,141,-838,98,-58,159,-297,425,-40,83,106,288,366,23,-156,-408,411,640,-201,-779,156,-191,-310,-116,-310,-277,127,123,-68,-254,-834,75,288,121,-242,343,634,-365,-341,-293,173,538,498,242,-404,-20,-210,545,-123,-58,-714,-68,-264,128,312,-568,-638,9,-415,560,-250,-228,-307,-265,89,221,68,272,182,194,-386,68,-80,-143,-130,366,-501,685,487,256,488,415,-704,91,-444,189,-319,69,268,-390,366,-199,598,-346,70,244,-434,413,-229,218,-207,621,168,-347,246,508,370,347,162,540,-904,265,-69,62,155,65,-153,146,-150,-676,-124,336,-578,-382,-346,-231,218,31,-348,-217,135,480,-91,-127,138,-256,173,584,-248,-393,152,568,50,358,-416,235,-193,-575,-386,156,-548,279,3,61,-318,-415,-383,-671,-163,253,18,522,-662,127,-575,-46,-41,596,-601,-111,-52,167,-323,23,-183,-408,-200,430,-452,493,211,531,119,104,202,-17,-126,414,-122,321,-389,131,-344,320,-551,-160,-727,-282,-81,294,-577,218,353,167,151,-368,44,-61,208,127,-286,-120,-245,-134,-229,-2,-24,148,-366,119,427,21,-137,-233,303,-206,56,197,-330,-406,291,-497,-475,-343,170,332,62,259,-86,204,517,-263,-433,-281,-310,-14,-403,-285,115,-252,-815,-214,-289,570,343,-683,218,288,-354,-264,-383,557,51,218,115,-502,-152,-276,302,-237,200,292,-391,53,-237,-52,152,110,-569,-253,44,57,743,-62,-151,666,-444,-314,-592,285,-49,-176,148,77,-899,-331,277,615,39,-246,-44,-62,156,601,-229,750,-325,180,132,-558,320,-203,-514,-61,-17,56,-49,179,-183,237,-499,444,160,-686,298,-261,-41,516,-28,583,550,694,554,-136,-207,-622,-282,-115,7,637,-568,143,43,504,-351,448,337,-585,-353,463,-569,70,-189,219,341,-818,-485,-93,13,-65,-4,-199,-284,-160,-210,-54,-386,985,13,76,-416,-177,245,494,-279,-105,90,451,683,81,-481,-50,174,388,-130,551,-257,-150,617,-419,-53,13,645,88,-726,-102,-273,-56,-33,-250,601,7,-385,66,-658,243,-278,809,-7,761,57,207,-570,-140,-341,-28,257,-788,-444,-478,192,18,-27,952,309,-98,-327,-91,89,60,-360,588,-445,-28,-39,316,238,327,169,363,-164,-233,243,589,244,493,448,-320,162,616,207,536,150,397,-557,326,-454,-141,389,172,355,419,502,651,33,-101,223,-22,314,-336,201,331,370,398,-435,-480,-261,483,-95,-8,-370,-371,161,590,-178,704,-611,-171,51,-193,-19,-154,93,303,368,-199,340,543,465,360,42,-93,-450,-157,-280,-291,-514,-339,228,88,-253,-67,139,-602,505,12,-424,-125,267,-107,234,-352,449,460,-606,136,-151,-139,-256,-458,60,189,92,573,-573,79,735,-443,-282,314,-417,-184,-307,304,655,-358,227,-124,474,-281,600,157,-134,-180,331,-416,-372,-54,-12,-120,-479,-49,142,460,-25,-94,-588,-373,666,-342,-377,-215,173,11,26,579,-256,94,100,-128,-380,-691,37,-128,609,108,-403,680,-136,-53,107,-19,-136,159,-236,-186,175,531,-314,591,566,-174,-445,368,436,-184,367,-190,294,545,623,462,-420,345,181,396,673,-493,173,84,-411,326,-259,600,91,232,-197,-232,-162,232,142,160,551,-60,520,106,401,738,-204,-310,47,-342,455,130,-662,-237,507,359,106,362,-354,-82,-138,-230,-59,235,-15,107,-310,-440,433,241,-591,-75,164,227,354,-734,-440,126,-245,143,19,-133,-583,-593,332,-75,308,-447,116,-543,-525,-18,-3,-8,-91,-439,-28,62,-31,507,-669,517,637,-33,255,789,-62,860,767,-203,25,742,14,752,-250,-127,-452,11,-226,-132,-196,194,-409,-9,490,-202,180,-594,192,598,15,-50,276,-316,-557,372,117,24,-696,638,-807,62,-72,700,547,-210,-243,399,-370,-102,910,2,762,-101,-357,-463,-362,-565,-655,59,153,446,152,238,438,-368,-412,369,522,-369,-324,-104,49,-151,45,144,874,-91,329,255,87,246,113,59,90,96,-126,-391,-121,-355,-801,-103,-249,174,-85,138,-410,-160,-56,111,-433,-477,464,-441,-310,173,97,79,-448,126,68,-37,-394,393,-370,682,-27,215,-251,118,-401,-280,144,676,-225,343,-257,119,309,-478,87,342,-27,-245,-86,169,-34,-356,201,-235,28,-151,-158,-28,500,127,206,125,-186,-258,386,-39,-265,270,171,362,-378,213,212,-1,216,293,446,399,-431,209,-230,-252,679,-62,103,215,-9,278,37,62,-620,-140,-626,137,-223,510,335,-586,110,3,498,165,-348,-350,459,-490,106,-437,-28,2,-264,260,216,-791,-54,58,-126,658,18,-283,-683,-226,95,-379,42,302,113,-610,217,595,-78,73,558,282,32,298,845,-112,-692,378,-515,-121,184,-107,53,-385,907,-28,-38,-156,431,409,106,-335,178,491,26,-1,126,171,-733,146,-381,209,139,-43,-281,-443,-9,-255,-418,28,-82,-59,110,-216,23,434,34,32,157,26,-394,-513,294,709,134,726,-285,-117,263,-580,-523,311,-133,-364,70,-575,-17,609,106,-213,-550,353,-641,338,-57,227,196,-724,-369,442,-59,-51,241,344,118,-257,645,45,413,540,-254,-5,-96,184,579,-67,105,593,-334,43,-477,273,-222,182,132,438,-347,-144,-204,-593,-289,-297,-628,323,-472,-89,244,219,74,16,434,-317,-427,71,301,667,81,186,-860,-72,-230,599,-643,162,86,-309,-709,77,-216,-44,-297,754,-124,170,266,-515,354,-7,-712,277,424,-429,145,655,92,-458,-565,93,84,630,385,-329,-239,-3,271,-459,259,211,394,371,-55,713,-747,150,-417,46,-888,150,818,369,58,623,-180,77,189,-145,-493,192,-381,-176,-127,107,359,706,80,426,-588,-105,-371,-272,-158,-247,-271,150,-671,-66,-657,115,-444,594,-442,-72,-620,338,397,340,496,384,-550,337,197,-419,228,398,-167,435,27,219,157,-699,699,-96,-703,42,-643,178,-93,-151,325,332,-500,-220,268,-490,-337,-34,183,-605,-538,-53,-399,34,-457,594,175,331,-5,-234,597,203,32,253,-217,48,-244,-263,232,564,-540,-565,71,201,192,-475,-462,-722,432,347,211,-312,-18,-33,31,529,36,13,478,-66,-415,7,-281,-72,509,268,261,-430,172,417,78,191,-378,523,7,226,-447,23,435,-267,411,516,235,546,-85,44,-478,-229,249,560,279,787,-411,-114,-445,-46,735,-224,-663,-36,310,387,-424,-152,-25,446,-440,409,-10,758,277,353,149,550,-526,-46,-495,-88,188,523,-345,395,-274,246,737,-85,144,-444,8,742,-591,343,-247,-206,185,-312,206,-16,-436,-79,287,-555,-105,678,-145,-194,67,120,-155,167,-235,224,-372,23,-95,-107,715,-154,-184,180,475,-192,244,582,-112,172,20,92,778,-90,241,219,-318,387,-264,-160,-303,294,-51,51,-304,567,15,20,-139,-432,52,-81,-346,-75,22,-177,251,-269,-439,-45,-243,-121,-304,113,-118,746,-266,-69,202,267,35,8,21,425,14,-262,359,-177,-146,-83,438,432,-342,-367,-346,33,263,386,-707,-17,553,-636,57,-195,-237,-207,-346,453,287,340,-63,339,-20,445,574,395,107,-554,-275,-499,-34,-631,-283,-175,-278,169,-244,340,292,-284,-517,-168,405,334,-387,557,20,300,-27,-203,87,-63,299,-421,-497,-268,541,599,-627,537,180,266,121,39,-122,-54,160,-465,390,429,5,76,-385,507,36,53,-11,525,545,748,42,273,38,-15,-416,245,-58,715,126,477,-242,-16,-331,243,74,196,85,688,174,-724,-371,-208,159,501,-563,119,199,-715,945,82,828,-52,-523,-191,457,685,-727,-220,-148,-608,191,464,-247,542,-55,319,252,293,75,-219,-293,-717,-327,-34,-433,-49,460,-116,-368,228,-89,225,-234,-108,769,-160,142,-326,-8,-513,232,228,-296,352,-243,-194,173,93,-244,356,-185,-74,-88,-258,99,486,-124,156,-477,112,-668,-173,281,-363,395,-647,287,859,279,-382,34,785,-348,-201,780,39,290,-9,-584,169,-489,-267,-383,525,-118,-168,-123,-396,-218,440,52,-29,-255,-177,-231,537,77,335,46,-311,-203,-348,-355,10,-336,-520,-118,50,311,-134,327,433,-571,-476,-786,186,261,18,718,-3,172,700,-281,-339,-250,813,355,249,96,462,-474,-29,-376,-261,-23,440,-906,-170,12,408,173,-405,116,396,78,402,-102,-659,-390,428,658,-165,-90,646,-285,234,404,487,-374,414,259,94,1,179,386,-242,73,-57,772,-449,175,505,38,231,-50,-267,688,61,-201,486,553,-251,-613,-321,530,657,435,-475,-90,492,606,203,375,402,-142,143,132,152,233,-544,-19,-63,-376,-280,68,239,288,333,268,334,-451,-87,-182,601,-260,672,204,-84,-295,-246,-252,-208,-393,-544,574,22,-451,-626,10,160,-783,250,-217,6,276,-62,-249,70,335,-100,746,149,451,-409,-185,148,179,-510,136,-587,828,168,45,-29,-299,140,-227,657,-464,-264,-494,-273,-615,58,-244,-270,-384,336,-633,32,-296,-284,698,712,316,69,-35,255,194,557,-384,203,683,127,399,46,-244,72,-175,509,-323,92,284,55,189,-359,198,112,106,345,200,-180,244,-367,-443,-108,-233,597,-382,-127,156,461,53,-139,160,14,492,-90,347,-5,-17,-777,657,113,52,-396,-84,-156,280,-269,53,346,423,461,787,60,73,-640,249,93,151,-162,25,244,131,-33,-788,309,-190,5,-284,68,-602,-75,-407,-37,-285,339,132,-374,157,438,-275,22,-544,113,-256,786,940,-75,-258,-770,130,238,239,-415,-113,-560,-352,-338,706,73,170,361,169,518,-21,29,-447,535,-847,-418,-454,374,-344,-551,273,254,288,129,-385,-55,-233,22,-184,327,-636,207,526,-303,505,-294,-49,457,-466,-272,94,52,550,-317,373,434,421,328,-356,281,-475,50,-228,91,615,617,230,494,-90,113,-233,-69,312,263,752,204,127,457,140,511,-227,99,-215,-90,-99,281,49,-352,-79,892,308,-31,81,525,425,-371,122,245,-625,456,-200,-48,-69,578,92,598,124,108,138,40,373,523,-236,354,-484,-444,103,161,140,36,-400,-261,-243,-223,-540,-109,-505,380,233,307,218,-571,-111,-189,-138,668,-435,802,76,321,-556,145,-406,571,495,-282,186,-616,686,-306,-23,788,64,48,117,336,-477,517,-159,295,341,504,380,529,-615,178,-263,256,70,-84,-21,-241,475,72,285,-863,-187,-301,520,-272,-42,-53,62,-440,-393,-200,-366,-524,-56,-30,-26,-132,22,-29,-286,573,-390,-409,-514,795,828,-318,89,206,304,218,-40,-333,245,252,20,171,384,137,764,86,-19,-607,-100,46,-81,-386,285,398,-340,239,244,80,-6,848,249,307,-10,222,-215,-56,-835,570,-568,-226,-596,212,168,234,-765,-366,-633,193,458,-243,-252,115,-192,47,-386,-187,-197,-565,-569,416,-398,381,-337,-204,-303,-189,-690,-76,-182,159,136,-516,109,109,-43,-257,-181,-140,-600,590,282,-570,-500,-313,513,310,-178,83,530,-358,-314,-57,-798,247,-254,-111,-13,-620,-428,600,-23,333,-247,563,49,-295,-533,405,-380,-174,-103,391,-8,-74,-315,409,-349,-105,45,-647,-647,360,-410,-264,-86,-115,-241,73,566,-518,738,73,-38,-38,223,-446,-84,-799,28,53,204,-229,-289,163,239,-514,-317,503,508,-409,37,115,12,598,125,-554,-82,877,-280,-265,155,61,-97,-266,53,677,317,-848,13,-280,-308,-98,22,481,196,-630,-485,-38,863,-13,42,-341,-266,68,-389,-208,-500,332,-315,-9,265,-632,238,-349,-613,-442,175,94,-719,146,-476,283,750,-54,321,-194,-167,102,-742,94,68,-545,-314,-152,45,-618,37,74,-683,140,356,-67,541,188,-796,554,576,-123,-299,413,484,359,-416,524,-274,-278,-173,468,-424,142,-25,-714,429,100,503,-447,-430,109,220,-486,33,-161,-113,-198,6,158,-353,152,9,722,28,95,-490,-276,-257,347,-622,-277,283,-465,512,544,476,-117,118,237,132,500,-307,-715,-99,328,512,-139,-901,-108,-711,391,-69,514,-200,137,145,-275,-381,283,-82,426,769,365,-308,-38,-503,-559,134,542,660,-143,394,599,179,-266,-71,822,-38,-387,-121,274,-192,366,-42,74,328,690,-561,-329,-222,425,-324,-253,-331,99,170,461,-453,-304,-528,-115,-352,474,177,-49,-308,-129,-435,-43,772,233,17,529,-36,-138,130,593,40,-54,-166,-462,-361,69,-485,102,-55,479,636,-40,228,150,60,692,-441,-521,-254,-305,308,642,-606,17,-650,208,-110,750,-307,138,-338,-69,257,114,116,593,-224,-207,-593,-76,-384,-284,-465,-43,1,89,-129,56,0,58,196,-162,-264,-191,-549,-62,247,307,20,631,-210,-75,142,425,-492,-92,89,132,165,-3,237,49,273,-572,87,-566,105,516,-409,-221,-666,-48,-560,43,234,-395,-267,-507,231,554,35,-213,229,-402,-312,350,-519,37,318,659,127,105,-35,243,116,214,94,225,348,-257,-614,-75,-522,-542,669,134,-635,-272,121,136,-478,578,-560,-237,-421,195,-323,170,163,-280,694,-515,334,-306,349,523,127,-91,-139,110,688,557,-212,365,-3,175,-685,-339,363,254,-314,-558,126,494,-30,9,115,284,241,-804,-479,-85,-1,99,-549,-68,479,68,-527,-91,-739,300,-351,287,38,-183,985,-146,-353,99,-253,5,-421,-130,-23,339,808,-71,73,-555,94,-268,-55,717,-476,-336,-408,15,26,413,98,-305,-224,332,-454,-244,271,-268,-69,171,-80,-311,-481,430,-869,295,-372,208,-646,206,91,503,245,480,-663,-328,-845,208,-549,-419,-252,330,74,112,-284,120,49,-567,1,185,-3,141,-560,-337,301,390,-336,413,-287,137,-203,571,-502,689,832,50,-717,-160,-88,-89,622,-393,55,-336,-210,33,-506,124,-985,5,-229,177,-314,697,-441,350,133,-186,6,139,7,-534,863,-11,-560,656,-127,496,-39,-468,-460,-162,91,620,-218,621,-20,16,-107,507,644,247,331,-128,-753,20,613,-76,59,12,-545,568,122,475,-235,-173,190,-69,170,571,-294,-62,-447,51,-16,-298,56,180,-351,-300,-264,563,343,634,334,-288,-259,253,144,513,328,350,133,184,507,-269,-31,10,-29,140,-466,-191,-264,309,-540,-288,-65,12,-62,-174,188,-203,-711,123,113,450,172,-590,31,49,66,-300,-532,-594,269,343,-171,-852,203,181,-532,19,426,-80,195,489,-565,-294,-330,158,-724,108,-686,-569,-322,184,-438,219,262,368,-293,-328,128,414,246,-536,224,-692,-363,430,203,-681,348,114,633,-148,135,-450,-453,-254,-526,-197,579,265,-244,-99,2,-153,33,182,-180,449,114,732,430,-261,121,-476,-55,34,174,494,166,-41,-166,-422,839,-244,-213,5,-468,90,22,-366,142,631,561,34,45,-65,46,426,203,-241,565,496,282,352,334,-346,-583,120,321,-314,-471,-218,417,511,-358,-197,112,-370,-21,-621,-119,73,164,-171,65,-166,-117,155,292,77,-398,-360,208,-409,280,178,-121,-1,-560,-293,-348,81,-220,-20,-258,-76,-188,526,294,390,-343,261,-128,410,180,174,90,602,135,-660,-473,-2,201,609,28,-136,199,-162,-79,451,-455,7,-546,-296,644,367,98,-750,283,-484,453,259,-591,-405,-517,123,-156,154,786,-248,82,109,490,290,-187,-531,-527,617,-86,92,87,-634,-185,233,107,424,-206,713,-369,33,-34,769,-447,-82,-177,-485,-350,-249,-155,2,76,561,666,-43,236,289,73,422,-232,-315,207,691,198,-342,117,579,-181,-626,-328,72,-335,-243,-285,-567,-87,-278,-412,-819,184,470,-405,66,-379,190,-472,-325,-117,768,-493,-147,637,270,732,-119,-693,539,-36,461,140,-246,-69,56,131,509,-689,202,-483,-524,82,-48,-169,291,247,534,-217,-182,514,-383,594,651,-355,612,-293,539,-245,-96,131,705,31,2,-214,167,-126,175,133,-523,-152,921,-387,-41,-29,114,-239,209,162,549,534,476,404,-127,-658,72,267,540,516,-320,-770,-118,184,305,-239,-310,-284,-36,201,-576,35,47,-405,600,-310,497,-131,-50,-367,367,-390,435,-319,292,552,335,-437,229,28,260,-62,-58,-542,398,-288,161,-141,-440,124,-507,-741,-234,10,360,-224,-33,253,589,290,-760,435,-580,166,409,104,226,755,153,-553,-274,-429,-672,145,359,-129,440,-270,-194,286,386,-115,76,-90,-699,494,-265,718,554,-324,662,173,457,-323,29,-78,812,-178,-211,-528,67,155,357,18,146,484,613,-318,470,264,121,-361,-254,374,-29,-706,449,471,-152,-649,-256,622,441,-296,550,-231,102,466,-293,-437,674,-597,231,-326,20,236,62,473,421,-412,-228,719,-38,82,108,-200,523,-86,772,-328,-232,351,-370,-46,-197,-403,904,35,178,-389,683,-292,-130,-265,-205,-432,-14,-415,343,687,229,32,145,14,40,-89,79,-177,414,-12,-305,-357,-220,756,641,145,-15,-52,77,-414,-120,-120,370,-572,-499,-394,338,166,429,-679,-327,-91,-315,-441,61,-319,228,87,-64,436,583,152,160,715,-96,-25,-280,681,-260,-136,560,45,504,-449,111,-653,-79,-296,537,-980,-325,22,59,832,13,-185,-114,-192,467,-702,-61,-607,-125,145,171,266,-673,336,724,219,-717,-262,-241,86,-606,377,-303,110,-361,715,-144,-782,48,193,574,-324,-197,809,154,-362,-732,-221,142,41,-385,129,725,154,-222,6,-163,-267,-129,-199,-683,-526,358,391,430,170,-572,259,365,-179,-159,-53,173,-55,14,179,452,-342,-601,268,795,-221,-267,60,-72,-65,297,-425,40,-33,-26,-420,-194,214,-242,-436,-104,-113,20,-581,73,245,115,-49,68,-137,-66,-377,-115,-81,-161,526,-223,-550,374,111,245,-324,447,125,425,-242,-279,-645,-355,-38,-790,90,304,-910,11,546,644,284,381,110,191,-258,11,-271,308,527,-463,-362,401,206,308,63,-197,525,522,-440,60,429,-151,-155,-110,674,-479,55,79,266,-41,135,-470,87,419,20,314,-917,-22,444,272,-308,-364,298,535,11,6,133,-82,170,542,-91,41,-485,-156,190,628,-476,-804,-248,469,-224,-142,-22,107,186,384,-642,441,136,-429,-362,-204,-254,489,-338,-20,157,142,86,643,-263,570,-608,403,-251,-60,-182,-520,-275,270,132,451,-427,158,32,774,-249,-190,66,142,626,-223,446,260,-235,-344,0,147,597,-326,195,199,-94,27,219,-472,-567,-442,-86,-169,163,439,-275,198,312,-54,-406,-426,-206,196,-523,142,962,173,-592,85,26,-254,3,399,345,-98,23,107,390,769,-49,736,-317,-216,373,-163,160,-681,-106,-437,-655,-196,548,-154,-490,-263,-301,224,-56,609,316,-60,420,741,-633,-322,343,-533,257,-791,455,-48,-454,627,448,540,-43,7,-456,-166,774,-345,-49,-2,-233,265,-433,184,-280,-189,-169,334,634,60,-19,13,-639,141,302,-31,510,-626,-395,521,597,-131,198,-107,-654,354,-244,-344,70,965,-78,669,129,141,-260,-198,-115,-53,-273,-153,-61,-53,351,44,71,-321,-14,159,93,242,-314,-256,238,387,228,-258,12,807,-389,212,402,319,-736,-375,169,299,-683,467,119,138,-163,321,-567,-432,66,-613,665,141,-304,-160,-617,598,91,-258,-61,-20,-573,484,726,113,500,-321,463,467,106,-96,57,-494,222,-637,-71,307,-315,696,629,14,-509,373,708,-521,62,-152,-550,272,-104,221,697,-466,-458,92,234,456,124,467,-221,234,-508,-738,223,-674,-362,41,-425,-227,425,-142,-350,-682,-112,-25,-369,259,144,127,114,244,-240,607,257,519,-372,354,145,-275,343,508,195,359,20,-359,138,313,-190,-106,-366,-227,-304,120,60,-50,44,638,-193,17,151,261,203,477,209,201,10,227,-340,386,-338,-179,-217,129,886,-47,-143,96,-537,-301,183,368,-403,186,632,60,-303,242,347,301,53,559,-594,-381,213,16,-157,-161,154,321,39,269,198,-144,0,-298,256,820,-274,-293,-381,318,251,381,432,542,-442,-240,-588,-233,-271,-172,112,489,5,-436,296,-685,194,89,-146,510,419,291,-829,313,24,620,108,401,668,-23,-720,520,178,-11,676,260,-257,-160,-267,295,10,138,-498,247,98,401,-379,-159,-93,-59,-326,-79,-115,119,-367,-134,-203,-66,280,-147,-469,-144,58,546,299,340,415,-382,-254,-159,397,377,216,-93,-555,15,94,-690,68,-380,-677,499,291,-203,157,177,-182,-282,164,429,8,202,-155,370,-530,269,100,130,-228,284,-560,37,144,148,-675,-351,-188,619,153,380,304,460,-501,630,274,696,430,-295,-380,-597,-570,537,116,-213,-428,-47,-455,-73,-531,-163,353,121,143,39,103,-250,-248,66,-280,-790,409,-600,196,-386,-76,485,-404,469,97,155,-331,148,-90,-416,-118,-476,-334,200,564,90,-131,64,219,444,306,-80,439,748,-10,-116,-867,26,-171,283,517,-50,-438,-405,-227,464,368,293,128,90,816,-131,-388,-195,-329,437,527,545,202,542,892,-130,127,96,166,-150,678,300,-258,21,424,458,-283,-152,44,-214,-366,-153,-116,-427,116,-308,150,510,294,412,299,411,563,552,768,17,-245,318,-227,324,-518,-336,-378,196,-261,-68,373,472,293,589,257,-378,-349,-310,345,-117,158,343,-503,-290,-296,200,118,353,-721,-361,585,233,-28,690,723,-100,-354,-384,-104,43,-50,-383,757,-42,-420,-238,397,309,580,-550,-129,201,315,-336,-111,-316,-221,300,98,113,-371,-661,-545,84,-212,148,-288,-119,-397,-393,275,600,423,534,-505,495,-172,238,-470,-262,562,569,-473,-313,-305,36,-23,720,518,-317,393,304,412,703,-11,170,-73,-213,-72,259,612,-276,324,-114,-170,-23,9,96,75,9,838,18,-419,174,-350,-139,66,69,-286,-299,-265,-500,168,-325,430,-376,-257,368,-560,-514,-176,201,458,-329,690,-75,-362,-103,-696,-146,-902,34,332,578,-564,106,132,417,-220,764,-80,479,237,-120,122,-261,-649,-39,-130,79,-152,-558,123,410,418,-599,679,266,-344,-34,-557,460,88,493,-302,-173,-59,-203,133,-399,-40,-45,-294,348,256,240,98,396,14,-119,-667,426,167,256,-503,-184,-338,-281,23,22,356,587,-195,229,-213,-308,113,299,-76,764,602,74,-329,-177,-221,660,-352,208,-185,579,-648,68,69,-13,-358,-552,-290,314,118,-589,-529,-22,618,555,208,48,-669,45,443,79,-490,-176,86,400,-159,-117,-548,3,-334,265,-526,265,-259,-252,337,503,-303,-36,-268,52,-128,-63,-630,-275,-571,26,-388,563,642,-238,178,546,138,-158,454,453,-221,-599,181,147,119,-378,487,422,-392,209,-29,-631,-48,56,-690,511,-455,-135,530,723,9,640,-119,-135,30,747,368,312,-144,251,-223,202,-515,41,424,-274,-71,193,-637,537,366,-252,-603,-33,-131,171,-438,-101,197,516,22,-113,-332,514,-268,84,21,131,-539,-352,300,-82,-81,824,267,213,165,334,-372,-312,-172,-561,-265,-66,251,-491,132,-353,-648,-163,603,-127,-271,-54,-347,-237,513,531,115,353,-300,-424,-104,-354,-300,-147,233,419,-501,269,-645,-58,84,728,122,-286],"3":[31,-44,41,-260,-26,378,-592,157,97,204,-334,155,-122,-574,-97,-413,-231,190,242,453,15,-202,177,326,-193,734,631,-99,-348,-146,321,336,-293,-630,335,690,-76,190,596,132,10,179,28,67,6,35,-57,162,513,420,-635,-225,26,175,725,122,-458,561,-308,-474,853,-81,-453,423,-35,243,520,-350,-775,10,20,50,-702,126,-427,638,1,334,-412,-499,322,-351,-465,-186,335,536,301,576,121,-494,-540,-24,16,-484,141,-639,88,550,-63,-198,292,405,-607,635,-776,-25,-872,79,-536,43,359,362,573,-446,560,477,-40,-371,-40,-145,-301,185,-405,152,-389,180,-546,153,240,481,28,146,78,343,142,147,-40,-247,342,717,-516,434,549,635,-298,136,15,161,-732,523,117,706,70,128,-306,156,156,537,-179,168,59,-57,-31,182,479,121,-689,-93,52,431,345,-245,198,350,682,186,-200,-474,-409,189,28,218,89,-74,25,-230,127,441,192,108,-42,817,100,9,318,-754,176,370,212,101,110,452,-168,-460,48,94,139,302,34,427,-331,124,308,405,164,372,29,183,137,360,317,421,149,537,127,530,-678,190,293,434,174,389,-175,-309,61,-313,6,-245,-774,197,-117,82,36,-195,-523,656,69,311,-424,-6,209,-722,-455,-550,-42,399,-122,-526,471,-529,119,25,203,-87,-79,-401,-344,-481,-280,-566,-213,512,403,692,62,124,-294,353,300,-463,122,34],"4":[41,101,-239,136,28,-158,192,409,-337,-149,411,-266,-14,323,-91,-322,169,-45,-457,181,239,-381,104,625,-551,-250,721,-71,-317,315,-125,-472,552,489,-566,30,468,-568,-12,770,-386,-472,495,102,-598,500,171,-547,401,596,-700,-296,588,-272,-242,533,-229,-679,644,310,-730,169,278,-713,218,582,-425,-428,366,-43,-410,621,25,-586,351,267,-769,-64,624,-384,-141,712,-275,-595,705,171,-533,299],"5":[-305,229,245,-91,-165,26,36,-272,-376,-136,25,134],"6":[-168,-190,72,-11,-122,97,-81,-131,88,-62,-311,-40]},"edges":[0,3911,1,3912,2,3913,3,3914,4,3915,5,3916,6,3917,2016,3926,1203,3929,3692,3936,1473,3937,3662,3943,1619,3957,206,3968,375,3969,3625,3985,194,3994,3837,3998,3842,4033,2085,4037,3536,4042,1500,4043,1842,4053,3377,4055,741,4059,3147,4060,2932,4062,3799,4066,2404,4074,2927,4076,3439,4096,1077,4105,1349,4110,1904,4113,1344,4114,3065,4115,1466,4117,2583,4118,727,4145,3844,4149,1398,4152,3300,4162,36,4163,1978,4169,2055,4172,2997,4174,863,4176,465,4177,121,4193,798,4199,1607,4200,159,4201,1556,4226,3020,4233,1185,4251,1691,4253,142,4257,2907,4272,1116,4277,1368,4284,1055,4288,1423,4303,2642,4307,3450,4310,1685,4323,1549,4324,181,4328,212,4329,2009,4335,454,4337,638,4339,1067,4341,2008,4344,3581,4345,2070,4354,1027,4356,2254,4359,2520,4360,3152,4366,2258,4378,2985,4380,3337,4403,1936,4406,3534,4413,3360,4418,2227,4433,1735,4442,1807,4443,1228,4457,2469,4459,2939,4462,1422,4474,1364,4475,1040,4479,2207,4482,3056,4492,3904,4493,3243,4498,839,4517,1790,4526,2370,4532,3115,4547,3080,4548,2523,4550,704,4551,1527,4556,2948,4560,1375,4562,341,4570,3470,4571,2557,4575,2420,4578,3039,4585,2786,4588,1776,4596,392,4633,2616,4637,1251,4643,2417,4646,3792,4649,1563,4652,972,4653,1965,4659,14,4660,954,4664,1393,4666,736,4670,3703,4676,3072,4677,283,4682,2828,4689,461,4690,3774,4708,2381,4709,3358,4713,1522,4719,1404,4724,1589,4737,3812,4740,1155,4742,720,4752,2320,4759,2822,4764,3578,4765,1373,4785,1161,4793,1268,4797,782,4798,2139,4811,1961,4826,3081,4828,1418,4835,2038,4836,1366,4844,998,4846,3186,4850,405,4855,2578,4858,2458,4863,1882,4865,2663,4867,2425,4871,1906,4898,527,4899,3404,4905,233,4908,530,4940,2972,4942,3601,4943,3070,4951,1289,4958,3879,4959,3053,4962,3562,4965,2781,4974,3475,4977,2343,4981,3178,4988,1791,4992,3247,5000,1110,5023,2356,5025,2292,5032,1783,5034,3359,5043,3631,5045,1603,5046,603,5050,116,5051,1528,5058,757,5067,2127,5072,1531,5075,949,5077,2090,5083,2489,5095,2390,5099,259,5100,2335,5102,1117,5104,3791,5112,3567,5117,1730,5125,2791,5126,1445,5131,205,5138,2462,5144,2336,5152,1321,5155,493,5157,3196,5169,295,5172,3077,5178,710,5179,2130,5182,2042,5185,2152,5188,2921,5193,1295,5214,100,5226,1059,5229,2788,5230,1058,5232,89,5243,3891,5259,3034,5270,3239,5286,1624,5287,277,5305,1583,5313,1062,5321,2669,5324,1734,5328,2341,5332,1553,5336,354,5353,2983,5362,158,5368,964,5372,1324,5376,1683,5383,2942,5385,2947,5390,386,5392,1484,5414,3002,5415,3857,5436,1743,5444,913,5445,1461,5448,2382,5455,99,5473,396,5492,1752,5499,1411,5509,2943,5511,196,5523,3108,5527,1638,5530,2255,5535,3275,5538,1796,5542,3339,5545,3595,5550,72,5552,2260,5562,3343,5570,3320,5574,3118,5581,429,5585,378,5588,2148,5590,34,5596,1238,5599,73,5602,3092,5603,3433,5612,2305,5613,1642,5621,1625,5622,705,5623,3180,5628,1533,5629,285,5634,2238,5637,819,5638,3369,5643,484,5645,1331,5650,482,5656,677,5667,3704,5668,2043,5671,2752,5672,1515,5677,3840,5682,117,5686,2005,5693,3582,5703,3177,5704,3768,5708,3748,5719,2316,5724,282,5726,3161,5735,2697,5738,1974,5744,450,5763,3507,5777,3720,5788,2633,5791,3008,5794,3399,5806,2039,5817,2990,5818,327,5823,2800,5831,2744,5833,2911,5849,3870,5857,2574,5879,886,5883,563,5898,3821,5900,748,5913,1587,5918,1682,5920,489,5923,1326,5924,2289,5938,1467,5943,67,5946,2528,5949,3253,5955,1937,5963,701,5967,138,5968,3623,5972,3654,5980,224,5988,3725,5989,1508,6003,2185,6013,1731,6020,1639,6031,125,6039,1207,6041,1798,6049,281,6050,456,6051,3640,6056,3031,6062,1047,6064,3709,6068,2251,6069,1924,6071,3145,6072,3438,6076,46,6083,2639,6084,2086,6092,1051,6100,3283,6102,3610,6109,3121,6110,2035,6113,2284,6122,602,6126,3710,6132,1187,6138,3588,6139,3318,6148,3516,6156,3483,6162,3809,6173,1824,6182,2138,6183,3448,6186,1857,6187,3909,6190,1849,6194,3149,6199,160,6201,1794,6217,1787,6229,3150,6240,1460,6268,588,6282,3434,6283,3023,6284,3593,6291,1061,6292,1288,6297,1581,6308,2146,6309,2875,6322,1299,6328,4658,6333,5809,6333,6333,6476,4592,6334,4845,6334,5436,6334,6267,6334,4559,6334,5060,6334,5631,6334,4275,6334,6334,6476,5862,6335,4805,6335,4189,6335,4180,6335,6115,6335,4083,6335,6335,6483,6335,6480,4616,6336,4741,6336,6336,6483,5461,6337,4365,6337,6337,6474,5522,6338,5380,6338,4830,6338,5197,6338,6262,6338,5343,6338,6338,6474,6338,6483,3928,6339,4378,6339,4803,6339,5777,6339,6339,6491,6339,6502,4561,6340,5136,6340,6340,6481,4425,6341,5389,6341,3984,6341,4331,6341,6341,6475,6341,6481,6152,6342,5523,6342,6342,6477,4442,6343,5335,6343,5251,6343,5163,6343,6343,6491,6343,6476,4487,6344,4714,6344,6344,6477,5316,6345,5752,6345,6345,6514,4688,6346,3942,6346,5391,6346,4860,6346,6346,6478,6346,6487,6240,6347,4296,6347,6347,6478,4360,6348,4132,6348,6348,6511,5346,6349,5154,6349,6349,6502,4720,6350,5646,6350,6350,6506,5338,6351,5362,6351,6351,6474,5453,6352,6015,6352,6352,6495,6182,6353,5686,6353,4083,6353,3995,6353,6353,6490,6353,6480,5552,6354,4000,6354,6354,6474,5051,6355,5971,6355,5862,6355,4659,6355,6355,6474,6355,6483,5483,6356,4196,6356,6356,6474,4788,6357,6323,6357,6357,6490,4053,6358,6273,6358,6358,6486,6095,6359,4708,6359,6359,6474,5360,6360,4655,6360,6360,6516,5125,6361,3998,6361,6361,6509,5083,6362,5503,6362,6362,6507,3919,6363,5227,6363,6363,6487,3938,6364,6237,6364,6364,6517,4269,6365,4926,6365,6365,6474,5052,6366,4277,6366,6366,6500,5839,6367,4630,6367,6367,6512,5309,6368,4499,6368,6368,6474,5269,6369,4373,6369,6369,6504,5363,6370,4200,6370,6370,6509,6060,6371,6077,6371,6371,6480,5311,6372,5359,6372,6372,6494,6058,6373,5855,6373,6373,6484,4045,6374,4308,6374,6374,6486,6112,6375,4036,6375,6375,6498,6112,6376,4429,6376,6376,6498,5672,6377,4092,6377,6377,6497,5762,6378,6288,6378,6378,6491,4173,6379,5898,6379,6379,6481,5544,6380,5246,6380,6380,6510,5278,6381,5310,6381,6381,6485,5465,6382,5013,6382,6382,6476,4634,6383,5025,6383,5845,6383,6061,6383,6383,6491,6383,6477,6179,6384,4817,6384,6384,6496,5773,6385,4502,6385,6385,6512,3969,6386,5773,6386,6386,6512,3935,6387,6226,6387,3978,6387,6042,6387,6387,6491,6387,6477,5595,6388,4850,6388,6388,6477,4383,6389,4007,6389,6389,6513,5373,6390,6182,6390,6390,6490,5601,6391,4913,6391,4466,6391,4886,6391,6391,6484,6391,6481,4571,6392,6025,6392,6392,6476,5089,6393,4987,6393,6393,6488,4830,6394,5862,6394,6394,6483,6267,6395,4421,6395,5920,6395,5453,6395,6395,6483,6395,6495,5501,6396,6267,6396,6396,6483,4415,6397,4329,6397,6397,6477,4891,6398,4629,6398,6398,6474,6077,6399,5263,6399,6399,6480,5074,6400,4603,6400,6400,6474,4290,6401,4869,6401,6401,6476,5711,6402,5911,6402,6402,6498,4271,6403,3951,6403,6403,6496,5168,6404,5373,6404,6404,6490,5284,6405,4102,6405,6405,6475,4249,6406,5102,6406,6406,6474,5959,6407,5238,6407,6407,6496,5208,6408,4839,6408,6408,6485,4715,6409,6200,6409,6409,6474,4722,6410,5392,6410,6278,6410,4559,6410,6410,6475,6410,6476,5747,6411,5940,6411,6411,6477,5471,6412,5372,6412,6412,6475,5963,6413,5371,6413,6413,6476,4111,6414,5224,6414,6414,6474,5453,6415,5509,6415,6415,6495,5839,6416,3969,6416,6416,6512,4663,6417,6170,6417,6417,6480,5628,6418,5647,6418,6418,6479,4656,6419,5682,6419,6419,6477,5033,6420,5299,6420,6420,6516,4283,6421,5972,6421,6036,6421,4188,6421,6421,6488,6421,6489,5917,6422,5862,6422,6422,6483,5912,6423,5338,6423,6423,6474,4901,6424,4268,6424,6424,6482,5135,6425,5809,6425,6425,6476,4848,6426,4575,6426,6426,6477,5102,6427,4504,6427,6427,6474,4073,6428,4478,6428,6428,6493,5912,6429,6006,6429,6429,6474,5908,6430,4288,6430,6430,6505,4850,6431,5202,6431,6431,6477,6259,6432,5584,6432,6432,6474,4522,6433,6155,6433,6433,6477,6106,6434,4440,6434,6434,6489,5547,6435,5162,6435,6435,6474,4151,6436,6313,6436,6436,6477,6235,6437,4333,6437,6437,6477,4455,6438,4611,6438,5534,6438,4877,6438,6438,6475,6438,6484,5523,6439,5942,6439,6439,6477,5559,6440,5379,6440,6440,6477,5477,6441,4094,6441,6441,6474,4063,6442,4415,6442,6442,6477,5292,6443,5103,6443,6443,6477,4280,6444,5930,6444,6444,6485,5931,6445,5868,6445,6445,6485,5016,6446,5484,6446,6446,6504,4811,6447,5753,6447,6447,6477,4336,6448,4063,6448,6448,6477,4310,6449,4331,6449,6449,6481,4331,6450,5869,6450,6450,6481,5022,6451,6203,6451,4904,6451,4889,6451,6451,6497,6451,6481,5410,6452,4958,6452,5136,6452,6105,6452,6452,6504,6452,6481,5939,6453,4012,6453,6453,6475,4694,6454,5013,6454,6454,6476,5967,6455,5177,6455,6455,6509,4589,6456,5758,6456,6456,6474,4981,6457,4637,6457,6457,6475,4563,6458,5908,6458,6458,6505,4772,6459,4375,6459,6459,6494,3991,6460,5263,6460,6460,6480,6285,6461,5929,6461,6461,6489,6224,6462,4646,6462,6462,6492,4210,6463,5812,6463,6463,6474,6241,6464,4384,6464,6464,6482,4889,6465,5869,6465,6465,6481,5841,6466,4375,6466,6466,6494,5491,6467,4110,6467,6467,6502,4303,6468,5270,6468,6468,6501,6112,6469,4429,6469,6469,6498,4753,6470,4543,6470,6470,6474,4062,6471,5055,6471,6471,6488,5222,6472,5672,6472,6472,6497,4105,6473,5937,6473,6473,6482,6474,6523,6475,6519,6476,6519,6477,6520,6478,6520,6479,6519,6480,6523,6481,6521,6482,6521,6483,6523,6484,6519,6485,6518,6486,6519,6487,6520,6488,6518,6489,6518,6490,6523,6491,6520,6492,6520,6493,6520,6494,6523,6495,6523,6496,6518,6497,6521,6498,6519,6499,6520,6500,6519,6501,6520,6502,6520,6503,6520,6504,6520,6505,6520,6506,6520,6507,6520,6508,6519,6509,6520,6510,6520,6511,6520,6512,6520,6513,6520,6514,6520,6515,6520,6516,6519,6517,6520,6521,6524,6522,6524,6519,6525,6520,6525,6518,6526,6520,6526,6520,6527,6521,6527,6519,6528,6520,6528,6522,6529,6518,6529,0,6333,5,6333],"sessNodes":[0,1,2,3,4,5,6],"sessFrameNodes":{"f-00":3911,"f-01":3912,"f-02":3913,"f-03":3914,"f-04":3915,"f-05":3916,"f-06":3917},"threadNodes":[0,5,3911,3916,6333,6482,6521,6524]};
+const CONFIG = {"coach":{"name":"Colly","full_name":"Colly Graham","slug":"colly-graham","pronouns":["he","him","his"]},"session":{"other_role":"Client"},"steps":{"collect":{"t":"405 sources, gathered in one place","b":"We read 31 of his videos and interviews, 345 of his LinkedIn posts and 29 pages from his websites: <em>130,204 words across 3,905 lines.<\/em> From this collection, we follow one interview. Colly tells the case of a client whose buyers love the product, and shows what he did about it."},"transcript":{"t":"A recording becomes text","b":"The interview is transcribed word for word. At first, it is simply a record of what was said."},"speakers":{"t":"Who said what","b":"Colly tells this case in one long answer, so every line is his. We mark the client's problem as he reports it, and the moment he works out what it costs."},"layer1":{"t":"Layer 1 · What was said","b":"His client's problem, in his words: <em>&ldquo;The people they spoke to, they love the app, but it&rsquo;s not closing.&rdquo;<\/em> A few lines later, Colly works out what the problem costs the buyer. These exact lines are the evidence for everything that follows."},"meaning":{"t":"What happened next?","b":"The salespeople think the buyer needs more reasons to like the app. Colly doesn&rsquo;t add reasons. He finds the person who signs, turns lost paperwork into pounds, puts it next to the price, and stops talking."},"cue":{"t":"What Colly does in response","b":"Asked why a product everyone loves isn&rsquo;t closing, Colly answers, <em>&ldquo;What you&rsquo;ve got to work out is what is it costing the company?&rdquo;<\/em>"},"layer2":{"t":"Layer 2 · Colly’s response","b":"He turns a stalled sale into a sum: what the problem costs each week against what the product costs each month. The response stays linked to the exact moment."},"layer3":{"t":"Layer 3 · The situation","b":"The buyers like the product, but nobody signs. In Colly&rsquo;s material this shows up as <em>a buyer who agrees but the deal stalls<\/em>."},"layer4":{"t":"Layer 4 · The recurring pattern","b":"Colly keeps coming back to putting a cost on the problem and talking to the person who decides: the cost of the problem comes up in 9 of the sources in his own words, and finding who signs or controls the budget in 6."},"layer5":{"t":"Layer 5 · The coaching purpose","b":"The purpose is to move salespeople from &ldquo;they love it, so why won&rsquo;t they buy?&rdquo; to &ldquo;I know what the problem costs them, and so does the person who signs&rdquo;."},"layer6":{"t":"Layer 6 · The principle","b":"<em>When the cost of doing nothing becomes larger than the cost of acting, budget has a way of appearing.<\/em> This is the principle behind Colly&rsquo;s answer."},"trace":{"t":"One answer becomes a principle","b":"We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the moment Colly answered his client's problem."}},"cards":{"layer1":{"cue":"The people they spoke to, they love the app, but it’s not closing.","move":"What you’ve got to work out is what is it costing the company? &hellip; So, okay, so this is costing you £400 a week and we are asking you to invest £200 a month, and then you just keep quiet.","foot":"Two exact lines &middot; one speaker &middot; one answer"},"layer2":{"cue":"Hears that buyers love the product, but it isn't closing","move":"Works out what the problem costs, puts it next to the price, then keeps quiet"},"layer3":{"title":"Loved, but not bought","text":"The users like the product, but the person who signs the cheque hasn't heard why it matters to the business.","foot":"Situation in his material &middot; a buyer who agrees but the deal stalls"},"layer4":{"title":"Cost first, then the person who decides","text":"Colly keeps coming back to what a problem is costing the buyer, and to selling to the person who signs.","foot":"Recurring pattern &middot; the cost of the problem in 9 sources, who decides in 6"},"layer5":{"title":"Make the cost visible","text":"Talk to the person who signs, turn the problem into money, put it next to the price, and let the number do the work.","starts":"&ldquo;They love it, so why won&rsquo;t they buy?&rdquo;","moves_to":"&ldquo;I know what the problem costs them&rdquo;"},"layer6":{"quote":"When the cost of doing nothing becomes larger than the cost of acting, budget has a way of appearing.","text":"The same idea runs through his interview: <em>&ldquo;Lost paperwork doesn&rsquo;t mean anything. What&rsquo;s lost paperwork costing you?&rdquo;<\/em>"}},"about":{"sources":[["YouTube","His channel and guest interviews","31 videos and interviews"],["LinkedIn","in/salesxcellence","345 posts and newsletters"],["Website","collygraham.com and salesxcellence.com","29 pages"]],"rows":[["Type of coach",[["Sales trainer",1],["Keynote speaker",1],["Author",1],["NLP Master Practitioner",1]],[["A hard-sell trainer",0],["Theory from a lecture theatre",0],["A silver-bullet seller",0]],"collygraham.com: “international sales trainer, keynote speaker and author” · “a Master Practitioner of NLP, trained under Richard Bandler”","“I won’t teach them to be hard sellers. I’ll teach them to be soft sellers” (Business Conversations, 2022) · “I do not teach theory. I teach what works because I have done it” (collygraham.com) · “the silver bullet in sales doesn’t work” (Success Vitamin, 2024)"],["Region",[["Belfast",1],["Northern Ireland",1],["UK and Ireland",1],["Eleven countries",1]],[["US-based",0],["London-based",0],["Local only",0]],"“I founded salesxcellence in Belfast in 1996” (collygraham.com) · Business Conversations calls you a living legend in Northern Ireland","the eleven countries on your site run from the UK and Ireland to the UAE, Mauritius, Thailand, Malaysia, Singapore, Spain, Australia, the USA and Canada"],["Who you coach",[["B2B sales teams",1],["Sales leaders",1],["New salespeople",1],["Business owners",1]],[["Teams that want hard sellers",0],["Anyone after a script",0],["Pushy closers",0]],"“sales teams” and “sales leaders” across your posts and newsletters · a 30-60-90 day onboarding for new salespeople (Build and Balance, 2021) · startup owners who need to sell (Patrick Tinney interview)","“any resistance in sales is caused by the salesperson … so don’t push people” (Business Conversations, 2022) · “Scripts. Reframes. Feel–felt–found.” is what you say we were all taught (LinkedIn, Feb 2026)"],["How you deliver",[["Keynotes",1],["Workshops and masterclasses",1],["Books and newsletters",1],["Sales coaching",1]],[["PowerPoint pitches",0],["Jargon",0],["Hype",0]],"Winning Mindset for High Performance in an AI World and The Brain-Based Sale keynotes · the Sales Leadership Masterclass · three books and three newsletters","“I don’t bring any brochures, I don’t bring any PowerPoint” (Success Vitamin, 2024) · “I keep the language plain. No jargon. No hype.” (collygraham.com)"],["Your topics",[["Winning mindset",1],["Brain-based selling",1],["Prospecting and the telephone",1],["Objections and value",1],["AI in sales",1]],[["Closing tricks",0],["Discounting",0],["Features and benefits",0]],"index topics: sales mindset in 40 sources, brain-based selling in 17, buyer psychology in 13, objection handling in 8 · your telephone-selling talks and Smart Calling conversation","“the problem is not closing the sales, the problem is opening the sale” (Build and Balance) · “resist the urge to discount” (LinkedIn, Nov 2026) · “don’t talk product features or price” (your 2020 video)"],["Named frameworks",[["BRAIN Selling System",1],["CALM",1],["Three Cs: collaborate, connect, convince",1],["Winning Mindset",1]],[["Feel-felt-found scripts",0],["Silver bullets",0],["Hard closes",0]],"BRAIN in your book and newsletters · CALM: Cushion, Ask, Listen, Meet · the three Cs (Business Conversations, 2022) · the six pillars of a winning sales mindset","“Stop countering. Start calming.” (LinkedIn, Feb 2026) · “the silver bullet in sales doesn’t work” · “I won’t teach them to be hard sellers”"],["Your style",[["Storyteller",1],["Puts numbers on it",1],["Humour",1],["Credits his mentors",1]],[["Hard sell",0],["Jargon",0],["PowerPoint-led",0]],"client cases in every interview · £400 a week against £200 a month · “I can talk to God every day, why can’t I talk to you?” · Zig Ziglar, Brian Tracy and Tom Hopkins named (Success Vitamin)","“so don’t push people” · “No jargon. No hype.” · he walks into a sales meeting with a blank pad"]]},"dos":[["talk to the person who signs the cheque","Patrick Tinney interview · 2020"],["work out what the problem is costing, in money","Patrick Tinney interview · 2020"],["put the cost next to the price, then keep quiet","Patrick Tinney interview · 2020"],["ask questions before you present anything","LinkedIn · March 2026"],["make buying feel safe before you sell","LinkedIn · February 2026"],["use a little humour when a prospect goes quiet","Build and Balance interview · 2021"]],"donts":[["push people: resistance comes from the seller","Business Conversations · 2022"],["sell “saving paperwork” to the person who signs","Patrick Tinney interview · 2020"],["discount when you hear “we have no budget”","LinkedIn · November 2026"],["“handle” objections with scripts","LinkedIn · February 2026"],["keep chasing one prospect for years","Patrick Tinney interview · 2020"],["walk into a first meeting with a PowerPoint","Success Vitamin podcast · 2024"]],"personas":[],"mobile":true,"words":{},"about_lead":"","dd_lead":"Colly's twin follows these in every answer. They come from patterns that run through his interviews, talks and posts."};
+</script>
+<script>
+(() => {
+const S = STORY, CF = CONFIG, T = S.totals, TH = S.thread, sess = S.session, L = sess.lines;
+const NM = CF.coach.name, [HE, HIM, HIS] = CF.coach.pronouns;
+const WD = Object.assign({coaching: 'coaching', Coaching: 'Coaching', coaches: 'coaches'}, CF.words || {});
+const $ = s => document.querySelector(s);
+const fmt = n => n.toLocaleString('en-US');
+const css = getComputedStyle(document.documentElement);
+const C = {}; for (let l = 1; l <= 6; l++) C[l] = css.getPropertyValue('--l' + l).trim();
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const day = d => d ? `${+d.slice(8, 10)} ${MON[+d.slice(5, 7) - 1]} ${d.slice(0, 4)}` : '—';
+const kb = b => Math.max(1, Math.round(b / 1e3)) + ' KB';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const lineOf = id => L.find(l => l.id === id);
+const cueL = lineOf(TH.cueLine), moveL = lineOf(TH.moveLine);
+// the pyramid labels use the same words as the layer cards in the box on the right (cards: layer 4 recurring pattern, layer 5 purpose, layer 6 principle)
+const NAMES = ['', 'Lines', 'Moves', 'Situations', 'Recurring pattern', 'Purpose', 'Principle'];
+const KIND = {youtube: ['YouTube video', 'yt', 'YouTube'], linkedin: ['LinkedIn post', 'li', 'LinkedIn'], web: ['Web page', 'wb', 'Website'],
+  medium: ['Medium article', 'wb', 'Medium'], doc: ['Document', 'wb', 'Documents'], recording: ['Recording', 'lm', 'Recordings'],
+  instagram: ['Instagram post', 'ig', 'Instagram'], twitter: ['Post on X', 'tw', 'X']};
+
+/* ================= the states ================= */
+const P = CF.steps;
+const CH = ['Collect', 'About you', 'Read', 'Follow', 'Understand', 'Do’s & Don’ts'];
+const STATES = [
+  {ch: -1},
+  {ch: 0, ...P.collect, stat: [T.conversations, `sources · ${(T.words / 1e6).toFixed(1)}m words`]},
+  {ch: 1, ab: true},                       // About you comes straight after Collect (standard from 17 Nov 2026)
+  {ch: 2, ...P.transcript},
+  {ch: 2, ...P.speakers},
+  {ch: 2, ...P.layer1, stat: [T.actions, 'lines spoken or written'], lvl: 1},
+  {ch: 3, ...P.meaning, stat: [S.frames.length, `frames from these ${L.length} lines`]},
+  {ch: 3, ...P.cue},
+  {ch: 4, ...P.layer2, stat: [T.frames, `substantive lines by ${NM}`], lvl: 2},
+  {ch: 4, ...P.layer3, stat: [T.tactics, 'situations'], lvl: 3},
+  {ch: 4, ...P.layer4, stat: [T.scenes, 'recurring topics'], lvl: 4},
+  {ch: 4, ...P.layer5, stat: [T.phases, WD.coaching + ' purposes'], lvl: 5},
+  {ch: 4, ...P.layer6, stat: [T.beliefs, 'principles'], lvl: 6},
+  {ch: 4, ...P.trace, lvl: 7},
+  {ch: 5, fd: true},
+];
+const N = STATES.length, ST_L1 = STATES.findIndex(s => s.lvl === 1), ST_L2 = STATES.findIndex(s => s.lvl === 2);
+const ST_FR = ST_L1 + 1, ST_CUE = ST_L1 + 2, ST_AB = STATES.findIndex(s => s.ab);
+
+/* ================= build the DOM ================= */
+document.title = `How ${NM}'s Twin Learns`;
+// long speaker names (more than 7 letters) get a wider column; shorter ones keep the 54px one
+{ const n = Math.max(...L.map(l => l.who.length)); if (n > 7) document.documentElement.style.setProperty('--who', Math.ceil(n * 7.8) + 'px'); }
+$('#hdr').innerHTML = `Twin-memory · <b>From ${esc(NM)}'s words to a ${WD.coaching} principle</b>`;
+if (CF.switch && CF.switch.length > 1) {
+  $('#psw').hidden = false; $('#hdr').hidden = true;   // the switch takes the strapline's place
+  $('#psw').innerHTML = CF.switch.map(q => `<button type="button" class="ptab" role="tab" data-href="${esc(q.href)}" aria-selected="${!!q.current}">${esc(q.label)}${q.count ? `<small>${esc(q.count)}</small>` : ''}</button>`).join('');
+}
+$('#hero-h').innerHTML = `How ${esc(NM)}'s twin<br><i>learns</i>`;
+$('#hero-p').textContent = `Start with what was said. Follow what ${NM} does next, the situation ${HE} recognizes, and the principle behind ${HIS} response.`;
+
+const stage = $('#stage');
+const rail = $('#rail');
+CH.forEach((name, c) => {
+  const el = document.createElement('div'); el.className = 'ch';
+  el.innerHTML = `<span>${pad(c + 1)} ${name}</span><span class="dots">${
+    STATES.map((s, i) => s.ch === c ? `<i data-i="${i}" class="hit"></i>` : '').join('')}</span>`;
+  rail.appendChild(el);
+});
+
+// finder list: every source, oldest first; the session is selected
+const files = S.files;
+const selIdx = files.findIndex(f => f.sel);
+const kinds = [...new Set(files.map(f => f.k))];
+$('#side').innerHTML = `<h6>Favourites</h6><div class="on"><i class="fi"></i>${esc(CF.coach.slug)}</div>
+  <h6 style="margin-top:14px">Sources</h6>${kinds.map(k => `<div><i class="fi"></i>${(KIND[k] || KIND.doc)[2]}</div>`).join('')}`;
+$('#lrows').innerHTML = files.map(f => { const K = KIND[f.k] || KIND.doc;
+  return `<div class="lrow"><span class="nm"><i class="badge ${K[1]}"></i>${esc(f.n)}</span><span class="kd">${K[0]}</span><span class="dt">${day(f.d)}</span><span class="sz">${kb(f.s)}</span></div>`; }).join('');
+
+// transcript
+const keyLines = new Set([TH.cueLine, TH.moveLine]);
+$('#doc').innerHTML = `<div class="fm">---\ntitle: '${esc(sess.title)}'\ndate: '${sess.date}'\nturns: ${sess.turns}\n---</div>` +
+  L.map(l => `<div class="ln${keyLines.has(l.id) ? ' key' : ''}" data-id="${l.id}">
+    <div class="rh"><span class="h">### </span>${l.ts} · ${l.raw}</div>
+    <div class="row"><span class="ts">${l.ts}</span><span class="who ${l.coach ? 'o' : 's'}">${esc(l.who)}</span><span class="txt"><span class="r">${esc(l.text)}</span><span class="c">${esc(l.text)}</span></span></div></div>`).join('');
+
+// frames
+$('#frames').innerHTML = `<div class="plabel">Frames · <b style="color:var(--l2)">what each line meant</b></div>` +
+  S.frames.map(f => `<div class="fc${f.id === TH.cue || f.id === TH.move ? ' key' : ''}"><span class="k">${f.kind}${f.id === TH.cue ? '<em>cue</em>' : f.id === TH.move ? `<em>${esc(NM)}’s move</em>` : ''}</span>${esc(f.span)}</div>`).join('');
+
+// layer cards (copy is trusted HTML from the config)
+const K = CF.cards;
+$('#cards').innerHTML = `
+  <div class="card" id="c1"><div class="lv" style="color:var(--l1)">Layer 1 · What was said</div>
+    <dl class="pair"><dt>${esc(sess.other)}</dt><dd class="q">“${K.layer1.cue}”</dd><dt>${esc(NM)}</dt><dd class="q">“${K.layer1.move}”</dd></dl>
+    <div class="foot">${K.layer1.foot || `${day(sess.date)} · ${cueL.ts} and ${moveL.ts} · stored word for word`}</div></div>
+  <div class="card" id="c2"><div class="lv" style="color:var(--l2)">Layer 2 · What ${esc(NM)} does</div>
+    <dl class="pair"><dt>${esc(CF.session.other_role)}</dt><dd>${K.layer2.cue}</dd><dt>${esc(NM)}</dt><dd>${K.layer2.move}</dd></dl>
+    <div class="foot">The response stays linked to the exact exchange</div></div>
+  <div class="card" id="c3"><div class="lv" style="color:var(--l3)">Layer 3 · The situation</div><h3>${K.layer3.title}</h3><p>${K.layer3.text}</p>
+    <div class="foot">${K.layer3.foot}</div></div>
+  <div class="card" id="c4"><div class="lv" style="color:var(--l4)">Layer 4 · The recurring pattern</div><h3>${K.layer4.title}</h3><p>${K.layer4.text}</p>
+    <div class="foot">${K.layer4.foot}</div></div>
+  <div class="card" id="c5"><div class="lv" style="color:var(--l5)">Layer 5 · The ${WD.coaching} purpose</div><h3>${K.layer5.title}</h3><p>${K.layer5.text}</p>
+    <dl class="pair" style="margin-top:14px"><dt>Starts</dt><dd>${K.layer5.starts}</dd><dt>Moves to</dt><dd>${K.layer5.moves_to}</dd></dl>
+    <div class="foot">Why ${esc(NM)}’s reply matters</div></div>
+  <div class="card" id="c6"><div class="lv" style="color:var(--l6)">Layer 6 · The ${WD.coaching} principle</div><blockquote>“${K.layer6.quote}”</blockquote><p>${K.layer6.text}</p>
+    <div class="foot">Derived from the recorded pattern</div></div>`;
+
+const LG = ['What was said', `What ${NM} does`, 'The situation', 'Recurring pattern', WD.Coaching + ' purpose', 'Derived principle'];
+$('#legend').innerHTML = `<div class="plabel">This exchange, layer by layer</div>` + [6, 5, 4, 3, 2, 1].map((l, i) =>
+  `<div class="lg" style="transition-delay:${.1 + i * .08}s"><i style="background:${C[l]}"></i><span>L${l} ${esc(LG[l - 1])}</span></div>`).join('');
+
+// about you
+const A = CF.about;
+$('#ab').innerHTML = `<div class="lead">
+    <div class="kick">${pad(STATES[ST_AB].ch + 1)} · About you</div>
+    <h1>Where we found you</h1>
+    <p>${CF.about_lead || 'Your twin starts from what you have already shared in public.'}</p>
+    <div class="found">${A.sources.map(([k, where, meta]) => `<div><b>${k}</b> ${where}<em>✓</em><small>${meta}</small></div>`).join('')}</div>
+  </div>
+  <div class="page">
+    <h2>Here’s who we think you are</h2>
+    <p class="what">From your ${(n => n.length > 1 ? n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1] : n[0])(A.sources.map(s => s[0]))}. Tap to correct anything.</p>
+    ${A.rows.some(r => r.length >= 5) ? `<div class="sheet two"><div class="row heads"><span></span><div class="cols"><b class="is">Who you are</b><b class="no">Who you are not</b></div></div>${
+      A.rows.map(([label, yes, not, evYes, evNot]) => `<div class="row"><span>${label}</span><div class="cols">
+        <div class="col"><div class="chips">${yes.map(([v, on]) => `<button type="button" class="chip" aria-pressed="${!!on}">${v}</button>`).join('')}</div><span class="ev">${evYes}</span></div>
+        <div class="col"><div class="chips">${not.map(([v, on]) => `<button type="button" class="chip no" aria-pressed="${!!on}">${v}</button>`).join('')}</div><span class="ev">${evNot}</span></div>
+      </div></div>`).join('')}</div>` : `<div class="sheet">${A.rows.map(([label, opts, ev]) => `<div class="row"><span>${label}</span><div class="chips">${
+      opts.map(([v, on]) => `<button type="button" class="chip" aria-pressed="${!!on}">${v}</button>`).join('')}<span class="ev">${ev}</span></div></div>`).join('')}</div>`}
+  </div>`;
+
+// do's & don'ts (optionally one set per persona, e.g. a professor who also teaches Sanskrit chanting)
+const PERS = (CF.personas && CF.personas.length) ? CF.personas : [{label: '', dd_lead: CF.dd_lead, dos: CF.dos, donts: CF.donts}];
+const ddRow = (kind, [text, meta]) => `<div class="dd-row ${kind}"><i>${kind === 'do' ? '✓' : '✕'}</i><div><p><b>${kind === 'do' ? 'Do' : 'Don’t'}</b> ${text}</p><small>${meta}</small></div></div>`;
+function showPersona(k) {
+  const P = PERS[k];
+  $('#dd-lead').innerHTML = P.dd_lead || CF.dd_lead;
+  $('#dd-count').innerHTML = `<div><b>${P.dos.length}</b><span>Do’s</span></div><div><b>${P.donts.length}</b><span>Don’ts</span></div>`;
+  const tabs = PERS.length > 1 ? `<div class="ptabs" role="tablist">${PERS.map((q, n) =>
+    `<button type="button" class="ptab" role="tab" data-p="${n}" aria-selected="${n === k}">${esc(q.label)}</button>`).join('')}</div>` : '';
+  $('#fdpage').innerHTML = `<article class="on">
+  <h2>How ${esc(NM)} ${WD.coaches}</h2>${tabs}
+  <div class="dd-cols">
+    <section><div class="dd-head do"><i>✓</i> Do’s <small>how ${HIS} twin behaves</small></div>${P.dos.map(x => ddRow('do', x)).join('')}</section>
+    <section><div class="dd-head dont"><i>✕</i> Don’ts <small>lines ${HIS} twin never crosses</small></div>${P.donts.map(x => ddRow('dont', x)).join('')}</section>
+  </div>
+</article>`;
+}
+showPersona(0);
+
+/* ================= the layered space ================= */
+const FLOOR = {1: 1.0, 2: .84, 3: .68, 4: .52, 5: .36, 6: .2}, FY = l => -1 + (l - 1) * .4;
+const counts = {}, off = {}; let NN = 0;
+for (let l = 1; l <= 6; l++) { counts[l] = S.floors[l].length / 2; off[l] = NN; NN += counts[l]; }
+const X = new Float32Array(NN), Y = new Float32Array(NN), Z = new Float32Array(NN), LAY = new Uint8Array(NN);
+for (let l = 1; l <= 6; l++) {
+  const f = S.floors[l], w = FLOOR[l];
+  for (let k = 0; k < counts[l]; k++) { const i = off[l] + k; X[i] = f[2 * k] / 1000 * w; Z[i] = f[2 * k + 1] / 1000 * w; Y[i] = FY(l); LAY[i] = l; }
+}
+// draw order: a shuffle per layer, so a floor fills evenly as it appears
+const ORDER = {};
+for (let l = 1; l <= 6; l++) {
+  const a = new Uint32Array(counts[l]); for (let k = 0; k < a.length; k++) a[k] = off[l] + k;
+  for (let k = a.length - 1; k > 0; k--) { const j = (Math.random() * (k + 1)) | 0; const t = a[k]; a[k] = a[j]; a[j] = t; }
+  ORDER[l] = a;
+}
+const EDGE = {};                               // links grouped by the upper layer they reach
+for (let k = 0; k < S.edges.length; k += 2) { const a = S.edges[k], b = S.edges[k + 1], l = LAY[b]; (EDGE[l] ||= []).push(a, b); }
+const SN = S.sessNodes;                        // the lines we followed, in transcript order
+const SF = S.frames.map(f => ({node: S.sessFrameNodes[f.id], from: SN[L.findIndex(l => l.id === f.from.at(-1))]}));
+const thr = S.threadNodes;                     // [line cue, line move, frame cue, frame move, situation, topic, phase, belief]
+const thrEdges = [[thr[0], thr[2]], [thr[1], thr[3]], [thr[2], thr[4]], [thr[3], thr[4]], [thr[4], thr[5]], [thr[5], thr[6]], [thr[6], thr[7]]];
+const PX = new Float32Array(NN), PYs = new Float32Array(NN);
+const LBL = i => { const l = LAY[i], k = i - off[l]; return l === 3 ? S.labels.tactics[k] : l === 4 ? S.labels.scenes[k] : l === 5 ? S.labels.phases[k] : l === 6 ? S.labels.beliefs[k] : ''; };
+
+/* ================= animated values ================= */
+const V = {}, TG = {};
+const val = (k, v) => { V[k] = TG[k] = v; };
+[['ry', .55], ['rx', .62], ['zoom', .82], ['ty', -1], ['cx', 790], ['cy', 520], ['spin', 0], ['thrA', 0]].forEach(([k, v]) => val(k, v));
+for (let l = 1; l <= 6; l++) { val('L' + l, 0); val('E' + l, 0); }
+let rot = 0, drag = 0, cur = -1, thrUpTo = 0, cardLevel = 0, fly = null, flyF = null, wiresLeft = 0;
+
+/* ================= layout ================= */
+const cv = $('#cv'), ctx = cv.getContext('2d');
+let W = 0, H = 0, DPR = 1, KS = 1, OX = 0, OY = 0, KD = 1, M = false;
+const sx = x => OX + x * KS, sy = y => OY + y * KS;
+const HINT = $('#hint').innerHTML;
+// media queries, not innerWidth: a phone zooms out to fit the 1600px slide, which inflates innerWidth
+const MQ = matchMedia('(orientation: portrait) and (max-width: 899px)'), MQR = matchMedia('(orientation: landscape) and (max-height: 499px)');
+function fit() {
+  // phones: a portrait column (opt-in per coach); a phone held sideways is asked to turn upright
+  M = !!CF.mobile && MQ.matches;
+  document.body.classList.toggle('m', M);
+  document.body.classList.toggle('rot', !!CF.mobile && MQR.matches);
+  W = innerWidth; H = innerHeight; DPR = Math.min(2, devicePixelRatio || 1);
+  cv.width = W * DPR; cv.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  $('#hint').innerHTML = M ? '<span id="mback" class="hit">← Back</span><span>Tap to continue</span>' : HINT;
+  $('#go').textContent = M ? 'Tap to begin →' : 'Click to begin →';
+  // with a persona switch the phone header is taller: the About and Do's pages start below it
+  if (M && CF.switch) document.documentElement.style.setProperty('--hdh', document.querySelector('header').getBoundingClientRect().height + 'px');
+  if (M) { camM(0); wiresLeft = 0; return; }
+  KS = Math.min(W / 1600, H / 900); KD = KS; OX = (W - 1600 * KS) / 2; OY = (H - 900 * KS) / 2;
+  stage.style.transform = `translate(${OX}px,${OY}px) scale(${KS})`;
+  wiresLeft = 30;
+}
+// phones: fit the layered space into the free part of the visual area (above a card or the legend), easing as it changes
+function camM(dt) {
+  const v = $('#vis').getBoundingClientRect(), panel = ['#cards', '#legend'].map(s => $(s)).find(el => el.classList.contains('on'));
+  const top = v.top + 6, bottom = panel ? panel.getBoundingClientRect().top - 10 : v.bottom - 6, h = Math.max(120, bottom - top);
+  const ks = Math.min(W / 860, h / 560), ox = W / 2 - 800 * ks, oy = top + h / 2 - 470 * ks;
+  const k = dt ? 1 - Math.exp(-dt * 5) : 1;
+  KS += (ks - KS) * k; OX += (ox - OX) * k; OY += (oy - OY) * k; KD = Math.max(KS, .62);
+}
+
+/* ================= state application ================= */
+const cls = (sel, c, on) => $(sel).classList.toggle(c, !!on);
+// camera per layer: start low and close on the dense floors, rise with each layer, end on the whole
+const CAM = {1: [.62, .82, -1.0, 790, 520], 2: [.44, .8, -.78, 790, 530], 3: [.4, .78, -.52, 790, 520], 4: [.37, .76, -.28, 790, 505],
+             5: [.4, .76, -.05, 790, 490], 6: [.44, .74, .12, 790, 470], 7: [.5, .7, 0, 840, 470]};
+function go(i) {
+  i = Math.max(0, Math.min(N - 1, i)); if (i === cur) return;
+  const prev = cur; cur = i; const st = STATES[i], now = performance.now();
+  // the lines drop from the transcript onto the floor
+  fly = null;
+  if (i === ST_L1 && prev === ST_L1 - 1)
+    fly = {t0: now, from: [...document.querySelectorAll('.ln')].map(el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r.width, r.height]; })};
+  flyF = null;
+  if (i === ST_L2 && prev === ST_CUE)
+    flyF = {t0: now, from: [...document.querySelectorAll('.fc')].map(el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r.width, r.height]; })};
+
+  cls('#hero', 'out', i > 0);
+  const cap = $('#cap');
+  cap.classList.add('out');
+  if (i > 0 && !st.fd && !st.ab) setTimeout(() => {
+    if (cur !== i) return;
+    $('#kick').textContent = `${pad(st.ch + 1)} · ${CH[st.ch]}`;
+    $('#title').innerHTML = st.t; $('#body').innerHTML = st.b; cap.classList.remove('out');
+  }, 380);
+  if (st.stat) { countTo(st.stat[0]); $('#unit').textContent = st.stat[1]; }
+  cls('#stat', 'hide', !st.stat);
+  $('#hint').style.opacity = i === N - 1 ? 0 : 1;
+  document.body.classList.toggle('final', st.lvl === 7);
+  cls('#fd', 'on', st.fd);
+  cls('#ab', 'on', st.ab);
+  document.querySelectorAll('#rail .ch').forEach((el, c) => { el.classList.toggle('on', c === st.ch); el.classList.toggle('done', c < st.ch); });
+  document.querySelectorAll('#rail i').forEach(el => { const k = +el.dataset.i; el.classList.toggle('on', k === i); el.classList.toggle('done', k < i); });
+
+  // ----- the window
+  const win = $('#win');
+  const shown = i >= 1 && i < ST_L1 && i !== ST_AB || i === ST_FR || i === ST_CUE;
+  win.classList.toggle('show', shown);
+  win.classList.toggle('gone', !shown && i > 0);
+  win.classList.toggle('narrow', i === ST_FR || i === ST_CUE);
+  $('#side').style.cssText = i <= 1 ? '' : 'width:0;padding:14px 0;opacity:0';
+  cls('#list', 'on', i === 1); cls('#docs', 'on', i > ST_AB);
+  $('#wtitle').textContent = i <= 1 ? CF.coach.slug : `${sess.date} · ${sess.title}.md`;
+  $('#status').textContent = i > ST_AB ? `${sess.kind} · ${day(sess.date)}` : '';
+  if (i === 1) runList(); else listAnim++;
+  const doc = $('#doc');
+  doc.classList.toggle('clean', i > ST_AB + 1); doc.classList.toggle('focus', i === ST_CUE);
+
+  // ----- right panels
+  cls('#frames', 'on', i === ST_FR || i === ST_CUE); cls('#frames', 'focus', i === ST_CUE);
+  for (let l = 1; l <= 6; l++) cls('#c' + l, 'on', st.lvl === l);
+  cls('#cards', 'on', st.lvl >= 1 && st.lvl <= 6);
+  cls('#legend', 'on', st.lvl === 7);
+  wiresLeft = 100;
+
+  // ----- canvas targets
+  const lv = st.lvl || 0, t = TG;
+  for (let l = 1; l <= 6; l++) { t['L' + l] = lv && l <= lv ? 1 : 0; t['E' + l] = lv && l <= lv && l > 1 ? 1 : 0; }
+  t.thrA = lv ? 1 : 0; thrUpTo = Math.min(lv, 6); cardLevel = lv >= 1 && lv <= 6 ? lv : 0;
+  t.spin = lv === 7 ? .07 : lv ? .02 : 0;
+  if (lv) { const [rx, zoom, ty, cx, cy] = CAM[lv]; Object.assign(t, {rx, zoom, ty, cx, cy}); }
+}
+
+let numCur = 0, numAnim = 0;
+function countTo(v) {
+  const from = numCur, t0 = performance.now(), id = ++numAnim;
+  const tick = now => {
+    if (id !== numAnim) return;
+    const p = Math.min(1, (now - t0) / 1100), e = 1 - Math.pow(1 - p, 3);
+    numCur = Math.round(from + (v - from) * e); $('#num').textContent = fmt(numCur);
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* the list scrolls through every source, then selects our session */
+let listAnim = 0;
+function runList() {
+  const rows = $('#lrows'), id = ++listAnim, t0 = performance.now();
+  rows.querySelectorAll('.sel').forEach(r => r.classList.remove('sel'));
+  const target = Math.max(0, Math.min(selIdx * 26 - 300, files.length * 26 - 556)), dur = 3600;
+  rows.style.transform = 'translateY(0)';
+  const tick = now => {
+    if (id !== listAnim || cur !== 1) return;
+    const p = Math.min(1, (now - t0) / dur), e = p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+    rows.style.transform = `translateY(${-e * target}px)`;
+    if (p < 1) requestAnimationFrame(tick);
+    else setTimeout(() => id === listAnim && rows.children[selIdx].classList.add('sel'), 250);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* wires: transcript lines -> frame cards */
+function wires() {
+  const svg = $('#wires'), fr = $('#frames'), on = cur === ST_FR || cur === ST_CUE;
+  const lineBox = {};
+  document.querySelectorAll('.ln').forEach(el => { const r = el.getBoundingClientRect(); lineBox[el.dataset.id] = ((r.top + r.bottom) / 2 - OY) / KS; });
+  const cards = [...fr.querySelectorAll('.fc')], frTop = 100;
+  let y = 0;
+  const pos = cards.map((el, k) => {
+    const h = el.offsetHeight || 54, a = lineBox[S.frames[k].from.at(-1)];
+    const want = a !== undefined ? a - frTop - h / 2 : y;
+    y = Math.max(want, y); const top = y; y += h + 6; return {top, h};
+  });
+  const over = y - 765;
+  if (over > 0) pos.forEach((p, k) => p.top -= over * k / Math.max(1, pos.length - 1));
+  cards.forEach((el, k) => { el.style.top = pos[k].top + 'px'; el.style.transitionDelay = (on && cur === ST_FR ? .25 + k * .1 : 0) + 's'; });
+  if (!svg.childElementCount) S.frames.forEach(f => f.from.forEach(() => svg.appendChild(document.createElementNS('http://www.w3.org/2000/svg', 'path'))));
+  let n = 0;
+  cards.forEach((el, k) => {
+    const f = S.frames[k], key = f.id === TH.cue || f.id === TH.move, ty = frTop + pos[k].top + pos[k].h / 2, tx = 1120;
+    f.from.forEach(id => {
+      const p = svg.children[n++], a = lineBox[id]; if (a === undefined) return;
+      const x0 = 1072, mx = (x0 + tx) / 2;
+      p.setAttribute('d', `M${x0},${a} C${mx},${a} ${mx},${ty} ${tx},${ty}`);
+      p.setAttribute('class', `wire${on ? ' on' : ''}${cur === ST_CUE ? (key ? ' key' : ' dim') : ''}`);
+      p.style.transitionDelay = (on && cur === ST_FR ? .35 + k * .1 : 0) + 's';
+    });
+  });
+}
+
+/* ================= canvas ================= */
+function project(x, y, z, out) {
+  const ry = rot + V.ry + drag, rx = V.rx, s = KS * 380 * V.zoom;
+  y -= V.ty;
+  const cy = Math.cos(ry), sy_ = Math.sin(ry), cx = Math.cos(rx), sx_ = Math.sin(rx);
+  const x1 = x * cy + z * sy_, z1 = -x * sy_ + z * cy;
+  const y2 = y * cx - z1 * sx_, z2 = y * sx_ + z1 * cx;
+  const p = 3.4 / (3.4 + z2);
+  out[0] = sx(V.cx) + x1 * p * s; out[1] = sy(V.cy) - y2 * p * s;
+  return out;
+}
+const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${n >> 8 & 255},${n & 255},${a})`; };
+const ease = t => t <= 0 ? 0 : t >= 1 ? 1 : t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const pt = [0, 0];
+const DOT = {1: 1.1, 2: 1.3, 3: 2.3, 4: 4, 5: 5.4, 6: 6};
+const ALPHA = {1: .5, 2: .55, 3: .8, 4: .9, 5: .9, 6: .95};
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  for (const k in TG) {
+    const rate = k[0] === 'L' ? 1.1 : k[0] === 'E' ? 1.4 : 2.6;
+    V[k] += (TG[k] - V[k]) * (1 - Math.exp(-dt * rate));
+  }
+  rot += dt * V.spin;
+  if (M) camM(dt);
+  else if (wiresLeft > 0) { wiresLeft--; wires(); }
+  ctx.clearRect(0, 0, W, H);
+  if ([1, 2, 3, 4, 5, 6].some(l => V['L' + l] > .005)) drawLayers(now);
+  requestAnimationFrame(frame);
+}
+
+function drawLayers(now) {
+  for (let l = 1; l <= 6; l++) {
+    if (V['L' + l] < .005) continue;
+    for (let i = off[l], e = off[l] + counts[l]; i < e; i++) { project(X[i], Y[i], Z[i], pt); PX[i] = pt[0]; PYs[i] = pt[1]; }
+  }
+  // floors
+  for (let l = 1; l <= 6; l++) {
+    const a = Math.min(1, V['L' + l] * 1.5); if (a < .01) continue;
+    const w = FLOOR[l], y = FY(l), cs = [[-w, -w], [w, -w], [w, w], [-w, w]].map(([x, z]) => project(x, y, z, [0, 0]));
+    ctx.beginPath(); cs.forEach((p, k) => k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath();
+    ctx.fillStyle = rgba(C[l], .04 * a); ctx.fill(); ctx.strokeStyle = rgba(C[l], .28 * a); ctx.lineWidth = 1; ctx.stroke();
+    const right = cs.reduce((m, p) => p[0] > m[0] ? p : m);
+    ctx.fillStyle = rgba(C[l], .9 * a); ctx.font = `600 ${M ? 9 : 10.5 * KS}px 'IBM Plex Mono',monospace`;
+    const lbl = `L${l} · ${NAMES[l].toUpperCase()}`, lx = right[0] + 12 * KD;
+    ctx.fillText(lbl, M ? Math.min(lx, W - 4 - ctx.measureText(lbl).width) : lx, right[1] + 4 * KD);
+  }
+  // links up into each layer, one path per layer
+  for (let l = 2; l <= 6; l++) {
+    const a = V['E' + l] * Math.min(V['L' + l], V['L' + (l - 1)]); if (a < .01 || !EDGE[l]) continue;
+    const E = EDGE[l], n = Math.floor(E.length / 2 * Math.min(1, a * 1.2));
+    ctx.strokeStyle = rgba(C[l], (l >= 5 ? .2 : l === 4 ? .13 : .07) * a); ctx.lineWidth = l >= 4 ? .8 : .5;
+    ctx.beginPath();
+    for (let k = 0; k < n; k++) { const p = E[2 * k], q = E[2 * k + 1]; ctx.moveTo(PX[p], PYs[p]); ctx.lineTo(PX[q], PYs[q]); }
+    ctx.stroke();
+  }
+  // atoms: each floor fills in as it appears
+  for (let l = 1; l <= 6; l++) {
+    const v = V['L' + l]; if (v < .005) continue;
+    const ord = ORDER[l], n = Math.floor(ord.length * Math.min(1, v * 1.15)), r = DOT[l] * KD;
+    ctx.fillStyle = rgba(C[l], ALPHA[l] * (cardLevel && cardLevel - l >= 2 ? .45 : 1));
+    if (l <= 3) for (let k = 0; k < n; k++) { const i = ord[k]; ctx.fillRect(PX[i] - r / 2, PYs[i] - r / 2, r, r); }
+    else {
+      ctx.strokeStyle = rgba(C[l], .3);
+      for (let k = 0; k < n; k++) {
+        const i = ord[k]; ctx.beginPath(); ctx.arc(PX[i], PYs[i], r, 0, 6.283); ctx.fill();
+        ctx.beginPath(); ctx.arc(PX[i], PYs[i], r + 3 * KD, 0, 6.283); ctx.stroke();
+      }
+    }
+  }
+  drawSession(now);
+  drawThread(now);
+}
+
+// the session's lines (and their frames) stay lit, so the eye can follow them
+function drawSession(now) {
+  const a1 = V.L1; if (a1 < .01) return;
+  SN.forEach((i, k) => {
+    let x = PX[i], y = PYs[i];
+    if (fly) {
+      const p = ease((now - fly.t0 - k * 55) / 1500), f = fly.from[k];
+      if (p < 1) {
+        x = f[0] + (x - f[0]) * p; y = f[1] + (y - f[1]) * p;
+        const w = f[2] + (5 * KD - f[2]) * p, h = f[3] + (5 * KD - f[3]) * p;
+        ctx.fillStyle = rgba(C[1], .16 + .5 * p); ctx.strokeStyle = rgba(C[1], .8); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(x - w / 2, y - h / 2, w, h, Math.min(7, h / 2)); ctx.fill(); ctx.stroke();
+        return;
+      }
+    }
+    ctx.fillStyle = rgba('#f6d48a', a1); ctx.beginPath(); ctx.arc(x, y, 2.6 * KD, 0, 6.283); ctx.fill();
+  });
+  if (V.L2 < .01) return;
+  SF.forEach((f, k) => {
+    let x = PX[f.node], y = PYs[f.node];
+    if (flyF) {
+      const p = ease((now - flyF.t0 - k * 55) / 1500), r = flyF.from[k];
+      if (p < 1) {
+        x = r[0] + (x - r[0]) * p; y = r[1] + (y - r[1]) * p;
+        const w = r[2] + (5 * KD - r[2]) * p, h = r[3] + (5 * KD - r[3]) * p;
+        ctx.fillStyle = rgba(C[2], .16 + .5 * p); ctx.strokeStyle = rgba(C[2], .85); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(x - w / 2, y - h / 2, w, h, Math.min(8, h / 2)); ctx.fill(); ctx.stroke();
+        return;
+      }
+    }
+    ctx.strokeStyle = rgba(C[2], .6 * V.L2); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(PX[f.from], PYs[f.from]); ctx.lineTo(x, y); ctx.stroke();
+    ctx.fillStyle = rgba('#9fe3da', V.L2); ctx.beginPath(); ctx.arc(x, y, 2.6 * KD, 0, 6.283); ctx.fill();
+  });
+}
+
+function drawThread(now) {
+  if (V.thrA < .02) return;
+  const pulse = .75 + .25 * Math.sin(now / 420), flying = (fly && now - fly.t0 < 2300) || (flyF && now - flyF.t0 < 2300);
+  ctx.lineWidth = 2 * KD;
+  for (const [a, b] of thrEdges) {
+    const lb = LAY[b]; if (lb > thrUpTo) continue;
+    const al = Math.min(V['L' + LAY[a]], V['L' + lb]) * V.thrA * (flyF && lb >= 2 ? ease((now - flyF.t0 - 1500) / 700) : 1);
+    ctx.strokeStyle = rgba('#f3ead9', .85 * al);
+    ctx.beginPath(); ctx.moveTo(PX[a], PYs[a]); ctx.lineTo(PX[b], PYs[b]); ctx.stroke();
+  }
+  for (const i of thr) {
+    const l = LAY[i]; if (l > thrUpTo || (flying && l === thrUpTo)) continue;
+    const al = V['L' + l] * V.thrA, big = l >= 4;
+    ctx.fillStyle = rgba(C[l], al); ctx.beginPath(); ctx.arc(PX[i], PYs[i], (big ? 7 : 4.5) * KD, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = rgba('#f3ead9', .95 * al); ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(PX[i], PYs[i], (big ? 11 : 9) * KD * pulse, 0, 6.283); ctx.stroke();
+  }
+  // leaders from this layer's thread atoms to its card
+  if (cardLevel && !flying) {
+    const r = $('#c' + cardLevel).getBoundingClientRect();
+    ctx.strokeStyle = rgba(C[cardLevel], .75 * V.thrA); ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+    thr.filter(i => LAY[i] === cardLevel).forEach((i, k) => {
+      ctx.beginPath(); ctx.moveTo(PX[i] + (M ? 0 : 10 * KS), PYs[i] + (M ? 10 * KD : 0));
+      if (M) ctx.lineTo(r.left + r.width * (.3 + k * .4), r.top - 6); else ctx.lineTo(r.left - 8, r.top + (cardLevel <= 2 ? 56 + k * 74 : 26) * KS);
+      ctx.stroke();
+    });
+    ctx.setLineDash([]);
+  }
+}
+
+/* ================= input ================= */
+let down = null, moved = false;
+addEventListener('pointerdown', e => { down = {x: e.clientX, d: drag}; moved = false; });
+addEventListener('pointermove', e => {
+  if (down && Math.abs(e.clientX - down.x) > 5 && STATES[cur].lvl) { moved = true; drag = down.d + (e.clientX - down.x) * .006; }
+  hover(e);
+});
+addEventListener('pointerup', e => {
+  const was = down; down = null;
+  if (!was || moved) return;
+  const dot = e.target.closest && e.target.closest('#rail i');
+  if (dot) { go(+dot.dataset.i); return; }
+  if (e.target.closest && e.target.closest('#mback, #fd .keys')) { go(cur - 1); return; }
+  const sw = e.target.closest && e.target.closest('#psw .ptab');
+  if (sw) { if (sw.getAttribute('aria-selected') !== 'true') location.replace(sw.dataset.href + '#' + Math.max(0, cur)); return; }
+  const ptab = e.target.closest && e.target.closest('#fd .ptab');
+  if (ptab) { showPersona(+ptab.dataset.p); return; }
+  const chip = e.target.closest && e.target.closest('#ab .chip');
+  if (chip) { chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true')); return; }
+  if (STATES[cur].fd) return;                  // reading the last page: clicks do not advance
+  go(cur + 1);
+});
+addEventListener('keydown', e => {
+  if (['ArrowRight', ' ', 'Enter', 'PageDown'].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+  if (['ArrowLeft', 'Backspace', 'PageUp'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+  if (e.key === 'Home') go(0);
+});
+const tip = $('#tip');
+function hover(e) {
+  if (M || STATES[cur].lvl !== 7 || down) { tip.style.opacity = 0; return; }
+  let best = -1, bd = 12 * 12;
+  for (let i = off[3]; i < NN; i++) { const dx = PX[i] - e.clientX, dy = PYs[i] - e.clientY, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = i; } }
+  if (best < 0) { tip.style.opacity = 0; return; }
+  const l = LAY[best];
+  tip.innerHTML = `<small style="color:${C[l]}">L${l} · ${NAMES[l]}</small>${esc(LBL(best))}`;
+  tip.style.left = Math.min(W - 380, e.clientX + 16) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; tip.style.opacity = 1;
+}
+addEventListener('resize', fit);
+MQ.addEventListener && MQ.addEventListener('change', fit);
+fit(); requestAnimationFrame(fit);
+go(+location.hash.slice(1) || 0);
+addEventListener('hashchange', () => go(+location.hash.slice(1) || 0));
+requestAnimationFrame(frame);
+if (document.fonts) document.fonts.ready.then(() => { wiresLeft = 30; });
+})();
+</script>
+</body>
+</html>
