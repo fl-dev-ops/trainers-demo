@@ -62,9 +62,18 @@ async function firstName(user?: string): Promise<string | undefined> {
 async function answer(event: SlackMessage & { channel: string }, botUserId: string, inThread: boolean) {
   const threadTs = event.thread_ts || (inThread ? event.ts : undefined)
   try {
-    const turns: Turn[] = event.thread_ts
-      ? await threadTurns(event.channel, event.thread_ts, botUserId)
-      : [{ role: 'user', content: clean(event.text) }]
+    const current: Turn[] = [{ role: 'user', content: clean(event.text) }]
+    let turns: Turn[] = current
+    if (event.thread_ts) {
+      // Reading the thread needs the channels:history (public) or groups:history (private) scope in the installed app.
+      // If that call fails, still answer the message itself instead of giving up.
+      try {
+        turns = await threadTurns(event.channel, event.thread_ts, botUserId)
+      } catch (error) {
+        console.error('[slack:aishwarya-reganti] could not read the thread, answering the message alone', error)
+        turns = current
+      }
+    }
     if (!turns.length || turns[turns.length - 1].role !== 'user') return
     const reply = await askAishwarya(turns, await firstName(event.user))
     await slack('chat.postMessage', { channel: event.channel, thread_ts: threadTs, text: reply })
