@@ -394,3 +394,58 @@ svg{flex:none}
 .chat-math .katex{font-size:1.05em}
 .chat-math-block{margin:4px 0 10px;overflow-x:auto;max-width:100%}
 .chat-math{max-width:100%;overflow-x:auto;vertical-align:middle}
+
+/* Role-play card that isn't built yet (Albandery) */
+.soon-peek{align-items:flex-start;justify-content:space-between}
+.soon-tag{align-self:center;margin:auto 0;font-size:15px;font-weight:500;color:var(--text-2);border:1px dashed var(--border);border-radius:999px;padding:8px 18px}
+.path--soon .btn--ghost{cursor:default;border:1px solid var(--border)}
+
+/* Our offer and next steps + pricing (OfferSteps.jsx) */
+.ofr{width:100%;margin:56px 0 8px}
+.ofr-h{font-size:26px;font-weight:600;letter-spacing:-.01em;margin:0 0 18px}
+.ofr-h--sub{font-size:21px;margin:40px 0 8px}
+.ofr-step{display:grid;grid-template-columns:44px minmax(0,1fr);gap:20px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px 26px;margin-bottom:16px}
+.ofr-step h3{font-size:19px;font-weight:600;margin:6px 0 8px}
+.ofr-step p{color:var(--text-2);line-height:1.6;margin:0 0 12px}
+.ofr-n{width:40px;height:40px;border-radius:50%;background:var(--danger);color:#fff;font-weight:600;display:grid;place-items:center;font-size:17px}
+.ofr-chips{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 16px}
+.ofr-chips span{background:var(--primary-subtle);color:var(--primary-ink);font-size:13.5px;font-weight:500;padding:7px 12px;border-radius:999px}
+.ofr-list{margin:0;padding-left:18px;color:var(--text);line-height:1.9}
+.ofr-list li::marker{color:var(--primary)}
+.ofr-prices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:8px 0 22px}
+.ofr-prices div{background:var(--sunken);border:1px solid var(--border);border-radius:12px;padding:16px 16px 18px;display:flex;flex-direction:column;gap:4px}
+.ofr-prices strong{font-size:28px;font-weight:700}
+.ofr-prices span{color:var(--text-2);font-size:14.5px}
+.ofr-line{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;position:relative}
+.ofr-line::before{content:"";position:absolute;left:8px;right:8px;top:8px;height:2px;background:linear-gradient(90deg,var(--danger-border),var(--danger))}
+.ofr-line li{position:relative;padding-top:28px;display:flex;flex-direction:column;gap:4px;font-size:14.5px;color:var(--text-2)}
+.ofr-line li::before{content:"";position:absolute;left:0;top:0;width:14px;height:14px;border-radius:50%;background:var(--surface);border:2px solid var(--danger)}
+.ofr-line li.on::before{background:var(--danger)}
+.ofr-line li>b{color:var(--text);font-size:16px}
+.ofr-feats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:6px 0 16px}
+.ofr-feats div{border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.ofr-feats i{width:32px;height:32px;border-radius:8px;background:var(--danger-subtle);color:var(--danger);display:grid;place-items:center;margin-bottom:6px}
+.ofr-feats span{color:var(--text-2);font-size:14px;line-height:1.5}
+.ofr-lead{color:var(--text-2);line-height:1.6;margin:0 0 18px}
+.ofr-plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.ofr-plans div{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:6px}
+.ofr-plans div.feat{border:2px solid #2563eb}
+.ofr-pn{color:var(--text-2);font-size:15px}
+.ofr-pp{color:var(--text-2);font-size:13px}
+.ofr-pp strong{font-size:32px;color:var(--text);font-weight:700}
+.ofr-tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+.ofr-tbl{width:100%;border-collapse:collapse;font-size:14.5px;min-width:520px}
+.ofr-tbl th{background:var(--sunken);text-align:right;font-weight:500;color:var(--text-2);padding:12px 16px}
+.ofr-tbl td{padding:12px 16px;border-top:1px solid var(--border);text-align:right}
+.ofr-tbl td:first-child{text-align:left}
+.ofr-tbl tr.grp td{text-align:left;color:#2563eb;font-size:12px;font-weight:600;letter-spacing:.09em;text-transform:uppercase}
+.ofr-tbl td small{display:block;color:var(--text-3);font-size:12px}
+.ofr-dash{color:var(--text-3)}
+.ofr-quote{margin:22px 0 0;padding:4px 0 4px 16px;border-left:3px solid #2563eb;color:var(--text-2);font-style:italic;line-height:1.6}
+@media (max-width:680px){
+  .ofr-step{grid-template-columns:minmax(0,1fr);gap:10px;padding:20px}
+  .ofr-prices,.ofr-feats,.ofr-plans{grid-template-columns:minmax(0,1fr)}
+  .ofr-line{grid-template-columns:minmax(0,1fr);gap:16px}
+  .ofr-line::before{left:6px;right:auto;top:8px;bottom:8px;width:2px;height:auto}
+  .ofr-line li{padding:0 0 0 28px}
+}

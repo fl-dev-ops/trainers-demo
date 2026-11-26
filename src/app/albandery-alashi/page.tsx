@@ -2,9 +2,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ALBANDERY_ALASHI } from '@/data.js'
 import TrustFooter from '@/components/TrustFooter.jsx'
+import OfferSteps from '@/components/OfferSteps.jsx'
 import { LinkedIn, Sparkle } from '@/components/Icons.jsx'
 
-// Methodology only for now: no live twin or role play yet (her material is Arabic and short).
+// Methodology, plus twin and role-play cards marked coming soon (no live twin or role play yet; her material is Arabic and short).
 export default function Welcome() {
   return (
     <section className="wrap">
@@ -23,7 +24,7 @@ export default function Welcome() {
           </div>
         </div>
         <div className="paths">
-          <article className="path path--wide">
+          <article className="path">
             <div className="peek peek--fig peek--pyr" aria-hidden="true">
               <img src="/media/albandery-alashi-pyramid.jpg" alt="" />
               <span className="peek-k">Training methodology</span>
@@ -36,7 +37,34 @@ export default function Welcome() {
               </div>
             </div>
           </article>
+          <article className="path path--soon" aria-disabled="true">
+            <div className="peek soon-peek" aria-hidden="true">
+              <span className="peek-k">AI twin</span>
+              <span className="soon-tag">Coming soon</span>
+            </div>
+            <div className="path-b">
+              <h2>Ask {ALBANDERY_ALASHI.firstName}’s twin live</h2>
+              <p>A twin that answers your learners’ questions the way {ALBANDERY_ALASHI.firstName} would, between sessions.</p>
+              <div className="row">
+                <span className="btn btn--ghost" aria-disabled="true">Coming soon</span>
+              </div>
+            </div>
+          </article>
+          <article className="path path--wide path--soon" aria-disabled="true">
+            <div className="peek soon-peek" aria-hidden="true">
+              <span className="peek-k">Role play</span>
+              <span className="soon-tag">Coming soon</span>
+            </div>
+            <div className="path-b">
+              <h2>Practise a presentation with an AI audience</h2>
+              <p>Role plays built on {ALBANDERY_ALASHI.firstName}’s method are on the way: find where your talk loses its impact, then practise for that.</p>
+              <div className="row">
+                <span className="btn btn--ghost" aria-disabled="true">Coming soon</span>
+              </div>
+            </div>
+          </article>
         </div>
+        <OfferSteps />
         <TrustFooter twin={ALBANDERY_ALASHI} />
       </div>
     </section>
