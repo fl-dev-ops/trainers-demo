@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ALBANDERY_ALASHI } from '@/data.js'
 import TrustFooter from '@/components/TrustFooter.jsx'
+import OfferSteps from '@/components/OfferSteps.jsx'
 import { LinkedIn, Sparkle } from '@/components/Icons.jsx'
 
 // Methodology, plus twin and role-play cards marked coming soon (no live twin or role play yet; her material is Arabic and short).
@@ -63,6 +64,7 @@ export default function Welcome() {
             </div>
           </article>
         </div>
+        <OfferSteps />
         <TrustFooter twin={ALBANDERY_ALASHI} />
       </div>
     </section>
