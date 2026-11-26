@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { SHELLEY_WALTERS } from '@/data.js'
 import TrustFooter from '@/components/TrustFooter.jsx'
+import OfferSteps from '@/components/OfferSteps.jsx'
 import { RoleplayPair, TwinNotebook } from '@/components/ProfileCards.jsx'
 import { LinkedIn, Sparkle, YouTube } from '@/components/Icons.jsx'
 
@@ -73,6 +74,7 @@ export default function Welcome() {
             </article>
           ))}
         </div>
+        <OfferSteps />
         <TrustFooter twin={SHELLEY_WALTERS} />
       </div>
     </section>
