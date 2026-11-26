@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Send } from '../components/Icons.jsx'
-import MathText from './MathText.jsx'
+import MathText, { FormulaBlock, placeFormulas } from './MathText.jsx'
 
 /**
  * The live chat / transcription feed. `lines` ({ id, who, text }) comes from the
@@ -11,18 +11,21 @@ import MathText from './MathText.jsx'
  * destructured signature is mis-parsed by TypeScript and types every prop wrong.
  */
 export default function TranscriptPanel({
-  lines = /** @type {{ id: string, who: string, text: string }[]} */ ([]),
+  lines = /** @type {{ id: string, who: string, text: string, twin?: boolean }[]} */ ([]),
+  formulas = /** @type {{ id: string, latex: string, words: string }[]} */ ([]),
   connected = false,
   onSend,
 }) {
   const [draft, setDraft] = useState('')
   const feedRef = useRef(null)
+  const { byLine, leftover } = useMemo(() => placeFormulas(lines, formulas), [lines, formulas])
+  const lastTwinId = useMemo(() => [...lines].reverse().find((l) => l.twin)?.id, [lines])
 
   // Keeps the newest line in view as the transcript grows.
   useEffect(() => {
     const feed = feedRef.current
     if (feed) feed.scrollTop = feed.scrollHeight
-  }, [lines])
+  }, [lines, formulas])
 
   // Publishes the typed text to the room and clears the box; no-op while disconnected or empty.
   function handleSubmit(event) {
@@ -40,7 +43,10 @@ export default function TranscriptPanel({
       <div className="chat-h"><span>Chat</span><span className="cnt">{lines.length}</span></div>
       <div className="feed" id="transcript" aria-live="polite" ref={feedRef}>
         {lines.map((l) => (
-          <p key={l.id}><b>{l.who}: </b><MathText text={l.text} /></p>
+          <div key={l.id}>
+            <p><b>{l.who}: </b><MathText text={l.text} hits={byLine[l.id]} /></p>
+            {l.id === lastTwinId && leftover.map((f) => <FormulaBlock key={f.id} formula={f} />)}
+          </div>
         ))}
       </div>
       <form className="chat-in" onSubmit={handleSubmit}>
