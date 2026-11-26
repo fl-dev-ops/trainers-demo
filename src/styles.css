@@ -388,3 +388,7 @@ svg{flex:none}
 /* Olga has two scenarios in one card: each scenario box opens its own role play. */
 .scn:has(.scn-link){position:relative;z-index:2}
 .scn-link::after{content:"";position:absolute;inset:0;border-radius:14px}
+
+/* Typeset formulas in the live chat (MathText) */
+.chat-math{display:inline-block;padding:0 2px;font-size:1.02em}
+.chat-math .katex{font-size:1.05em}

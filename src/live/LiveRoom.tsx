@@ -23,7 +23,7 @@ type TrainerRoom = { kind: string; title: string; scenario: string }
 type Trainer = { id: string; firstName: string; face: string; portrait?: string; portraitClass?: string; room?: TrainerRoom; starterInRoom?: boolean; participantName?: string }
 
 // Stand-in identity until the app has a signed-in profile to read a real name from.
-const PARTICIPANT_NAME = 'Candidate' // default; a coach sets participantName in data.js ('User' for all new coaches)
+const PARTICIPANT_NAME = 'User' // default learner label (Lalith, 26 Nov 2026); the mock-interview twins set 'Candidate' in data.js
 
 export default function LiveRoom({ trainer }: { trainer: Trainer }) {
   // useSearchParams needs a boundary so the page can still be prerendered.

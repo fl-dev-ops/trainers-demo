@@ -1,4 +1,5 @@
 export const TWIN = {
+  participantName: 'Candidate', // mock interview: the learner is a candidate
   id: 'olga',
   name: 'Olga Sinenko',
   firstName: 'Olga',
@@ -12,6 +13,7 @@ export const TWIN = {
 }
 
 export const JAMEEL = {
+  participantName: 'Candidate', // mock interview: the learner is a candidate
   id: 'jameel',
   name: 'Jameel',
   firstName: 'Jameel',
@@ -152,7 +154,7 @@ export const SEAN_WEAFER = {
   starterInRoom: true,
   firstName: 'Seán',
   initials: 'SW',
-  participantName: 'User', // the learner's tile label in the live room (default is 'Candidate')
+  participantName: 'User', // the learner's tile label in the live room
   face: '/media/sean-weafer-headshot.jpg',
   portrait: '/media/sean-weafer-headshot.jpg',
   room: {
@@ -169,7 +171,7 @@ export const CLIVE_MILLER = {
   starterInRoom: true,
   firstName: 'Clive',
   initials: 'CM',
-  participantName: 'User', // the learner's tile label in the live room (default is 'Candidate')
+  participantName: 'User', // the learner's tile label in the live room
   face: '/media/clive-miller-headshot.jpg',
   portrait: '/media/clive-miller-portrait.jpg',
   room: {
@@ -186,7 +188,7 @@ export const SHEHZAD_MUKADAM = {
   starterInRoom: true,
   firstName: 'Shehzad',
   initials: 'SM',
-  participantName: 'User', // the learner's tile label in the live room (default is 'Candidate')
+  participantName: 'User', // the learner's tile label in the live room
   face: '/media/shehzad-mukadam-headshot-v2.jpg',
   portrait: '/media/shehzad-mukadam-portrait-v2.jpg',
   room: {
@@ -203,7 +205,7 @@ export const NATALIE_SEREBRENNIK = {
   starterInRoom: true,
   firstName: 'Natalie',
   initials: 'NS',
-  participantName: 'User', // the learner's tile label in the live room (default is 'Candidate')
+  participantName: 'User', // the learner's tile label in the live room
   face: '/media/natalie-serebrennik-headshot-v2.jpg',
   portrait: '/media/natalie-serebrennik-portrait-v2.jpg',
   room: {
@@ -220,7 +222,7 @@ export const SHELLEY_WALTERS = {
   starterInRoom: true,
   firstName: 'Shelley',
   initials: 'SW',
-  participantName: 'User', // the learner's tile label in the live room (default is 'Candidate')
+  participantName: 'User', // the learner's tile label in the live room
   face: '/media/shelley-walters-headshot.jpg',
   portrait: '/media/shelley-walters-portrait.jpg',
   room: {
@@ -250,7 +252,7 @@ export const AISHWARYA_REGANTI = {
   starterInRoom: true,
   firstName: 'Aishwarya',
   initials: 'AR',
-  participantName: 'User', // the learner's tile label in the live room (default is 'Candidate')
+  participantName: 'User', // the learner's tile label in the live room
   face: '/media/aishwarya-reganti-dp.jpg',
   portrait: '/media/aishwarya-reganti-portrait.jpg',
   room: {
@@ -267,7 +269,7 @@ export const COLLY_GRAHAM = {
   starterInRoom: true,
   firstName: 'Colly',
   initials: 'CG',
-  participantName: 'User', // the learner's tile label in the live room (default is 'Candidate')
+  participantName: 'User', // the learner's tile label in the live room
   face: '/media/colly-graham-headshot.jpg',
   portrait: '/media/colly-graham-portrait.jpg',
   room: {
