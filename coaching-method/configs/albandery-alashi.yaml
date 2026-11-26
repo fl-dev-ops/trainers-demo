@@ -3,9 +3,11 @@
 # Source: lore users/albandery-alashi (lore a9d24dd0): 46 LinkedIn posts of her own (2020-2026, mostly Arabic, about
 # 2,300 words), 42 posts by the Estedama Solutions Center account, 56 pages of elstedamasolutions.com (Arabic). No talks,
 # podcasts or interviews exist (checked 25-26 Nov 2026), so the page follows one written post (session.post_turns).
-# Exchange: her LinkedIn post of 30 Aug 2026 "من أكثر الأسئلة التي تكشف جودة أي مشروع تدريبي": the client asks for "a programme
-# in communication, leadership or presentations"; she asks whether we started from the course name or from the problem, and
-# answers that good design starts with listening, diagnosing reality and defining the impact.
+# Exchange (v2, 26 Nov 2026, Lalith/Cathy): her LinkedIn post of 30 Aug 2026 "غالباً إذا ما نجح العرض": when a presentation
+# doesn't work, we fix the slides or rehearse more; the problem may be deeper, in the clarity of the message or the impact; the
+# right diagnosis must come before development. A monologue: she raises the usual instinct herself and answers it (like
+# Gopal's page), so there is no learner turn. Backed by her 6 Sep 2026 post. v1 followed her other 30 Aug post (course name
+# vs problem), which read as a training consultant rather than a coach.
 # Principle and do's and don'ts proposed by Cathy (26 Nov 2026), every line checked against lore. Lines from the centre's
 # account or website are credited to Estedama, not to her. Quotes are Arabic; cards show English translations marked as such.
 # Pronouns she/her.
@@ -19,29 +21,25 @@ coach:
 mobile: true
 
 session:
-  file: linkedin/posts/2026-08-30-من-أكثر-الأسئلة-التي-تكشف.md
-  title: Did we start from the course name, or from the problem?
+  file: linkedin/posts/2026-08-30-غالبا-إذا-ما-نجح-العرض.md
+  title: When a presentation doesn't land
   kind: LinkedIn · 30 Aug 2026 · Arabic
-  other: The request
-  other_role: Client
+  other: The usual fix
+  other_role: The usual fix
   post_turns:
-    - {who: coach, text: "هل بدأنا من اسم الدورة… أم من المشكلة التي نريد حلها؟"}
-    - {who: other, text: "نحتاج برنامجاً في التواصل، أو القيادة، أو العروض."}
-    - {who: coach, text: "لكن الاسم وحده لا يخبرنا أين الفجوة، ولا لماذا ظهرت، ولا ما السلوك الذي نريد أن يتغير بعد التدريب."}
-    - {who: coach, text: "لهذا أؤمن أن تصميم البرامج الجيدة يبدأ قبل كتابة المحتوى؛ يبدأ بالاستماع، وتشخيص الواقع، وتحديد الأثر المطلوب بوضوح."}
-    - {who: coach, text: "أما إذا بدأنا بالحل الجاهز، فقد ننفذ برنامجاً جميلاً… لا يعالج ما يحتاجه الناس فعلاً."}
-  cue: 1
-  move: 3
+    - {who: coach, text: "غالباً إذا ما نجح العرض بالشكل اللي نتوقعه، نبدأ بتعديل الشرائح أو نتدرب أكثر على الإلقاء."}
+    - {who: coach, text: "لكن أحيانا تكون المشكلة أعمق: في وضوح الرسالة، أو في الأثر اللي نبي نتركه عند الجمهور."}
+    - {who: coach, text: "هذا الكاروسيل يوضح ليش التشخيص الصحيح لازم يسبق التطوير."}
+  cue: 0
+  move: 1
   frames:
-    - ["question", "asking whether a training project started from the course name or from the problem (translated from Arabic)"]
-    - ["statement", "the usual request: we need a programme in communication, leadership or presentations"]
-    - ["reframe", "the name alone doesn't show where the gap is, why it appeared, or what behaviour should change"]
-    - ["reframe", "good design starts before the content: listen, diagnose the reality, define the impact"]
-    - ["statement", "start from a ready-made solution and you may run a beautiful programme that doesn't fix what people need"]
+    - ["statement", "naming the usual fix when a presentation doesn't land: edit the slides or rehearse the delivery more (translated from Arabic)"]
+    - ["reframe", "the problem may be deeper: in the clarity of the message, or the impact we want to leave on the audience"]
+    - ["statement", "why the right diagnosis must come before development"]
 
 thread:
   situation: presentation-going-off-plan
-  situation_label: a presentation or a training request that isn't working
+  situation_label: a presentation that isn't landing
   topic: presentation-skills
   phase: 1
   belief: 0
@@ -70,40 +68,40 @@ beliefs:
   - {title: Training changes behaviour, text: 'Real training is no longer transferring information… but changing behaviour at work. (Estedama’s LinkedIn, translated)', phases: [2, 5]}
 
 steps:
-  collect: "We read {linkedin} LinkedIn posts, hers and the Estedama Solutions Center’s, and {web} pages of the centre’s website: <em>{words} words across {lines} lines.</em> Almost all of it is in Arabic. Albandery hasn’t published talks or interviews, so we follow one of her own posts, where she asks the question herself and answers it. English lines on this page are our translations."
-  transcript: ["A post becomes text", "The post is split into the client’s request and Albandery’s lines. At first, it is simply a record of what was written, in Arabic."]
-  trace: ["One answer becomes a principle", "We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the line where Albandery answers the request."]
-  speakers: ["Who said what", "We separate the request a client typically makes from Albandery’s reply, and mark the line she responds to."]
-  layer1: "The usual request, as she writes it: <em>&ldquo;We need a programme in communication, leadership or presentations.&rdquo;</em> Her answer starts with a question: <em>&ldquo;Did we start from the course name… or from the problem we want to solve?&rdquo;</em> (translated from Arabic). These exact lines are the evidence for everything that follows."
-  meaning: "A client names the course they think they need. Albandery doesn’t start building it. She asks where the gap is, why it appeared and what behaviour should change, and only then designs the programme."
-  cue: "Asked for a programme by name, Albandery answers, <em>&ldquo;Good programme design starts before the content: it starts with listening, diagnosing the reality and defining the impact.&rdquo;</em> (translated from Arabic)"
-  layer2: "She moves the conversation from the course title to the gap. The response stays linked to the exact line."
-  layer3: "A presentation or a training request isn’t working, and the first instinct is to fix the slides or practise more. In Albandery’s material this shows up as <em>a presentation going off plan</em>."
-  layer4: "Albandery keeps coming back to diagnosis first: she wrote about it in three posts within two weeks (23 August to 6 September 2026), and both of the centre’s programmes start with a recorded baseline before any training."
-  layer5: "The purpose is to make practice target the real gap, not the most visible symptom."
+  collect: "We read {linkedin} LinkedIn posts, hers and the Estedama Solutions Center’s, and {web} pages of the centre’s website: <em>{words} words across {lines} lines.</em> Almost all of it is in Arabic. Albandery hasn’t published talks or interviews, so we follow one of her own posts, where she names the usual fix herself and answers it. English lines on this page are our translations."
+  transcript: ["A post becomes text", "The post is split into its lines: the usual fix she names, and her answer. At first, it is simply a record of what was written, in Arabic."]
+  trace: ["One answer becomes a principle", "We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the line where Albandery redirects the usual fix."]
+  speakers: ["Who said what", "There is no second speaker here: Albandery names the usual fix herself, so we mark that line and the line where she answers it."]
+  layer1: "The usual fix, as she writes it: <em>&ldquo;When a presentation doesn’t work the way we expect, we usually start editing the slides or practising the delivery more.&rdquo;</em> Her answer: <em>&ldquo;But sometimes the problem is deeper: in the clarity of the message, or in the impact we want to leave on the audience.&rdquo;</em> (translated from Arabic). These exact lines are the evidence for everything that follows."
+  meaning: "A talk isn’t landing and the instinct is to polish what’s most visible: the slides or the delivery. Albandery stops that and sends you to find where the talk actually loses its impact first."
+  cue: "When the fix is more slides or more rehearsal, Albandery answers, <em>&ldquo;Sometimes the problem is deeper: in the clarity of the message, or in the impact we want to leave.&rdquo;</em> (translated from Arabic)"
+  layer2: "She redirects the learner from the slides and the delivery to where the talk loses its impact. The response stays linked to the exact line."
+  layer3: "A learner’s presentation isn’t landing, and their instinct is to polish the slides or rehearse more. In Albandery’s material this shows up as <em>a presentation going off plan</em>."
+  layer4: "Albandery comes back to this in two posts within a week: on 30 August, and on 6 September, <em>&ldquo;Before you start improving the delivery or the slides, know exactly where your presentation loses its impact.&rdquo;</em> Estedama’s presentation course builds it in: its Presentation Impact Profile™ gives learners an initial picture of their current level before they develop their talk."
+  layer5: "The purpose is practice that targets the real gap (the message or the impact), not the most visible symptom (the slides or the delivery)."
   layer6: "<em>Diagnose before you develop.</em> In her words: &ldquo;We can’t develop something we haven’t diagnosed correctly&rdquo; (translated from Arabic)."
 
 cards:
   layer1:
-    cue: "We need a programme in communication, leadership or presentations. (translated from Arabic)"
-    move: "Good programme design starts before the content: it starts with listening, diagnosing the reality and defining the impact clearly. (translated from Arabic)"
+    cue: "When a presentation doesn't work the way we expect, we usually start editing the slides or practising the delivery more. (translated from Arabic)"
+    move: "But sometimes the problem is deeper: in the clarity of the message, or in the impact we want to leave on the audience. (translated from Arabic)"
     foot: Two lines from one post &middot; 30 Aug 2026 &middot; Arabic
   layer2:
-    cue: Hears a request for a course by its name
-    move: Asks where the gap is before prescribing anything
+    cue: Hears the learner wants to fix the slides or the delivery
+    move: Redirects them to find where the talk loses its impact first
   layer3:
-    title: A request that skips the diagnosis
-    text: A presentation isn't landing, or a team asks for a course by name, and the first fix is the slides or more practice.
+    title: A talk that isn't landing
+    text: A learner's presentation isn't landing, and their instinct is to polish the slides or rehearse more.
     foot: Situation in {his} material &middot; a presentation going off plan
   layer4:
     title: Diagnosis first
-    text: Albandery keeps coming back to finding the gap before building anything, and the centre's programmes record a baseline before training starts.
-    foot: Recurring pattern &middot; 3 of her posts in 2 weeks, plus the centre's Evidence of Change™ method
+    text: Albandery comes back to finding where a talk loses its impact before fixing anything, and Estedama's presentation course starts with its Presentation Impact Profile™.
+    foot: Recurring pattern &middot; 2 of her posts in a week (30 Aug, 6 Sep 2026), plus Estedama's course page
   layer5:
     title: Practice that targets the real gap
-    text: Diagnose the reality, define the change you want, then design and practise for that change.
-    starts: '&ldquo;We need a course in presentations&rdquo;'
-    moves_to: '&ldquo;We know where the gap is&rdquo;'
+    text: Find where the talk loses its impact, the message or the effect on the audience, then practise for that.
+    starts: '&ldquo;I need better slides&rdquo;'
+    moves_to: '&ldquo;I know where my talk loses its impact&rdquo;'
   layer6:
     quote: Diagnose before you develop.
     text: 'In her words: <em>&ldquo;We can&rsquo;t develop something we haven&rsquo;t diagnosed correctly.&rdquo;</em> (LinkedIn, 6 Sep 2026, translated from Arabic)'
