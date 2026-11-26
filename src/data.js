@@ -262,6 +262,21 @@ export const AISHWARYA_REGANTI = {
   },
 }
 
+export const ALBANDERY_ALASHI = {
+  id: 'albandery-alashi',
+  name: 'Albandery Alashi',
+  firstName: 'Albandery',
+  initials: 'AA',
+  participantName: 'User',
+  face: '/media/albandery-alashi-headshot.jpg',
+  portrait: '/media/albandery-alashi-headshot.jpg',
+  room: {
+    kind: 'Methodology · Demo',
+    title: 'How Albandery’s twin learns',
+    scenario: 'Methodology demo only. There is no live twin for Albandery yet.',
+  },
+}
+
 export const COLLY_GRAHAM = {
   id: 'colly-graham',
   name: 'Colly Graham',
@@ -650,5 +665,18 @@ COLLY_GRAHAM.sources = [
   ]],
   ['Website', '29 pages', [
     ['collygraham.com and salesxcellence.com', 'Keynotes, books, programmes and approach'],
+  ]],
+]
+
+ALBANDERY_ALASHI.sourceSummary = '46 LinkedIn posts · 42 Estedama posts · 56 website pages'
+ALBANDERY_ALASHI.sources = [
+  ['LinkedIn', '46 posts', [
+    ['Albandery Alashi on LinkedIn', 'Her own posts, 2020 to November 2026, mostly in Arabic'],
+  ]],
+  ['LinkedIn', '42 company posts', [
+    ['Estedama Solutions Center on LinkedIn', 'The centre’s own posts'],
+  ]],
+  ['Website', '56 pages', [
+    ['elstedamasolutions.com', 'Estedama’s programmes and approach, in Arabic'],
   ]],
 ]
