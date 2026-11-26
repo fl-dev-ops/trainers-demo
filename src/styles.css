@@ -394,3 +394,8 @@ svg{flex:none}
 .chat-math .katex{font-size:1.05em}
 .chat-math-block{margin:4px 0 10px;overflow-x:auto;max-width:100%}
 .chat-math{max-width:100%;overflow-x:auto;vertical-align:middle}
+
+/* Role-play card that isn't built yet (Albandery) */
+.soon-peek{align-items:flex-start;justify-content:space-between}
+.soon-tag{align-self:center;margin:auto 0;font-size:15px;font-weight:500;color:var(--text-2);border:1px dashed var(--border);border-radius:999px;padding:8px 18px}
+.path--soon .btn--ghost{cursor:default;border:1px solid var(--border)}
