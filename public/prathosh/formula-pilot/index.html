@@ -1,0 +1,322 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="robots" content="noindex, nofollow"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Prathosh formula pilot: review sheet</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\(',right:'\\)',display:false}],throwOnError:false})"></script>
+<style>body{font:15px/1.5 system-ui;margin:24px;max-width:1300px;color:#222}h1{font-size:22px}h2{margin-top:36px;border-bottom:1px solid #ddd}
+.row{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:18px;border-bottom:1px solid #eee;padding:14px 0}.row img{width:100%;max-width:420px;border:1px solid #ccc}
+.eq{margin:6px 0;padding:6px 8px;background:#fafafa;border-left:3px solid #4a7}.eq.p{border-color:#d90}.ra{color:#555;font-size:13px}.t{font-weight:600;color:#666}
+.ok{font-size:12px;color:#888}.qa{background:#f6f8ff;padding:12px;margin:12px 0;border-radius:6px;white-space:pre-wrap}@media (max-width:700px){.row{grid-template-columns:minmax(0,1fr)}}.eq{overflow-x:auto}</style></head><body>
+<h1>Prathosh A P · formulas read from lecture videos (pilot)</h1>
+<p>Each row is a frame captured just before the board changes. On the right: what a vision model (Gemini 2.5 Flash) read, as an equation and as it would be said aloud. <b>Orange</b> = the model marked it partial (cut off on screen). Please mark anything wrong. Duplicates of an expression already shown are skipped.</p>
+<h2>Lec 22 · Expectation Maximization Algorithm <span class="ok">youtube.com/watch?v=ejma0iH1pXE</span></h2>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=0s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00000.jpg"></a><div class="t">0:00</div></div><div>
+<div class="eq">\(\theta^* = \operatorname{argmax}_{\theta} \ell(\theta)\)<div class="ra">Read aloud: theta star equals the argument that maximizes with respect to theta, of l of theta</div></div>
+<div class="eq">\(\hat{\theta}^* = \operatorname{argmax}_{\theta} F_{\theta}(q)\)<div class="ra">Read aloud: theta hat star equals the argument that maximizes with respect to theta, of F sub theta of q</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=50s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00050.jpg"></a><div class="t">0:50</div></div><div>
+<div class="eq">\(\log \mathbb{E}_{q(z)}\left[\frac{P_{\theta}(x, z)}{q(z)}\right] \geq \mathbb{E}_{q(z)} \log \left[\frac{P_{\theta}(x, z)}{q(z)}\right]\)<div class="ra">Read aloud: log of the expectation over q of z of the ratio of P theta of x comma z over q of z, is greater than or equal to the expectation over q of z of log of the ratio of P theta of x comma z over q of z</div></div>
+<div class="eq">\(L(\theta) \geq F_{\theta}(q)\)<div class="ra">Read aloud: L of theta is greater than or equal to F theta of q</div></div>
+<div class="eq">\(F_{\theta}(q)\)<div class="ra">Read aloud: F theta of q</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=60s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00060.jpg"></a><div class="t">1:00</div></div><div>
+<div class="eq">\(\hat{\theta}^{*} = \operatorname{argmax}_{\theta} F_{\theta}(q)\)<div class="ra">Read aloud: theta hat star equals argmax over theta of F sub theta of q</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=110s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00110.jpg"></a><div class="t">1:50</div></div><div>
+<div class="eq">\(\theta^{*} = \operatorname{argmax}_{\theta} \ell(\theta)\)<div class="ra">Read aloud: theta star equals argmax over theta of ell of theta</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=140s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00140.jpg"></a><div class="t">2:20</div></div><div>
+<div class="eq">\(\hat{\theta}, q = \operatorname{argmax}_{\theta, q} F_{\theta}(q)\)<div class="ra">Read aloud: theta hat comma q equals argmax over theta comma q of F sub theta of q</div></div>
+<div class="eq">\(q(z)\)<div class="ra">Read aloud: q of z</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=200s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00200.jpg"></a><div class="t">3:20</div></div><div>
+<div class="eq">\(\theta, q = \operatorname{argmax}_{\theta, q} f_{\theta}(q)\)<div class="ra">Read aloud: theta comma q equals argmax over theta comma q of f sub theta of q</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=220s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00220.jpg"></a><div class="t">3:40</div></div><div>
+<div class="eq">\(\hat{\theta}^*; q = \operatorname{argmax}_{\theta, q} F_{\theta}(q)\)<div class="ra">Read aloud: theta hat star semicolon q equals argmax over theta comma q of F sub theta of q</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=350s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00350.jpg"></a><div class="t">5:50</div></div><div>
+<div class="eq">\(\hat{\theta}^*, q = \operatorname{argmax}_{\theta, q} F_{\theta}(q)\)<div class="ra">Read aloud: theta hat star, q equals argmax over theta, q of F sub theta of q</div></div>
+<div class="eq">\(\ell(\theta) - F_{\theta}(q) = \log P_{\theta}(x) - \sum_z q(z)\)<div class="ra">Read aloud: ell of theta minus F sub theta of q equals log P sub theta of x minus the sum over z of q of z</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=410s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00410.jpg"></a><div class="t">6:50</div></div><div>
+<div class="eq">\(\ell(\theta) - F_{\theta}(q) = \log P_{\theta}(x) - \sum_{z} q(z) \log \frac{P_{\theta}(x,z)}{q(z)}\)<div class="ra">Read aloud: ell of theta minus F sub theta of q equals log P sub theta of x minus sum over z of q of z log of the fraction P sub theta of x comma z over q of z</div></div>
+<div class="eq">\(= \log P_{\theta}(x) - \sum_{z} q(z) \log P_{\theta}(x) \cdot P_{\theta}(z|x)\)<div class="ra">Read aloud: equals log P sub theta of x minus sum over z of q of z log P sub theta of x times P sub theta of z given x</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=440s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00440.jpg"></a><div class="t">7:20</div></div><div>
+<div class="eq">\(\mathcal{L}(\theta) - F_{\theta}(q) = \log P_{\theta}(x) - \sum_{z} q(z) \log \frac{P_{\theta}(x, z)}{q(z)}\)<div class="ra">Read aloud: script L of theta minus F sub theta of q equals log P sub theta of x minus sum over z of q of z log of the fraction P sub theta of x comma z over q of z</div></div>
+<div class="eq">\(= \log P_{\theta}(x) - \sum_{z} q(z) \log \frac{P_{\theta}(x) \cdot P_{\theta}(z|x)}{q(z)}\)<div class="ra">Read aloud: equals log P sub theta of x minus sum over z of q of z log of the fraction P sub theta of x times P sub theta of z given x over q of z</div></div>
+<div class="eq">\(= \log P_{\theta}(x) - \log P_{\theta}(x) - \sum_{z} q(z) \log \frac{P_{\theta}(z|x)}{q(z)}\)<div class="ra">Read aloud: equals log P sub theta of x minus log P sub theta of x minus sum over z of q of z log of the fraction P sub theta of z given x over q of z</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=470s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00470.jpg"></a><div class="t">7:50</div></div><div>
+<div class="eq">\(= \log P_\theta (x) - \sum_z q(z) \log \frac{P_\theta (x) \cdot P_\theta (z|x)}{q(z)}\)<div class="ra">Read aloud: equals log P sub theta of x minus sum over z of q of z log of the fraction P sub theta of x times P sub theta of z given x all over q of z</div></div>
+<div class="eq">\(= \log P_\theta (x) - \log P_\theta (x) - \sum_z q(z) \log \frac{P_\theta (z|x)}{q(z)}\)<div class="ra">Read aloud: equals log P sub theta of x minus log P sub theta of x minus sum over z of q of z log of the fraction P sub theta of z given x all over q of z</div></div>
+<div class="eq">\(= \sum_z q(z) \log \frac{q(z)}{P_\theta (z|x)}\)<div class="ra">Read aloud: equals sum over z of q of z log of the fraction q of z all over P sub theta of z given x</div></div>
+<div class="eq p">\(\frac{J}{q(z)}\)<div class="ra">Read aloud: J over q of z</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=500s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00500.jpg"></a><div class="t">8:20</div></div><div>
+<div class="eq">\(= \log p_\theta(x) - \log p_\theta(x) - \sum q(z) \log \frac{p_\theta(z|x)}{q(z)}\)<div class="ra">Read aloud: equals log p sub theta of x minus log p sub theta of x minus sum over z of q of z log of the ratio of p sub theta of z given x to q of z</div></div>
+<div class="eq">\(= \sum_z q(z) \log \frac{q(z)}{p_\theta(z|x)}\)<div class="ra">Read aloud: equals sum over z of q of z log of the ratio of q of z to p sub theta of z given x</div></div>
+<div class="eq">\(= D_{KL} (q(z) \| p_\theta(z|x))\)<div class="ra">Read aloud: equals D K L of q of z parallel to p sub theta of z given x</div></div>
+<div class="eq">\(= \mathcal{L}(\theta) - F_\theta(q)\)<div class="ra">Read aloud: equals script L of theta minus F sub theta of q</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=520s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00520.jpg"></a><div class="t">8:40</div></div><div>
+<div class="eq">\(= D_{KL} (q(z) || P_\theta(z|x))\)<div class="ra">Read aloud: equals D K L of q of z double bar P sub theta of z given x</div></div>
+<div class="eq">\(= \ell(\theta) - F_\theta(q)\)<div class="ra">Read aloud: equals script L of theta minus F sub theta of q</div></div>
+<div class="eq">\(\text{Max } F_\theta(q) = \ell(\theta)\)<div class="ra">Read aloud: Maximize F sub theta of q equals script L of theta</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=570s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00570.jpg"></a><div class="t">9:30</div></div><div>
+<div class="eq">\(= D_{KL} (q(z) || P_{\theta} (z|x))\)<div class="ra">Read aloud: equals D K L of q of z, double bar, P theta of z given x</div></div>
+<div class="eq">\(= \ell(\theta) - F_{\theta}(q)\)<div class="ra">Read aloud: equals script L of theta minus F theta of q</div></div>
+<div class="eq">\(\text{Max } F_{\theta}(q) = \ell(\theta)\)<div class="ra">Read aloud: Maximum F theta of q equals script L of theta</div></div>
+<div class="eq">\(\therefore \ell(\theta) - F_{\theta}(q) = 0 \text{ iff } D_{KL} (q(z) || P_{\theta}(z|x))\)<div class="ra">Read aloud: Therefore, script L of theta minus F theta of q equals zero if and only if D K L of q of z, double bar, P theta of z given x</div></div>
+<div class="eq p">\(\Rightarrow q^*(z) = P_{\theta} (z\)<div class="ra">Read aloud: implies q star of z equals P theta of z</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=580s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00580.jpg"></a><div class="t">9:40</div></div><div>
+<div class="eq">\(\therefore \ell(\theta) - F_{\theta}(q) = 0 \text{ iff } D_{KL} (q(z) || P_{\theta} (z|x)) = 0\)<div class="ra">Read aloud: Therefore, ell of theta minus F sub theta of q equals zero if and only if D K L of q of z, double bar, P sub theta of z given x, equals zero</div></div>
+<div class="eq">\(\Rightarrow q^*(z) = P_{\theta} (z|x)\)<div class="ra">Read aloud: This implies q star of z equals P sub theta of z given x</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=620s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00620.jpg"></a><div class="t">10:20</div></div><div>
+<div class="eq">\(\therefore \ell(\theta) - F_{\theta}(q) = 0 \text{ iff } D_{KL}(q(z) \| P_{\theta}(z|x)) = 0\)<div class="ra">Read aloud: Therefore, l of theta minus F sub theta of q equals zero if and only if the Kullback-Leibler divergence of q of z parallel to P sub theta of z given x equals zero</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=830s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00830.jpg"></a><div class="t">13:50</div></div><div>
+<div class="eq">\(\mathcal{L}(\theta) - F_{\theta}(q) = 0 \quad \text{iff} \quad D_{KL}(q(z) \| P_{\theta}(z|x))\)<div class="ra">Read aloud: script L of theta minus F sub theta of q equals zero if and only if D K L of q of z double bar P sub theta of z given x</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=870s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00870.jpg"></a><div class="t">14:30</div></div><div>
+<div class="eq">\(\Rightarrow q^{*}(z) = P_{\theta}(z|x)\)<div class="ra">Read aloud: This implies that q star of z equals P sub theta of z given x.</div></div>
+<div class="eq">\(\theta^0\)<div class="ra">Read aloud: theta naught</div></div>
+<div class="eq">\(q^t(z) = P_{\theta^t}(z|x)\)<div class="ra">Read aloud: compute q super t of z equals P sub theta super t of z given x</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=900s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00900.jpg"></a><div class="t">15:00</div></div><div>
+<div class="eq">\(\ell(\theta)\)<div class="ra">Read aloud: ell of theta</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=980s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t00980.jpg"></a><div class="t">16:20</div></div><div>
+<div class="eq">\(\theta^t\)<div class="ra">Read aloud: theta to the power t</div></div>
+<div class="eq">\(F_{\theta^t}(q^t) = \mathbb{E}_{q^t(z)} \log \frac{P_{\theta^t}(x,z)}{q^t(z)}\)<div class="ra">Read aloud: F sub theta to the power t of q to the power t equals the expectation with respect to q to the power t of z of the logarithm of the fraction P sub theta to the power t of x comma z divided by q to the power t of z</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=1000s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t01000.jpg"></a><div class="t">16:40</div></div><div>
+<div class="eq">\(q^t(z) = P_{\Theta^t}(z|x)\)<div class="ra">Read aloud: q superscript t of z equals P sub theta superscript t of z given x</div></div>
+<div class="eq">\(F_{\Theta^t}(q^t) = \mathbb{E}_{q^t(z)} \log \frac{P_{\Theta^t}(x,z)}{q^t(z)}\)<div class="ra">Read aloud: F sub theta superscript t of q superscript t equals the expectation with respect to q superscript t of z of the logarithm of the ratio of P sub theta superscript t of x comma z to q superscript t of z</div></div>
+<div class="eq p">\(\Theta^{t+1} \leftarrow \operatorname{argmax} F_{\Theta^t}(o\)<div class="ra">Read aloud: Theta superscript t plus one is assigned the argument that maximizes F sub theta superscript t of o</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=1020s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t01020.jpg"></a><div class="t">17:00</div></div><div>
+<div class="eq">\(F_{\theta^t} (q^t) = \mathbb{E}_{q^t(z)} \log \frac{P_{\theta} (x,z)}{q^t(z)}\)<div class="ra">Read aloud: F sub theta superscript t of q superscript t equals the expectation with respect to q superscript t of z of the logarithm of the ratio of P sub theta of x comma z to q superscript t of z</div></div>
+<div class="eq">\(\theta^{t+1} \leftarrow \operatorname{argmax}_{\theta} F_{\theta} (q^t)\)<div class="ra">Read aloud: theta superscript t plus one is assigned the argument that maximizes over theta of F sub theta of q superscript t</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=1030s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t01030.jpg"></a><div class="t">17:10</div></div><div>
+<div class="eq">\(F_{\theta^t}(q^t) = \mathbb{E}_{q^t(z)} \log \frac{P_{\theta}(x,z)}{q^t_{\theta}(z)}\)<div class="ra">Read aloud: F sub theta superscript t of q superscript t equals the expectation with respect to q superscript t of z of the logarithm of the ratio of P sub theta of x comma z to q sub theta superscript t of z</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=1040s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t01040.jpg"></a><div class="t">17:20</div></div><div>
+<div class="eq">\(q^{t}(z) = P_{\theta^{t}}(z|x)\)<div class="ra">Read aloud: q superscript t of z equals P sub theta superscript t of z given x</div></div>
+<div class="eq">\(F_{\theta^{t}}(q^{t}) = \mathbb{E}_{q^{t}(z)} \log \frac{P_{\theta}(x,z)}{q^{t}(z)}\)<div class="ra">Read aloud: F sub theta superscript t of q superscript t equals the expectation with respect to q superscript t of z of the logarithm of the ratio of P sub theta of x comma z to q superscript t of z</div></div>
+<div class="eq">\(\theta^{t+1} \leftarrow \operatorname{argmax}_{\theta} F_{\theta}(q^{t})\)<div class="ra">Read aloud: theta superscript t plus one is assigned the argument maximum over theta of F sub theta of q superscript t</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=1060s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t01060.jpg"></a><div class="t">17:40</div></div><div>
+<div class="eq">\(\theta^{t+1} \leftarrow \operatorname{argmax}_{\theta} \left[F_{\theta}(q^{t})\right]\)<div class="ra">Read aloud: theta superscript t plus one is assigned the argument that maximizes over theta of F sub theta of q superscript t</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=1070s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t01070.jpg"></a><div class="t">17:50</div></div><div>
+<div class="eq">\(\theta^{t+1} \leftarrow \operatorname{argmax}_{\theta} \left[ F_{\theta}(q^t) \right]\)<div class="ra">Read aloud: theta superscript t plus one is assigned the argument maximum over theta of F subscript theta of q superscript t</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=1140s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t01140.jpg"></a><div class="t">19:00</div></div><div>
+<div class="eq">\(F_{\theta}(q^{t}) = \mathbb{E}_{q^{t}(z)} \log \frac{P_{\theta}(x,z)}{q^{t}(z)}\)<div class="ra">Read aloud: F sub theta of q superscript t equals the expectation with respect to q superscript t of z of the logarithm of the ratio of P sub theta of x comma z to q superscript t of z</div></div>
+<div class="eq">\(\theta^{t+1} \leftarrow \operatorname{argmax} [F_{\theta}(q^{t})]\)<div class="ra">Read aloud: theta superscript t plus one is assigned the argmax of F sub theta of q superscript t</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=1150s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t01150.jpg"></a><div class="t">19:10</div></div><div>
+<div class="eq">\(\theta\)<div class="ra">Read aloud: theta</div></div>
+<div class="eq">\(F_{\theta}(q^t) = \mathbb{E}_{q^t(z)} \log \frac{P_{\theta}(x,z)}{q^t(z)}\)<div class="ra">Read aloud: F sub theta of q superscript t equals the expectation with respect to q superscript t of z of the logarithm of the ratio of P sub theta of x comma z to q superscript t of z</div></div>
+<div class="eq p">\(\theta^{t+1} \leftarrow \operatorname{argmax}\)<div class="ra">Read aloud: theta superscript t plus one gets argmax</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=1190s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t01190.jpg"></a><div class="t">19:50</div></div><div>
+<div class="eq">\(\theta&#x27;\)<div class="ra">Read aloud: theta prime</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=1290s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t01290.jpg"></a><div class="t">21:30</div></div><div>
+<div class="eq">\(\Rightarrow q^*(z) = P_\theta (z|x)\)<div class="ra">Read aloud: This implies q star of z equals P sub theta of z given x.</div></div>
+<div class="eq">\(F_\theta (q^t) = \mathbb{E}_{q^t(z)} \log \frac{P_\theta (x,z)}{q^t(z)}\)<div class="ra">Read aloud: F sub theta of q superscript t equals the expectation with respect to q superscript t of z of the logarithm of the ratio of P sub theta of x comma z to q superscript t of z.</div></div>
+<div class="eq">\(\theta^{t+1} \leftarrow \operatorname{argmax}_\theta \left[ F_\theta (q^t) \right]\)<div class="ra">Read aloud: theta superscript t plus one is assigned the argument maximum over theta of F sub theta of q superscript t.</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=1350s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t01350.jpg"></a><div class="t">22:30</div></div><div>
+<div class="eq">\(\text{Max } F_{\theta}(q) = \ell(\theta) \text{ , by construction.}\)<div class="ra">Read aloud: Maximum of F sub theta of q equals ell of theta, by construction.</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=ejma0iH1pXE&t=1520s" target="_blank"><img src="/prathosh/formula-pilot/frames/ejma0iH1pXE/t01520.jpg"></a><div class="t">25:20</div></div><div>
+<div class="eq">\(\Theta^{t+1} \leftarrow \operatorname{argmax}_{\Theta} \left[F_{\Theta}\left(q^{t}\right)\right]\)<div class="ra">Read aloud: Theta at time t plus one is assigned the argument that maximizes with respect to Theta, the function F of Theta of q at time t.</div></div>
+<div class="eq">\(\ell\left(\Theta^{t+1}\right) \geq \ell\left(\Theta^{t}\right)\)<div class="ra">Read aloud: The likelihood of Theta at time t plus one is greater than or equal to the likelihood of Theta at time t.</div></div>
+</div></div>
+<h2>Lec 37 · SVM Formulation <span class="ok">youtube.com/watch?v=aO3FTnrf2bQ</span></h2>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=20s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00020.jpg"></a><div class="t">0:20</div></div><div>
+<div class="eq">\(g(x)\)<div class="ra">Read aloud: g of x</div></div>
+<div class="eq">\(\frac{2}{\|w\|}\)<div class="ra">Read aloud: two divided by the norm of w</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=70s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00070.jpg"></a><div class="t">1:10</div></div><div>
+<div class="eq">\(\min_{w} \frac{\|w\|}{2}\)<div class="ra">Read aloud: minimize over w, the norm of w divided by two</div></div>
+<div class="eq">\(s.t \quad (w^T x_i + b) y_i\)<div class="ra">Read aloud: subject to, w transpose x i plus b, times y i</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=220s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00220.jpg"></a><div class="t">3:40</div></div><div>
+<div class="eq">\(\min_{W} \frac{||W||}{2}\)<div class="ra">Read aloud: minimize over W, the norm of W divided by two</div></div>
+<div class="eq">\(s.t \quad (W^T x_i + b) y_i \geq 1 \quad \forall i\)<div class="ra">Read aloud: subject to, W transpose x i plus b, times y i, is greater than or equal to one, for all i</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=340s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00340.jpg"></a><div class="t">5:40</div></div><div>
+<div class="eq">\(\min_{w} \frac{||W||}{2}\)<div class="ra">Read aloud: minimize over w, the norm of W divided by two</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=650s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00650.jpg"></a><div class="t">10:50</div></div><div>
+<div class="eq p">\(L(W, \mu) = ||w|| + \sum_{i=1}^{n}\)<div class="ra">Read aloud: L of W comma mu equals the norm of w plus the summation from i equals one to n</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=670s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00670.jpg"></a><div class="t">11:10</div></div><div>
+<div class="eq">\(1 - (W^T x_i + b)\)<div class="ra">Read aloud: one minus, W transpose x i plus b</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=720s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00720.jpg"></a><div class="t">12:00</div></div><div>
+<div class="eq">\(L(w, \mu, b) = \frac{w^T w}{2} + \sum_{i=1}^{n} \left[1 - y_i(w^T x_i + b)\right] \mu_i\)<div class="ra">Read aloud: L of w, mu, b equals w transpose w over two plus the sum from i equals one to n of the quantity one minus y sub i times the quantity w transpose x sub i plus b, all multiplied by mu sub i</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=760s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00760.jpg"></a><div class="t">12:40</div></div><div>
+<div class="eq">\(L(W, \mu, b) = \frac{W^T W}{2} + \sum_{i=1}^{n} \left[1 - y_i (W^T x_i + b)\right] \mu_i\)<div class="ra">Read aloud: L of W, mu, b equals W transpose W over two, plus the sum from i equals one to n, of, open bracket, one minus y sub i times, open parenthesis, W transpose x sub i plus b, close parenthesis, close bracket, times mu sub i.</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=800s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00800.jpg"></a><div class="t">13:20</div></div><div>
+<div class="eq">\(\nabla_W L(W^*, \mu^*) = 0\)<div class="ra">Read aloud: The gradient with respect to W of L, evaluated at W star, mu star, equals zero.</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=810s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00810.jpg"></a><div class="t">13:30</div></div><div>
+<div class="eq">\(\nabla_W L(W^*; \mu^*) = 0\)<div class="ra">Read aloud: The gradient with respect to W of L of W star semicolon mu star equals zero.</div></div>
+<div class="eq">\(\mu_j^* \ge 0\)<div class="ra">Read aloud: Mu sub j star is greater than or equal to zero.</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=830s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00830.jpg"></a><div class="t">13:50</div></div><div>
+<div class="eq p">\(\mu_j^* (1 - y_i (W^T x_i + b))\)<div class="ra">Read aloud: Mu sub j star times the quantity one minus y sub i times the quantity W transpose x sub i plus b.</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=840s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00840.jpg"></a><div class="t">14:00</div></div><div>
+<div class="eq p">\(L(W, \mu, b) = \frac{W^T W}{2} + \sum_{i=1}\)<div class="ra">Read aloud: L of W, mu, b equals W transpose W divided by 2 plus the sum from i equals 1</div></div>
+<div class="eq">\(\mu_j^* \left(1 - y_i (W^T x_i + b)\right) = 0\)<div class="ra">Read aloud: mu j star times the quantity 1 minus y i times the quantity W transpose x i plus b, equals 0</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=880s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00880.jpg"></a><div class="t">14:40</div></div><div>
+<div class="eq">\(\nabla_w L(w^*; \mu^*) = 0\)<div class="ra">Read aloud: nabla sub w L of w star semicolon mu star equals zero</div></div>
+<div class="eq">\(\mu_j^* \left(1 - y_j \left(w^T x_j + b\right)\right) = 0\)<div class="ra">Read aloud: mu j star times open parenthesis one minus y j times open parenthesis w transpose x j plus b close parenthesis close parenthesis equals zero</div></div>
+<div class="eq">\(\nabla_w L = 0 \implies w^* = \sum_{i=1}^{n} \mu_i\)<div class="ra">Read aloud: nabla sub w L equals zero implies w star equals the sum from i equals one to n of mu i</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=890s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00890.jpg"></a><div class="t">14:50</div></div><div>
+<div class="eq">\(\mu_j^* \left(1 - y_j (W^T x_j + b)\right) = 0\)<div class="ra">Read aloud: mu sub j star times open parenthesis 1 minus y sub j times open parenthesis W transpose x sub j plus b close parenthesis close parenthesis equals 0</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1010s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01010.jpg"></a><div class="t">16:50</div></div><div>
+<div class="eq">\(\nabla_w L = 0 \implies w^* = \sum_{i=1}^n \mu_i y_i x_i\)<div class="ra">Read aloud: The gradient of L with respect to w equals zero implies w star equals the sum from i equals one to n of mu i y i x i</div></div>
+<div class="eq">\(\nabla_b L = 0 \implies \sum_{i=1}^n \mu_i^* y_i = 0\)<div class="ra">Read aloud: The gradient of L with respect to b equals zero implies the sum from i equals one to n of mu i star y i equals zero</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1020s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01020.jpg"></a><div class="t">17:00</div></div><div>
+<div class="eq">\(\mu_j^* (1 - y_j (w^T x_j + b)) = 0\)<div class="ra">Read aloud: mu j star times open parenthesis one minus y j times open parenthesis w transpose x j plus b close parenthesis close parenthesis equals zero</div></div>
+<div class="eq">\(\nabla_b L = 0 \implies \sum_{i=1}^n \mu_i y_i = 0\)<div class="ra">Read aloud: nabla b L equals zero implies sum from i equals one to n of mu i y i equals zero</div></div>
+<div class="eq">\(\mu_i \ge 0\)<div class="ra">Read aloud: mu i is greater than or equal to zero</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1030s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01030.jpg"></a><div class="t">17:10</div></div><div>
+<div class="eq">\(\nabla_w L = 0 \implies w^* = \sum_{i=1}^n \mu_i^* y_i x_i\)<div class="ra">Read aloud: The gradient of L with respect to w equals zero implies w star equals the sum from i equals one to n of mu i star y i x i</div></div>
+<div class="eq">\(\mu_i \ge 0 \quad \forall \ i\)<div class="ra">Read aloud: mu i is greater than or equal to zero for all i</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1050s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01050.jpg"></a><div class="t">17:30</div></div><div>
+<div class="eq">\(\nabla_w L = 0 \implies W^* = \sum_{i=1}^{n} M_i y_i x_i\)<div class="ra">Read aloud: nabla sub w L equals zero implies W star equals the sum from i equals one to n of M i y i x i</div></div>
+<div class="eq">\(\nabla_b L = 0 \implies \sum_{i=1}^{n} M_i y_i = 0\)<div class="ra">Read aloud: nabla sub b L equals zero implies the sum from i equals one to n of M i y i equals zero</div></div>
+<div class="eq">\(M_i \ge 0 \quad \forall i\)<div class="ra">Read aloud: M i is greater than or equal to zero for all i</div></div>
+<div class="eq p">\(S = \{x_i : M_i\)<div class="ra">Read aloud: S equals the set of x i such that M i</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1070s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01070.jpg"></a><div class="t">17:50</div></div><div>
+<div class="eq">\(\nabla_W L = 0\)<div class="ra">Read aloud: nabla W L equals zero</div></div>
+<div class="eq">\(W^* = \sum_{i=1}^{n} \mu_i^* y_i x_i\)<div class="ra">Read aloud: W star equals the sum from i equals one to n of mu i star y i x i</div></div>
+<div class="eq">\(\nabla_b L = 0 \Rightarrow \sum_{i=1}^{n} \mu_i^* y_i = 0\)<div class="ra">Read aloud: nabla b L equals zero implies the sum from i equals one to n of mu i star y i equals zero</div></div>
+<div class="eq">\(\mu_i \ge 0 \quad \forall \quad i\)<div class="ra">Read aloud: mu i is greater than or equal to zero for all i</div></div>
+<div class="eq p">\(S = \{x_i : \mu_i^* &gt; 0\)<div class="ra">Read aloud: S equals the set of x i such that mu i star is greater than zero</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1080s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01080.jpg"></a><div class="t">18:00</div></div><div>
+<div class="eq">\(S = \{x_i : \mu_i^* &gt; 0\}\)<div class="ra">Read aloud: S equals the set of x i such that mu i star is greater than zero</div></div>
+<div class="eq">\(W^* = \sum_S \mu_i y_i\)<div class="ra">Read aloud: W star equals the sum over S of mu i y i</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1090s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01090.jpg"></a><div class="t">18:10</div></div><div>
+<div class="eq p">\(\mu_j (1 - y_j (w^T x_j + b)) = 0\)<div class="ra">Read aloud: mu sub j times open parenthesis one minus y sub j times open parenthesis w transpose x sub j plus b close parenthesis close parenthesis equals zero</div></div>
+<div class="eq">\(\mu_i \ge 0 \quad \forall i\)<div class="ra">Read aloud: mu sub i is greater than or equal to zero for all i</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1110s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01110.jpg"></a><div class="t">18:30</div></div><div>
+<div class="eq">\(W^* = \sum_S \mu_i y_i x_i\)<div class="ra">Read aloud: W star equals the sum over S of mu i y i x i</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1120s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01120.jpg"></a><div class="t">18:40</div></div><div>
+<div class="eq">\(W^* = \sum_S \mu_i^* y_i x_i\)<div class="ra">Read aloud: W star equals the sum over S of mu sub i star y sub i x sub i</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1130s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01130.jpg"></a><div class="t">18:50</div></div><div>
+<div class="eq">\(S = \{x_i : \mu_i &gt; 0\}\)<div class="ra">Read aloud: S equals the set of all x sub i such that mu sub i is greater than zero.</div></div>
+<div class="eq">\(\Rightarrow W^* = \sum_S \mu_i^* y_i x_i\)<div class="ra">Read aloud: This implies that W star equals the sum over S of mu sub i star, y sub i, x sub i.</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1150s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01150.jpg"></a><div class="t">19:10</div></div><div>
+<div class="eq">\(\Rightarrow W^{*} = \sum_{S} \mu_{i} y_{i} x_{i}\)<div class="ra">Read aloud: This implies W star equals the sum over S of mu i y i x i.</div></div>
+<div class="eq">\(\mu_{i}\)<div class="ra">Read aloud: mu i</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1170s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01170.jpg"></a><div class="t">19:30</div></div><div>
+<div class="eq">\(\mu^*\)<div class="ra">Read aloud: mu star</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1260s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01260.jpg"></a><div class="t">21:00</div></div><div>
+<div class="eq">\(\mu_i^*\)<div class="ra">Read aloud: mu i star</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1380s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01380.jpg"></a><div class="t">23:00</div></div><div>
+<div class="eq">\(M i^*\)<div class="ra">Read aloud: M i star</div></div>
+<div class="eq">\(L(W, M) = f(w)\)<div class="ra">Read aloud: L of W comma M equals f of w</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1390s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01390.jpg"></a><div class="t">23:10</div></div><div>
+<div class="eq">\(\nabla_w L(w^*, \mu^*) = 0\)<div class="ra">Read aloud: nabla sub w L of w star comma mu star equals zero</div></div>
+<div class="eq">\(\nabla_w L = 0 \implies w^* = \sum_{i=1}^{n} \mu_i^* y_i x_i\)<div class="ra">Read aloud: nabla sub w L equals zero implies w star equals the sum from i equals one to n of mu i star y i x i</div></div>
+<div class="eq">\(\nabla_b L = 0 \implies \sum_{i=1}^{\hat{n}} \mu_i^* y_i = 0\)<div class="ra">Read aloud: nabla sub b L equals zero implies the sum from i equals one to n hat of mu i star y i equals zero</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1400s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01400.jpg"></a><div class="t">23:20</div></div><div>
+<div class="eq">\(\mu_j \ge 0\)<div class="ra">Read aloud: mu sub j is greater than or equal to zero</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1510s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01510.jpg"></a><div class="t">25:10</div></div><div>
+<div class="eq">\(L(W, \mu) = \frac{W^T W}{2} + \sum_{i=1}^{n} \left[1 - y_i (W^T x_i + b)\right] \mu_i\)<div class="ra">Read aloud: L of W comma mu equals W transpose W over two plus the sum from i equals one to n of open bracket one minus y sub i times open parenthesis W transpose x sub i plus b close parenthesis close bracket mu sub i</div></div>
+<div class="eq">\(q: \mathbb{R}^n \rightarrow \mathbb{R}\)<div class="ra">Read aloud: q maps from R to the power n to R</div></div>
+<div class="eq">\(q(\mu) = \inf_{W} L(W, \mu)\)<div class="ra">Read aloud: q of mu equals the infimum over W of L of W comma mu</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1620s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01620.jpg"></a><div class="t">27:00</div></div><div>
+<div class="eq">\(q: \mathbb{R} \rightarrow \mathbb{R}\)<div class="ra">Read aloud: q maps from the set of real numbers to the set of real numbers</div></div>
+<div class="eq">\(q(\mu) = \inf_{w} L(w, \mu)\)<div class="ra">Read aloud: q of mu equals the infimum over w of L of w comma mu</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1670s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01670.jpg"></a><div class="t">27:50</div></div><div>
+<div class="eq">\(\max_{\mu} q(\mu)\)<div class="ra">Read aloud: maximize over mu, q of mu</div></div>
+<div class="eq">\(s.t \; \mu_i \geq 0\)<div class="ra">Read aloud: subject to mu sub i is greater than or equal to zero</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1700s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01700.jpg"></a><div class="t">28:20</div></div><div>
+<div class="eq">\(s.t \mu_i \ge 0 \quad \forall i\)<div class="ra">Read aloud: subject to mu sub i is greater than or equal to zero, for all i</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1720s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01720.jpg"></a><div class="t">28:40</div></div><div>
+<div class="eq">\(s.t \mu_i \geq 0 \quad \forall i\)<div class="ra">Read aloud: subject to mu sub i is greater than or equal to zero, for all i</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1750s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01750.jpg"></a><div class="t">29:10</div></div><div>
+<div class="eq">\(w^*, \mu^*\)<div class="ra">Read aloud: w star, mu star</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1790s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01790.jpg"></a><div class="t">29:50</div></div><div>
+<div class="eq">\(W^*, \mu^*\)<div class="ra">Read aloud: W star, mu star</div></div>
+<div class="eq">\(W^* \text{ &amp; } \mu^*\)<div class="ra">Read aloud: W star and mu star</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1850s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01850.jpg"></a><div class="t">30:50</div></div><div>
+<div class="eq">\(L(W^*, \mu^*) = \min_W q(\mu^*)\)<div class="ra">Read aloud: L of W star, mu star, equals the minimum over W of q of mu star</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1870s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01870.jpg"></a><div class="t">31:10</div></div><div>
+<div class="eq">\(s.t \ \mu_i \ge 0 \ \forall i\)<div class="ra">Read aloud: subject to mu sub i is greater than or equal to zero for all i</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1890s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01890.jpg"></a><div class="t">31:30</div></div><div>
+<div class="eq">\(L(W^*; \mu^*) = \min_W q(\mu^*)\)<div class="ra">Read aloud: L of W star semicolon mu star equals the minimum over W of q of mu star</div></div>
+</div></div>
+<div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1980s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01980.jpg"></a><div class="t">33:00</div></div><div>
+<div class="eq">\(L(W^*, \mu^*) = \min_W L(W, \mu^*)\)<div class="ra">Read aloud: L of W star comma mu star equals the minimum over W of L of W comma mu star</div></div>
+</div></div>
+<h2>Can the twin explain them in words? (test, not live)</h2><p>His twin prompt plus the board notes from both lectures, model openai/gpt-5.5. Questions asked in text.</p>
+<div class="qa"><b>Q:</b> In lecture 22 you wrote that l of theta minus F theta of q equals a KL divergence. What does that mean, and why does EM pick q to be the posterior?
+
+<b>A:</b> Hi, I&#x27;m Prathosh&#x27;s AI twin.
+
+So the question is, what is the meaning of “likelihood minus F equals KL”, and why does EM choose q as the posterior. See, in Lecture 22 we showed that the gap between the true log-likelihood and the lower bound is exactly the KL divergence between q of z and the posterior distribution of z given x under theta. Since KL divergence is always non-negative, F is a lower bound on the log-likelihood; and the gap becomes zero only when q of z is exactly the posterior, that is, q equals P theta of z given x.
+
+So in the E-step, EM chooses q to be the posterior under the current parameter theta, because that makes the bound tight at the current point. Then in the M-step, it maximizes this tight lower bound with respect to theta. That’s the story. Make sense?</div>
+<div class="qa"><b>Q:</b> Walk me through the E-step and the M-step of EM in plain words, using the formulas from your lecture.
+
+<b>A:</b> Hi, I&#x27;m Prathosh&#x27;s AI twin.
+
+So the question is, what exactly happens in the E-step and M-step of EM. See, in Lecture 22 we wrote that the gap between the true log-likelihood and the lower bound is the KL divergence between your chosen distribution over the latent variable and the posterior distribution of the latent variable given the data. So in the **E-step**, keeping the current parameter value fixed, you choose this distribution to be the posterior: in words, “q at iteration t is set to the probability of z given x under the current theta.” This makes the lower bound touch the actual log-likelihood.
+
+Then in the **M-step**, you keep that q fixed and update theta by maximizing the lower bound: in words, “theta at iteration t plus one is chosen to maximize F of theta with q fixed at its current value.” The important point is that EM does not directly maximize the difficult likelihood; it alternates between making the bound tight and then improving that bound, and we showed that the likelihood at the new theta is at least the likelihood at the old theta. That’s the story. Make sense?</div>
+<div class="qa"><b>Q:</b> In the SVM formulation lecture, what optimisation problem do you write down, and what does each part of it mean?
+
+<b>A:</b> Hi, I&#x27;m Prathosh&#x27;s AI twin.
+
+So the question is, in the SVM formulation, what is the optimisation problem and what are its parts. In Lecture 37, we wrote the hard-margin SVM problem as: minimise the norm of \(w\), essentially \(\|w\|/2\), subject to  
+\[
+y_i(w^T x_i + b) \ge 1 \quad \text{for every } i.
+\]
+
+See, \(w^T x_i + b\) is the separating hyperplane score, \(y_i\) is the class label, and the constraint says every point must be correctly classified with at least unit margin. Minimising \(\|w\|\) is the same idea as maximising the geometric margin, because the margin is proportional to \(2/\|w\|\). That is the hard-margin SVM formulation. Make sense?</div>
+</body></html>
