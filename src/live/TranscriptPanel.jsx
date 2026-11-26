@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Send } from '../components/Icons.jsx'
+import MathText from './MathText.jsx'
 
 /**
  * The live chat / transcription feed. `lines` ({ id, who, text }) comes from the
@@ -39,7 +40,7 @@ export default function TranscriptPanel({
       <div className="chat-h"><span>Chat</span><span className="cnt">{lines.length}</span></div>
       <div className="feed" id="transcript" aria-live="polite" ref={feedRef}>
         {lines.map((l) => (
-          <p key={l.id}><b>{l.who}: </b>{l.text}</p>
+          <p key={l.id}><b>{l.who}: </b><MathText text={l.text} /></p>
         ))}
       </div>
       <form className="chat-in" onSubmit={handleSubmit}>

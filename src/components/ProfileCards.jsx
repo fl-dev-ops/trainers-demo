@@ -53,9 +53,9 @@ function Tags({ items }) {
   return <div className="pc-tags">{items.map((t) => <span key={t} className="pc-tag">{t}</span>)}</div>
 }
 
-// Your coachee (a blank profile picture the coach can picture as one of their own) practises with the AI persona.
+// Your client (a blank profile picture the coach can picture as one of their own) practises with the AI persona.
 // Portrait cards in the style of the role-play dashboard's persona cards.
-export function RoleplayPair({ coachee, persona, label = 'Your coachee' }) {
+export function RoleplayPair({ coachee, persona, label = 'Your client' }) {
   return (
     <div className="peek peek--wrap peek--pair">
       <span className="peek-k">Role play</span>
