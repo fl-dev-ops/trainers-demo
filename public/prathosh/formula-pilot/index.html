@@ -140,7 +140,7 @@
 <div class="eq">\(\Theta^{t+1} \leftarrow \operatorname{argmax}_{\Theta} \left[F_{\Theta}\left(q^{t}\right)\right]\)<div class="ra">Read aloud: Theta at time t plus one is assigned the argument that maximizes with respect to Theta, the function F of Theta of q at time t.</div></div>
 <div class="eq">\(\ell\left(\Theta^{t+1}\right) \geq \ell\left(\Theta^{t}\right)\)<div class="ra">Read aloud: The likelihood of Theta at time t plus one is greater than or equal to the likelihood of Theta at time t.</div></div>
 </div></div>
-<h2>Lec 37 · SVM Formulation <span class="ok">youtube.com/watch?v=aO3FTnrf2bQ</span></h2>
+<h2>Lec 37 · SVM Formulation <span class="ok">youtube.com/watch?v=aO3FTnrf2bQ</span></h2><p class="fix-note" style="margin:6px 0 14px;font-size:14px;opacity:.75">Corrected 26 Nov 2026: the vision model read his handwritten lowercase w as a capital W on some frames, and mu i as M i at 17:30. These are now w and mu i throughout, as in the frames.</p>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=20s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00020.jpg"></a><div class="t">0:20</div></div><div>
 <div class="eq">\(g(x)\)<div class="ra">Read aloud: g of x</div></div>
 <div class="eq">\(\frac{2}{\|w\|}\)<div class="ra">Read aloud: two divided by the norm of w</div></div>
@@ -150,37 +150,37 @@
 <div class="eq">\(s.t \quad (w^T x_i + b) y_i\)<div class="ra">Read aloud: subject to, w transpose x i plus b, times y i</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=220s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00220.jpg"></a><div class="t">3:40</div></div><div>
-<div class="eq">\(\min_{W} \frac{||W||}{2}\)<div class="ra">Read aloud: minimize over W, the norm of W divided by two</div></div>
-<div class="eq">\(s.t \quad (W^T x_i + b) y_i \geq 1 \quad \forall i\)<div class="ra">Read aloud: subject to, W transpose x i plus b, times y i, is greater than or equal to one, for all i</div></div>
+<div class="eq">\(\min_{w} \frac{||w||}{2}\)<div class="ra">Read aloud: minimize over w, the norm of w divided by two</div></div>
+<div class="eq">\(s.t \quad (w^T x_i + b) y_i \geq 1 \quad \forall i\)<div class="ra">Read aloud: subject to, w transpose x i plus b, times y i, is greater than or equal to one, for all i</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=340s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00340.jpg"></a><div class="t">5:40</div></div><div>
-<div class="eq">\(\min_{w} \frac{||W||}{2}\)<div class="ra">Read aloud: minimize over w, the norm of W divided by two</div></div>
+<div class="eq">\(\min_{w} \frac{||w||}{2}\)<div class="ra">Read aloud: minimize over w, the norm of w divided by two</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=650s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00650.jpg"></a><div class="t">10:50</div></div><div>
-<div class="eq p">\(L(W, \mu) = ||w|| + \sum_{i=1}^{n}\)<div class="ra">Read aloud: L of W comma mu equals the norm of w plus the summation from i equals one to n</div></div>
+<div class="eq p">\(L(w, \mu) = ||w|| + \sum_{i=1}^{n}\)<div class="ra">Read aloud: L of w comma mu equals the norm of w plus the summation from i equals one to n</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=670s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00670.jpg"></a><div class="t">11:10</div></div><div>
-<div class="eq">\(1 - (W^T x_i + b)\)<div class="ra">Read aloud: one minus, W transpose x i plus b</div></div>
+<div class="eq">\(1 - (w^T x_i + b)\)<div class="ra">Read aloud: one minus, w transpose x i plus b</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=720s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00720.jpg"></a><div class="t">12:00</div></div><div>
 <div class="eq">\(L(w, \mu, b) = \frac{w^T w}{2} + \sum_{i=1}^{n} \left[1 - y_i(w^T x_i + b)\right] \mu_i\)<div class="ra">Read aloud: L of w, mu, b equals w transpose w over two plus the sum from i equals one to n of the quantity one minus y sub i times the quantity w transpose x sub i plus b, all multiplied by mu sub i</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=760s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00760.jpg"></a><div class="t">12:40</div></div><div>
-<div class="eq">\(L(W, \mu, b) = \frac{W^T W}{2} + \sum_{i=1}^{n} \left[1 - y_i (W^T x_i + b)\right] \mu_i\)<div class="ra">Read aloud: L of W, mu, b equals W transpose W over two, plus the sum from i equals one to n, of, open bracket, one minus y sub i times, open parenthesis, W transpose x sub i plus b, close parenthesis, close bracket, times mu sub i.</div></div>
+<div class="eq">\(L(w, \mu, b) = \frac{w^T w}{2} + \sum_{i=1}^{n} \left[1 - y_i (w^T x_i + b)\right] \mu_i\)<div class="ra">Read aloud: L of w, mu, b equals w transpose w over two, plus the sum from i equals one to n, of, open bracket, one minus y sub i times, open parenthesis, w transpose x sub i plus b, close parenthesis, close bracket, times mu sub i.</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=800s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00800.jpg"></a><div class="t">13:20</div></div><div>
-<div class="eq">\(\nabla_W L(W^*, \mu^*) = 0\)<div class="ra">Read aloud: The gradient with respect to W of L, evaluated at W star, mu star, equals zero.</div></div>
+<div class="eq">\(\nabla_w L(w^*, \mu^*) = 0\)<div class="ra">Read aloud: The gradient with respect to w of L, evaluated at w star, mu star, equals zero.</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=810s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00810.jpg"></a><div class="t">13:30</div></div><div>
-<div class="eq">\(\nabla_W L(W^*; \mu^*) = 0\)<div class="ra">Read aloud: The gradient with respect to W of L of W star semicolon mu star equals zero.</div></div>
+<div class="eq">\(\nabla_w L(w^*; \mu^*) = 0\)<div class="ra">Read aloud: The gradient with respect to w of L of w star semicolon mu star equals zero.</div></div>
 <div class="eq">\(\mu_j^* \ge 0\)<div class="ra">Read aloud: Mu sub j star is greater than or equal to zero.</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=830s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00830.jpg"></a><div class="t">13:50</div></div><div>
-<div class="eq p">\(\mu_j^* (1 - y_i (W^T x_i + b))\)<div class="ra">Read aloud: Mu sub j star times the quantity one minus y sub i times the quantity W transpose x sub i plus b.</div></div>
+<div class="eq p">\(\mu_j^* (1 - y_i (w^T x_i + b))\)<div class="ra">Read aloud: Mu sub j star times the quantity one minus y sub i times the quantity w transpose x sub i plus b.</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=840s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00840.jpg"></a><div class="t">14:00</div></div><div>
-<div class="eq p">\(L(W, \mu, b) = \frac{W^T W}{2} + \sum_{i=1}\)<div class="ra">Read aloud: L of W, mu, b equals W transpose W divided by 2 plus the sum from i equals 1</div></div>
-<div class="eq">\(\mu_j^* \left(1 - y_i (W^T x_i + b)\right) = 0\)<div class="ra">Read aloud: mu j star times the quantity 1 minus y i times the quantity W transpose x i plus b, equals 0</div></div>
+<div class="eq p">\(L(w, \mu, b) = \frac{w^T w}{2} + \sum_{i=1}\)<div class="ra">Read aloud: L of w, mu, b equals w transpose w divided by 2 plus the sum from i equals 1</div></div>
+<div class="eq">\(\mu_j^* \left(1 - y_i (w^T x_i + b)\right) = 0\)<div class="ra">Read aloud: mu j star times the quantity 1 minus y i times the quantity w transpose x i plus b, equals 0</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=880s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00880.jpg"></a><div class="t">14:40</div></div><div>
 <div class="eq">\(\nabla_w L(w^*; \mu^*) = 0\)<div class="ra">Read aloud: nabla sub w L of w star semicolon mu star equals zero</div></div>
@@ -188,7 +188,7 @@
 <div class="eq">\(\nabla_w L = 0 \implies w^* = \sum_{i=1}^{n} \mu_i\)<div class="ra">Read aloud: nabla sub w L equals zero implies w star equals the sum from i equals one to n of mu i</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=890s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t00890.jpg"></a><div class="t">14:50</div></div><div>
-<div class="eq">\(\mu_j^* \left(1 - y_j (W^T x_j + b)\right) = 0\)<div class="ra">Read aloud: mu sub j star times open parenthesis 1 minus y sub j times open parenthesis W transpose x sub j plus b close parenthesis close parenthesis equals 0</div></div>
+<div class="eq">\(\mu_j^* \left(1 - y_j (w^T x_j + b)\right) = 0\)<div class="ra">Read aloud: mu sub j star times open parenthesis 1 minus y sub j times open parenthesis w transpose x sub j plus b close parenthesis close parenthesis equals 0</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1010s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01010.jpg"></a><div class="t">16:50</div></div><div>
 <div class="eq">\(\nabla_w L = 0 \implies w^* = \sum_{i=1}^n \mu_i y_i x_i\)<div class="ra">Read aloud: The gradient of L with respect to w equals zero implies w star equals the sum from i equals one to n of mu i y i x i</div></div>
@@ -204,38 +204,38 @@
 <div class="eq">\(\mu_i \ge 0 \quad \forall \ i\)<div class="ra">Read aloud: mu i is greater than or equal to zero for all i</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1050s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01050.jpg"></a><div class="t">17:30</div></div><div>
-<div class="eq">\(\nabla_w L = 0 \implies W^* = \sum_{i=1}^{n} M_i y_i x_i\)<div class="ra">Read aloud: nabla sub w L equals zero implies W star equals the sum from i equals one to n of M i y i x i</div></div>
-<div class="eq">\(\nabla_b L = 0 \implies \sum_{i=1}^{n} M_i y_i = 0\)<div class="ra">Read aloud: nabla sub b L equals zero implies the sum from i equals one to n of M i y i equals zero</div></div>
-<div class="eq">\(M_i \ge 0 \quad \forall i\)<div class="ra">Read aloud: M i is greater than or equal to zero for all i</div></div>
-<div class="eq p">\(S = \{x_i : M_i\)<div class="ra">Read aloud: S equals the set of x i such that M i</div></div>
+<div class="eq">\(\nabla_w L = 0 \implies w^* = \sum_{i=1}^{n} \mu_i y_i x_i\)<div class="ra">Read aloud: nabla sub w L equals zero implies w star equals the sum from i equals one to n of mu i y i x i</div></div>
+<div class="eq">\(\nabla_b L = 0 \implies \sum_{i=1}^{n} \mu_i y_i = 0\)<div class="ra">Read aloud: nabla sub b L equals zero implies the sum from i equals one to n of mu i y i equals zero</div></div>
+<div class="eq">\(\mu_i \ge 0 \quad \forall i\)<div class="ra">Read aloud: mu i is greater than or equal to zero for all i</div></div>
+<div class="eq p">\(S = \{x_i : \mu_i\)<div class="ra">Read aloud: S equals the set of x i such that mu i</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1070s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01070.jpg"></a><div class="t">17:50</div></div><div>
-<div class="eq">\(\nabla_W L = 0\)<div class="ra">Read aloud: nabla W L equals zero</div></div>
-<div class="eq">\(W^* = \sum_{i=1}^{n} \mu_i^* y_i x_i\)<div class="ra">Read aloud: W star equals the sum from i equals one to n of mu i star y i x i</div></div>
+<div class="eq">\(\nabla_w L = 0\)<div class="ra">Read aloud: nabla w L equals zero</div></div>
+<div class="eq">\(w^* = \sum_{i=1}^{n} \mu_i^* y_i x_i\)<div class="ra">Read aloud: w star equals the sum from i equals one to n of mu i star y i x i</div></div>
 <div class="eq">\(\nabla_b L = 0 \Rightarrow \sum_{i=1}^{n} \mu_i^* y_i = 0\)<div class="ra">Read aloud: nabla b L equals zero implies the sum from i equals one to n of mu i star y i equals zero</div></div>
 <div class="eq">\(\mu_i \ge 0 \quad \forall \quad i\)<div class="ra">Read aloud: mu i is greater than or equal to zero for all i</div></div>
 <div class="eq p">\(S = \{x_i : \mu_i^* &gt; 0\)<div class="ra">Read aloud: S equals the set of x i such that mu i star is greater than zero</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1080s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01080.jpg"></a><div class="t">18:00</div></div><div>
 <div class="eq">\(S = \{x_i : \mu_i^* &gt; 0\}\)<div class="ra">Read aloud: S equals the set of x i such that mu i star is greater than zero</div></div>
-<div class="eq">\(W^* = \sum_S \mu_i y_i\)<div class="ra">Read aloud: W star equals the sum over S of mu i y i</div></div>
+<div class="eq">\(w^* = \sum_S \mu_i y_i\)<div class="ra">Read aloud: w star equals the sum over S of mu i y i</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1090s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01090.jpg"></a><div class="t">18:10</div></div><div>
 <div class="eq p">\(\mu_j (1 - y_j (w^T x_j + b)) = 0\)<div class="ra">Read aloud: mu sub j times open parenthesis one minus y sub j times open parenthesis w transpose x sub j plus b close parenthesis close parenthesis equals zero</div></div>
 <div class="eq">\(\mu_i \ge 0 \quad \forall i\)<div class="ra">Read aloud: mu sub i is greater than or equal to zero for all i</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1110s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01110.jpg"></a><div class="t">18:30</div></div><div>
-<div class="eq">\(W^* = \sum_S \mu_i y_i x_i\)<div class="ra">Read aloud: W star equals the sum over S of mu i y i x i</div></div>
+<div class="eq">\(w^* = \sum_S \mu_i y_i x_i\)<div class="ra">Read aloud: w star equals the sum over S of mu i y i x i</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1120s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01120.jpg"></a><div class="t">18:40</div></div><div>
-<div class="eq">\(W^* = \sum_S \mu_i^* y_i x_i\)<div class="ra">Read aloud: W star equals the sum over S of mu sub i star y sub i x sub i</div></div>
+<div class="eq">\(w^* = \sum_S \mu_i^* y_i x_i\)<div class="ra">Read aloud: w star equals the sum over S of mu sub i star y sub i x sub i</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1130s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01130.jpg"></a><div class="t">18:50</div></div><div>
 <div class="eq">\(S = \{x_i : \mu_i &gt; 0\}\)<div class="ra">Read aloud: S equals the set of all x sub i such that mu sub i is greater than zero.</div></div>
-<div class="eq">\(\Rightarrow W^* = \sum_S \mu_i^* y_i x_i\)<div class="ra">Read aloud: This implies that W star equals the sum over S of mu sub i star, y sub i, x sub i.</div></div>
+<div class="eq">\(\Rightarrow w^* = \sum_S \mu_i^* y_i x_i\)<div class="ra">Read aloud: This implies that w star equals the sum over S of mu sub i star, y sub i, x sub i.</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1150s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01150.jpg"></a><div class="t">19:10</div></div><div>
-<div class="eq">\(\Rightarrow W^{*} = \sum_{S} \mu_{i} y_{i} x_{i}\)<div class="ra">Read aloud: This implies W star equals the sum over S of mu i y i x i.</div></div>
+<div class="eq">\(\Rightarrow w^{*} = \sum_{S} \mu_{i} y_{i} x_{i}\)<div class="ra">Read aloud: This implies w star equals the sum over S of mu i y i x i.</div></div>
 <div class="eq">\(\mu_{i}\)<div class="ra">Read aloud: mu i</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1170s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01170.jpg"></a><div class="t">19:30</div></div><div>
@@ -245,8 +245,8 @@
 <div class="eq">\(\mu_i^*\)<div class="ra">Read aloud: mu i star</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1380s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01380.jpg"></a><div class="t">23:00</div></div><div>
-<div class="eq">\(M i^*\)<div class="ra">Read aloud: M i star</div></div>
-<div class="eq">\(L(W, M) = f(w)\)<div class="ra">Read aloud: L of W comma M equals f of w</div></div>
+<div class="eq">\(mu i^*\)<div class="ra">Read aloud: mu i star</div></div>
+<div class="eq">\(L(w, M) = f(w)\)<div class="ra">Read aloud: L of w comma M equals f of w</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1390s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01390.jpg"></a><div class="t">23:10</div></div><div>
 <div class="eq">\(\nabla_w L(w^*, \mu^*) = 0\)<div class="ra">Read aloud: nabla sub w L of w star comma mu star equals zero</div></div>
@@ -257,9 +257,9 @@
 <div class="eq">\(\mu_j \ge 0\)<div class="ra">Read aloud: mu sub j is greater than or equal to zero</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1510s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01510.jpg"></a><div class="t">25:10</div></div><div>
-<div class="eq">\(L(W, \mu) = \frac{W^T W}{2} + \sum_{i=1}^{n} \left[1 - y_i (W^T x_i + b)\right] \mu_i\)<div class="ra">Read aloud: L of W comma mu equals W transpose W over two plus the sum from i equals one to n of open bracket one minus y sub i times open parenthesis W transpose x sub i plus b close parenthesis close bracket mu sub i</div></div>
+<div class="eq">\(L(w, \mu) = \frac{w^T w}{2} + \sum_{i=1}^{n} \left[1 - y_i (w^T x_i + b)\right] \mu_i\)<div class="ra">Read aloud: L of w comma mu equals w transpose w over two plus the sum from i equals one to n of open bracket one minus y sub i times open parenthesis w transpose x sub i plus b close parenthesis close bracket mu sub i</div></div>
 <div class="eq">\(q: \mathbb{R}^n \rightarrow \mathbb{R}\)<div class="ra">Read aloud: q maps from R to the power n to R</div></div>
-<div class="eq">\(q(\mu) = \inf_{W} L(W, \mu)\)<div class="ra">Read aloud: q of mu equals the infimum over W of L of W comma mu</div></div>
+<div class="eq">\(q(\mu) = \inf_{w} L(w, \mu)\)<div class="ra">Read aloud: q of mu equals the infimum over w of L of w comma mu</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1620s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01620.jpg"></a><div class="t">27:00</div></div><div>
 <div class="eq">\(q: \mathbb{R} \rightarrow \mathbb{R}\)<div class="ra">Read aloud: q maps from the set of real numbers to the set of real numbers</div></div>
@@ -279,20 +279,20 @@
 <div class="eq">\(w^*, \mu^*\)<div class="ra">Read aloud: w star, mu star</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1790s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01790.jpg"></a><div class="t">29:50</div></div><div>
-<div class="eq">\(W^*, \mu^*\)<div class="ra">Read aloud: W star, mu star</div></div>
-<div class="eq">\(W^* \text{ &amp; } \mu^*\)<div class="ra">Read aloud: W star and mu star</div></div>
+<div class="eq">\(w^*, \mu^*\)<div class="ra">Read aloud: w star, mu star</div></div>
+<div class="eq">\(w^* \text{ and } \mu^*\)<div class="ra">Read aloud: w star and mu star</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1850s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01850.jpg"></a><div class="t">30:50</div></div><div>
-<div class="eq">\(L(W^*, \mu^*) = \min_W q(\mu^*)\)<div class="ra">Read aloud: L of W star, mu star, equals the minimum over W of q of mu star</div></div>
+<div class="eq">\(L(w^*, \mu^*) = \min_w q(\mu^*)\)<div class="ra">Read aloud: L of w star, mu star, equals the minimum over w of q of mu star</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1870s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01870.jpg"></a><div class="t">31:10</div></div><div>
 <div class="eq">\(s.t \ \mu_i \ge 0 \ \forall i\)<div class="ra">Read aloud: subject to mu sub i is greater than or equal to zero for all i</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1890s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01890.jpg"></a><div class="t">31:30</div></div><div>
-<div class="eq">\(L(W^*; \mu^*) = \min_W q(\mu^*)\)<div class="ra">Read aloud: L of W star semicolon mu star equals the minimum over W of q of mu star</div></div>
+<div class="eq">\(L(w^*; \mu^*) = \min_w q(\mu^*)\)<div class="ra">Read aloud: L of w star semicolon mu star equals the minimum over w of q of mu star</div></div>
 </div></div>
 <div class="row"><div><a href="https://www.youtube.com/watch?v=aO3FTnrf2bQ&t=1980s" target="_blank"><img src="/prathosh/formula-pilot/frames/aO3FTnrf2bQ/t01980.jpg"></a><div class="t">33:00</div></div><div>
-<div class="eq">\(L(W^*, \mu^*) = \min_W L(W, \mu^*)\)<div class="ra">Read aloud: L of W star comma mu star equals the minimum over W of L of W comma mu star</div></div>
+<div class="eq">\(L(w^*, \mu^*) = \min_w L(w, \mu^*)\)<div class="ra">Read aloud: L of w star comma mu star equals the minimum over w of L of w comma mu star</div></div>
 </div></div>
 <h2>Can the twin explain them in words? (test, not live)</h2><p>His twin prompt plus the board notes from both lectures, model openai/gpt-5.5. Questions asked in text.</p>
 <div class="qa"><b>Q:</b> In lecture 22 you wrote that l of theta minus F theta of q equals a KL divergence. What does that mean, and why does EM pick q to be the posterior?
