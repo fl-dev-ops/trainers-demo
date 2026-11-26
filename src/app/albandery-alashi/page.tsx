@@ -4,7 +4,7 @@ import { ALBANDERY_ALASHI } from '@/data.js'
 import TrustFooter from '@/components/TrustFooter.jsx'
 import { LinkedIn, Sparkle } from '@/components/Icons.jsx'
 
-// Methodology, plus a role-play card marked coming soon (no live twin or role play yet; her material is Arabic and short).
+// Methodology, plus twin and role-play cards marked coming soon (no live twin or role play yet; her material is Arabic and short).
 export default function Welcome() {
   return (
     <section className="wrap">
@@ -37,6 +37,19 @@ export default function Welcome() {
             </div>
           </article>
           <article className="path path--soon" aria-disabled="true">
+            <div className="peek soon-peek" aria-hidden="true">
+              <span className="peek-k">AI twin</span>
+              <span className="soon-tag">Coming soon</span>
+            </div>
+            <div className="path-b">
+              <h2>Ask {ALBANDERY_ALASHI.firstName}’s twin live</h2>
+              <p>A twin that answers your learners’ questions the way {ALBANDERY_ALASHI.firstName} would, between sessions.</p>
+              <div className="row">
+                <span className="btn btn--ghost" aria-disabled="true">Coming soon</span>
+              </div>
+            </div>
+          </article>
+          <article className="path path--wide path--soon" aria-disabled="true">
             <div className="peek soon-peek" aria-hidden="true">
               <span className="peek-k">Role play</span>
               <span className="soon-tag">Coming soon</span>
