@@ -392,3 +392,5 @@ svg{flex:none}
 /* Typeset formulas in the live chat (MathText) */
 .chat-math{display:inline-block;padding:0 2px;font-size:1.02em}
 .chat-math .katex{font-size:1.05em}
+.chat-math-block{margin:4px 0 10px;overflow-x:auto;max-width:100%}
+.chat-math{max-width:100%;overflow-x:auto;vertical-align:middle}

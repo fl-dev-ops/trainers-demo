@@ -172,6 +172,27 @@ function RolePlay({ connection, scenario: SCENARIO, trainer, starter = null, sta
     }
   }, [router, session.room, storageKey, trainerHome])
 
+  // Formulas the twin wrote ({ id, latex, words }) arrive on their own data topic; the chat typesets them in place
+  // of the spoken words (see MathText). Only twins with formulas_to_chat on the agent send them.
+  const [formulas, setFormulas] = useState<{ id: string; latex: string; words: string }[]>([])
+  useEffect(() => {
+    const room = session.room
+    const decoder = new TextDecoder()
+    const onData = (payload: Uint8Array, _p?: unknown, _k?: unknown, topic?: string) => {
+      if (topic !== 'twin-formula') return
+      try {
+        const f = JSON.parse(decoder.decode(payload))
+        if (f?.id && f?.latex && f?.words) setFormulas((all) => (all.some((x) => x.id === f.id) ? all : [...all, f]))
+      } catch {
+        // not a formula message
+      }
+    }
+    room.on(RoomEvent.DataReceived, onData)
+    return () => {
+      room.off(RoomEvent.DataReceived, onData)
+    }
+  }, [session.room])
+
   // The local track publications are the source of truth for the camera and mic buttons.
   useEffect(() => {
     const room = session.room
@@ -232,6 +253,7 @@ function RolePlay({ connection, scenario: SCENARIO, trainer, starter = null, sta
       messages.map((message) => ({
         id: message.id,
         who: message.from?.isLocal ? 'You' : trainer.firstName,
+        twin: !message.from?.isLocal,
         text: message.message,
       })),
     [messages, trainer.firstName],
@@ -305,7 +327,7 @@ function RolePlay({ connection, scenario: SCENARIO, trainer, starter = null, sta
               </div>
             </div>
 
-            <TranscriptPanel lines={lines} connected={session.isConnected} onSend={send} />
+            <TranscriptPanel lines={lines} formulas={formulas} connected={session.isConnected} onSend={send} />
           </div>
 
           <div className="ctrl" role="toolbar" aria-label="Role play controls">
