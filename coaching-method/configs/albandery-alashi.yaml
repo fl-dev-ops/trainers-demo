@@ -1,0 +1,140 @@
+# Albandery Alashi (Co-Founder and CEO, Estedama Solutions Center, Riyadh). Build with:
+#   python build.py build albandery-alashi
+# Source: lore users/albandery-alashi (lore a9d24dd0): 46 LinkedIn posts of her own (2020-2026, mostly Arabic, about
+# 2,300 words), 42 posts by the Estedama Solutions Center account, 56 pages of elstedamasolutions.com (Arabic). No talks,
+# podcasts or interviews exist (checked 25-26 Nov 2026), so the page follows one written post (session.post_turns).
+# Exchange: her LinkedIn post of 30 Aug 2026 "من أكثر الأسئلة التي تكشف جودة أي مشروع تدريبي": the client asks for "a programme
+# in communication, leadership or presentations"; she asks whether we started from the course name or from the problem, and
+# answers that good design starts with listening, diagnosing reality and defining the impact.
+# Principle and do's and don'ts proposed by Cathy (26 Nov 2026), every line checked against lore. Lines from the centre's
+# account or website are credited to Estedama, not to her. Quotes are Arabic; cards show English translations marked as such.
+# Pronouns she/her.
+
+coach:
+  slug: albandery-alashi
+  name: Albandery
+  full_name: Albandery Alashi
+  pronouns: [she, her, her]
+
+mobile: true
+
+session:
+  file: linkedin/posts/2026-08-30-من-أكثر-الأسئلة-التي-تكشف.md
+  title: Did we start from the course name, or from the problem?
+  kind: LinkedIn · 30 Aug 2026 · Arabic
+  other: The request
+  other_role: Client
+  post_turns:
+    - {who: coach, text: "هل بدأنا من اسم الدورة… أم من المشكلة التي نريد حلها؟"}
+    - {who: other, text: "نحتاج برنامجاً في التواصل، أو القيادة، أو العروض."}
+    - {who: coach, text: "لكن الاسم وحده لا يخبرنا أين الفجوة، ولا لماذا ظهرت، ولا ما السلوك الذي نريد أن يتغير بعد التدريب."}
+    - {who: coach, text: "لهذا أؤمن أن تصميم البرامج الجيدة يبدأ قبل كتابة المحتوى؛ يبدأ بالاستماع، وتشخيص الواقع، وتحديد الأثر المطلوب بوضوح."}
+    - {who: coach, text: "أما إذا بدأنا بالحل الجاهز، فقد ننفذ برنامجاً جميلاً… لا يعالج ما يحتاجه الناس فعلاً."}
+  cue: 1
+  move: 3
+  frames:
+    - ["question", "asking whether a training project started from the course name or from the problem (translated from Arabic)"]
+    - ["statement", "the usual request: we need a programme in communication, leadership or presentations"]
+    - ["reframe", "the name alone doesn't show where the gap is, why it appeared, or what behaviour should change"]
+    - ["reframe", "good design starts before the content: listen, diagnose the reality, define the impact"]
+    - ["statement", "start from a ready-made solution and you may run a beautiful programme that doesn't fix what people need"]
+
+thread:
+  situation: presentation-going-off-plan
+  situation_label: a presentation or a training request that isn't working
+  topic: presentation-skills
+  phase: 1
+  belief: 0
+
+default_phase: 2
+phases:
+  - title: Listen first
+    keywords: [listen, listening, needs, analysis, request, client, الاستماع, الاحتياج]
+  - title: Diagnose the gap
+    keywords: [diagnose, diagnosis, gap, problem, assessment, baseline, تشخيص, التشخيص, الفجوة, المشكلة]
+  - title: Design for the impact
+    keywords: [design, program, programme, training, course, impact, behaviour, behavior, تصميم, البرامج, التدريب, الأثر]
+  - title: Practise under observation
+    keywords: [practice, practise, masterclass, rehearsal, observation, club, feedback, التطبيق, الممارسة, الماستر]
+  - title: Handle pressure and fear
+    keywords: [fear, anxiety, pressure, confidence, objections, interruptions, الخوف, الضغط, الثقة]
+  - title: Measure the change
+    keywords: [measure, measurement, evidence, change, recording, results, evaluation, قياس, التغيير, النتائج]
+
+beliefs:
+  - {title: Diagnose before you develop, text: 'We can’t develop something we haven’t diagnosed correctly. (translated from Arabic)', phases: [1, 2]}
+  - {title: Start from the problem, text: 'Did we start from the course name… or from the problem we want to solve? (translated from Arabic)', phases: [0, 2]}
+  - {title: Judge a talk by what it changed, text: 'Do we measure a presentation’s success by how it was delivered, or by what it changed after it ended? (translated from Arabic)', phases: [5, 2]}
+  - {title: Practise under real observation, text: 'Many people don’t lack knowledge; they lack a chance to see their performance clearly and practise under real observation. (translated from Arabic)', phases: [3, 4]}
+  - {title: Fear needs the right handling, text: 'Fear doesn’t mean you can’t… it means you need the right way to handle it. (Estedama’s Voice of Influence™ page, translated)', phases: [4, 3]}
+  - {title: Training changes behaviour, text: 'Real training is no longer transferring information… but changing behaviour at work. (Estedama’s LinkedIn, translated)', phases: [2, 5]}
+
+steps:
+  collect: "We read {linkedin} LinkedIn posts, hers and the Estedama Solutions Center’s, and {web} pages of the centre’s website: <em>{words} words across {lines} lines.</em> Almost all of it is in Arabic. Albandery hasn’t published talks or interviews, so we follow one of her own posts, where she asks the question herself and answers it. English lines on this page are our translations."
+  transcript: ["A post becomes text", "The post is split into the client’s request and Albandery’s lines. At first, it is simply a record of what was written, in Arabic."]
+  trace: ["One answer becomes a principle", "We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the line where Albandery answers the request."]
+  speakers: ["Who said what", "We separate the request a client typically makes from Albandery’s reply, and mark the line she responds to."]
+  layer1: "The usual request, as she writes it: <em>&ldquo;We need a programme in communication, leadership or presentations.&rdquo;</em> Her answer starts with a question: <em>&ldquo;Did we start from the course name… or from the problem we want to solve?&rdquo;</em> (translated from Arabic). These exact lines are the evidence for everything that follows."
+  meaning: "A client names the course they think they need. Albandery doesn’t start building it. She asks where the gap is, why it appeared and what behaviour should change, and only then designs the programme."
+  cue: "Asked for a programme by name, Albandery answers, <em>&ldquo;Good programme design starts before the content: it starts with listening, diagnosing the reality and defining the impact.&rdquo;</em> (translated from Arabic)"
+  layer2: "She moves the conversation from the course title to the gap. The response stays linked to the exact line."
+  layer3: "A presentation or a training request isn’t working, and the first instinct is to fix the slides or practise more. In Albandery’s material this shows up as <em>a presentation going off plan</em>."
+  layer4: "Albandery keeps coming back to diagnosis first: she wrote about it in three posts within two weeks (23 August to 6 September 2026), and both of the centre’s programmes start with a recorded baseline before any training."
+  layer5: "The purpose is to make practice target the real gap, not the most visible symptom."
+  layer6: "<em>Diagnose before you develop.</em> In her words: &ldquo;We can’t develop something we haven’t diagnosed correctly&rdquo; (translated from Arabic)."
+
+cards:
+  layer1:
+    cue: "We need a programme in communication, leadership or presentations. (translated from Arabic)"
+    move: "Good programme design starts before the content: it starts with listening, diagnosing the reality and defining the impact clearly. (translated from Arabic)"
+    foot: Two lines from one post &middot; 30 Aug 2026 &middot; Arabic
+  layer2:
+    cue: Hears a request for a course by its name
+    move: Asks where the gap is before prescribing anything
+  layer3:
+    title: A request that skips the diagnosis
+    text: A presentation isn't landing, or a team asks for a course by name, and the first fix is the slides or more practice.
+    foot: Situation in {his} material &middot; a presentation going off plan
+  layer4:
+    title: Diagnosis first
+    text: Albandery keeps coming back to finding the gap before building anything, and the centre's programmes record a baseline before training starts.
+    foot: Recurring pattern &middot; 3 of her posts in 2 weeks, plus the centre's Evidence of Change™ method
+  layer5:
+    title: Practice that targets the real gap
+    text: Diagnose the reality, define the change you want, then design and practise for that change.
+    starts: '&ldquo;We need a course in presentations&rdquo;'
+    moves_to: '&ldquo;We know where the gap is&rdquo;'
+  layer6:
+    quote: Diagnose before you develop.
+    text: 'In her words: <em>&ldquo;We can&rsquo;t develop something we haven&rsquo;t diagnosed correctly.&rdquo;</em> (LinkedIn, 6 Sep 2026, translated from Arabic)'
+
+about:
+  sources:
+    - ["LinkedIn", "in/albandery-alashi-ba8b16b6 and the Estedama Solutions Center page", "{linkedin} posts · mostly Arabic"]
+    - ["Website", "elstedamasolutions.com", "{web} pages · Arabic"]
+  # Standard from 17 Nov 2026: who you are / who you are not, each side with evidence. Kept to what her own posts and the
+  # centre's site actually say; style left as "not enough data yet".
+  rows:
+    - ["Type of coach", [["Training centre founder and CEO", 1], ["Learning methodology designer", 1], ["HR professional, SHRM-SCP", 1]], [["Off-the-shelf course seller", 0], ["Slides-first presentation coach", 0]], "your LinkedIn headline: Co-Founder & CEO at Estedama Solutions Center · Building Saudi Learning Methodologies · SHRM-SCP", "“Did we start from the course name… or from the problem?” (30 Aug 2026) · “before improving the delivery or the slides, know exactly where your presentation loses its impact” (6 Sep 2026)"]
+    - ["Region", [["Riyadh", 1], ["Saudi Arabia", 1]], [["Imported curricula", 0]], "LinkedIn: Riyadh, Saudi Arabia · the centre's programmes run in Riyadh", "the centre describes “a Saudi curriculum developed to global best practice” (elstedamasolutions.com)"]
+    - ["How you deliver", [["Two-day masterclass", 1], ["Voice of Influence™ programme", 1], ["Practice club", 1], ["Corporate training", 1]], [["Training that ends in the room", 0], ["Opinion-only feedback", 0]], "the masterclass: two days of applied training plus three months of practice in the Saudi Speaker Club (your post, 7 Sep 2026) · Voice of Influence™: 36 hours, 6 stations (the centre's site)", "“many training programmes end when the session ends” (Estedama's LinkedIn, Feb 2026) · “we don't rely on verbal impressions” (the centre's site)"]
+    - ["Your topics", [["Presentations and public speaking", 1], ["Executive presence", 1], ["Training design", 1], ["Communication and influence", 1]], [["Information transfer", 0], ["Polish over impact", 0]], "public speaking in 6 sources and presentation skills in 5 (index topics) · your LinkedIn headline: Organizational Communication & Institutional Influence", "“real training is no longer transferring information” (Estedama's LinkedIn) · “do we measure a presentation's success by how it was delivered, or by what it changed?” (23 Aug 2026)"]
+    - ["Named frameworks", [["Voice of Influence™", 1], ["Evidence of Change™", 1], ["Pressure Lab", 1], ["Slide Attention Canvas™", 1]], [["Training with no diagnosis", 0]], "all four on the centre's site, elstedamasolutions.com", "“we can't develop something we haven't diagnosed correctly” (6 Sep 2026)"]
+    - ["Your style", [["Asks the question first", 1], ["1:1 coaching: not enough data yet", 0]], [["Not enough data yet", 0]], "your posts often open or close with a question (23 Aug and 30 Aug 2026)", "your own posts total about 2,300 words, so start calibration to see more of how you coach"]
+
+dd_lead: Albandery's twin would follow these in every answer. They come from her own posts and, where marked, from the Estedama Solutions Center's site and LinkedIn. All are translated from Arabic.
+dos:
+  - ["diagnose the gap before you develop anything", "LinkedIn · 6 Sep 2026"]
+  - ["start from the problem, not the course title", "LinkedIn · 30 Aug 2026"]
+  - ["judge a talk by what it changed", "LinkedIn · 23 Aug 2026"]
+  - ["ask what the audience should do after the talk", "Estedama masterclass page"]
+  - ["let learners practise under real observation", "LinkedIn · 7 Sep 2026"]
+  - ["show change with before-and-after recordings", "Estedama site · Evidence of Change™"]
+  - ["treat fear as normal and something you can manage", "Estedama · Voice of Influence™ page"]
+  - ["rehearse under pressure: objections, interruptions, half the time", "Estedama site · Pressure Lab"]
+donts:
+  - ["jump to fixing slides or practising more before you diagnose", "LinkedIn · 30 Aug 2026"]
+  - ["judge a talk by how polished it looked", "LinkedIn · 23 Aug 2026"]
+  - ["treat training as passing on information", "Estedama's LinkedIn · Feb 2026"]
+  - ["let learning stop when the session ends", "Estedama's LinkedIn · Feb 2026"]
+  - ["rely on how the learner feels it went", "Estedama site · Evidence of Change™"]
