@@ -7,13 +7,13 @@ import { LinkedIn, Sparkle, YouTube } from '@/components/Icons.jsx'
 
 const DASH = 'https://dash.roleplay.foreverlearning.in/agents/'
 
-/* Rob's role play on the role-play dashboard (persona Martijn Bakker, scenario "Announce the price increase").
+/* Rob's role play on the role-play dashboard (persona Martin Bakker, scenario "Announce the price increase").
    Third person. Built on his argumentation method in Sales-ABC. */
 const ROLE_PLAY = {
   slug: 'announce-the-price-increase',
   title: 'Announce the price increase',
   coachee: { role: 'Account manager', text: 'An account manager at a supplier of fixings and installation materials, telling a customer of nine years that prices go up 6 percent from 1 January.', practises: ['Backing the price with proof', 'Trading, not discounting'] },
-  persona: { role: 'Purchasing manager', name: 'Martijn Bakker', photo: '/media/rob-roleplay-martijn.jpg', behaviour: ['Skeptical & Reserved'], speaking: ['Professional', 'Short answers'], text: 'Purchasing manager at a mid-sized installation company in Eindhoven. Careful with money, likes facts more than talk, and has heard from a cheaper competitor.' },
+  persona: { role: 'Purchasing manager', name: 'Martin Bakker', photo: '/media/rob-roleplay-martin.jpg', behaviour: ['Skeptical & Reserved'], speaking: ['Professional', 'Short answers'], text: 'Purchasing manager at a mid-sized installation company in Eindhoven. Careful with money, likes facts more than talk, and has heard from a cheaper competitor.' },
 }
 
 // Methodology, live twin (text, voice, video) and role play.
