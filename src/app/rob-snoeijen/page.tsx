@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ROB_SNOEIJEN } from '@/data.js'
 import TrustFooter from '@/components/TrustFooter.jsx'
-import { RoleplayPair } from '@/components/ProfileCards.jsx'
+import { RoleplayPair, TwinNotebook } from '@/components/ProfileCards.jsx'
 import { LinkedIn, Sparkle, YouTube } from '@/components/Icons.jsx'
 
 const DASH = 'https://dash.roleplay.foreverlearning.in/agents/'
@@ -16,7 +16,7 @@ const ROLE_PLAY = {
   persona: { role: 'Purchasing manager', name: 'Martijn Bakker', photo: '/media/rob-roleplay-martijn.jpg', behaviour: ['Skeptical & Reserved'], speaking: ['Professional', 'Short answers'], text: 'Purchasing manager at a mid-sized installation company in Eindhoven. Careful with money, likes facts more than talk, and has heard from a cheaper competitor.' },
 }
 
-// Methodology and role play live; the twin is coming soon (Rob's material is Dutch and has little of him speaking).
+// Methodology, live twin (text, voice, video) and role play.
 export default function Welcome() {
   return (
     <section className="wrap">
@@ -25,9 +25,9 @@ export default function Welcome() {
           <span className="prathosh-avatar">
             <Image src={ROB_SNOEIJEN.face} alt={ROB_SNOEIJEN.name} fill sizes="76px" />
           </span>
-          <span className="badge"><Sparkle />{ROB_SNOEIJEN.name} · Demo</span>
-          <h1>How {ROB_SNOEIJEN.firstName}’s AI twin learns</h1>
-          <p>See how an AI twin would learn {ROB_SNOEIJEN.firstName}’s way of selling: facts and proof instead of the claims every competitor makes. Then practise it in a role play.</p>
+          <span className="badge"><Sparkle />AI twin of {ROB_SNOEIJEN.name} · Demo</span>
+          <h1>Meet {ROB_SNOEIJEN.firstName}’s AI Twin</h1>
+          <p>Ask {ROB_SNOEIJEN.firstName}’s AI twin about finding new customers, persuading with facts and proof, price discussions and closing the deal. Then practise it in a role play.</p>
           <div className="made">
             <span className="made-l">Made from</span>
             <span className="srcpill"><LinkedIn />LinkedIn</span>
@@ -49,16 +49,14 @@ export default function Welcome() {
               </div>
             </div>
           </article>
-          <article className="path path--soon" aria-disabled="true">
-            <div className="peek soon-peek" aria-hidden="true">
-              <span className="peek-k">AI twin</span>
-              <span className="soon-tag">Coming soon</span>
-            </div>
+          <article className="path">
+            <TwinNotebook trainer={{ ...ROB_SNOEIJEN, portrait: ROB_SNOEIJEN.face }} livePath="/rob-snoeijen/live" plain notes={[{ label: 'Text', query: { mode: 'text' } }, { label: 'Voice', query: { mode: 'voice' } }, { label: 'Video', query: {} }]} />
             <div className="path-b">
               <h2>Ask {ROB_SNOEIJEN.firstName}’s twin live</h2>
-              <p>A twin that answers your salespeople’s questions the way {ROB_SNOEIJEN.firstName} would, between trainings.</p>
+              <p>Choose how to talk with {ROB_SNOEIJEN.firstName}’s twin: text, voice or video.</p>
               <div className="row">
-                <span className="btn btn--ghost" aria-disabled="true">Coming soon</span>
+                <Link href="/rob-snoeijen/live" className="btn btn--strong card-link">Start asking</Link>
+                <span className="meta">{ROB_SNOEIJEN.room.kind}</span>
               </div>
             </div>
           </article>
