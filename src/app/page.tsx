@@ -361,7 +361,7 @@ export default function Home() {
                 style={{ borderRadius: '50%', objectFit: 'cover' }}
               />
               <h2>{ROB_SNOEIJEN.name}</h2>
-              <p>See how an AI twin learns Rob’s sales method, facts and proof instead of claims, and practise announcing a price increase.</p>
+              <p>Ask Rob’s AI twin about selling with facts and proof, and practise announcing a price increase.</p>
               <div className="row">
                 <Link href="/rob-snoeijen" className="btn btn--strong">
                   Explore Rob’s demo

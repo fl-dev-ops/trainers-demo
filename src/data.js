@@ -280,15 +280,17 @@ export const ALBANDERY_ALASHI = {
 export const ROB_SNOEIJEN = {
   id: 'rob-snoeijen',
   name: 'Rob Snoeijen',
+  // The agent answers the welcome-page starter as the first message (needs starter_reply in agents.json).
+  starterInRoom: true,
   firstName: 'Rob',
   initials: 'RS',
   participantName: 'User',
   face: '/media/rob-snoeijen-headshot.jpg',
   portrait: '/media/rob-snoeijen-headshot.jpg',
   room: {
-    kind: 'Methodology · Demo',
-    title: 'How Rob’s twin learns',
-    scenario: 'Methodology and role play demo. There is no live twin for Rob yet.',
+    kind: 'Ask me anything · Demo',
+    title: 'Ask about selling, persuading and closing',
+    scenario: 'Rob’s AI twin will help you with finding new customers, persuading with facts and proof, handling price discussions and closing the deal, based on his book Sales-ABC and his trainings. It answers in English; Rob’s own material is in Dutch. It was made only for this demo and is not a replacement for Rob.',
   },
 }
 
