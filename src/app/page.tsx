@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { AISHWARYA_REGANTI, ALBANDERY_ALASHI, COLLY_GRAHAM, ANTONI, BEVAN_BROADBENT, CLIVE_MILLER, DARREN_MITCHELL, FLO_AKINBIYI, GOPAL_RAJGURU, JAMEEL, JOHNNY_DANIELE, MARCUS_CAUCHI, PRATHOSH, SEAN_WEAFER, NATALIE_SEREBRENNIK, SHEHZAD_MUKADAM, SHELLEY_WALTERS, TONY_LATIMER, TWIN } from '../data.js'
+import { AISHWARYA_REGANTI, ALBANDERY_ALASHI, ROB_SNOEIJEN, COLLY_GRAHAM, ANTONI, BEVAN_BROADBENT, CLIVE_MILLER, DARREN_MITCHELL, FLO_AKINBIYI, GOPAL_RAJGURU, JAMEEL, JOHNNY_DANIELE, MARCUS_CAUCHI, PRATHOSH, SEAN_WEAFER, NATALIE_SEREBRENNIK, SHEHZAD_MUKADAM, SHELLEY_WALTERS, TONY_LATIMER, TWIN } from '../data.js'
 
 export const metadata: Metadata = {
   title: 'Trainer demos · TrainerTwin',
@@ -347,6 +347,24 @@ export default function Home() {
               <div className="row">
                 <Link href="/albandery-alashi" className="btn btn--strong">
                   Explore Albandery’s demo
+                </Link>
+              </div>
+            </div>
+          </article>
+          <article className="path">
+            <div className="path-b">
+              <Image
+                src={ROB_SNOEIJEN.face}
+                alt={ROB_SNOEIJEN.name}
+                width={76}
+                height={76}
+                style={{ borderRadius: '50%', objectFit: 'cover' }}
+              />
+              <h2>{ROB_SNOEIJEN.name}</h2>
+              <p>See how an AI twin learns Rob’s sales method, facts and proof instead of claims, and practise announcing a price increase.</p>
+              <div className="row">
+                <Link href="/rob-snoeijen" className="btn btn--strong">
+                  Explore Rob’s demo
                 </Link>
               </div>
             </div>

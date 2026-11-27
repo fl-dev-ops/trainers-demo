@@ -1,0 +1,979 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How a Coach's Twin Learns</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#151310; --ink:#ece5d8; --dim:#a89e8c; --faint:#6f6759; --line:#37322a; --line2:#4a443a;
+  --l1:#e2a93b; --l2:#4fa9a0; --l3:#d4746a; --l4:#9a86c9; --l5:#8fae62; --l6:#c94f33;
+  --ease:cubic-bezier(.65,0,.25,1);
+  --serif:'Fraunces',Georgia,serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --sys:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--serif)}
+body{cursor:pointer;user-select:none;-webkit-user-select:none}
+body.final{cursor:grab}
+canvas#cv{position:fixed;inset:0;width:100vw;height:100vh;display:block}
+#stage{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0;pointer-events:none}
+#stage *{pointer-events:none}
+#stage .hit{pointer-events:auto}
+svg#wires{position:absolute;inset:0;width:1600px;height:900px;overflow:visible}
+
+/* ---------- header & chapter rail */
+header{position:absolute;left:60px;right:60px;top:34px;display:flex;align-items:center;justify-content:space-between;
+  font:500 11px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+header b{color:var(--l1);font-weight:600}
+/* persona switch (config `switch`): one page per persona, on every screen */
+#psw{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line2);border-radius:999px;letter-spacing:normal;text-transform:none}
+#psw[hidden],#hdr[hidden]{display:none!important}
+#stage #psw,#stage #psw *{pointer-events:auto}
+#psw .ptab{white-space:nowrap;font:500 13px/1 var(--serif);color:var(--dim);padding:9px 16px;border-radius:999px;border:0;background:transparent;cursor:pointer;transition:all .2s}
+#psw .ptab:hover{color:var(--ink)}
+#psw .ptab small{margin-left:8px;font:500 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+#psw .ptab[aria-selected=true]{color:#1b1712;background:var(--l1);font-weight:600;cursor:default}
+#rail{display:flex;gap:28px}
+#rail .ch{display:flex;flex-direction:column;gap:9px;align-items:flex-start;transition:color .5s}
+#rail .ch.on{color:var(--ink)}
+#rail .ch.done{color:var(--dim)}
+#rail .dots{display:flex;gap:5px}
+#rail .dots i{width:6px;height:6px;border-radius:50%;background:var(--line2);transition:background .4s,transform .4s}
+#rail .dots i.done{background:var(--dim)}
+#rail .dots i.on{background:var(--l1);transform:scale(1.35)}
+#hint{position:absolute;left:60px;bottom:34px;font:500 10.5px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--faint);transition:opacity .6s}
+#hint kbd{font:inherit;color:var(--dim);border:1px solid var(--line2);border-radius:4px;padding:3px 6px;margin:0 2px}
+
+/* ---------- narrative column */
+#cap{position:absolute;left:60px;top:150px;width:390px;transition:opacity .45s}
+#cap.out{opacity:0}
+#cap .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin-bottom:22px}
+#cap h1{font-weight:380;font-size:38px;line-height:1.12;letter-spacing:-.01em;margin-bottom:22px;font-variation-settings:'opsz' 96}
+#cap p{font-size:18px;line-height:1.55;color:var(--dim);font-weight:330}
+#cap p em{color:var(--ink);font-style:italic}
+#stat{position:absolute;left:60px;bottom:96px;width:390px;transition:opacity .5s}
+#stat .num{font:300 64px/1 var(--serif);letter-spacing:-.02em;font-variation-settings:'opsz' 144;font-variant-numeric:tabular-nums}
+#stat .unit{font:500 11px/1.6 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-top:12px}
+#stat.hide{opacity:0}
+
+/* hero */
+#hero{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;transition:opacity .8s,transform 1.1s var(--ease)}
+#hero .kick{font:500 12px/1 var(--mono);letter-spacing:.3em;text-transform:uppercase;color:var(--l1);margin-bottom:30px}
+#hero h1{font-weight:320;font-size:88px;line-height:1.02;letter-spacing:-.025em;font-variation-settings:'opsz' 144}
+#hero h1 i{color:var(--l1);font-weight:300}
+#hero p{margin-top:30px;font-size:21px;line-height:1.55;color:var(--dim);max-width:640px;font-weight:330}
+#hero .go{margin-top:46px;font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--faint)}
+#hero.out{opacity:0;transform:translateY(-30px) scale(.98)}
+
+/* ---------- the window: Finder -> transcript */
+#win{position:absolute;left:540px;top:120px;width:1000px;height:660px;border-radius:12px;background:#1d1c1b;
+  border:1px solid #3a3835;box-shadow:0 40px 90px rgba(0,0,0,.55),0 0 0 .5px rgba(255,255,255,.04) inset;
+  overflow:hidden;font-family:var(--sys);color:#e6e3de;
+  transition:left 1s var(--ease),top 1s var(--ease),width 1s var(--ease),height 1s var(--ease),opacity .7s,transform 1.1s var(--ease);
+  opacity:0;transform:translateY(40px) scale(.96)}
+#win.show{opacity:1;transform:none}
+#win.narrow{left:500px;top:96px;width:570px;height:772px}
+#win.gone{opacity:0;transition:opacity .35s}
+.tbar{height:46px;display:flex;align-items:center;gap:16px;padding:0 16px;background:#2a2927;border-bottom:1px solid #3a3835}
+.lights{display:flex;gap:8px}.lights i{width:12px;height:12px;border-radius:50%;background:#ff5f57}
+.lights i:nth-child(2){background:#febc2e}.lights i:nth-child(3){background:#28c840}
+.navb{color:#77736d;font-size:17px;letter-spacing:10px}
+.wtitle{font-weight:600;font-size:13.5px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.views{display:flex;gap:2px;background:#353330;border-radius:6px;padding:2px}
+.views i{width:28px;height:20px;border-radius:4px;display:block;position:relative}
+.views i.on{background:#55524d}
+.views i::after{content:'';position:absolute;left:9px;top:5px;width:10px;height:10px;border:1.5px solid #aaa49c;border-radius:2px}
+.views i:nth-child(2)::after{border-width:1.5px 0;height:3px;top:5px;box-shadow:0 4px 0 0 #aaa49c}
+.wbody{position:absolute;top:46px;bottom:26px;left:0;right:0;display:flex}
+.side{width:190px;flex:none;background:#242321;border-right:1px solid #33312e;padding:14px 10px;font-size:12.5px;transition:width .9s var(--ease),padding .9s var(--ease),opacity .5s;overflow:hidden;white-space:nowrap}
+.side h6{font-size:10.5px;font-weight:600;color:#7c7872;margin:6px 8px 6px}
+.side div{padding:5px 8px;border-radius:6px;display:flex;align-items:center;gap:8px;color:#d8d4ce;transition:background .4s}
+.side div.on{background:#3a3835}
+.side .fi{width:15px;height:11px;border-radius:2px;background:#5da6ec;position:relative;flex:none}
+.side .fi::before{content:'';position:absolute;left:0;top:-2px;width:6px;height:3px;border-radius:2px 2px 0 0;background:#5da6ec}
+.pane{flex:1;position:relative;overflow:hidden}
+.pane>section{position:absolute;inset:0;transition:opacity .6s,transform .8s var(--ease);opacity:0;transform:translateY(12px)}
+.pane>section.on{opacity:1;transform:none}
+.status{position:absolute;bottom:0;left:0;right:0;height:26px;border-top:1px solid #33312e;background:#242321;font-size:11px;color:#8b8780;display:flex;align-items:center;justify-content:center}
+
+/* icon view */
+.icons{display:flex;gap:70px;padding:120px 60px;justify-content:center}
+.folder{width:150px;text-align:center;font-size:14px;opacity:0;transform:translateY(16px) scale(.9);transition:opacity .6s,transform .7s var(--ease)}
+.on .folder{opacity:1;transform:none}
+.on .folder:nth-child(2){transition-delay:.15s}
+.ficon{width:130px;height:100px;margin:0 auto 14px;position:relative}
+.ficon::before{content:'';position:absolute;left:0;top:0;width:54px;height:18px;border-radius:8px 8px 0 0;background:#4b8fd6}
+.ficon::after{content:'';position:absolute;left:0;top:10px;right:0;bottom:0;border-radius:5px 9px 9px 9px;background:linear-gradient(#78b8f5,#5a9ee6)}
+.ficon i{position:absolute;z-index:1;left:50%;top:50px;transform:translateX(-50%)}
+.folder small{display:block;color:#8b8780;font-size:12px;margin-top:5px}
+
+/* list view */
+.lhead,.lrow{display:grid;grid-template-columns:1fr 130px 110px 70px;gap:12px;padding:0 18px;align-items:center}
+.lhead{height:30px;font-size:11px;font-weight:600;color:#8b8780;border-bottom:1px solid #33312e;background:#1d1c1b;position:relative;z-index:1}
+.lrows{position:absolute;top:30px;left:0;right:0;will-change:transform}
+.lrow{height:26px;font-size:12.5px;white-space:nowrap;transition:background .4s,color .4s}
+.lrow:nth-child(even){background:#232220}
+.lrow .nm{overflow:hidden;text-overflow:ellipsis;display:flex;gap:9px;align-items:center}
+.lrow .kd,.lrow .dt,.lrow .sz{color:#8b8780;font-size:11.5px}
+.lrow .sz{text-align:right}
+.badge{width:16px;height:12px;border-radius:3px;flex:none;position:relative;display:block}
+.badge.yt{background:#e5443b}.badge.yt::after{content:'';position:absolute;left:6px;top:3px;border-left:5px solid #fff;border-top:3px solid transparent;border-bottom:3px solid transparent}
+.badge.lm{background:#7a5af5}.badge.lm::after{content:'';position:absolute;left:4px;top:3px;width:6px;height:6px;border-radius:50%;border:1.5px solid #fff}
+.ficon .badge{width:30px;height:22px;border-radius:5px}
+.ficon .badge.yt::after{left:11px;top:6px;border-left-width:9px;border-top-width:5px;border-bottom-width:5px}
+.ficon .badge.lm::after{left:8px;top:4px;width:11px;height:11px;border-width:2px}
+.badge.li{background:#0a66c2}.badge.li::after{content:'in';position:absolute;left:3px;top:0;font:700 8px/12px var(--sys);color:#fff}
+.badge.wb{background:#6c8a5a}.badge.wb::after{content:'';position:absolute;left:4px;top:2px;width:6px;height:6px;border-radius:50%;border:1.5px solid #fff}
+.lrow.sel{background:#2f5fb3!important;color:#fff}
+.lrow.sel .kd,.lrow.sel .dt,.lrow.sel .sz{color:#dfe8fa}
+
+/* document view */
+.doc{padding:16px 22px 16px 18px;font-size:13.5px;line-height:1.42}
+.fm{font:12px/1.6 var(--mono);color:#8b8780;white-space:pre;overflow:hidden;max-height:120px;transition:max-height .9s var(--ease),opacity .6s,margin .9s var(--ease);margin-bottom:12px}
+.doc.clean .fm{max-height:0;opacity:0;margin:0}
+.ln{position:relative;padding:4px 8px 4px 8px;border-radius:7px;transition:background .5s,box-shadow .5s,opacity .5s;margin-bottom:2px}
+.rh{font:12px/1.5 var(--mono);color:#9a958d;max-height:20px;overflow:hidden;transition:max-height .8s var(--ease),opacity .5s}
+.rh .h{color:#6c6862}
+.row{display:flex;gap:10px;align-items:baseline}
+.ts{font:11px/1 var(--mono);color:#77736d;width:0;overflow:hidden;opacity:0;flex:none;transition:width .8s var(--ease),opacity .6s}
+.who{font:600 10.5px/1 var(--sys);letter-spacing:.04em;text-transform:uppercase;width:0;overflow:hidden;opacity:0;flex:none;transition:width .8s var(--ease),opacity .6s;padding-top:1px}
+.who.o{color:var(--l1)}.who{white-space:nowrap}.who.s{color:#9fb8d6}
+.txt{flex:1;font:12.5px/1.5 var(--mono);color:#cfcac2}
+.txt .c{display:none}.doc.clean .txt .r{display:none}.doc.clean .txt .c{display:inline}
+.doc.clean .rh{max-height:0;opacity:0}
+.doc.clean .ts{width:46px;opacity:1}
+.doc.clean .who{width:var(--who,54px);opacity:1}
+.doc.clean .txt{font:13.4px/1.4 var(--sys);color:#ece8e2}
+.doc.focus .ln{opacity:.32}
+.doc.focus .ln.key{opacity:1;box-shadow:inset 0 0 0 1px rgba(226,169,59,.75);background:rgba(226,169,59,.1)}
+
+/* ---------- right column panels */
+.rpanel{position:absolute;left:1120px;top:110px;width:420px;opacity:0;transform:translateX(30px);transition:opacity .6s,transform .9s var(--ease)}
+.rpanel.on{opacity:1;transform:none}
+.plabel{font:500 10.5px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin-bottom:16px}
+
+/* frames */
+#frames{top:100px;height:760px}
+#frames .plabel{position:absolute;top:-28px}
+.fc{position:absolute;left:0;width:420px;padding:6px 11px 7px 12px;border-radius:8px;background:#1b211f;border:1px solid rgba(79,169,160,.35);
+  font-size:12.8px;line-height:1.32;color:#dbeee9;font-weight:340;opacity:0;transform:translateX(24px);transition:opacity .5s,transform .7s var(--ease),border-color .5s,background .5s,box-shadow .5s}
+.fc .k{display:inline;font:600 9px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--l2);margin-right:8px}
+.fc .k em{font-style:normal;color:var(--l1);margin-left:8px}
+#frames.on .fc{opacity:1;transform:none}
+#frames.focus .fc{opacity:.25}
+#frames.focus .fc.key{opacity:1;border-color:var(--l2);background:#1d2a27;box-shadow:0 0 30px rgba(79,169,160,.18)}
+.wire{fill:none;stroke:var(--l2);stroke-width:1.2;opacity:0;transition:opacity .6s}
+.wire.on{opacity:.45}
+.wire.dim{opacity:.08}
+.wire.key{opacity:.95;stroke-width:1.8}
+
+/* layer cards */
+#cards{top:150px}
+.card{position:absolute;left:0;top:0;width:420px;padding:22px 24px 22px;border-radius:12px;background:rgba(32,29,24,.94);border:1px solid var(--line2);
+  opacity:0;transform:translateY(16px);transition:opacity .55s,transform .8s var(--ease);backdrop-filter:blur(6px)}
+.card.on{opacity:1;transform:none;transition-delay:.35s}
+.card .lv{font:600 10px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;margin-bottom:14px}
+.card h3{font-weight:400;font-size:23px;line-height:1.22;margin-bottom:12px;font-variation-settings:'opsz' 72}
+.card p{font-size:15px;line-height:1.5;color:var(--dim);font-weight:330}
+.card .pair{display:grid;grid-template-columns:62px 1fr;gap:10px 12px;margin-top:6px}
+.card .pair dt{font:600 9.5px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.card .pair dd{font-size:15px;line-height:1.45;color:var(--ink);font-weight:340}
+.card .pair dd.q{font-style:italic}
+.card .foot{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font:500 10px/1.6 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.card blockquote{font-size:20px;line-height:1.38;font-weight:360;color:var(--ink);margin:4px 0 14px;font-style:italic}
+
+/* finale legend */
+#legend{top:170px;left:1270px;width:290px}
+.lg{display:grid;grid-template-columns:14px 1fr auto;gap:12px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line);opacity:0;transform:translateX(14px);transition:opacity .5s,transform .7s var(--ease)}
+#legend.on .lg{opacity:1;transform:none}
+.lg i{width:9px;height:9px;border-radius:50%;display:block;transform:translateY(-1px)}
+.lg span{font:500 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.lg b{font:300 26px/1 var(--serif);font-variant-numeric:tabular-nums}
+#tip{position:fixed;max-width:360px;padding:9px 12px;border-radius:8px;background:rgba(21,19,16,.95);border:1px solid var(--line2);font-size:14px;line-height:1.4;color:var(--ink);pointer-events:none;opacity:0;transition:opacity .15s;z-index:5}
+#tip small{display:block;font:600 9.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px}
+/* ---------- findings: a docs page, one layer per page */
+#fd{position:absolute;left:60px;right:60px;top:96px;bottom:34px;display:grid;grid-template-columns:280px 1fr;gap:56px;
+  opacity:0;visibility:hidden;transform:translateY(16px);transition:opacity .6s,transform .9s var(--ease),visibility 0s .6s;cursor:default}
+#fd.on{opacity:1;visibility:visible;transform:none;transition:opacity .6s .2s,transform .9s var(--ease) .2s,visibility 0s}
+#stage #fd,#stage #fd *{pointer-events:auto}
+#fd .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin:24px 0 20px}
+#fd .lead h1{font-weight:380;font-size:32px;line-height:1.14;margin-bottom:16px;font-variation-settings:'opsz' 96}
+#fd .lead p{font-size:15px;line-height:1.55;color:var(--dim);font-weight:330}
+#fd nav{margin-top:30px;border-top:1px solid var(--line)}
+#fd nav a{display:grid;grid-template-columns:12px 1fr;gap:12px;align-items:center;padding:14px 10px;border-bottom:1px solid var(--line);
+  cursor:pointer;color:var(--dim);transition:background .3s,color .3s}
+#fd nav a:hover{background:rgba(255,255,255,.03);color:var(--ink)}
+#fd nav a.on{background:rgba(255,255,255,.05);color:var(--ink)}
+#fd nav a i{width:9px;height:9px;border-radius:50%}
+#fd nav a span{font:500 11px/1.35 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+#fd nav a b{font:600 9px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:5px 7px;border-radius:4px;border:1px solid currentColor;opacity:.85}
+#fd .keys{margin-top:18px;font:500 10px/1.6 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+#fd .page{overflow-y:auto;padding:24px 36px 40px 0;scrollbar-width:thin;scrollbar-color:var(--line2) transparent}
+#fd article{display:none;max-width:920px}
+#fd article.on{display:block;animation:fdin .5s var(--ease)}
+@keyframes fdin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+#fd .lv{font:600 10.5px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;margin-bottom:16px}
+#fd h2{font-weight:380;font-size:40px;line-height:1.1;margin-bottom:14px;font-variation-settings:'opsz' 120;display:flex;align-items:center;gap:18px}
+#fd h2 b{font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;padding:7px 10px;border-radius:5px;border:1px solid currentColor}
+#fd .what{font-size:19px;line-height:1.5;color:var(--dim);font-weight:330;max-width:760px}
+#fd .what em{color:var(--ink)}
+#fd .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:30px 0 8px}
+#fd .nums div{border-top:1px solid var(--line2);padding-top:14px}
+#fd .nums strong{display:block;font:300 40px/1 var(--serif);font-variant-numeric:tabular-nums;font-variation-settings:'opsz' 144}
+#fd .nums small{display:block;margin-top:10px;font:500 10px/1.5 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+#fd h4{font:600 10.5px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--faint);margin:38px 0 14px}
+#fd .how{font-size:16px;line-height:1.6;color:var(--ink);font-weight:340;max-width:800px}
+#fd .how code,#fd li code,#fd .ex code{font:12.5px var(--mono);color:var(--l1);background:rgba(226,169,59,.08);padding:1px 5px;border-radius:4px}
+#fd .exs{display:grid;gap:12px}
+#fd .ex{padding:16px 18px;border-radius:10px;background:rgba(32,29,24,.9);border:1px solid var(--line2);border-left-width:3px}
+#fd .ex.good{border-left-color:var(--l5)}#fd .ex.bad{border-left-color:var(--l6)}
+#fd .ex .tag{font:600 9.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;margin-bottom:10px}
+#fd .ex.good .tag{color:var(--l5)}#fd .ex.bad .tag{color:#e0715a}
+#fd .ex q{display:block;font-size:17px;line-height:1.42;font-style:italic;color:var(--ink);font-weight:350;quotes:'“' '”'}
+#fd .ex p{margin-top:9px;font-size:14px;line-height:1.5;color:var(--dim);font-weight:330}
+#fd .ex p q{display:inline;font-size:14px;color:#d8d0c2}
+#fd ul{list-style:none;display:grid;gap:10px;max-width:820px}
+#fd li{position:relative;padding-left:22px;font-size:16px;line-height:1.5;color:var(--ink);font-weight:340}
+#fd li::before{content:'';position:absolute;left:2px;top:10px;width:7px;height:7px;border-radius:50%;background:#e0715a}
+#fd li strong{font-weight:560}
+#fd .todo{margin-top:34px;padding:18px 20px;border-radius:10px;border:1px dashed var(--line2);font-size:16px;line-height:1.55;color:var(--ink);font-weight:340}
+#ab{position:absolute;left:60px;right:60px;top:96px;bottom:34px;display:grid;grid-template-columns:280px 1fr;gap:56px;
+  opacity:0;visibility:hidden;transform:translateY(16px);transition:opacity .6s,transform .9s var(--ease),visibility 0s .6s;cursor:default}
+#ab.on{opacity:1;visibility:visible;transform:none;transition:opacity .6s .2s,transform .9s var(--ease) .2s,visibility 0s}
+#stage #ab,#stage #ab *{pointer-events:auto}
+#ab .kick{font:500 11px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--l1);margin:24px 0 20px}
+#ab .lead h1{font-weight:380;font-size:32px;line-height:1.14;margin-bottom:16px;font-variation-settings:'opsz' 96}
+#ab .lead p{font-size:15px;line-height:1.55;color:var(--dim);font-weight:330}
+#ab .found{margin-top:26px;border-top:1px solid var(--line)}
+#ab .found div{padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;line-height:1.35}
+#ab .found b{font-weight:520}#ab .found em{font-style:normal;color:var(--l5);float:right}
+#ab .found small{display:block;margin-top:4px;font:500 9.5px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+#ab .page{padding-top:24px}
+#ab h2{font-weight:380;font-size:40px;line-height:1.1;margin-bottom:10px;font-variation-settings:'opsz' 120}
+#ab .what{font-size:17px;line-height:1.5;color:var(--dim);font-weight:330}
+#ab .sheet{max-width:1080px;margin-top:22px;padding:4px 24px;border-radius:12px;border:1px solid var(--line2);background:rgba(32,29,24,.9)}
+#ab .row{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--line)}
+#ab .row:last-child{border-bottom:0}
+#ab .row>span{font:600 10px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+#ab .chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+#ab .chip{font:400 14px/1 var(--serif);color:var(--dim);padding:8px 13px;border-radius:999px;border:1px solid var(--line2);background:transparent;cursor:pointer;transition:all .2s}
+#ab .chip:hover{color:var(--ink);border-color:var(--dim)}
+#ab .chip[aria-pressed=true]{color:#1b1712;background:var(--l1);border-color:var(--l1);font-weight:500}
+#ab .ev{flex-basis:100%;margin-top:4px;font:500 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+/* who you are / who you are not (standard from 17 Nov 2026): two columns per row */
+#ab .page{overflow-y:auto;scrollbar-width:thin;padding-right:6px}
+#ab .sheet.two{max-width:1180px;padding:4px 24px 6px}
+#ab .sheet.two .row{grid-template-columns:130px 1fr}
+#ab .cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+#ab .col .ev{display:block;margin-top:9px}
+#ab .row.heads{padding:12px 0 6px;border-bottom:1px solid var(--line2)}
+#ab .heads b{font:600 10px/1.9 var(--mono);letter-spacing:.16em;text-transform:uppercase}
+#ab .heads b.is{color:var(--l1)}#ab .heads b.no{color:#e0715a}
+#ab .chip.no::before{content:'\2715';margin-right:7px;font-size:11px;color:#e0715a}
+#ab .chip.no[aria-pressed=true]{color:var(--ink);background:transparent;border-color:#e0715a;font-weight:400}
+#fd .todo span{display:block;font:600 10px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--l5);margin-bottom:10px}
+
+/* ---------- source badges for the other kinds */
+.badge.ig{background:#c13584}.badge.ig::after{content:'';position:absolute;left:4px;top:2px;width:6px;height:6px;border-radius:2px;border:1.5px solid #fff}
+.badge.tw{background:#3a3a3a}.badge.tw::after{content:'X';position:absolute;left:4px;top:0;font:700 8px/12px var(--sys);color:#fff}
+/* ---------- do's & don'ts page */
+#fd .principle-count{margin-top:20px;border-top:1px solid var(--line);padding-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#fd .principle-count b{display:block;font:300 56px/1 var(--serif);color:var(--ink)}
+#fd .principle-count span{display:block;margin-top:10px;font:500 10px/1.5 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+#fd .ptabs{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line2);border-radius:999px;margin:2px 0 4px}
+#fd .ptab{font:500 13px/1 var(--serif);color:var(--dim);padding:9px 16px;border-radius:999px;border:0;background:transparent;cursor:pointer;transition:all .2s}
+#fd .ptab:hover{color:var(--ink)}
+#fd .ptab[aria-selected=true]{color:#1b1712;background:var(--l1);font-weight:600}
+#fd .dd-cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:18px;max-width:1080px}
+#fd .dd-head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px;font-size:19px;font-weight:450}
+#fd .dd-head small{font-size:13.5px;color:var(--dim);font-weight:330}
+#fd .dd-head.do i{color:var(--l5);font-style:normal}#fd .dd-head.dont i{color:#e0715a;font-style:normal}
+#fd .dd-row{display:grid;grid-template-columns:22px 1fr;gap:12px;padding:10px 16px;margin-bottom:8px;border:1px solid var(--line2);border-radius:10px;background:rgba(32,29,24,.9)}
+#fd .dd-row>i{font-style:normal;font-size:15px;line-height:1.4}
+#fd .dd-row.do>i{color:var(--l5)}#fd .dd-row.dont>i{color:#e0715a}
+#fd .dd-row p{font-size:15.5px;line-height:1.4;color:var(--ink);font-weight:340}
+#fd .dd-row p b{font-weight:600}
+#fd .dd-row small{display:block;margin-top:6px;font:500 10px/1.5 var(--mono);letter-spacing:.06em;color:var(--faint)}
+#fd .keys{cursor:pointer}
+
+/* ---------- phones (config `mobile: true`): one portrait column instead of the scaled 16:9 slide */
+#vis,#mback,#rot{display:none}
+body.m{touch-action:none}
+body.m canvas#cv{width:100%;height:100%}
+body.m #stage{width:100%;height:100%;transform:none!important;padding:0 18px;display:grid;grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto minmax(0,1fr) auto auto auto;grid-template-areas:'hd' 'vis' 'st' 'cap' 'ft'}
+body.m #vis{display:block;grid-area:vis}
+body.m header{grid-area:hd;position:relative;left:auto;right:auto;top:auto;padding:max(16px,env(safe-area-inset-top)) 0 12px;font-size:10px}
+body.m #hdr{display:none}
+body.m header{flex-wrap:wrap}
+body.m #psw{order:2;display:flex;width:100%;margin-top:12px}
+body.m #psw .ptab{flex:1;padding:10px 8px;font-size:13px}
+body.m #psw .ptab small{display:block;margin:5px 0 0;font-size:9px}
+body.m #rail{gap:12px;width:100%;justify-content:space-between}
+body.m #rail .ch{gap:7px}
+body.m #rail .ch>span:first-child{display:none}
+body.m #rail .dots{gap:6px}
+body.m #rail .dots i{width:7px;height:7px}
+body.m header{min-height:44px}
+/* hero */
+body.m #hero{padding:0 26px}
+body.m #hero .kick{font-size:10px;letter-spacing:.24em;margin-bottom:22px;line-height:1.6}
+body.m #hero h1{font-size:52px}
+body.m #hero p{font-size:17px;margin-top:22px}
+body.m #hero .go{margin-top:34px}
+/* narrative */
+body.m #cap{grid-area:cap;position:relative;left:auto;top:auto;width:auto;padding:12px 0 4px}
+body.m #cap .kick{font-size:10px;margin-bottom:10px}
+body.m #cap h1{font-size:24px;line-height:1.15;margin-bottom:9px}
+body.m #cap p{font-size:15px;line-height:1.5}
+body.m #stat{grid-area:st;position:relative;left:auto;bottom:auto;width:auto;display:flex;align-items:baseline;gap:12px;padding-top:14px}
+body.m #stat .num{font-size:34px}
+body.m #stat .unit{margin-top:0;font-size:10px;line-height:1.4}
+body.m #hint{grid-area:ft;position:relative;left:auto;bottom:auto;display:flex;justify-content:space-between;align-items:center;
+  padding:14px 0 max(18px,env(safe-area-inset-bottom));font-size:10px}
+body.m #mback{display:inline-block;padding:8px 12px 8px 0;margin:-8px 0;color:var(--dim)}
+/* the window */
+body.m #win{grid-area:vis;position:relative;left:auto;top:auto;width:auto;height:auto;min-height:0;margin-top:4px}
+body.m #win.narrow{opacity:0;transform:translateY(20px) scale(.97)}
+body.m .side{display:none}
+body.m .tbar{height:38px;gap:10px;padding:0 12px}
+body.m .lights i{width:10px;height:10px}
+body.m .navb,body.m .views{display:none}
+body.m .wtitle{font-size:12px}
+body.m .wbody{top:38px;bottom:22px}
+body.m .status{height:22px;font-size:10px}
+body.m .lhead,body.m .lrow{grid-template-columns:minmax(0,1fr) 78px;padding:0 12px}
+body.m .lhead span:nth-child(2),body.m .lhead span:nth-child(4),body.m .lrow .kd,body.m .lrow .sz{display:none}
+body.m .lrow{font-size:12px}
+body.m .doc{padding:12px 12px}
+body.m .doc .txt{font-size:11.5px}
+body.m .doc.clean .txt{font-size:12.5px}
+body.m .doc.clean .ts{width:0;opacity:0}
+body.m .doc.clean .who{width:var(--who,56px)}
+/* frames */
+body.m #wires{display:none}
+body.m .rpanel{transform:translateY(16px)}
+body.m .rpanel.on{transform:none}
+body.m #frames{grid-area:vis;position:relative;left:auto;top:auto;height:auto;width:auto;min-height:0;overflow:hidden;padding-top:8px}
+body.m #frames .plabel{position:static;margin-bottom:10px}
+body.m .fc{position:relative;width:auto;top:auto!important;margin-bottom:6px;font-size:12px;transform:translateY(12px)}
+/* layer cards and the legend sit under the layered space */
+body.m #cards,body.m #legend{grid-area:vis;align-self:end;position:relative;left:auto;top:auto;width:auto}
+body.m .card{position:absolute;left:0;right:0;top:auto;bottom:0;width:auto;padding:16px 18px}
+body.m .card.on{position:relative}
+body.m .card .lv{margin-bottom:10px}
+body.m .card h3{font-size:19px;margin-bottom:8px}
+body.m .card p,body.m .card .pair dd{font-size:14px}
+body.m .card blockquote{font-size:18px}
+body.m .card .foot{margin-top:12px;padding-top:10px}
+body.m #legend{display:grid;grid-template-columns:1fr 1fr;column-gap:16px}
+body.m #legend .plabel{grid-column:1 / -1;margin-bottom:6px}
+body.m .lg{padding:8px 0;gap:9px}
+body.m .lg span{font-size:9px;letter-spacing:.1em;line-height:1.3}
+/* about you, do's & don'ts: scrolling pages */
+body.m #ab,body.m #fd{position:absolute;left:0;right:0;top:var(--hdh,44px);bottom:0;display:block;overflow-y:auto;background:var(--bg);padding:0 18px max(40px,env(safe-area-inset-bottom));touch-action:pan-y;-webkit-overflow-scrolling:touch}
+body.m #ab{bottom:52px;padding-bottom:28px}
+body.m #ab .kick,body.m #fd .kick{margin:18px 0 14px}
+body.m #ab .lead h1,body.m #fd .lead h1{font-size:30px}
+body.m #ab .page,body.m #fd .page{overflow:visible;padding:30px 0 0}
+body.m #ab h2,body.m #fd h2{font-size:30px;flex-wrap:wrap}
+body.m #ab .what,body.m #fd .what{font-size:16px}
+body.m #ab .sheet{padding:2px 16px}
+body.m #ab .row{grid-template-columns:1fr;gap:10px}
+body.m #ab .sheet.two .row{grid-template-columns:1fr}
+body.m #ab .cols{grid-template-columns:1fr;gap:18px}
+body.m #ab .row.heads{display:none}
+body.m #ab .col::before{display:block;margin-bottom:8px;font:600 10px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--l1);content:'Who you are'}
+body.m #ab .col+.col::before{color:#e0715a;content:'Who you are not'}
+body.m #ab .page{overflow:visible}
+body.m #ab .chip{font-size:13.5px;padding:8px 12px}
+body.m #fd .lead .principle-count b{font-size:44px}
+body.m #fd .keys{display:inline-block;margin-top:16px;padding:8px 0;font-size:11px;color:var(--dim)}
+body.m #fd .ptabs{display:flex;width:100%;margin:6px 0 2px}
+body.m #fd .ptab{flex:1;padding:10px 8px;font-size:13px}
+body.m #fd .dd-cols{grid-template-columns:1fr;gap:26px}
+body.m #fd .dd-row{padding:10px 14px}
+body.m #fd .dd-row p{font-size:15px}
+body.m #tip{display:none}
+/* a phone turned sideways */
+body.rot #stage,body.rot #cv{display:none}
+body.rot #rot{display:flex;position:fixed;inset:0;z-index:9;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px}
+#rot b{font-weight:330;font-size:30px;font-variation-settings:'opsz' 96}
+#rot span{font:500 10.5px/1.6 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="tip"></div>
+<div id="rot"><b>Turn your phone upright</b><span>This page reads best in portrait</span></div>
+<div id="stage">
+  <div id="vis"></div>
+  <header><div id="hdr"></div><div id="psw" class="hit" role="tablist" hidden></div><nav id="rail" class="hit"></nav></header>
+
+  <div id="hero">
+    <div class="kick">One real exchange, followed all the way through</div>
+    <h1 id="hero-h"></h1>
+    <p id="hero-p"></p>
+    <div class="go" id="go">Click to begin →</div>
+  </div>
+
+  <div id="cap" class="out"><div class="kick" id="kick"></div><h1 id="title"></h1><p id="body"></p></div>
+  <div id="stat" class="hide"><div class="num" id="num">0</div><div class="unit" id="unit"></div></div>
+
+  <div id="win">
+    <div class="tbar"><span class="lights"><i></i><i></i><i></i></span><span class="navb">‹ ›</span><span class="wtitle" id="wtitle"></span><span class="views"><i class="on" id="v1"></i><i id="v2"></i></span></div>
+    <div class="wbody">
+      <div class="side" id="side"></div>
+      <div class="pane">
+        <section id="list"><div class="lhead"><span>Name</span><span>Kind</span><span>Date</span><span style="text-align:right">Size</span></div><div class="lrows" id="lrows"></div></section>
+        <section id="docs"><div class="doc" id="doc"></div></section>
+      </div>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <svg id="wires"></svg>
+  <div class="rpanel" id="frames"></div>
+  <div class="rpanel" id="cards"></div>
+  <div class="rpanel" id="legend"></div>
+  <div id="ab"></div>
+  <div id="fd">
+    <div class="lead">
+      <div class="kick">06 · Do’s &amp; Don’ts</div>
+      <h1>Do’s &amp; Don’ts</h1>
+      <p id="dd-lead"></p>
+      <div class="principle-count" id="dd-count"></div>
+      <div class="keys">← back</div>
+    </div>
+    <div class="page" id="fdpage"></div>
+  </div>
+  <div id="hint">Click or <kbd>→</kbd> to continue · <kbd>←</kbd> back</div>
+</div>
+
+<script>
+/* Filled in by build.py: STORY is the data, CONFIG is the written copy (configs/<slug>.yaml). */
+const STORY = {"files":[{"n":"Verleid de Klant bij SalesTopics","d":"2014-05-01","s":1337,"k":"youtube"},{"n":"SalesTopics / Accelerate your Sales! in 2 minuten","d":"2014-08-01","s":2486,"k":"youtube"},{"n":"SalesTopics - Introductie video Online sales Training","d":"2014-09-23","s":2223,"k":"youtube"},{"n":"SalesTopics – Online Sales Training","d":"2014-09-23","s":3803,"k":"youtube"},{"n":"Sales-ABC - Sales boek, boek sales, sales boek kopen","d":"2022-03-23","s":1051,"k":"web"},{"n":"101 motiverende complimenten | Accelerate your sales!","d":"2022-08-04","s":650,"k":"web"},{"n":"De offerte is een kans voor sales medewerker | SalesTopics","d":"2022-08-04","s":663,"k":"web"},{"n":"Het positieve woorden alfabet | Overtuig tijdens het gesprek","d":"2022-08-04","s":799,"k":"web"},{"n":"Salestopics - De opkomst van zintuiglijke marketing","d":"2022-09-23","s":1725,"k":"web"},{"n":"Storytelling in sales als succes story | Hoe zet u het in?","d":"2022-09-23","s":1178,"k":"web"},{"n":"De vijf meest verleidelijke vragen voor verkoopgesprekken","d":"2022-09-26","s":3311,"k":"web"},{"n":"Impact van positieve woorden op uw boodschap | SalesTopics","d":"2022-09-26","s":1072,"k":"web"},{"n":"Kleuren beïnvloeden ons (koop-) gedrag | Wilt u weten hoe?","d":"2022-09-26","s":1796,"k":"web"},{"n":"Maak een onuitwisbare indruk | Weten hoe? - SalesTopics","d":"2022-09-26","s":1786,"k":"web"},{"n":"Verkoop ideeën, verkoop inspiratie, inspiratie verkoop - SalesTopics","d":"2022-09-26","s":1222,"k":"web"},{"n":"Sales boek, sales boeken, boeken sales - SalesTopics","d":"2022-09-27","s":702,"k":"web"},{"n":"Verkoopspreker, verkoop spreker - SalesTopics","d":"2022-09-27","s":553,"k":"web"},{"n":"SalesTopics – Online Sales Training","d":"2022-09-29","s":3805,"k":"youtube"},{"n":"Blog - Salestopics: Uw verkoopresultaten verbeteren?","d":"2022-10-13","s":3643,"k":"web"},{"n":"Disclaimer - SalesTopics","d":"2022-10-13","s":973,"k":"web"},{"n":"Commerciele verkooptraining binnendienst - SalesTopics","d":"2022-10-14","s":2757,"k":"web"},{"n":"Training professioneel zakelijk presenteren - SalesTopics","d":"2022-10-14","s":2744,"k":"web"},{"n":"Training resultaatgericht (prijs)onderhandelen - SalesTopics","d":"2022-10-14","s":2749,"k":"web"},{"n":"Verkooptraing psychologisch verkopen - SalesTopics","d":"2022-10-14","s":2725,"k":"web"},{"n":"Meer resultaat halen uit telefonisch acquireren? SalesTopics","d":"2022-10-18","s":2745,"k":"web"},{"n":"Sales inspiratatie | Creatieve ideeën voor meer omzet","d":"2022-10-18","s":669,"k":"web"},{"n":"Verkooptraining in het beste verkoopresultaat! - SalesTopic","d":"2022-10-18","s":37431,"k":"web"},{"n":"Verkooptraining technici voor meer resultaat - SalesTopics","d":"2022-10-18","s":2764,"k":"web"},{"n":"SalesTopics - Training Klantbeleving, Klantbeleving training","d":"2022-10-20","s":1179,"k":"web"},{"n":"Training klantgericht denken en doen - SalesTopics","d":"2022-10-20","s":2730,"k":"web"},{"n":"Inkooptraining voor verkopers - Bekijk hier de trainingen - Salestopics","d":"2022-10-21","s":1532,"k":"web"},{"n":"Succesvol verzonden | Contact ons - Salestopics: Uw verkoopresultaten verbeteren?","d":"2022-10-21","s":34218,"k":"web"},{"n":"Knuffel de Klant | De nieuwe dimensie in klantbehoud - SalesTopics","d":"2022-10-24","s":729,"k":"web"},{"n":"Sales-ABC | De nieuwe dimensie in klantbehoud - SalesTopics","d":"2022-10-24","s":2050,"k":"web"},{"n":"Verleid de Klant | Klanten laten zich graag verleiden - SalesTopics","d":"2022-10-24","s":1923,"k":"web"},{"n":"Verras de Klant | 101 inspirerende ideeën | SalesTopics","d":"2022-10-24","s":630,"k":"web"},{"n":"Stel eens wat meer ‘slagers-vragen’ - SalesTopics B.V.","d":"2022-11-01","s":686,"k":"web"},{"n":"Schrijft u winnende offertes? | Lees er meer over hier | Salestopics","d":"2022-11-04","s":1108,"k":"web"},{"n":"SalesTopics - Verkooptraining prijs verhogen | Leer hier hoe","d":"2022-11-29","s":2745,"k":"web"},{"n":"Salestopics: Uw verkoopresultaten verbeteren?","d":"2023-09-20","s":2705,"k":"web"},{"n":"Accelerate your sales - SalesTopics opleiding Eindhoven","d":"2023-09-21","s":1788,"k":"web"},{"n":"Acquisitie cursus voor het beste verkoopresultaat - Cursus acquisitie, cursus acquireren - SalesTopics","d":"2023-09-21","s":1167,"k":"web"},{"n":"Acquisitiegesprek training voor meer resultaat - Acquisitiegesprekken - SalesTopics","d":"2023-09-21","s":2080,"k":"web"},{"n":"Behaal meer resultaat door onze sales curcus! - Sales cursussen, cursus sales - SalesTopics","d":"2023-09-21","s":2302,"k":"web"},{"n":"Beter acquireren door onze acquisitietraining – Acquisitie training, training acquireren - SalesTopics","d":"2023-09-21","s":1107,"k":"web"},{"n":"Beurstraining om maximale resultaten op beurzen te behalen - Beurstrainingen - Salestopics","d":"2023-09-21","s":2532,"k":"web"},{"n":"Commerciele training om meer succes te behalen - Commerciele trainingen - SalesTopics","d":"2023-09-21","s":1782,"k":"web"},{"n":"Communicatietraining; verbeter uw vaardigheden – SalesTopics","d":"2023-09-21","s":717,"k":"web"},{"n":"Cursus presenteren; verbeter uw vaardigheden! – Presentatie cursus - SalesTopics","d":"2023-09-21","s":2503,"k":"web"},{"n":"Cursus verkopen voor meer resultaat - Cursus verkoop, verkoopcursus - SalesTopics","d":"2023-09-21","s":1797,"k":"web"},{"n":"Cursus verkopen voor meer resultaat - SalesTopics","d":"2023-09-21","s":1417,"k":"web"},{"n":"De APK voor uw salesgesprekken - SalesTopics","d":"2023-09-21","s":969,"k":"web"},{"n":"De offerte is een kans voor sales medewerker | SalesTopics","d":"2023-09-21","s":1207,"k":"web"},{"n":"Koude acquisitie training | hoe meer klanten? - SalesTopics","d":"2023-09-21","s":1575,"k":"web"},{"n":"Leer de beste verkooptechnieken! - Verkoop opleiding, verkoop opleidingen, opleiding verkoop - SalesTopics","d":"2023-09-21","s":1068,"k":"web"},{"n":"Nieuwe klanten benaderen? Volg de training! - SalesTopics","d":"2023-09-21","s":1588,"k":"web"},{"n":"Onderhandelen; leer praktijkgerichte tips! – Cursus onderhandelen, training onderhandelen - Salestopics","d":"2023-09-21","s":3280,"k":"web"},{"n":"Online verkoopcoach, verkoopcoach online, verkoop coaching online","d":"2023-09-21","s":1648,"k":"web"},{"n":"Online verkooptraining, online verkooptrainingen, verkooptraining online - SalesTopics","d":"2023-09-21","s":3980,"k":"web"},{"n":"Persoonlijke verkoop training | beste verkoopresultaat - SalesTopics","d":"2023-09-21","s":1339,"k":"web"},{"n":"Presentatietraining; verbeter uw vaardigheden! – SalesTopics","d":"2023-09-21","s":1149,"k":"web"},{"n":"Sales coach, sales coaches, coach sales","d":"2023-09-21","s":3623,"k":"web"},{"n":"Sales consultancy, consultancy sales, sales consultancy bedrijf","d":"2023-09-21","s":1044,"k":"web"},{"n":"Sales opleiding voor persoonlijke groei – Sales opleidingen, opleiding sales - SalesTopics","d":"2023-09-21","s":1121,"k":"web"},{"n":"Sales toppers aan het woord | Incusief praktische tips","d":"2023-09-21","s":2288,"k":"web"},{"n":"Sales training Den Bosch - SalesTopics boost your sales","d":"2023-09-21","s":1431,"k":"web"},{"n":"SalesTopics - Sales opleiding Den Bosch","d":"2023-09-21","s":1786,"k":"web"},{"n":"SalesTopics - Sales training Eindhoven","d":"2023-09-21","s":1453,"k":"web"},{"n":"SalesTopics - Verkooptraining Breda","d":"2023-09-21","s":1324,"k":"web"},{"n":"Salesvaardigheden verbeteren via training?","d":"2023-09-21","s":1113,"k":"web"},{"n":"Telefonische acquisitie; hoe doet u dit? – Training telefonische acquisitie, cursus telefonische acquisitie - SalesTopics","d":"2023-09-21","s":1654,"k":"web"},{"n":"Training klantgerichtheid | De klant centraal - Klantgerichtheidstraining - SalesTopics","d":"2023-09-21","s":552,"k":"web"},{"n":"U wilt meer klanten werven? Vraag de training aan - SalesTopics","d":"2023-09-21","s":1507,"k":"web"},{"n":"U wilt meer klanten? Volg de verkooptraining! - SalesTopics","d":"2023-09-21","s":1244,"k":"web"},{"n":"Uw onderhandelingstechnieken verbeteren? – Onderhandelingstechniek - SalesTopics","d":"2023-09-21","s":4485,"k":"web"},{"n":"Verbeter uw commerciële vaardigheden - Training commerciële vaardigheden, cursus commerciële vaardigheden - SalesTopics","d":"2023-09-21","s":1506,"k":"web"},{"n":"Verkooptechnieken verbeteren? Bekijk de training – Verkooptechniek, cursus verkooptechnieken - Salestopics","d":"2023-09-21","s":1365,"k":"web"},{"n":"Verkooptraining Den Bosch | Bekijk de training - SalesTopics","d":"2023-09-21","s":1335,"k":"web"},{"n":"Verkooptraining Eindhoven | Behaal meer resultaat - SalesTopics","d":"2023-09-21","s":1602,"k":"web"},{"n":"Verkooptraining Helmond | Bekijk de training - SalesTopics","d":"2023-09-21","s":1297,"k":"web"},{"n":"Verkooptraining Nijmegen | Bekijk de training - SalesTopics","d":"2023-09-21","s":1381,"k":"web"},{"n":"Verkooptraining Tilburg | Ga voor resultaat - SalesTopics","d":"2023-09-21","s":1610,"k":"web"},{"n":"Volg onze praktijkgerichte presentatietraining – Training presenteren - SalesTopics","d":"2023-09-21","s":4599,"k":"web"},{"n":"Zichtbaarheid vergroten, online zichtbaarheid vergroten, vergroten online zichtbaarheid - SalesTopics","d":"2023-09-21","s":2413,"k":"web"},{"n":"Verkoop academie, academie verkoop, sales academie","d":"2023-11-01","s":2701,"k":"web"},{"n":"Training digitaal verkopen | De nieuwe manier van verkopen | digitaal verkopen training, digitale verkoop training - Salestopics","d":"2024-01-26","s":2798,"k":"web"},{"n":"Sales-ABC van Acquisitie tot Zakendoen","d":"2024-01-31","s":2070,"k":"web"},{"n":"Micro Learning","d":"2024-08-26","s":1134,"k":"web"},{"n":"EN DE TELLER STAAT WEER OP NUL","d":"2025-01-06","s":323,"k":"linkedin"},{"n":"Klanten zijn net kussens, je moet ze af en toe eens opschudden","d":"2025-01-23","s":345,"k":"linkedin"},{"n":"Om klanten te houden, moet je van ze houden!","d":"2025-02-04","s":327,"k":"linkedin"},{"n":"About us","d":"2025-03-20","s":3048,"k":"web"},{"n":"SALESSNACKS HIGH IMPACT MICROLEARNING Een revolutie in leren en ontwikkelen","d":"2025-04-01","s":335,"k":"linkedin"},{"n":"SalesSnacks High Impact Microlearnings","d":"2025-04-10","s":339,"k":"linkedin"},{"n":"SALESSNACKS HIGH IMPACT MICROLEARNINGS","d":"2025-05-19","s":428,"k":"linkedin"},{"n":"Training digitaal verkopen | De nieuwe manier van verkopen | digitaal verkopen training, digitale verkoop training","d":"2025-08-07","s":2766,"k":"web"},{"n":"Uw verkoopresultaten verbeteren? - Salestopics","d":"2025-08-07","s":37480,"k":"web"},{"n":"SALESSNACKS High Impact Microlearnings for Sales Talent Development","d":"2025-09-25","s":428,"k":"linkedin"},{"n":"SalesSnacks High Impact Microlearnings","d":"2025-10-23","s":334,"k":"linkedin"},{"n":"Interview met Rob Snoeijen, auteur van Sales-ABC (SalesStep, shared by Douglas Huissen)","d":"2025-11-08","s":2459,"k":"doc"},{"n":"From training to lasting impact: how do you make learning stick? (Douglas Huissen with Rob Snoeijen, on the boat)","d":"2025-11-19","s":2924,"k":"doc"},{"n":"Probeer SalesSnacks vrijblijvend uit","d":"2025-12-01","s":809,"k":"linkedin"},{"n":"SalesSnacks High Impact Microlearnings voor salesprofessionals met weinig tijd","d":"2026-02-25","s":544,"k":"linkedin"},{"n":"Probeer SalesSnacks vrijblijvend uit","d":"2026-03-18","s":810,"k":"linkedin"},{"n":"Afronding van het intensieve ontwikkeltraject Impactmakers Sales","d":"2026-10-19","s":758,"k":"linkedin"},{"n":"Ontwikkel je acquisitietalent met de SalesTopics Micro Learnings","d":"2026-10-19","s":550,"k":"linkedin"},{"n":"Succesvol prijsverhogen zonder getouwtrek","d":"2026-10-26","s":468,"k":"linkedin"},{"n":"SalesSnacks microlearnings voor hapklare salestrainings","d":"2026-11-03","s":770,"k":"web"},{"n":"Sales ABC - Van acquisitie tot zakendoen","d":"2026-11-26","s":3343,"k":"web"},{"n":"Sales-ABC: van acquisitie tot zakendoen (book excerpt by Rob Snoeijen, 2022, PDF)","d":"2026-11-26","s":53335,"k":"web","sel":1},{"n":"SalesTopics Online Sales Training (course outline, PDF)","d":"2026-11-26","s":13895,"k":"web"}],"totals":{"conversations":111,"actions":2044,"frames":1444,"tactics":16,"scenes":44,"phases":6,"beliefs":6,"words":49750},"session":{"title":"Two salespeople, one customer","date":"2026-11-26","kind":"Sales-ABC (book, 2022) · Dutch","turns":6,"other":"Seller A","lines":[{"id":"t0803","ts":"¶778","raw":"speaker_2","coach":false,"who":"Seller A","text":"Wij hebben een goede service en bij storing helpen wij u snel."},{"id":"t0805","ts":"¶780","raw":"speaker_1","coach":true,"who":"Rob","text":"Wij hebben een goede service, want onze helpdesk is 24/7 bereikbaar."},{"id":"t0808","ts":"¶783","raw":"speaker_1","coach":true,"who":"Rob","text":"Bij onverwachte storing wordt u snel en vakkundig geholpen."},{"id":"t0809","ts":"¶784","raw":"speaker_1","coach":true,"who":"Rob","text":"Als u wilt, zal ik het garantiebewijs naar u opsturen."},{"id":"t0812","ts":"¶787","raw":"speaker_1","coach":true,"who":"Rob","text":"Natuurlijk voor verkoper B. Waarom?"},{"id":"t0816","ts":"¶791","raw":"speaker_1","coach":true,"who":"Rob","text":"Stap 1. Benoem het argument van je klant. Doe dit in zijn bewoordingen."}]},"frames":[{"id":"f-00","span":"Salesperson A: the claim every competitor makes, good service and quick help (translated from Dutch)","kind":"statement","from":["t0803"]},{"id":"f-01","span":"Salesperson B, Rob's model answer: the same claim, backed by a 24/7 helpdesk, 30,000 items in stock and an engineer on site within 24 hours","kind":"reframe","from":["t0805"]},{"id":"f-02","span":"what it means for the customer: if something breaks, you're helped quickly and expertly","kind":"statement","from":["t0808"]},{"id":"f-03","span":"the proof on paper: the guarantee certificate and a customer survey that rates the service a 9","kind":"statement","from":["t0809"]},{"id":"f-04","span":"Rob's verdict: Salesperson B, of course, because he comes with facts and proof","kind":"question","from":["t0812"]},{"id":"f-05","span":"step 1 of his five: name the customer's argument, in the customer's own words","kind":"statement","from":["t0816"]}],"thread":{"cue":"f-00","move":"f-01","cueLine":"t0803","moveLine":"t0805"},"labels":{"tactics":["concurrentie onderscheiden","busy schedule with no time for lengthy courses","inactive or dormant clients","klanten getouwtrek bij tariefverhoging","start of the new year","training knowledge fading","angst voor acquisitie","klant twijfelt of stelt kritische vraag","eerste klantcontact","na succesvolle verkoopgesprekken","klant beoordeelt offerte na verkoopgesprek","deal evaluatie","omgaan met bezwaren","nervousness or difficulty answering tough questions during presentations","onderhandelen met professionele inkopers","behoefte en pijnpunten achterhalen"],"scenes":["microlearning","sales training","verkooptraining","verkooptechnieken","DATE methodiek","sales skills","sales fundamentals","vraagtechnieken","sales training methodology","acquisitiegesprekken","cold calling","sales motivation","sales training methodiek","verkoopmethodiek","actief luisteren","sales skills and sales attitude","klantverleiding","sales communication","offertes uitwerken","sales training op maat","customer retention","client follow-up","acquisitie microlearning","prijsverhogen","microlearning sales training","sales development","new year sales reset","nulmeting voor salestraining","sales assessments en progressierapportage","sales fundamentals and methodology","onderhandelen","sales training retention","learning retention","learning and development strategy","progress measurement","motiverende complimenten","microlearning content structure","sales microlearning","acquisitietraining","beursvoorbereiding","motivatie op de beursvloer","opvallen op beurzen","commercial sales skills","persuasive language"],"phases":["Prepare the call","Make the first impression","Win trust and open the conversation","Find the real need","Persuade with facts and proof","Ask for the deal"],"beliefs":["Getting agreement is the hard part: Being right isn’t hard; getting the customer to agree is. (Sales-ABC, translated from Dutch)","Solve the customer’s problem: Not delivering your own products, but solving the customer’s problems or meeting their wishes is the most successful sales method. (Online sales training outline, translated)","Prepare or be forgotten: Whoever forgets to prepare is preparing to be forgotten. (Online sales training outline, translated)","People do business with people: People do business with people: without chemistry between people, in most cases there is no business. (Online sales training outline, translated)","No goal: Without a goal, no goals! A sales plan with clear targets is the basis of selling with purpose. (Online sales training outline, translated)","Train every day: Why do professional footballers train every day? They can all play. Training is evaluating: what goes well, and above all what can be sharper. (His online training intro video, translated)"]},"floors":{"1":[-5,-669,-90,-625,-22,-619,-46,-800,-66,-461,22,-806,15,-757,-245,199,-49,-623,282,-513,64,-29,514,-446,85,-700,-272,428,-635,183,72,-585,54,-815,-303,-704,-676,-86,-259,-143,646,-298,265,-534,397,223,69,-871,192,-592,-18,-839,-213,-813,63,-671,-86,-703,200,596,217,-563,-227,295,189,370,-643,76,-23,-914,1,163,-67,-616,462,179,-461,371,-222,175,-231,67,907,152,-217,208,488,222,-39,-677,-152,-417,213,-695,-900,-232,149,-99,210,583,21,-688,85,-609,153,-842,115,-683,30,714,-42,-645,-384,-444,27,-875,-523,-257,-886,-108,-582,46,-76,-843,-15,-810,332,-426,-163,216,-147,-5,-118,-614,186,-785,-31,-615,214,-421,-324,-644,871,61,310,-458,-51,233,-882,131,-89,-573,-649,369,-892,10,-456,72,25,-558,-316,-237,85,-892,68,757,-201,-74,-106,-19,-31,-674,-172,-866,-6,-695,260,-388,-674,180,-41,-627,-335,-590,-618,261,58,-646,24,-626,-547,641,176,-730,-618,210,33,753,213,195,387,-647,-247,-709,87,-703,163,-620,-704,-82,-77,-625,-56,27,-362,-414,-140,101,121,-760,0,115,-198,-566,116,-881,-153,21,-674,-741,-1,-641,423,315,-172,464,208,-585,-302,-657,330,31,140,-104,-561,436,-218,151,185,-602,217,-881,56,-712,-201,-445,220,-849,735,185,184,595,811,-150,-595,204,62,-642,-52,-732,114,453,-15,-680,5,-701,118,-670,-458,-775,514,26,-629,-312,-215,267,-380,-592,-219,-497,108,-736,-208,841,188,-81,-665,128,-181,327,-9,-830,124,-968,-315,-698,-128,-873,103,379,-304,-317,110,-735,283,46,-583,75,-300,-886,66,-661,-934,84,169,-591,-99,-878,-276,343,-66,-634,-144,-62,-42,-804,71,-426,-60,-595,79,-618,-12,-735,-7,-807,163,383,-288,102,117,-601,-71,-778,575,196,-151,-469,-193,-77,-42,-657,188,315,105,-911,-52,-855,-21,-698,171,538,-165,632,-26,-687,-302,-508,117,-905,380,-545,452,-347,310,338,-181,-707,119,-604,-249,-642,152,-569,121,-650,303,495,-119,-705,507,-508,195,-562,-377,583,-190,-274,247,356,-634,114,96,-502,185,-660,220,-397,-265,22,130,-694,-130,2,-730,74,177,-595,-326,-682,-406,528,-63,-898,132,-763,-340,-466,125,446,-533,-501,477,-244,813,-355,177,-780,-337,-721,-847,-44,-17,-456,99,484,-99,-47,128,393,-238,267,-571,120,-175,693,28,-502,-328,-737,156,-803,-12,-569,15,-751,-129,-539,367,327,-68,-695,870,149,98,-883,-7,-520,57,-668,72,-879,-45,-836,222,-954,-235,-34,195,6,-106,-392,-212,-464,-497,-534,147,-159,129,449,-683,74,89,-786,181,-722,-591,275,47,-33,66,-715,-57,-630,-365,537,-9,-475,67,-609,348,202,-64,-654,152,-628,-830,-268,20,-689,-430,-597,20,-491,114,-644,101,282,557,-134,-79,106,248,923,536,-486,144,-713,126,-615,-247,31,-157,152,-325,-601,12,-696,-347,-410,-50,-682,-195,-591,-349,-448,-359,-502,27,-631,-170,-493,175,-49,-104,-678,459,208,-157,-126,-73,-881,-55,801,56,794,415,89,-75,240,179,477,-15,-574,-102,-166,75,-784,-393,-780,191,402,44,-721,-638,-357,262,-470,105,-468,138,-621,-440,-168,168,-614,-722,107,484,-287,-391,-124,894,-379,44,-660,116,612,234,665,252,-490,-551,293,-639,281,-312,60,-115,-696,484,219,40,-695,-223,45,223,510,200,512,-599,-471,78,-553,50,-695,-264,-505,-647,427,175,348,-243,-5,211,-67,315,-7,-477,525,85,-693,-340,154,36,-496,366,-732,-163,-535,112,-672,-129,-623,329,-625,-728,50,-347,-665,267,-604,-12,-686,-170,-677,170,-462,166,316,106,331,-89,638,74,-605,156,-883,41,-617,-202,-409,640,72,-19,590,-102,89,369,-488,705,80,-12,-596,-667,-360,-57,532,66,-795,449,-413,-46,-691,15,-524,-251,197,-305,-664,-395,-688,-25,-586,709,279,145,-625,-163,8,-399,-24,336,226,66,-556,-45,-773,-591,-409,-342,-707,94,-490,-179,-101,-49,171,-525,-836,100,52,-247,-642,81,-700,151,-608,244,-592,127,-2,-45,526,149,-621,-46,234,780,-85,-68,-650,-413,533,-459,228,417,471,-249,-510,-60,-60,43,-885,-385,33,667,-596,-99,-680,201,-23,-188,-631,-176,-775,21,-220,-107,-768,-112,-493,-411,-519,192,-733,-15,-207,-76,-608,164,-676,79,368,11,-521,134,-620,142,-549,-536,16,-109,67,-183,-769,-132,597,198,-951,7,-454,189,-570,80,572,320,284,25,-60,216,481,-48,-602,109,-900,550,744,556,510,-632,-399,179,-647,656,-498,42,-573,-832,84,51,-460,422,121,-660,-251,-260,330,-29,-784,-445,-113,-157,-692,-1,489,189,398,-586,-4,176,-434,144,-674,187,-647,756,382,10,124,-308,-608,131,-603,338,-493,-225,-61,191,576,-124,-849,86,299,-747,100,150,-183,30,192,166,-507,-137,19,-736,-61,-208,44,28,-589,165,-920,-647,225,87,-312,-81,316,-27,-613,-150,52,-613,396,-248,23,893,123,32,-752,-5,-604,494,-89,14,916,223,-814,-80,51,-9,775,-399,-370,-312,-590,45,-565,631,-690,-704,165,5,708,-74,142,-82,109,-51,125,978,-39,-608,205,303,450,-150,-837,421,-594,-88,91,210,-664,84,-598,392,370,-207,-797,-38,-691,-152,-742,125,684,-552,525,158,-665,-203,-86,-732,438,210,-323,23,-594,224,-779,229,-633,-385,-801,248,267,322,-402,-91,-701,-24,-668,262,-637,-82,-648,364,505,46,-605,-271,-44,45,159,915,88,181,-709,-964,300,135,-818,-37,381,-170,10,-88,-597,123,516,119,-592,-6,-561,117,-770,23,-717,249,-641,47,278,12,-822,-635,347,-421,-724,-649,286,-27,-773,111,550,68,-548,308,506,-284,-512,-728,65,-14,-865,-14,-850,578,-411,-242,666,76,-790,-476,-319,-438,-214,-160,-501,73,-664,-176,-743,135,-739,90,-600,-66,-631,391,88,-182,-706,-114,-703,131,-583,-10,-765,334,519,235,-579,-46,-441,28,-750,382,415,-580,-282,275,-24,455,558,-450,-674,30,-727,147,-910,68,-561,-650,142,641,304,-363,144,-24,-797,-436,-651,85,-666,685,274,220,272,-82,-535,100,-666,109,-684,534,130,139,-825,-163,-754,117,-773,103,-818,113,-608,-149,642,-354,-746,-86,486,220,-699,84,-872,-768,170,-53,15,-422,412,-157,426,-43,-819,45,-710,-337,-748,45,-619,574,-341,-166,172,267,-801,-58,440,-219,567,-77,-802,-542,118,-160,38,-217,175,-143,-3,-38,645,-396,476,104,-631,208,-543,-328,180,-440,-507,-99,-625,373,446,-350,-542,-162,381,-359,-550,-249,64,-22,-613,-392,-450,-733,-521,39,-733,-172,-728,-88,143,28,492,-335,13,-2,-678,-750,-166,-106,65,428,-619,10,-678,698,-508,270,-597,-9,-929,67,-945,196,494,61,-679,-507,117,-30,-655,10,-920,195,390,-683,-68,-501,-730,-228,-99,-150,246,-101,336,-32,-704,122,-865,70,-792,-511,64,172,195,-267,-728,-167,-760,111,319,224,313,165,-561,-57,-851,75,-649,-766,72,-831,58,160,-524,-126,-580,-333,-579,164,-415,-250,-108,106,-480,203,352,39,-581,-54,-468,35,-544,111,-790,171,-7,77,-704,-154,-103,-193,-482,49,-678,-89,83,10,-468,-28,-540,-208,-701,479,-611,-257,25,145,228,134,-798,-89,-697,-670,165,346,-688,111,356,-600,-475,-262,-789,-240,-624,38,-724,-496,374,38,-858,72,-557,-41,229,-244,-159,38,-530,-210,21,173,-720,491,-573,-205,146,-446,310,-137,-571,-54,428,-17,-616,-441,-194,-344,-740,-408,-148,76,-671,-729,708,309,-667,-537,71,-456,-506,-103,131,-46,-770,-571,-498,-249,148,127,477,451,-493,811,256,695,346,80,-72,-656,-188,109,-617,-63,-18,-655,-73,-95,27,152,-718,-367,-819,113,-720,90,-812,162,-550,66,267,646,79,42,462,-389,360,70,122,-256,198,671,-48,10,-334,-127,139,134,437,-164,-82,483,-60,-612,369,268,141,871,24,314,303,-81,217,94,471,226,-643,-391,-598,63,-836,4,352,166,138,458,-492,-55,-73,10,-704,-32,-745,-160,438,-151,-107,28,-54,-679,-123,-296,249,505,-317,323,-827,-77,-772,94,-553,52,741,-666,-202,92,-960,-226,721,141,-377,-575,252,75,-837,-596,642,86,-753,32,-602,-23,27,-69,-722,181,269,194,-595,-708,-454,125,382,410,-177,157,-752,-247,694,-129,39,-544,-469,176,384,-438,692,372,404,-240,-434,-396,-694,127,-873,-669,-7,131,-761,-186,-94,42,-526,-64,-785,110,-940,777,481,642,59,-94,-787,81,-712,-328,362,-227,-501,73,-652,177,-709,462,-481,304,348,170,-850,196,-870,49,-808,494,217,218,-458,223,201,160,29,-154,-647,-659,226,625,-121,162,-687,166,-887,88,-612,-21,-591,-282,-825,-130,106,279,373,-369,-691,-18,-875,-249,-631,-311,397,47,-526,-141,96,-240,-55,-331,-575,-334,-587,127,408,206,462,-402,-737,-29,9,-143,184,25,-754,236,-797,623,436,330,-455,65,-918,-86,-795,-85,-689,19,-723,99,-580,-51,492,-225,-53,260,454,108,-687,-49,-499,-119,-619,360,-540,67,-794,283,760,27,-981,-221,-32,332,471,74,-610,-376,-622,-385,658,295,-755,-193,90,-152,193,144,-813,357,469,-206,-846,284,-462,175,488,-60,573,-412,124,538,102,56,-593,334,492,0,-630,-286,-82,-248,-69,-73,-776,39,-692,199,-474,-153,-158,-413,-766,94,-484,297,-352,388,384,-140,-83,29,518,-76,-654,-127,-736,133,347,523,9,701,656,142,-624,60,-660,82,-722,127,-582,-282,92,261,833,135,-654,-77,68,-110,43,-33,-734,-117,-16,193,-978,249,-675,251,-675,253,-807,-393,-336,47,486,242,-174,-37,-700,-12,-766,309,-813,-281,129,6,-669,-123,-6,-414,-523,-731,309,195,517,-419,-591,304,-704,267,-690,220,411,372,45,-72,20,42,-747,78,-698,-142,-938,-520,23,-724,37,562,315,-222,262,243,-619,-36,-721,267,-159,-155,239,30,147,64,-425,-426,301,442,619,157,327,-255,-836,5,-766,-275,623,-83,76,-477,232,167,-591,-435,-562,-452,-399,-113,112,-350,-712,7,-519,-221,-382,-138,-151,-268,699,-585,-58,43,796,-72,-123,-145,-905,14,-663,-490,458,-113,-587,-54,-572,42,105,-7,-644,14,-786,37,-661,121,-674,200,613,-251,154,-2,671,-131,720,82,-612,-42,-632,-191,-51,-533,190,-408,-713,-142,240,-313,562,-85,-550,205,236,32,-675,293,-502,-5,-551,-485,207,-5,-715,-366,-608,12,-811,162,-608,-104,-672,145,-517,-105,131,43,-743,-207,-376,159,606,-604,-578,144,-818,32,-821,7,-985,424,-312,-185,-603,206,-457,-1,-467,2,-792,-40,-138,-41,-470,-741,-502,184,517,164,-668,-395,-569,355,-3,-578,-11,-135,-638,204,337,15,-529,-6,951,616,361,117,-682,172,-741,230,205,-320,-145,118,-866,457,108,-4,-733,15,-713,-29,-756,8,-715,167,-666,-116,622,-66,746,-439,-615,-111,174,223,-712,-75,-879,718,375,209,505,98,-743,-603,-11,-274,-393,-452,381,-70,36,-324,740,300,-265,629,254,273,648,112,-677,45,-743,353,287,304,-806,403,-52,210,-93,-130,-684,116,-68,42,407,201,213,173,-465,390,63,-190,-906,191,-784,8,-938,118,-424,-661,-36,-366,-610,288,329,251,517,-35,67,74,-562,-572,61,49,-574,-51,-735,504,668,-51,-622,-786,-4,4,-170,182,524,186,-662,61,-742,30,-745,-204,-709,295,-629,-64,-618,13,21,133,-658,314,-836,-867,580,17,-715,-268,502,-146,-895,-552,-99,-74,-641,87,317,-144,227,92,-725,184,377,-18,-660,-98,-283,-184,453,220,484,154,604,-2,21,18,-821,-9,102,-282,145,161,636,26,-729,30,-795,-374,-614,-124,-865,-34,663,-193,174,106,-328,-596,556,-46,-758,-99,-671,39,-898,-547,-556,97,301,-414,169,-315,72,-447,-112,59,-639,-75,-550,-337,-744,-691,242,-60,66,916,168,78,303,307,174,388,350,-707,-507,124,-599,-12,-15,69,-648,81,-691,-208,-737,-101,-572,-30,130,181,-561,59,-598,-159,178,290,-167,-762,306,-647,-337,45,-845,215,-649,171,-679,128,-708,-164,78,5,-127,-193,-385,155,-592,-609,-170,-126,-930,36,-579,-29,451,558,435,55,33,-360,22,-666,97,131,-802,-53,-526,-190,-891,-46,217,-29,-419,593,400,-585,59,-569,185,31,-600,494,-464,689,-66,77,757,-34,-607,-706,-69,-212,-818,641,299,-590,418,113,-645,20,-713,14,-641,-76,-909,34,60,27,-717,151,-589,23,-768,-195,-715,86,-750,-71,23,-636,309,-30,-648,-75,-538,-296,20,-49,-649,985,72,-48,-755,-67,-677,-147,-565,-205,50,99,-633,-248,-512,183,-562,52,-644,14,-693,-310,-413,15,554,-7,-571,200,586,351,294,-38,-329,728,7,-142,-537,74,-571,-131,985,407,-58,-160,-472,-159,-631,-32,-643,-731,219,101,413,-475,-558,17,-627,-167,24,221,-546,26,-560,56,-610,-489,-215,43,-736,-501,-375,34,-718,-206,-768,101,676,102,-607,-276,657,-269,-904,59,-953,-415,-182,-361,588,253,-777,63,-634,-438,-660,-364,-677,117,585,140,-594,274,446,172,-640,333,386,-20,-684,14,-543,-444,-742,333,337,101,-730,-255,-98,-233,-677,158,-620,62,-717,288,280,750,422,322,125,-169,383,-352,-713,-56,-657,-234,600,206,-490,73,-8,-514,223,616,66,56,-573,-566,140,207,-862,-577,156,-59,-723,-195,66,162,52,409,-663,-226,140,4,-813,-226,219,211,563,-12,-682,-305,-475,115,-678,-4,-491,-501,-105,-659,-494,154,-630,-54,62,-238,-294,-414,-731,-457,823,152,421,-290,106,47,-974,137,-657,-90,13,-266,-506,84,634,225,11,301,-13,750,314,141,-646,-249,-564,3,882,-439,-715,61,-591,336,-779,32,-687,-321,544,-319,-617,117,-504,271,-617,-138,-580,87,-675,-387,186,-200,-51,-94,-67,-551,-241,123,-764,18,-684,-682,277,-87,-621,470,172,-144,-802,81,250,-489,-628,-247,-777,149,-678,353,-762,-566,465,370,665,44,181,-153,-685,-55,-606,174,-621,-261,-76,60,-675,13,-460,415,-390,-151,65,0,-838,169,-809,-103,-787,-97,-659,100,-762,258,-47,-653,-77,75,-683,22,-677,140,-696,-687,-487,115,457,53,-806,180,-475,185,-702,142,-368,-570,66,-288,451,41,-487,-75,-565,165,634,-93,459,210,249,-298,136,291,735,286,634,113,-411,-330,-575,90,-626,-668,294,-57,-599,-218,-673,-323,-465,48,744,80,513,-466,-163,151,-829,132,-953,-114,143,-321,-578,-442,-99,197,67,-447,138,-404,-223,6,-827,-313,-596,-547,-487,-301,-509,-388,-763,135,-752,409,-603,375,-114,-710,527,266,637,-224,-574,-121,66,4,-633,-51,-745,-78,-572,242,507,-4,-776,46,-775,-225,458,285,-12,220,249,-352,-394,388,-385,-365,-780,-47,-639,-378,24,-115,-464,171,-658,140,-262,-837,-105,126,-693,-50,-537,-59,183,-85,143,186,432,-419,270,177,-704,174,-632,-379,-454,49,-858,95,-624,80,-591,-469,-678,-425,652,-71,-583,91,-668,-275,328,43,-731,-296,-27,-362,-712,296,435,44,-550,-24,146,-313,-571,119,-721,-12,-554,141,-79,284,-773,585,586,683,364,-104,-621,-378,-585,211,-542,75,-605,-69,-631,388,330,-213,-59,466,-379,-19,-568,-347,200,-93,80,63,-820,127,-961,-793,-4,-202,-126,161,699,-367,100,-49,183,165,-656,-4,-642,-244,-652,411,1,-683,-69,-209,118,319,628,743,273,144,405,-127,-804,-272,461,272,339,11,-594,273,-659,-36,-750,66,-894,300,457,155,-576,61,-913,-70,-869,-49,-595,163,-841,131,815,115,-593,-176,4,197,-641,-39,-808,191,458,306,-592,440,476,-424,82,178,515,-173,89,103,-636,102,-539,227,-719,-236,-730,286,-684,420,591,187,-76,-280,69,-108,-750,-262,70,25,-671,-121,-601,397,485,-546,236,-723,244,-195,255,316,-397,298,341,266,354,-165,434,100,-658,-302,-633,27,-811,24,101,179,530,-546,61,91,-796,201,-813,173,556,-257,-647,138,-507,-527,-358,-310,-663,-279,34,51,-599,137,-565,-372,-655,439,383,-231,-5,-541,249,547,434,25,256,-261,-635,98,530,257,297,237,-164,46,568,17,-579,-291,-533,-713,30,223,-722,101,-592,-514,444,-529,238,147,-595,332,-548,256,495,19,-554,-290,-765,-517,-379,-602,675,-106,-708,116,-880,19,-487,-204,-674,240,-84,-205,120,-395,-632,-103,-743,660,-146,-392,166,21,-606,-670,-306,-817,-123,5,-9,-131,600,-17,-105,337,253,74,-767,647,-407,-51,-458,-168,141,-143,-750,-2,-720,24,-659,-100,-819,556,-312,151,-814,174,-644,18,-515,-174,-646,499,40,-90,-167,385,255,333,-156,-530,-254,-59,184,58,-598,17,-530,-518,176,-132,-480,162,-647,841,160,-87,-709,-459,-722,75,-680,241,-666,90,-430,-552,733,-196,-617,-102,-110,2,948,213,575,-118,-732,271,-523,92,-658,-759,19,124,-444,7,-684,-499,724,-324,-626,-537,-349,194,-781,141,548,245,632,-52,129,94,-577,65,-695,531,577,-169,306,88,-811,-329,-346,174,-630,-465,-604,-226,-69,-45,905,143,-555,33,-595,129,792,-38,-637,100,-821,930,-133,128,-515,487,165,285,-486,-95,-518,402,363,-484,395,-694,476,22,-390,-129,-744,16,22,-92,-798,-41,-613,-190,-588,89,-715,204,-621,116,-501,-187,-50,-182,38,-488,381,0,-479,284,505,175,-684,644,470,108,-703,371,526,-69,240,55,-769,687,-255,-707,549,-144,97,-229,53,-132,-633,633,271,822,265,149,2,-473,-625,-191,104,-230,-449,91,-696,-703,29,-152,-715,-33,-19,-566,134,79,-710,-54,153,-211,-555,746,81,29,-686,-128,0,-2,-665,129,-646,-71,791,67,-804,14,-669,-29,-773,243,607,92,-668,-617,16,-204,62,-141,-416,-86,-719,-353,40,-48,-693,293,716,43,-513,-50,155,-276,-700,179,-847,18,-618,77,-975,151,-515,-61,-781,-447,-145,-607,132,193,-508,-758,-286,-357,68,-6,154,151,280,169,-669,-49,145,133,-517,175,719,56,-670,499,-603,-172,-718,-307,-692,147,342,110,-573,789,236,-695,363,-615,-336,171,-707,-130,-217,25,-741,198,364,284,-640,377,134,-537,349,-25,340,-269,-419,-361,-550,163,-819,-231,-158,67,-787,148,407,-290,-662,-33,-701,50,-673,-143,-575,-329,-404,-299,189,56,-587,-566,-259,-121,-452,-402,-696,-51,-843,-442,-33,29,738,-18,-766,-59,-649,186,-675,-264,-531,-221,-615,-281,-620,237,487,-230,177,-84,-782,55,-705,113,-550,-129,-802,-67,-490,-57,-403,184,276,-215,461,81,-828,123,-632,-47,-953,45,-579,-767,57,122,-815,-121,-328,152,-579,-98,-615,-672,-474,12,-619,40,-849,-49,-914,275,-587,4,-242,-198,-701,532,292,349,92,156,-637,-177,296,-735,205,-185,-809,-197,-777,-500,-68,-383,-451,198,404,200,-756,-32,182,-216,-691,-64,-985,450,-512,-86,-601,-186,-374,-537,49,-547,201,0,-631,-126,-707,-557,558,143,-130,97,-519,147,-564,-240,-824,820,157,-167,456,-143,690,-219,13,-74,-711,-118,-733,29,-608,-353,108,137,-925,-377,564,46,-969,57,774,-285,194,839,-88,199,-480,-173,-871,-623,-151,753,-263,-466,-403,156,-662,135,-692,-311,-37,294,-715,474,498,167,528,-124,249,-78,-598,-609,-49,308,-471,741,73,-19,-657,-356,222,88,-724,137,232,523,57,6,-540,428,603,74,-885,163,626,124,-686,36,-759,54,-601,84,-485,83,-594,82,-556,-303,-631,-482,218,45,-881,91,166,107,594,119,-665,84,-433,-342,-431,814,-259,90,-94,-235,-667,306,-982,131,-544,-767,50,-63,-641,201,519,162,-599,-651,-22,-43,-615,-213,59,206,22,808,-269,-407,-650,451,-120,363,31,-3,-910,-527,-462,137,-302,-120,93,136,501,-21,-619,-351,-327,-438,-111,198,-797,-65,-120,-5,-643,-204,119,68,-632,67,136,-224,-803,337,-769,291,-464,186,-640,-88,-616,206,-640,-6,666,697,-421,-72,-548,8,-584,217,442,-57,-672,222,-546,-513,668,299,-605,-234,-515,-108,-835,117,777,-89,6,-390,98,60,267,183,229,38,-689,472,657,225,10,-50,70,425,-571,7,-560,72,414,63,-638,123,-693,807,63,106,-662,244,420,255,-265,-94,-670,-19,-127,36,159,-601,-330,207,-802,58,-563,-720,-402,80,47,-649,70,-95,-882,-542,454,12,-691,-584,92,212,412,190,-185,258,-688,-252,443,180,-663,-985,-475,-54,384,-130,-663,68,-657,-109,-702,38,-767,511,-418,495,-666,57,-468,229,-174,-30,-813,-361,-500,73,-726,200,-662,-741,21,-26,-791,51,-533,21,-531,75,-649,726,201,-639,-282,50,348,-88,-876,-278,317,-140,-789,89,-814,-198,-5,-279,-494,497,344,454,-252,145,-764,24,-837,14,-809,123,-758,-292,234,223,-484,178,-745,185,507,36,93,49,-773,60,-585,-578,-370,432,-469,-432,-90,-20,-896,13,-379,155,-87,20,-669,-25,959,-233,-522,168,-719,-179,163,88,-710,184,-671,341,91,140,-640,-252,391,173,-586,285,-91,169,-541,-371,230,-406,-672,-252,62,-685,408,86,24,-137,-904,154,-661,131,-584,-78,71,-95,57],"2":[-33,-655,-67,-625,-11,-617,-42,-810,-74,-435,16,-807,-706,459,638,85,-350,-343,17,-334,-163,180,-168,-714,-245,21,-446,296,237,347,-104,-178,-640,-325,245,-514,-945,312,-285,-694,-151,-705,81,-820,-97,47,594,615,-113,-802,-664,-722,49,-700,-48,794,-698,-183,290,-430,105,-564,-216,-502,-93,-79,140,-633,486,-468,-271,-180,301,355,-513,235,-291,22,32,-764,-310,464,219,201,14,36,-233,-120,116,-522,-421,-750,-310,-498,-59,-566,-455,-577,-690,-394,-218,-749,-155,-84,-18,-638,2,-749,-786,-291,-228,-787,-184,-562,-152,148,114,-985,-165,56,-65,74,21,-481,274,-30,-11,-666,28,-45,-180,-43,718,367,139,-562,-156,-156,250,376,7,-452,-442,306,96,214,249,-586,254,914,-639,-279,-288,-503,860,242,-184,23,-184,-36,-348,-592,-190,251,437,-595,-52,-618,45,-819,13,-538,161,-515,-435,-552,102,-651,172,-41,333,-461,-340,741,123,368,354,441,232,-383,-183,73,350,68,-25,-796,-645,385,96,-863,214,-812,161,300,-134,-422,-248,-100,-401,361,205,438,-730,72,-338,-617,-55,917,-222,-118,-18,-600,-276,564,717,-268,-74,-176,-341,124,-160,389,742,249,715,366,-619,227,41,-744,-219,-27,509,587,116,-744,140,-985,-141,633,14,-376,338,-797,-921,-45,428,-488,-82,-592,-513,-431,725,80,-570,-223,85,376,-284,-585,23,-828,479,-420,818,65,-457,211,439,556,-214,-464,239,289,-9,-815,-84,-652,106,-605,109,-409,-625,-622,68,-697,124,-719,162,-214,19,-843,-585,635,429,-42,49,33,-220,87,-77,219,-284,-574,76,-604,178,-845,-200,-548,157,544,-467,-55,-85,-596,195,-477,171,-490,-484,49,163,582,-474,461,-218,-382,136,-664,-295,-505,-657,200,73,-695,156,465,-428,-594,231,404,-657,84,-351,-714,-65,-629,-62,389,-140,-732,-4,-985,-69,-697,-146,-542,-34,-660,-180,-712,25,-544,-636,-343,-712,369,122,-596,-118,-4,150,-806,-56,37,57,599,41,-778,-23,-686,-420,-484,55,-251,163,-77,-312,-485,205,-630,-264,-638,17,-570,205,-455,-234,380,12,-517,116,-619,324,446,-296,-590,-432,-508,207,282,76,-602,2,-784,416,-474,7,2,-346,-26,211,600,-551,-259,-639,-201,-195,-715,-357,-623,155,278,171,420,-750,176,329,-492,-312,-608,123,-825,-570,-35,226,521,118,-686,-74,-40,-116,482,130,416,350,289,12,-967,78,-456,222,12,-318,-605,-425,120,-502,348,254,797,-639,-307,-104,949,-60,-614,19,-710,-193,24,311,543,-212,-33,-314,-689,-258,-97,-9,-540,283,-481,616,-140,180,323,-164,-790,-20,-566,39,-700,-278,410,139,-707,83,-743,-109,-784,-339,-626,-156,255,-32,-147,391,55,-12,-684,-75,-985,134,-738,190,522,-222,-45,493,473,-184,-93,-239,-433,122,-571,71,-560,-177,321,-567,114,-371,-728,164,-715,-91,42,-278,132,861,138,113,36,138,-676,-702,-528,335,252,461,-260,231,123,-681,558,95,-592,247,490,463,-352,-213,135,241,377,-329,-714,-506,-79,-102,10,140,-561,-271,-623,234,335,-90,131,-69,-14,289,-513,-117,-502,-112,81,287,-471,-492,210,-608,277,158,-634,196,221,178,421,-117,-670,32,-557,503,240,-69,-870,82,-839,-439,654,146,289,287,-624,-200,-464,-100,-666,-220,700,-33,-123,-260,-688,213,-550,-24,685,176,401,46,-682,136,484,-610,-46,-238,-714,78,-489,-28,-794,-97,-801,-618,89,-394,-643,429,382,86,453,58,583,-277,-779,-700,-480,61,-749,138,-138,-182,-680,-735,541,-60,-815,689,660,-32,161,270,303,-343,-642,716,-414,253,-137,-246,-637,-548,568,-51,-779,-112,-835,106,-761,12,-762,-177,-256,-381,-314,-311,-544,-636,128,151,-796,-81,-734,80,-736,266,487,170,483,-166,-77,-385,-540,825,-373,-203,-80,35,-809,-127,218,136,-693,17,-693,-203,579,319,438,-101,183,74,-831,217,244,-378,4,75,-831,95,-786,91,-98,-215,-43,-171,145,218,-550,-112,-650,-4,-798,196,-668,183,-595,-657,240,554,-335,122,-699,-310,300,-621,296,-359,-119,91,-666,-76,-32,-15,-670,-244,167,383,342,-231,721,-211,-28,573,-386,-644,-410,114,836,86,-628,80,-676,163,-846,29,-782,198,328,23,144,-798,77,-469,-245,78,-622,-77,-741,-354,-670,-123,35,79,-648,41,772,235,-97,61,-758,-185,0,141,-644,64,-741,-620,7,-178,-622,-78,-712,217,-630,650,-145,-387,643,-750,14,-15,-851,-61,-554,-23,-549,-191,-422,-117,571,-933,104,117,-795,29,-765,124,685,134,308,314,476,13,-687,324,300,221,396,4,-930,620,-666,137,206,-368,-795,80,-752,-300,-553,92,-605,81,-602,135,-646,-575,-497,84,-779,150,-603,-526,157,-41,-436,-186,-708,153,-825,-656,-36,-111,66,176,-888,-5,147,-168,55,-260,-858,-648,196,-405,449,41,-790,109,-653,39,-611,-398,-533,38,-712,-127,-735,302,320,85,460,60,-665,-389,-705,-346,-581,-135,-786,-394,-716,63,-633,90,-749,-582,-378,-188,-370,-257,105,36,-692,-141,-710,-328,192,177,-827,-226,-832,-585,-22,34,302,-39,897,394,-509,-240,162,28,-705,12,-651,-312,-552,-357,-497,-572,-63,167,-641,-30,-809,85,-659,-645,288,-449,-616,10,-937,-86,-682,22,-734,-115,-605,9,-536,-142,-563,399,-538,-64,-689,729,332,-370,598,-351,62,179,-663,-551,-845,218,437,24,111,-236,70,218,-661,-216,154,405,621,133,-615,573,333,-313,204,-421,-443,160,-672,399,118,-172,154,39,-850,373,207,173,-471,-321,347,218,176,112,587,191,-626,-153,79,603,375,75,-652,25,501,822,-70,-101,-590,74,778,406,319,133,-475,634,292,260,-676,-334,-704,15,-583,76,130,-235,30,-42,-607,97,-88,105,652,-70,91,76,245,4,-666,36,-119,241,622,2,-828,-281,61,-529,691,-88,-535,-801,69,-329,-448,-81,70,-74,-589,205,-79,46,-825,-58,-665,-550,148,15,737,182,-529,198,-627,168,-712,-196,-582,-611,-490,264,-664,-305,405,84,-105,-813,29,45,336,-205,-541,-400,575,170,-680,-62,-869,-97,448,64,108,-137,-541,-67,-669,232,-435,138,-736,-353,-629,191,-868,-149,-836,-578,88,173,-649,130,-720,-886,555,204,516,2,-232,-288,-497,-46,-788,-112,17,34,-590,102,-4,-55,-906,148,124,39,-899,288,516,-129,625,156,682,370,401,463,-443,565,453,380,63,-233,70,-133,-552,-333,44,386,320,-352,-769,33,-778,-382,-606,293,-736,-240,95,160,239,87,-798,412,211,-345,-754,-13,684,-26,-516,197,-751,-442,-202,49,186,-83,-543,-728,80,359,109,-18,-43,104,-765,198,-874,34,-835,65,-628,252,654,-339,-573,-405,-760,107,632,-483,-513,70,-794,-63,-506,-209,-577,-161,233,-279,180,194,-775,85,-589,-415,-762,254,502,248,317,-443,-60,194,799,-457,-690,-12,-556,9,-836,-104,-270,144,-197,36,-740,-144,-617,-381,77,-277,616,170,-707,-191,115,-545,215,-95,78,-200,-62,-333,177,43,-782,39,-670,-73,587,-12,-534,-55,-658,-582,-290,210,457,-87,-206,-52,-672,19,334,287,-246,-6,78,-614,-396,-596,529,-470,-703,-531,53,-549,-74,-241,255,156,454,65,-680,-543,220,-586,28,-50,-897,-182,54,182,362,-111,-546,-659,-508,-261,630,-100,470,-300,-666,194,-673,514,-642,36,-618,-126,82,-273,-891,-25,369,-329,-713,-48,-718,-42,416,59,-908,214,517,-33,42,-31,-746,231,26,15,492,202,-439,148,-667,144,575,93,-552,225,-775,26,-837,282,484,341,-520,-25,-120,99,93,169,362,624,443,-122,120,-383,-718,107,304,167,493,-30,-439,190,-608,167,-585,113,-957,545,84,474,-68,-45,-6,-70,45,256,-599,707,-518,-41,-807,514,730,-213,-780,322,479,-341,-133,281,-791,81,-574,-651,384,88,-710,-396,-530,-64,-836,208,-705,358,40,-192,-875,106,-676,836,141,-18,-670,-53,-833,-167,410,162,-660,359,278,268,658,37,777,27,-559,-37,-591,259,270,-543,-495,-1,-820,-34,-752,256,-708,-331,-648,177,-621,-283,-4,-149,24,-212,300,435,76,-305,56,-295,237,169,-583,-475,509,-368,-732,-89,171,-425,164,-405,-824,-667,-32,-131,188,328,-22,166,-520,-288,-655,-21,484,76,-540,1,-694,338,175,249,502,-137,-885,305,-470,330,-789,-92,163,-272,-623,788,235,-643,289,-228,-521,-100,-649,-203,-834,676,-599,-65,-127,-80,-769,117,334,239,-572,-242,188,424,423,-51,48,-719,215,-24,-784,147,-519,-190,498,-133,-638,-196,93,98,-882,315,-63,-184,252,636,-247,737,389,157,494,-442,-578,-130,-407,-239,-279,127,396,-479,-584,-524,-255,288,-387,-147,698,17,-567,78,512,80,-544,142,-546,145,-720,-110,-681,-286,411,64,-699,-253,-60,94,-650,-119,97,-42,138,-306,-703,215,220,-131,-731,-193,-37,24,-460,-234,-482,336,-708,331,-799,37,-486,-719,-512,-11,-626,-863,-28,866,-93,154,-691,204,595,-29,-914,-559,304,29,-622,-6,-598,-242,223,-708,-36,134,-611,-71,84,-525,13,718,180,-208,-397,511,-412,212,-663,209,-272,140,-417,-32,35,-386,-83,53,-459,-552,735,221,40,197,364,434,429,-198,-113,494,168,-274,-591,-610,192,230,-176,348,309,-20,-706,32,-547,111,504,-27,-377,-424,-693,321,470,-22,-467,-238,42,79,-588,373,-162,-184,-766,-260,-399,43,-18,210,589,54,-841,35,-844,-373,-438,475,-114,-735,17,54,352,-96,133,-463,-768,476,-83,-354,120,109,-574,303,344,651,-464,149,320,150,333,282,-156,-287,-592,15,125,-77,547,-80,-795,-20,-736,669,310,348,-411,-23,90,117,-681,131,-597,-183,-485,107,-926,-775,56,-407,152,-481,-706,40,-497,-187,68,23,480,496,-299,221,618,167,-593,303,228,-432,-411,-122,-145,56,287,636,59,-50,-484,26,-566,140,-633,-340,-318,78,-697,30,-618,26,276,5,-535,-542,135,84,-695,443,-618,-197,74,985,-73,-83,-576,723,199,-123,-813,261,628,228,-818,888,131,-142,-121,-237,-111,-59,-580,-386,475,95,-647,-701,139,11,-628,-10,-670,83,-629,-280,-716,-253,-7,-139,35,216,549,-238,-760,-731,-112,50,-621,-347,-481,-209,164,161,-37,-239,454,-400,24,79,-755,-77,161,149,-829,-59,-508,60,-582,560,-478,-418,-100,751,-300,-264,-2,-117,17,-13,-608,24,-566,-246,411,-190,-839,-564,72,301,-529,-141,-920,-265,-639,117,566,-218,-61,113,-926,-231,-821,103,-652,-115,-836,-76,-45,132,295,-30,781,237,-567,-163,-628,-193,74,-371,-775,-177,-604,-84,-898,-229,268,136,-616,-652,-200,221,-728,364,436,77,300,-13,-495,-127,-619,-618,200,-545,-458,-53,-610,-400,-476,-44,-15,-32,-687,192,461,269,443,371,399,-256,-696,-40,191,569,224,-260,-561,-166,189,-611,223,-235,-520,46,579,-61,-595,-181,-586,-141,249,332,-855,690,99,502,-618,-132,-728,-566,206,311,525,247,-627,115,469,44,-715,-553,-567,193,-833,-146,-709,-34,143,-151,-714,-48,-835,253,468,306,393,15,447,217,516,116,485,-239,-155,174,584,118,473,-472,-585,77,-644,77,-682,-317,-13,10,-710,680,101,-698,-68,-189,479,324,289,3,-563,171,-596,29,924,-213,-824,-101,83,14,-29,26,-773,-141,-891,101,-457,468,231,-455,412,149,506,411,-651,7,-735,-257,179,-676,-70,185,-679,-342,170,46,-558,71,535,201,576,287,368,-23,901,112,-659,-51,-576,269,-617,59,-614,-132,25,7,636,123,383,418,490,-18,-563,-29,146,-76,-552,69,-701,107,-764,-95,135,-201,-607,464,-463,-204,663,-327,-387,473,601,-321,-648,172,-477,-135,-495,75,406,685,-430,-273,-80,567,271,-327,-199,175,-578,37,-640,183,-850,254,281,102,-749,-155,9,-302,-640,486,667,303,-725,215,575,110,-782,155,-617,-368,136,-89,39,-213,-644,-840,152,110,-604,-33,-750,-86,181,-2,-662,-128,-690,-97,-868,-828,-112,-176,-676,-181,-605,280,637,196,516,-52,-895,35,-898,-179,304,506,689,-314,-675,162,173,493,28,-82,-627,-285,-664,-116,260,4,-554,-119,56,169,274,166,-609,713,28,243,-706,191,586,-87,525,-200,-595,201,-550,536,132,184,401,205,-791,-466,-327,-383,-815,-6,-679,-753,-486,124,-881,-73,24,-38,148,120,-576,18,-733,237,-641,-542,451,-756,25,150,476,-512,51,179,-633,53,-559,-298,308,116,-431,-59,170,-488,133,167,560,199,416,-34,-424,-19,213,-61,-736,46,-647,-394,-811,-454,-774,-94,-730,-434,422,161,-797,-215,450,-172,-760,-70,224,-334,-409,131,-611,36,-419,84,-588,-56,-618,-223,-602,-569,57,-551,25,-79,308,95,-732,-197,75,-179,-387,68,-711,-420,-577,-248,16,-106,35,-413,-140,-388,-19,-91,347,159,-473,-258,160,597,45,-882,35,522,164,22,-808,-244,-735,-250,-472,175,-595,-323,-589,-399,-453,69,-640,149,-818,-318,-749,45,739,193,-932,164,-536,-325,-488,-196,-84,-644,-327,-223,158,68,-732,-81,224,-46,-609,67,-619,-234,-462,412,-421,-217,834,-371,-613,1,-760,-716,228,-102,-332,112,804,-755,5,-402,-691,-415,380,-196,-14,-431,-689,136,-830,-39,-780,-744,349,-8,-533,477,181,-168,380,-677,-116,-642,-405,295,-190,881,-23,15,161,3,547,-51,-746,18,87,396,520,-2,971,-573,99,-295,-693,-11,627,154,-493,-149,223,76,303,277,-731,-160,465,229,-698,508,12,-184,445,162,425,124,-943,252,-637,112,-835,-392,-675,-150,-153,-118,-696,-80,-645,181,425,209,504,57,-684,-130,128,-350,-705,-897,-217,113,-736,132,-109,-546,-105,793,428,-39,354,2,-704,-288,103,-298,-603,114,-620,310,-566,128,-558,58,-790,-176,189,-17,-624,-692,-86,852,140,-693,48,830,-150,103,410,-121,-606,-124,-679,-486,-388,146,-292,-617,271,-344,-659,213,-663,-258,664,284,-705,0,212,-74,-636,-244,-379,85,-582,36,-565,-822,-107,-6,-495,-59,-771,-319,-385,-37,-838,166,375,-310,698,257,-704,-32,17,673,286,858,162,-9,-466,-450,-693,209,-985,-185,-592,12,-570,-612,274,800,-269,244,196,-119,-616,640,71,122,-266,-322,91,-179,-695,17,-735,-184,85,48,-737,-314,-444,-356,-769,69,-595,-415,-228,206,-809,91,545,416,-391,182,720,-45,-599,43,368,-333,-635,152,-683,-146,-490,172,-688,22,148,165,-108,115,-683,242,-595,-16,-725,138,-674,-380,-263,56,-966,-60,-716,157,-171,254,-448,-275,41,704,279,172,476,-608,442,-306,613,-751,37,-63,792,-299,51,52,-587,62,-707,905,170,-59,-754,-202,-97,123,43,-214,-653,-691,26,93,416,104,-878,-606,396,83,-642,159,-564,85,-733,-84,-496,-56,133,30,-754,-60,107,201,568,239,537,-262,310,-243,-44,295,749,-169,103,206,228,-464,-614,102,-557,184,-690,-287,120,495,-501,-387,-691,219,-674],"3":[154,461,189,-132,779,-116,204,-734,678,-206,111,-27,349,744,-41,-334,-349,-704,581,-587,542,-449,-31,-358,585,-419,248,-413,-181,332,-258,493],"4":[183,-17,-139,69,-67,-414,171,418,-443,-101,291,-382,-262,290,-282,38,481,254,-541,244,72,-638,129,641,-548,-349,484,76,-258,443,-141,-651,489,477,-694,-19,588,-465,-18,770,-491,-518,753,-32,-564,491,275,-687,271,686,-681,-328,703,-242,-262,679,-321,-627,657,366,-646,140,331,-210,269,9,139,-194,366,-149,-433,626,9,-756,436,600,-769,-126,386,-522,-71,526,-244,-446,741,178,-719,346],"5":[224,-38,-230,21,-114,-446,-220,244,61,-28,322,-408],"6":[326,-199,-200,75,39,-20,-125,-221,293,-180,62,104]},"edges":[0,2044,1,2045,2,2046,3,2047,4,2048,5,2049,1380,2084,99,2085,1669,2086,1304,2090,1368,2106,434,2108,1724,2114,1347,2116,1446,2128,729,2132,395,2133,663,2153,870,2163,1840,2164,1646,2165,809,2174,1131,2179,1010,2182,581,2183,1793,2185,1378,2189,253,2193,1075,2196,1447,2201,128,2202,1505,2206,1734,2208,1969,2219,307,2231,1027,2247,233,2249,924,2250,502,2251,1613,2261,923,2284,1237,2286,1509,2289,1684,2290,372,2294,335,2297,1951,2302,1860,2314,849,2321,2024,2322,1182,2326,1818,2339,1772,2356,694,2363,1957,2366,201,2368,1119,2370,1063,2373,33,2378,1664,2380,1367,2385,1484,2391,1937,2399,1270,2420,795,2422,939,2444,179,2447,1762,2453,991,2454,1011,2466,1407,2477,428,2481,1686,2484,1650,2502,627,2514,875,2516,1346,2526,170,2528,1111,2533,1868,2535,306,2543,1245,2544,1984,2549,1264,2552,240,2554,1261,2562,389,2565,1954,2566,459,2567,956,2573,1857,2576,826,2582,934,2589,1196,2592,116,2593,1294,2620,124,2623,1705,2625,742,2629,2023,2632,989,2637,1472,2669,604,2678,313,2685,1282,2686,252,2696,889,2700,1569,2703,582,2709,1771,2723,1438,2727,1441,2730,1137,2737,1449,2738,1864,2740,850,2746,327,2747,1180,2762,1107,2765,519,2773,878,2776,757,2778,1456,2782,688,2785,675,2787,486,2790,1083,2808,1388,2816,446,2830,339,2834,452,2844,1922,2851,1343,2855,1015,2857,1532,2867,242,2873,20,2876,539,2878,1719,2880,1493,2882,15,2889,1652,2895,882,2902,706,2905,1155,2908,225,2910,1681,2912,1555,2935,387,2936,1661,2937,738,2944,773,2956,955,2960,1790,2975,290,2982,755,2989,361,2997,876,2998,483,3016,1481,3018,1805,3023,209,3027,1395,3033,493,3049,405,3062,1142,3063,1901,3067,578,3075,1467,3078,1512,3085,101,3088,1744,3101,1829,3103,553,3104,392,3107,1022,3109,451,3110,388,3111,1745,3112,1268,3115,1079,3116,1516,3117,1244,3122,1359,3124,1271,3126,1816,3134,293,3140,1990,3149,848,3152,1326,3153,27,3154,1105,3156,965,3172,119,3173,1081,3174,851,3187,343,3189,1386,3193,1887,3197,655,3207,149,3210,1930,3218,1802,3238,1170,3240,1389,3248,1720,3255,1428,3265,1328,3268,1191,3272,56,3294,1361,3310,1035,3312,718,3320,598,3322,37,3326,440,3329,767,3331,362,3340,353,3341,1568,3346,453,3357,1281,3366,560,3374,1909,3385,1554,3387,681,3392,799,3404,1581,3407,1903,3413,951,3422,488,3427,1900,3431,1332,3433,748,3442,1729,3444,1841,3445,468,3446,701,3448,1711,3454,656,3457,1000,3460,1580,3465,1279,3469,328,3475,871,3482,1781,3487,2168,3488,2223,3488,3488,3507,2629,3489,2577,3489,2567,3489,3264,3489,3489,3504,3489,3505,2474,3490,3406,3490,3490,3525,2906,3491,2905,3491,3491,3527,3413,3492,3045,3492,3492,3530,2629,3493,2395,3493,2196,3493,3330,3493,3493,3504,3493,3536,2210,3494,2284,3494,3494,3528,2945,3495,3276,3495,3495,3506,3361,3496,2524,3496,3496,3532,2492,3497,2078,3497,3497,3522,2257,3498,3043,3498,3498,3522,3175,3499,3315,3499,3499,3506,3429,3500,3485,3500,3500,3522,2172,3501,2541,3501,3501,3509,3273,3502,2870,3502,3502,3518,3050,3503,3129,3503,3503,3518,3504,3552,3505,3552,3506,3552,3507,3552,3508,3552,3509,3552,3510,3552,3511,3551,3512,3552,3513,3552,3514,3552,3515,3552,3516,3552,3517,3552,3518,3551,3519,3552,3520,3552,3521,3552,3522,3552,3523,3552,3524,3552,3525,3552,3526,3552,3527,3552,3528,3552,3529,3552,3530,3552,3531,3552,3532,3552,3533,3552,3534,3552,3535,3552,3536,3552,3537,3552,3538,3552,3539,3552,3540,3552,3541,3552,3542,3552,3543,3552,3544,3552,3545,3552,3546,3552,3547,3552,3552,3554,3553,3554,3551,3555,3552,3555,3548,3556,3549,3556,3550,3557,3549,3557,3548,3558,3553,3558,3551,3559,3552,3559,0,3488,1,3488],"sessNodes":[0,1,2,3,4,5],"sessFrameNodes":{"f-00":2044,"f-01":2045,"f-02":2046,"f-03":2047,"f-04":2048,"f-05":2049},"threadNodes":[0,1,2044,2045,3488,3547,3552,3554]};
+const CONFIG = {"coach":{"name":"Rob","full_name":"Rob Snoeijen","slug":"rob-snoeijen","pronouns":["he","him","his"]},"session":{"other_role":"The usual answer"},"steps":{"collect":{"t":"111 sources, gathered in one place","b":"We read 14 of his LinkedIn posts, 90 pages from his websites (including his course outline and an excerpt of his book Sales-ABC) and his videos and interviews: <em>49,750 words across 2,044 lines.<\/em> Almost all of it is in Dutch. Rob hasn’t published a recorded coaching session, so we follow the worked example in his book, where two salespeople answer the same customer and Rob explains which one wins. English lines on this page are our translations."},"transcript":{"t":"A book example becomes text","b":"The example is split into its lines: the usual answer, Rob’s model answer and his verdict. At first, it is simply a record of what was written, in Dutch."},"speakers":{"t":"Who said what","b":"We separate the usual answer (Salesperson A) from Rob’s model answer and his verdict, and mark the line he responds to."},"layer1":{"t":"Layer 1 · What was said","b":"The usual answer, as he writes it: <em>&ldquo;We have good service, and if something breaks we help you quickly.&rdquo;<\/em> His model answer backs every word: <em>&ldquo;We have good service, because our helpdesk is open 24/7…&rdquo;<\/em> (translated from Dutch). These exact lines are the evidence for everything that follows."},"meaning":{"t":"What happened next?","b":"Every competitor says &ldquo;good service&rdquo;. Rob’s salesperson says it too, but proves it: the helpdesk hours, the stock, the engineer within 24 hours, the guarantee, the customer survey. Then he asks the customer to agree."},"cue":{"t":"What Rob does in response","b":"When the answer is a claim anyone could make, Rob answers, <em>&ldquo;Salesperson B, of course. Why? He comes with facts and proof.&rdquo;<\/em> (translated from Dutch)"},"layer2":{"t":"Layer 2 · Rob’s response","b":"He replaces a claim with his five steps: name the customer’s argument in their words, give three proofs, say what’s in it for them, ask for a yes and, if needed, back it with documents. The response stays linked to the exact line."},"layer3":{"t":"Layer 3 · The situation","b":"A customer is comparing you with competitors who all say &ldquo;good service, fast delivery&rdquo;, and the salesperson’s answer sounds like everyone else’s. In Rob’s material this shows up as <em>standing out from the competition<\/em>."},"layer4":{"t":"Layer 4 · The recurring pattern","b":"Rob comes back to this in three sources: <em>&ldquo;Do you use the same arguments as your competitor to convince the customer?&rdquo;<\/em> asks his course outline and his online training page, and the book opens the example with it. The word &ldquo;persuade&rdquo; (overtuigen) appears in 22 of his 111 sources."},"layer5":{"t":"Layer 5 · The coaching purpose","b":"The purpose is that the customer is convinced by proof they can check, not by claims, so they choose you on value instead of the conversation sliding into price."},"layer6":{"t":"Layer 6 · The principle","b":"<em>Being right isn’t hard; getting the customer to agree is.<\/em> In his words: &ldquo;Gelijk hebben is niet moeilijk, gelijk krijgen wel&rdquo; (Sales-ABC, translated from Dutch)."},"trace":{"t":"One answer becomes a principle","b":"We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the line where Rob’s model answer replaces the usual one."}},"cards":{"layer1":{"cue":"We have good service, and if something breaks we help you quickly. (translated from Dutch)","move":"We have good service, because our helpdesk is open 24/7. We have more than thirty thousand items in stock. Our trained service engineer is on your site within 24 hours. You also get a three-year guarantee on our products. If something unexpectedly breaks, you’re helped quickly and expertly. Good service matters to you, doesn’t it? If you like, I’ll send you the guarantee certificate. I can also send our latest customer survey: our customers rate our service a 9. (translated from Dutch)","foot":"Rob’s worked example &middot; Sales-ABC (2022) &middot; Dutch"},"layer2":{"cue":"Hears a claim every competitor makes","move":"Backs it with three proofs, the customer’s gain and a request for a yes"},"layer3":{"title":"A claim that sounds like everyone else","text":"A customer is comparing suppliers who all promise good service and fast delivery, and the salesperson’s answer is the same claim.","foot":"Situation in his material &middot; standing out from the competition"},"layer4":{"title":"Facts and proof, not claims","text":"Rob keeps asking whether you use the same arguments as your competitor, and answers with his argumentation method.","foot":"Recurring pattern &middot; 3 of his sources (book, course outline, online training page)"},"layer5":{"title":"Proof the customer can check","text":"Name the customer’s argument, prove it three times, say what it brings them, and ask them to agree.","starts":"&ldquo;We have good service&rdquo;","moves_to":"&ldquo;Here is why, and here is the proof&rdquo;"},"layer6":{"quote":"Being right isn’t hard; getting the customer to agree is.","text":"In his words: <em>&ldquo;Gelijk hebben is niet moeilijk, gelijk krijgen wel.&rdquo;<\/em> (Sales-ABC, translated from Dutch)"}},"about":{"sources":[["LinkedIn","in/robsnoeijen","14 posts · Dutch"],["Websites","salestopics.nl, sales-abc.com, salessnacks.com, course outline and book excerpt","90 pages · Dutch"]],"rows":[["Type of coach",[["Sales trainer and coach",1],["Founder of SalesTopics",1],["Author of Sales-ABC",1]],[["Pushy, foot-in-the-door seller",0],["Dry management theorist",0]],"your LinkedIn headline: Sales-Inspirator, Sales Trainer, Sales Coach, Bestseller Auteur · your intro video: sales trainer, coach, entrepreneur and founder of SalesTopics","“luckily the time of pushy salespeople with their foot in the door is behind us” · “this is not a dry management book” (Sales-ABC)"],["Region",[["Eindhoven",1],["The Netherlands",1]],[["Not enough data yet",0]],"LinkedIn: Eindhoven · sales training pages for Eindhoven, Den Bosch, Breda, Tilburg, Helmond and Nijmegen (salestopics.nl)","your material doesn’t say where you don’t work"],["How you deliver",[["Tailored training (DATE®)",1],["Online sales training",1],["SalesSnacks microlearnings",1],["Coaching on the job",1]],[["One-size-fits-all courses",0],["Training that stops after the session",0]],"DATE®: Diagnose, Architecture, Training & Coaching, Evaluation (salestopics.nl) · weekly five-minute SalesSnacks on the phone · job coaching: a coach joins the customer visit","“not standard solutions, but tailored sales training” (salestopics.nl) · “we also thought about how to embed the process after the training” (interview with Douglas Huissen, 2025)"],["Your topics",[["Acquisition and cold calling",1],["Persuasion and arguments",1],["Negotiating price",1],["Closing the deal",1]],[["Product features first",0],["Talking without closing",0]],"Sales-ABC runs A to Z, from acquisition to closing the deal · his trainings include telephone acquisition, price negotiation and raising prices (salestopics.nl)","“many salespeople talk about their products’ features; very few people are waiting for that” · “they keep talking and repeating themselves” (course outline)"],["Named frameworks",[["DATE®",1],["7-step sales conversation",1],["Sales-ABC (A to Z)",1],["5-step argumentation",1]],[["Brand-new revolutionary methods",0]],"DATE® (salestopics.nl) · the 7-step plan for a successful sales conversation (course outline) · the five steps in Sales-ABC’s persuasion chapter","“no completely new sales methods or revolutionary techniques; let’s get the basics right first” (Sales-ABC)"],["Your style",[["Sayings and quotes",1],["Sports comparisons",1],["Practical exercises",1]],[["Not enough data yet",0]],"“sayings that make you think: I love them” and Cruijff’s “simple is the hardest” (Sales-ABC) · footballers who train every day (intro video) · “a real do-book” with questions and assignments (Sales-ABC)","you have little recorded coaching, so start calibration to see more of how you coach"]]},"dos":[["back every claim with facts and proof","Sales-ABC · Beïnvloeden"],["name the customer’s argument in their own words","Sales-ABC · step 1"],["say what’s in it for the customer (W.I.I.F.M.)","Sales-ABC · step 3"],["ask the customer for a clear yes","Sales-ABC · step 4"],["end every conversation with a concrete next step","Sales-ABC · introduction"],["prepare every sales conversation","Course outline"],["solve the customer’s problem instead of pushing a product","Course outline"],["evaluate yourself after every practice","Online training intro video"]],"donts":[["use the same arguments as your competitor","Course outline · Sales-ABC"],["list product features nobody asked for","Sales-ABC · W.I.I.F.M."],["push with your foot in the door","Sales-ABC · introduction"],["keep talking and repeat yourself instead of closing","Course outline"],["work on assumptions","Course outline"],["leave the conversation without a commitment","Sales-ABC · introduction"]],"personas":[],"mobile":true,"words":{},"about_lead":"","dd_lead":"Rob's twin would follow these in every answer. They come from his book Sales-ABC, his course outline and his own videos and posts. All are translated from Dutch."};
+</script>
+<script>
+(() => {
+const S = STORY, CF = CONFIG, T = S.totals, TH = S.thread, sess = S.session, L = sess.lines;
+const NM = CF.coach.name, [HE, HIM, HIS] = CF.coach.pronouns;
+const WD = Object.assign({coaching: 'coaching', Coaching: 'Coaching', coaches: 'coaches'}, CF.words || {});
+const $ = s => document.querySelector(s);
+const fmt = n => n.toLocaleString('en-US');
+const css = getComputedStyle(document.documentElement);
+const C = {}; for (let l = 1; l <= 6; l++) C[l] = css.getPropertyValue('--l' + l).trim();
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const day = d => d ? `${+d.slice(8, 10)} ${MON[+d.slice(5, 7) - 1]} ${d.slice(0, 4)}` : '—';
+const kb = b => Math.max(1, Math.round(b / 1e3)) + ' KB';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const lineOf = id => L.find(l => l.id === id);
+const cueL = lineOf(TH.cueLine), moveL = lineOf(TH.moveLine);
+// the pyramid labels use the same words as the layer cards in the box on the right (cards: layer 4 recurring pattern, layer 5 purpose, layer 6 principle)
+const NAMES = ['', 'Lines', 'Moves', 'Situations', 'Recurring pattern', 'Purpose', 'Principle'];
+const KIND = {youtube: ['YouTube video', 'yt', 'YouTube'], linkedin: ['LinkedIn post', 'li', 'LinkedIn'], web: ['Web page', 'wb', 'Website'],
+  medium: ['Medium article', 'wb', 'Medium'], doc: ['Document', 'wb', 'Documents'], recording: ['Recording', 'lm', 'Recordings'],
+  instagram: ['Instagram post', 'ig', 'Instagram'], twitter: ['Post on X', 'tw', 'X']};
+
+/* ================= the states ================= */
+const P = CF.steps;
+const CH = ['Collect', 'About you', 'Read', 'Follow', 'Understand', 'Do’s & Don’ts'];
+const STATES = [
+  {ch: -1},
+  {ch: 0, ...P.collect, stat: [T.conversations, `sources · ${(T.words / 1e6).toFixed(1)}m words`]},
+  {ch: 1, ab: true},                       // About you comes straight after Collect (standard from 17 Nov 2026)
+  {ch: 2, ...P.transcript},
+  {ch: 2, ...P.speakers},
+  {ch: 2, ...P.layer1, stat: [T.actions, 'lines spoken or written'], lvl: 1},
+  {ch: 3, ...P.meaning, stat: [S.frames.length, `frames from these ${L.length} lines`]},
+  {ch: 3, ...P.cue},
+  {ch: 4, ...P.layer2, stat: [T.frames, `substantive lines by ${NM}`], lvl: 2},
+  {ch: 4, ...P.layer3, stat: [T.tactics, 'situations'], lvl: 3},
+  {ch: 4, ...P.layer4, stat: [T.scenes, 'recurring topics'], lvl: 4},
+  {ch: 4, ...P.layer5, stat: [T.phases, WD.coaching + ' purposes'], lvl: 5},
+  {ch: 4, ...P.layer6, stat: [T.beliefs, 'principles'], lvl: 6},
+  {ch: 4, ...P.trace, lvl: 7},
+  {ch: 5, fd: true},
+];
+const N = STATES.length, ST_L1 = STATES.findIndex(s => s.lvl === 1), ST_L2 = STATES.findIndex(s => s.lvl === 2);
+const ST_FR = ST_L1 + 1, ST_CUE = ST_L1 + 2, ST_AB = STATES.findIndex(s => s.ab);
+
+/* ================= build the DOM ================= */
+document.title = `How ${NM}'s Twin Learns`;
+// long speaker names (more than 7 letters) get a wider column; shorter ones keep the 54px one
+{ const n = Math.max(...L.map(l => l.who.length)); if (n > 7) document.documentElement.style.setProperty('--who', Math.ceil(n * 7.8) + 'px'); }
+$('#hdr').innerHTML = `Twin-memory · <b>From ${esc(NM)}'s words to a ${WD.coaching} principle</b>`;
+if (CF.switch && CF.switch.length > 1) {
+  $('#psw').hidden = false; $('#hdr').hidden = true;   // the switch takes the strapline's place
+  $('#psw').innerHTML = CF.switch.map(q => `<button type="button" class="ptab" role="tab" data-href="${esc(q.href)}" aria-selected="${!!q.current}">${esc(q.label)}${q.count ? `<small>${esc(q.count)}</small>` : ''}</button>`).join('');
+}
+$('#hero-h').innerHTML = `How ${esc(NM)}'s twin<br><i>learns</i>`;
+$('#hero-p').textContent = `Start with what was said. Follow what ${NM} does next, the situation ${HE} recognizes, and the principle behind ${HIS} response.`;
+
+const stage = $('#stage');
+const rail = $('#rail');
+CH.forEach((name, c) => {
+  const el = document.createElement('div'); el.className = 'ch';
+  el.innerHTML = `<span>${pad(c + 1)} ${name}</span><span class="dots">${
+    STATES.map((s, i) => s.ch === c ? `<i data-i="${i}" class="hit"></i>` : '').join('')}</span>`;
+  rail.appendChild(el);
+});
+
+// finder list: every source, oldest first; the session is selected
+const files = S.files;
+const selIdx = files.findIndex(f => f.sel);
+const kinds = [...new Set(files.map(f => f.k))];
+$('#side').innerHTML = `<h6>Favourites</h6><div class="on"><i class="fi"></i>${esc(CF.coach.slug)}</div>
+  <h6 style="margin-top:14px">Sources</h6>${kinds.map(k => `<div><i class="fi"></i>${(KIND[k] || KIND.doc)[2]}</div>`).join('')}`;
+$('#lrows').innerHTML = files.map(f => { const K = KIND[f.k] || KIND.doc;
+  return `<div class="lrow"><span class="nm"><i class="badge ${K[1]}"></i>${esc(f.n)}</span><span class="kd">${K[0]}</span><span class="dt">${day(f.d)}</span><span class="sz">${kb(f.s)}</span></div>`; }).join('');
+
+// transcript
+const keyLines = new Set([TH.cueLine, TH.moveLine]);
+$('#doc').innerHTML = `<div class="fm">---\ntitle: '${esc(sess.title)}'\ndate: '${sess.date}'\nturns: ${sess.turns}\n---</div>` +
+  L.map(l => `<div class="ln${keyLines.has(l.id) ? ' key' : ''}" data-id="${l.id}">
+    <div class="rh"><span class="h">### </span>${l.ts} · ${l.raw}</div>
+    <div class="row"><span class="ts">${l.ts}</span><span class="who ${l.coach ? 'o' : 's'}">${esc(l.who)}</span><span class="txt"><span class="r">${esc(l.text)}</span><span class="c">${esc(l.text)}</span></span></div></div>`).join('');
+
+// frames
+$('#frames').innerHTML = `<div class="plabel">Frames · <b style="color:var(--l2)">what each line meant</b></div>` +
+  S.frames.map(f => `<div class="fc${f.id === TH.cue || f.id === TH.move ? ' key' : ''}"><span class="k">${f.kind}${f.id === TH.cue ? '<em>cue</em>' : f.id === TH.move ? `<em>${esc(NM)}’s move</em>` : ''}</span>${esc(f.span)}</div>`).join('');
+
+// layer cards (copy is trusted HTML from the config)
+const K = CF.cards;
+$('#cards').innerHTML = `
+  <div class="card" id="c1"><div class="lv" style="color:var(--l1)">Layer 1 · What was said</div>
+    <dl class="pair"><dt>${esc(sess.other)}</dt><dd class="q">“${K.layer1.cue}”</dd><dt>${esc(NM)}</dt><dd class="q">“${K.layer1.move}”</dd></dl>
+    <div class="foot">${K.layer1.foot || `${day(sess.date)} · ${cueL.ts} and ${moveL.ts} · stored word for word`}</div></div>
+  <div class="card" id="c2"><div class="lv" style="color:var(--l2)">Layer 2 · What ${esc(NM)} does</div>
+    <dl class="pair"><dt>${esc(CF.session.other_role)}</dt><dd>${K.layer2.cue}</dd><dt>${esc(NM)}</dt><dd>${K.layer2.move}</dd></dl>
+    <div class="foot">The response stays linked to the exact exchange</div></div>
+  <div class="card" id="c3"><div class="lv" style="color:var(--l3)">Layer 3 · The situation</div><h3>${K.layer3.title}</h3><p>${K.layer3.text}</p>
+    <div class="foot">${K.layer3.foot}</div></div>
+  <div class="card" id="c4"><div class="lv" style="color:var(--l4)">Layer 4 · The recurring pattern</div><h3>${K.layer4.title}</h3><p>${K.layer4.text}</p>
+    <div class="foot">${K.layer4.foot}</div></div>
+  <div class="card" id="c5"><div class="lv" style="color:var(--l5)">Layer 5 · The ${WD.coaching} purpose</div><h3>${K.layer5.title}</h3><p>${K.layer5.text}</p>
+    <dl class="pair" style="margin-top:14px"><dt>Starts</dt><dd>${K.layer5.starts}</dd><dt>Moves to</dt><dd>${K.layer5.moves_to}</dd></dl>
+    <div class="foot">Why ${esc(NM)}’s reply matters</div></div>
+  <div class="card" id="c6"><div class="lv" style="color:var(--l6)">Layer 6 · The ${WD.coaching} principle</div><blockquote>“${K.layer6.quote}”</blockquote><p>${K.layer6.text}</p>
+    <div class="foot">Derived from the recorded pattern</div></div>`;
+
+const LG = ['What was said', `What ${NM} does`, 'The situation', 'Recurring pattern', WD.Coaching + ' purpose', 'Derived principle'];
+$('#legend').innerHTML = `<div class="plabel">This exchange, layer by layer</div>` + [6, 5, 4, 3, 2, 1].map((l, i) =>
+  `<div class="lg" style="transition-delay:${.1 + i * .08}s"><i style="background:${C[l]}"></i><span>L${l} ${esc(LG[l - 1])}</span></div>`).join('');
+
+// about you
+const A = CF.about;
+$('#ab').innerHTML = `<div class="lead">
+    <div class="kick">${pad(STATES[ST_AB].ch + 1)} · About you</div>
+    <h1>Where we found you</h1>
+    <p>${CF.about_lead || 'Your twin starts from what you have already shared in public.'}</p>
+    <div class="found">${A.sources.map(([k, where, meta]) => `<div><b>${k}</b> ${where}<em>✓</em><small>${meta}</small></div>`).join('')}</div>
+  </div>
+  <div class="page">
+    <h2>Here’s who we think you are</h2>
+    <p class="what">From your ${(n => n.length > 1 ? n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1] : n[0])(A.sources.map(s => s[0]))}. Tap to correct anything.</p>
+    ${A.rows.some(r => r.length >= 5) ? `<div class="sheet two"><div class="row heads"><span></span><div class="cols"><b class="is">Who you are</b><b class="no">Who you are not</b></div></div>${
+      A.rows.map(([label, yes, not, evYes, evNot]) => `<div class="row"><span>${label}</span><div class="cols">
+        <div class="col"><div class="chips">${yes.map(([v, on]) => `<button type="button" class="chip" aria-pressed="${!!on}">${v}</button>`).join('')}</div><span class="ev">${evYes}</span></div>
+        <div class="col"><div class="chips">${not.map(([v, on]) => `<button type="button" class="chip no" aria-pressed="${!!on}">${v}</button>`).join('')}</div><span class="ev">${evNot}</span></div>
+      </div></div>`).join('')}</div>` : `<div class="sheet">${A.rows.map(([label, opts, ev]) => `<div class="row"><span>${label}</span><div class="chips">${
+      opts.map(([v, on]) => `<button type="button" class="chip" aria-pressed="${!!on}">${v}</button>`).join('')}<span class="ev">${ev}</span></div></div>`).join('')}</div>`}
+  </div>`;
+
+// do's & don'ts (optionally one set per persona, e.g. a professor who also teaches Sanskrit chanting)
+const PERS = (CF.personas && CF.personas.length) ? CF.personas : [{label: '', dd_lead: CF.dd_lead, dos: CF.dos, donts: CF.donts}];
+const ddRow = (kind, [text, meta]) => `<div class="dd-row ${kind}"><i>${kind === 'do' ? '✓' : '✕'}</i><div><p><b>${kind === 'do' ? 'Do' : 'Don’t'}</b> ${text}</p><small>${meta}</small></div></div>`;
+function showPersona(k) {
+  const P = PERS[k];
+  $('#dd-lead').innerHTML = P.dd_lead || CF.dd_lead;
+  $('#dd-count').innerHTML = `<div><b>${P.dos.length}</b><span>Do’s</span></div><div><b>${P.donts.length}</b><span>Don’ts</span></div>`;
+  const tabs = PERS.length > 1 ? `<div class="ptabs" role="tablist">${PERS.map((q, n) =>
+    `<button type="button" class="ptab" role="tab" data-p="${n}" aria-selected="${n === k}">${esc(q.label)}</button>`).join('')}</div>` : '';
+  $('#fdpage').innerHTML = `<article class="on">
+  <h2>How ${esc(NM)} ${WD.coaches}</h2>${tabs}
+  <div class="dd-cols">
+    <section><div class="dd-head do"><i>✓</i> Do’s <small>how ${HIS} twin behaves</small></div>${P.dos.map(x => ddRow('do', x)).join('')}</section>
+    <section><div class="dd-head dont"><i>✕</i> Don’ts <small>lines ${HIS} twin never crosses</small></div>${P.donts.map(x => ddRow('dont', x)).join('')}</section>
+  </div>
+</article>`;
+}
+showPersona(0);
+
+/* ================= the layered space ================= */
+const FLOOR = {1: 1.0, 2: .84, 3: .68, 4: .52, 5: .36, 6: .2}, FY = l => -1 + (l - 1) * .4;
+const counts = {}, off = {}; let NN = 0;
+for (let l = 1; l <= 6; l++) { counts[l] = S.floors[l].length / 2; off[l] = NN; NN += counts[l]; }
+const X = new Float32Array(NN), Y = new Float32Array(NN), Z = new Float32Array(NN), LAY = new Uint8Array(NN);
+for (let l = 1; l <= 6; l++) {
+  const f = S.floors[l], w = FLOOR[l];
+  for (let k = 0; k < counts[l]; k++) { const i = off[l] + k; X[i] = f[2 * k] / 1000 * w; Z[i] = f[2 * k + 1] / 1000 * w; Y[i] = FY(l); LAY[i] = l; }
+}
+// draw order: a shuffle per layer, so a floor fills evenly as it appears
+const ORDER = {};
+for (let l = 1; l <= 6; l++) {
+  const a = new Uint32Array(counts[l]); for (let k = 0; k < a.length; k++) a[k] = off[l] + k;
+  for (let k = a.length - 1; k > 0; k--) { const j = (Math.random() * (k + 1)) | 0; const t = a[k]; a[k] = a[j]; a[j] = t; }
+  ORDER[l] = a;
+}
+const EDGE = {};                               // links grouped by the upper layer they reach
+for (let k = 0; k < S.edges.length; k += 2) { const a = S.edges[k], b = S.edges[k + 1], l = LAY[b]; (EDGE[l] ||= []).push(a, b); }
+const SN = S.sessNodes;                        // the lines we followed, in transcript order
+const SF = S.frames.map(f => ({node: S.sessFrameNodes[f.id], from: SN[L.findIndex(l => l.id === f.from.at(-1))]}));
+const thr = S.threadNodes;                     // [line cue, line move, frame cue, frame move, situation, topic, phase, belief]
+const thrEdges = [[thr[0], thr[2]], [thr[1], thr[3]], [thr[2], thr[4]], [thr[3], thr[4]], [thr[4], thr[5]], [thr[5], thr[6]], [thr[6], thr[7]]];
+const PX = new Float32Array(NN), PYs = new Float32Array(NN);
+const LBL = i => { const l = LAY[i], k = i - off[l]; return l === 3 ? S.labels.tactics[k] : l === 4 ? S.labels.scenes[k] : l === 5 ? S.labels.phases[k] : l === 6 ? S.labels.beliefs[k] : ''; };
+
+/* ================= animated values ================= */
+const V = {}, TG = {};
+const val = (k, v) => { V[k] = TG[k] = v; };
+[['ry', .55], ['rx', .62], ['zoom', .82], ['ty', -1], ['cx', 790], ['cy', 520], ['spin', 0], ['thrA', 0]].forEach(([k, v]) => val(k, v));
+for (let l = 1; l <= 6; l++) { val('L' + l, 0); val('E' + l, 0); }
+let rot = 0, drag = 0, cur = -1, thrUpTo = 0, cardLevel = 0, fly = null, flyF = null, wiresLeft = 0;
+
+/* ================= layout ================= */
+const cv = $('#cv'), ctx = cv.getContext('2d');
+let W = 0, H = 0, DPR = 1, KS = 1, OX = 0, OY = 0, KD = 1, M = false;
+const sx = x => OX + x * KS, sy = y => OY + y * KS;
+const HINT = $('#hint').innerHTML;
+// media queries, not innerWidth: a phone zooms out to fit the 1600px slide, which inflates innerWidth
+const MQ = matchMedia('(orientation: portrait) and (max-width: 899px)'), MQR = matchMedia('(orientation: landscape) and (max-height: 499px)');
+function fit() {
+  // phones: a portrait column (opt-in per coach); a phone held sideways is asked to turn upright
+  M = !!CF.mobile && MQ.matches;
+  document.body.classList.toggle('m', M);
+  document.body.classList.toggle('rot', !!CF.mobile && MQR.matches);
+  W = innerWidth; H = innerHeight; DPR = Math.min(2, devicePixelRatio || 1);
+  cv.width = W * DPR; cv.height = H * DPR; ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  $('#hint').innerHTML = M ? '<span id="mback" class="hit">← Back</span><span>Tap to continue</span>' : HINT;
+  $('#go').textContent = M ? 'Tap to begin →' : 'Click to begin →';
+  // with a persona switch the phone header is taller: the About and Do's pages start below it
+  if (M && CF.switch) document.documentElement.style.setProperty('--hdh', document.querySelector('header').getBoundingClientRect().height + 'px');
+  if (M) { camM(0); wiresLeft = 0; return; }
+  KS = Math.min(W / 1600, H / 900); KD = KS; OX = (W - 1600 * KS) / 2; OY = (H - 900 * KS) / 2;
+  stage.style.transform = `translate(${OX}px,${OY}px) scale(${KS})`;
+  wiresLeft = 30;
+}
+// phones: fit the layered space into the free part of the visual area (above a card or the legend), easing as it changes
+function camM(dt) {
+  const v = $('#vis').getBoundingClientRect(), panel = ['#cards', '#legend'].map(s => $(s)).find(el => el.classList.contains('on'));
+  const top = v.top + 6, bottom = panel ? panel.getBoundingClientRect().top - 10 : v.bottom - 6, h = Math.max(120, bottom - top);
+  const ks = Math.min(W / 860, h / 560), ox = W / 2 - 800 * ks, oy = top + h / 2 - 470 * ks;
+  const k = dt ? 1 - Math.exp(-dt * 5) : 1;
+  KS += (ks - KS) * k; OX += (ox - OX) * k; OY += (oy - OY) * k; KD = Math.max(KS, .62);
+}
+
+/* ================= state application ================= */
+const cls = (sel, c, on) => $(sel).classList.toggle(c, !!on);
+// camera per layer: start low and close on the dense floors, rise with each layer, end on the whole
+const CAM = {1: [.62, .82, -1.0, 790, 520], 2: [.44, .8, -.78, 790, 530], 3: [.4, .78, -.52, 790, 520], 4: [.37, .76, -.28, 790, 505],
+             5: [.4, .76, -.05, 790, 490], 6: [.44, .74, .12, 790, 470], 7: [.5, .7, 0, 840, 470]};
+function go(i) {
+  i = Math.max(0, Math.min(N - 1, i)); if (i === cur) return;
+  const prev = cur; cur = i; const st = STATES[i], now = performance.now();
+  // the lines drop from the transcript onto the floor
+  fly = null;
+  if (i === ST_L1 && prev === ST_L1 - 1)
+    fly = {t0: now, from: [...document.querySelectorAll('.ln')].map(el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r.width, r.height]; })};
+  flyF = null;
+  if (i === ST_L2 && prev === ST_CUE)
+    flyF = {t0: now, from: [...document.querySelectorAll('.fc')].map(el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r.width, r.height]; })};
+
+  cls('#hero', 'out', i > 0);
+  const cap = $('#cap');
+  cap.classList.add('out');
+  if (i > 0 && !st.fd && !st.ab) setTimeout(() => {
+    if (cur !== i) return;
+    $('#kick').textContent = `${pad(st.ch + 1)} · ${CH[st.ch]}`;
+    $('#title').innerHTML = st.t; $('#body').innerHTML = st.b; cap.classList.remove('out');
+  }, 380);
+  if (st.stat) { countTo(st.stat[0]); $('#unit').textContent = st.stat[1]; }
+  cls('#stat', 'hide', !st.stat);
+  $('#hint').style.opacity = i === N - 1 ? 0 : 1;
+  document.body.classList.toggle('final', st.lvl === 7);
+  cls('#fd', 'on', st.fd);
+  cls('#ab', 'on', st.ab);
+  document.querySelectorAll('#rail .ch').forEach((el, c) => { el.classList.toggle('on', c === st.ch); el.classList.toggle('done', c < st.ch); });
+  document.querySelectorAll('#rail i').forEach(el => { const k = +el.dataset.i; el.classList.toggle('on', k === i); el.classList.toggle('done', k < i); });
+
+  // ----- the window
+  const win = $('#win');
+  const shown = i >= 1 && i < ST_L1 && i !== ST_AB || i === ST_FR || i === ST_CUE;
+  win.classList.toggle('show', shown);
+  win.classList.toggle('gone', !shown && i > 0);
+  win.classList.toggle('narrow', i === ST_FR || i === ST_CUE);
+  $('#side').style.cssText = i <= 1 ? '' : 'width:0;padding:14px 0;opacity:0';
+  cls('#list', 'on', i === 1); cls('#docs', 'on', i > ST_AB);
+  $('#wtitle').textContent = i <= 1 ? CF.coach.slug : `${sess.date} · ${sess.title}.md`;
+  $('#status').textContent = i > ST_AB ? `${sess.kind} · ${day(sess.date)}` : '';
+  if (i === 1) runList(); else listAnim++;
+  const doc = $('#doc');
+  doc.classList.toggle('clean', i > ST_AB + 1); doc.classList.toggle('focus', i === ST_CUE);
+
+  // ----- right panels
+  cls('#frames', 'on', i === ST_FR || i === ST_CUE); cls('#frames', 'focus', i === ST_CUE);
+  for (let l = 1; l <= 6; l++) cls('#c' + l, 'on', st.lvl === l);
+  cls('#cards', 'on', st.lvl >= 1 && st.lvl <= 6);
+  cls('#legend', 'on', st.lvl === 7);
+  wiresLeft = 100;
+
+  // ----- canvas targets
+  const lv = st.lvl || 0, t = TG;
+  for (let l = 1; l <= 6; l++) { t['L' + l] = lv && l <= lv ? 1 : 0; t['E' + l] = lv && l <= lv && l > 1 ? 1 : 0; }
+  t.thrA = lv ? 1 : 0; thrUpTo = Math.min(lv, 6); cardLevel = lv >= 1 && lv <= 6 ? lv : 0;
+  t.spin = lv === 7 ? .07 : lv ? .02 : 0;
+  if (lv) { const [rx, zoom, ty, cx, cy] = CAM[lv]; Object.assign(t, {rx, zoom, ty, cx, cy}); }
+}
+
+let numCur = 0, numAnim = 0;
+function countTo(v) {
+  const from = numCur, t0 = performance.now(), id = ++numAnim;
+  const tick = now => {
+    if (id !== numAnim) return;
+    const p = Math.min(1, (now - t0) / 1100), e = 1 - Math.pow(1 - p, 3);
+    numCur = Math.round(from + (v - from) * e); $('#num').textContent = fmt(numCur);
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* the list scrolls through every source, then selects our session */
+let listAnim = 0;
+function runList() {
+  const rows = $('#lrows'), id = ++listAnim, t0 = performance.now();
+  rows.querySelectorAll('.sel').forEach(r => r.classList.remove('sel'));
+  const target = Math.max(0, Math.min(selIdx * 26 - 300, files.length * 26 - 556)), dur = 3600;
+  rows.style.transform = 'translateY(0)';
+  const tick = now => {
+    if (id !== listAnim || cur !== 1) return;
+    const p = Math.min(1, (now - t0) / dur), e = p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+    rows.style.transform = `translateY(${-e * target}px)`;
+    if (p < 1) requestAnimationFrame(tick);
+    else setTimeout(() => id === listAnim && rows.children[selIdx].classList.add('sel'), 250);
+  };
+  requestAnimationFrame(tick);
+}
+
+/* wires: transcript lines -> frame cards */
+function wires() {
+  const svg = $('#wires'), fr = $('#frames'), on = cur === ST_FR || cur === ST_CUE;
+  const lineBox = {};
+  document.querySelectorAll('.ln').forEach(el => { const r = el.getBoundingClientRect(); lineBox[el.dataset.id] = ((r.top + r.bottom) / 2 - OY) / KS; });
+  const cards = [...fr.querySelectorAll('.fc')], frTop = 100;
+  let y = 0;
+  const pos = cards.map((el, k) => {
+    const h = el.offsetHeight || 54, a = lineBox[S.frames[k].from.at(-1)];
+    const want = a !== undefined ? a - frTop - h / 2 : y;
+    y = Math.max(want, y); const top = y; y += h + 6; return {top, h};
+  });
+  const over = y - 765;
+  if (over > 0) pos.forEach((p, k) => p.top -= over * k / Math.max(1, pos.length - 1));
+  cards.forEach((el, k) => { el.style.top = pos[k].top + 'px'; el.style.transitionDelay = (on && cur === ST_FR ? .25 + k * .1 : 0) + 's'; });
+  if (!svg.childElementCount) S.frames.forEach(f => f.from.forEach(() => svg.appendChild(document.createElementNS('http://www.w3.org/2000/svg', 'path'))));
+  let n = 0;
+  cards.forEach((el, k) => {
+    const f = S.frames[k], key = f.id === TH.cue || f.id === TH.move, ty = frTop + pos[k].top + pos[k].h / 2, tx = 1120;
+    f.from.forEach(id => {
+      const p = svg.children[n++], a = lineBox[id]; if (a === undefined) return;
+      const x0 = 1072, mx = (x0 + tx) / 2;
+      p.setAttribute('d', `M${x0},${a} C${mx},${a} ${mx},${ty} ${tx},${ty}`);
+      p.setAttribute('class', `wire${on ? ' on' : ''}${cur === ST_CUE ? (key ? ' key' : ' dim') : ''}`);
+      p.style.transitionDelay = (on && cur === ST_FR ? .35 + k * .1 : 0) + 's';
+    });
+  });
+}
+
+/* ================= canvas ================= */
+function project(x, y, z, out) {
+  const ry = rot + V.ry + drag, rx = V.rx, s = KS * 380 * V.zoom;
+  y -= V.ty;
+  const cy = Math.cos(ry), sy_ = Math.sin(ry), cx = Math.cos(rx), sx_ = Math.sin(rx);
+  const x1 = x * cy + z * sy_, z1 = -x * sy_ + z * cy;
+  const y2 = y * cx - z1 * sx_, z2 = y * sx_ + z1 * cx;
+  const p = 3.4 / (3.4 + z2);
+  out[0] = sx(V.cx) + x1 * p * s; out[1] = sy(V.cy) - y2 * p * s;
+  return out;
+}
+const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${n >> 8 & 255},${n & 255},${a})`; };
+const ease = t => t <= 0 ? 0 : t >= 1 ? 1 : t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const pt = [0, 0];
+const DOT = {1: 1.1, 2: 1.3, 3: 2.3, 4: 4, 5: 5.4, 6: 6};
+const ALPHA = {1: .5, 2: .55, 3: .8, 4: .9, 5: .9, 6: .95};
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  for (const k in TG) {
+    const rate = k[0] === 'L' ? 1.1 : k[0] === 'E' ? 1.4 : 2.6;
+    V[k] += (TG[k] - V[k]) * (1 - Math.exp(-dt * rate));
+  }
+  rot += dt * V.spin;
+  if (M) camM(dt);
+  else if (wiresLeft > 0) { wiresLeft--; wires(); }
+  ctx.clearRect(0, 0, W, H);
+  if ([1, 2, 3, 4, 5, 6].some(l => V['L' + l] > .005)) drawLayers(now);
+  requestAnimationFrame(frame);
+}
+
+function drawLayers(now) {
+  for (let l = 1; l <= 6; l++) {
+    if (V['L' + l] < .005) continue;
+    for (let i = off[l], e = off[l] + counts[l]; i < e; i++) { project(X[i], Y[i], Z[i], pt); PX[i] = pt[0]; PYs[i] = pt[1]; }
+  }
+  // floors
+  for (let l = 1; l <= 6; l++) {
+    const a = Math.min(1, V['L' + l] * 1.5); if (a < .01) continue;
+    const w = FLOOR[l], y = FY(l), cs = [[-w, -w], [w, -w], [w, w], [-w, w]].map(([x, z]) => project(x, y, z, [0, 0]));
+    ctx.beginPath(); cs.forEach((p, k) => k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath();
+    ctx.fillStyle = rgba(C[l], .04 * a); ctx.fill(); ctx.strokeStyle = rgba(C[l], .28 * a); ctx.lineWidth = 1; ctx.stroke();
+    const right = cs.reduce((m, p) => p[0] > m[0] ? p : m);
+    ctx.fillStyle = rgba(C[l], .9 * a); ctx.font = `600 ${M ? 9 : 10.5 * KS}px 'IBM Plex Mono',monospace`;
+    const lbl = `L${l} · ${NAMES[l].toUpperCase()}`, lx = right[0] + 12 * KD;
+    ctx.fillText(lbl, M ? Math.min(lx, W - 4 - ctx.measureText(lbl).width) : lx, right[1] + 4 * KD);
+  }
+  // links up into each layer, one path per layer
+  for (let l = 2; l <= 6; l++) {
+    const a = V['E' + l] * Math.min(V['L' + l], V['L' + (l - 1)]); if (a < .01 || !EDGE[l]) continue;
+    const E = EDGE[l], n = Math.floor(E.length / 2 * Math.min(1, a * 1.2));
+    ctx.strokeStyle = rgba(C[l], (l >= 5 ? .2 : l === 4 ? .13 : .07) * a); ctx.lineWidth = l >= 4 ? .8 : .5;
+    ctx.beginPath();
+    for (let k = 0; k < n; k++) { const p = E[2 * k], q = E[2 * k + 1]; ctx.moveTo(PX[p], PYs[p]); ctx.lineTo(PX[q], PYs[q]); }
+    ctx.stroke();
+  }
+  // atoms: each floor fills in as it appears
+  for (let l = 1; l <= 6; l++) {
+    const v = V['L' + l]; if (v < .005) continue;
+    const ord = ORDER[l], n = Math.floor(ord.length * Math.min(1, v * 1.15)), r = DOT[l] * KD;
+    ctx.fillStyle = rgba(C[l], ALPHA[l] * (cardLevel && cardLevel - l >= 2 ? .45 : 1));
+    if (l <= 3) for (let k = 0; k < n; k++) { const i = ord[k]; ctx.fillRect(PX[i] - r / 2, PYs[i] - r / 2, r, r); }
+    else {
+      ctx.strokeStyle = rgba(C[l], .3);
+      for (let k = 0; k < n; k++) {
+        const i = ord[k]; ctx.beginPath(); ctx.arc(PX[i], PYs[i], r, 0, 6.283); ctx.fill();
+        ctx.beginPath(); ctx.arc(PX[i], PYs[i], r + 3 * KD, 0, 6.283); ctx.stroke();
+      }
+    }
+  }
+  drawSession(now);
+  drawThread(now);
+}
+
+// the session's lines (and their frames) stay lit, so the eye can follow them
+function drawSession(now) {
+  const a1 = V.L1; if (a1 < .01) return;
+  SN.forEach((i, k) => {
+    let x = PX[i], y = PYs[i];
+    if (fly) {
+      const p = ease((now - fly.t0 - k * 55) / 1500), f = fly.from[k];
+      if (p < 1) {
+        x = f[0] + (x - f[0]) * p; y = f[1] + (y - f[1]) * p;
+        const w = f[2] + (5 * KD - f[2]) * p, h = f[3] + (5 * KD - f[3]) * p;
+        ctx.fillStyle = rgba(C[1], .16 + .5 * p); ctx.strokeStyle = rgba(C[1], .8); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(x - w / 2, y - h / 2, w, h, Math.min(7, h / 2)); ctx.fill(); ctx.stroke();
+        return;
+      }
+    }
+    ctx.fillStyle = rgba('#f6d48a', a1); ctx.beginPath(); ctx.arc(x, y, 2.6 * KD, 0, 6.283); ctx.fill();
+  });
+  if (V.L2 < .01) return;
+  SF.forEach((f, k) => {
+    let x = PX[f.node], y = PYs[f.node];
+    if (flyF) {
+      const p = ease((now - flyF.t0 - k * 55) / 1500), r = flyF.from[k];
+      if (p < 1) {
+        x = r[0] + (x - r[0]) * p; y = r[1] + (y - r[1]) * p;
+        const w = r[2] + (5 * KD - r[2]) * p, h = r[3] + (5 * KD - r[3]) * p;
+        ctx.fillStyle = rgba(C[2], .16 + .5 * p); ctx.strokeStyle = rgba(C[2], .85); ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(x - w / 2, y - h / 2, w, h, Math.min(8, h / 2)); ctx.fill(); ctx.stroke();
+        return;
+      }
+    }
+    ctx.strokeStyle = rgba(C[2], .6 * V.L2); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(PX[f.from], PYs[f.from]); ctx.lineTo(x, y); ctx.stroke();
+    ctx.fillStyle = rgba('#9fe3da', V.L2); ctx.beginPath(); ctx.arc(x, y, 2.6 * KD, 0, 6.283); ctx.fill();
+  });
+}
+
+function drawThread(now) {
+  if (V.thrA < .02) return;
+  const pulse = .75 + .25 * Math.sin(now / 420), flying = (fly && now - fly.t0 < 2300) || (flyF && now - flyF.t0 < 2300);
+  ctx.lineWidth = 2 * KD;
+  for (const [a, b] of thrEdges) {
+    const lb = LAY[b]; if (lb > thrUpTo) continue;
+    const al = Math.min(V['L' + LAY[a]], V['L' + lb]) * V.thrA * (flyF && lb >= 2 ? ease((now - flyF.t0 - 1500) / 700) : 1);
+    ctx.strokeStyle = rgba('#f3ead9', .85 * al);
+    ctx.beginPath(); ctx.moveTo(PX[a], PYs[a]); ctx.lineTo(PX[b], PYs[b]); ctx.stroke();
+  }
+  for (const i of thr) {
+    const l = LAY[i]; if (l > thrUpTo || (flying && l === thrUpTo)) continue;
+    const al = V['L' + l] * V.thrA, big = l >= 4;
+    ctx.fillStyle = rgba(C[l], al); ctx.beginPath(); ctx.arc(PX[i], PYs[i], (big ? 7 : 4.5) * KD, 0, 6.283); ctx.fill();
+    ctx.strokeStyle = rgba('#f3ead9', .95 * al); ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(PX[i], PYs[i], (big ? 11 : 9) * KD * pulse, 0, 6.283); ctx.stroke();
+  }
+  // leaders from this layer's thread atoms to its card
+  if (cardLevel && !flying) {
+    const r = $('#c' + cardLevel).getBoundingClientRect();
+    ctx.strokeStyle = rgba(C[cardLevel], .75 * V.thrA); ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+    thr.filter(i => LAY[i] === cardLevel).forEach((i, k) => {
+      ctx.beginPath(); ctx.moveTo(PX[i] + (M ? 0 : 10 * KS), PYs[i] + (M ? 10 * KD : 0));
+      if (M) ctx.lineTo(r.left + r.width * (.3 + k * .4), r.top - 6); else ctx.lineTo(r.left - 8, r.top + (cardLevel <= 2 ? 56 + k * 74 : 26) * KS);
+      ctx.stroke();
+    });
+    ctx.setLineDash([]);
+  }
+}
+
+/* ================= input ================= */
+let down = null, moved = false;
+addEventListener('pointerdown', e => { down = {x: e.clientX, d: drag}; moved = false; });
+addEventListener('pointermove', e => {
+  if (down && Math.abs(e.clientX - down.x) > 5 && STATES[cur].lvl) { moved = true; drag = down.d + (e.clientX - down.x) * .006; }
+  hover(e);
+});
+addEventListener('pointerup', e => {
+  const was = down; down = null;
+  if (!was || moved) return;
+  const dot = e.target.closest && e.target.closest('#rail i');
+  if (dot) { go(+dot.dataset.i); return; }
+  if (e.target.closest && e.target.closest('#mback, #fd .keys')) { go(cur - 1); return; }
+  const sw = e.target.closest && e.target.closest('#psw .ptab');
+  if (sw) { if (sw.getAttribute('aria-selected') !== 'true') location.replace(sw.dataset.href + '#' + Math.max(0, cur)); return; }
+  const ptab = e.target.closest && e.target.closest('#fd .ptab');
+  if (ptab) { showPersona(+ptab.dataset.p); return; }
+  const chip = e.target.closest && e.target.closest('#ab .chip');
+  if (chip) { chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true')); return; }
+  if (STATES[cur].fd) return;                  // reading the last page: clicks do not advance
+  go(cur + 1);
+});
+addEventListener('keydown', e => {
+  if (['ArrowRight', ' ', 'Enter', 'PageDown'].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+  if (['ArrowLeft', 'Backspace', 'PageUp'].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+  if (e.key === 'Home') go(0);
+});
+const tip = $('#tip');
+function hover(e) {
+  if (M || STATES[cur].lvl !== 7 || down) { tip.style.opacity = 0; return; }
+  let best = -1, bd = 12 * 12;
+  for (let i = off[3]; i < NN; i++) { const dx = PX[i] - e.clientX, dy = PYs[i] - e.clientY, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = i; } }
+  if (best < 0) { tip.style.opacity = 0; return; }
+  const l = LAY[best];
+  tip.innerHTML = `<small style="color:${C[l]}">L${l} · ${NAMES[l]}</small>${esc(LBL(best))}`;
+  tip.style.left = Math.min(W - 380, e.clientX + 16) + 'px'; tip.style.top = (e.clientY + 14) + 'px'; tip.style.opacity = 1;
+}
+addEventListener('resize', fit);
+MQ.addEventListener && MQ.addEventListener('change', fit);
+fit(); requestAnimationFrame(fit);
+go(+location.hash.slice(1) || 0);
+addEventListener('hashchange', () => go(+location.hash.slice(1) || 0));
+requestAnimationFrame(frame);
+if (document.fonts) document.fonts.ready.then(() => { wiresLeft = 30; });
+})();
+</script>
+</body>
+</html>

@@ -277,6 +277,21 @@ export const ALBANDERY_ALASHI = {
   },
 }
 
+export const ROB_SNOEIJEN = {
+  id: 'rob-snoeijen',
+  name: 'Rob Snoeijen',
+  firstName: 'Rob',
+  initials: 'RS',
+  participantName: 'User',
+  face: '/media/rob-snoeijen-headshot.jpg',
+  portrait: '/media/rob-snoeijen-headshot.jpg',
+  room: {
+    kind: 'Methodology · Demo',
+    title: 'How Rob’s twin learns',
+    scenario: 'Methodology and role play demo. There is no live twin for Rob yet.',
+  },
+}
+
 export const COLLY_GRAHAM = {
   id: 'colly-graham',
   name: 'Colly Graham',
@@ -678,5 +693,24 @@ ALBANDERY_ALASHI.sources = [
   ]],
   ['Website', '56 pages', [
     ['elstedamasolutions.com', 'Estedama’s programmes and approach, in Arabic'],
+  ]],
+]
+
+
+ROB_SNOEIJEN.sourceSummary = '14 LinkedIn posts · 90 website pages and book excerpts · 7 videos'
+ROB_SNOEIJEN.sources = [
+  ['Book', 'Sales-ABC (2022)', [
+    ['Sales-ABC: van acquisitie tot zakendoen', 'Book excerpt (table of contents, persuasion chapter, index), Dutch'],
+  ]],
+  ['Website', '90 pages', [
+    ['salestopics.nl', 'Trainings, coaching, consultancy and the online sales training outline, Dutch'],
+    ['sales-abc.com and salessnacks.com', 'His book and his weekly microlearnings'],
+  ]],
+  ['LinkedIn', '14 posts', [
+    ['Rob Snoeijen on LinkedIn', 'His own posts, January 2025 to November 2026, Dutch'],
+  ]],
+  ['Video', '5 YouTube videos and 2 interviews', [
+    ['SalesTopics online sales training: introduction', 'YouTube, 2014'],
+    ['From training to lasting impact', 'Interview with Douglas Huissen, 2025'],
   ]],
 ]
