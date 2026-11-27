@@ -1,0 +1,143 @@
+# Rob Snoeijen (sales trainer and coach, founder of SalesTopics, author of Sales-ABC; Eindhoven, Netherlands). Build with:
+#   python build.py build rob-snoeijen
+# Source: lore users/rob-snoeijen (lore 4638f75f): 14 of his own LinkedIn posts, 90 website pages (salestopics.nl,
+# sales-abc.com, salessnacks.com, the managementboek preview, the online sales training outline PDF and the Sales-ABC book
+# excerpt PDF), 5 YouTube videos and 2 short LinkedIn video interviews with Douglas Huissen. Almost all Dutch.
+# Exchange (27 Nov 2026, Lalith; checked by Cathy's Claude): the worked example in his book Sales-ABC (2022), chapter
+# "Beinvloeden", section "Argumentatie die overtuigt": Salesperson A answers with the claim every competitor makes,
+# Salesperson B answers with facts and proof, and Rob explains why B wins and gives his five steps. It is a written example he
+# made up, so the page presents it as his book example. Salesperson B's lines are Rob's model answer, so they are marked as his.
+# Fixes from Cathy's review: B's full answer (steps 3 and 5 in action), step 1 = "the customer's argument", step 5 is
+# "if needed" (eventueel), no Voordeel-Prijs-Voordeel (only its name is in the excerpt's index, never its content).
+# Quotes are Dutch; cards show English translations marked as such. Pronouns he/him.
+
+coach:
+  slug: rob-snoeijen
+  name: Rob
+  full_name: Rob Snoeijen
+  pronouns: [he, him, his]
+
+mobile: true
+
+session:
+  file: website/sales-abc-boek-fragment-pdf.md
+  title: Two salespeople, one customer
+  kind: Sales-ABC (book, 2022) · Dutch
+  other: Seller A
+  other_role: The usual answer
+  post_turns:
+    - {who: other, text: "Wij hebben een goede service en bij storing helpen wij u snel."}
+    - {who: coach, text: "Wij hebben een goede service, want onze helpdesk is 24/7 bereikbaar."}
+    - {who: coach, text: "Bij onverwachte storing wordt u snel en vakkundig geholpen."}
+    - {who: coach, text: "Als u wilt, zal ik het garantiebewijs naar u opsturen."}
+    - {who: coach, text: "Natuurlijk voor verkoper B. Waarom?"}
+    - {who: coach, text: "Stap 1. Benoem het argument van je klant. Doe dit in zijn bewoordingen."}
+  cue: 0
+  move: 1
+  frames:
+    - ["statement", "Salesperson A: the claim every competitor makes, good service and quick help (translated from Dutch)"]
+    - ["reframe", "Salesperson B, Rob's model answer: the same claim, backed by a 24/7 helpdesk, 30,000 items in stock and an engineer on site within 24 hours"]
+    - ["statement", "what it means for the customer: if something breaks, you're helped quickly and expertly"]
+    - ["statement", "the proof on paper: the guarantee certificate and a customer survey that rates the service a 9"]
+    - ["question", "Rob's verdict: Salesperson B, of course, because he comes with facts and proof"]
+    - ["statement", "step 1 of his five: name the customer's argument, in the customer's own words"]
+
+thread:
+  situation: concurrentie-onderscheiden
+  situation_label: a customer comparing you with competitors who all say the same
+  topic: persuasive-language
+  phase: 4
+  belief: 0
+
+default_phase: 4
+phases:
+  - title: Prepare the call
+    keywords: [voorbereiding, voorbereiden, verkoopplan, doelen, doelstelling, prepare, preparation, plan, goals]
+  - title: Make the first impression
+    keywords: [indruk, uitstraling, voorstellen, pitch, eerste, impression, introduce]
+  - title: Win trust and open the conversation
+    keywords: [vertrouwen, chemie, sfeer, gespreksopening, opening, trust, rapport]
+  - title: Find the real need
+    keywords: [behoefte, vragen, vraagtechnieken, luisteren, inventariseren, aannames, need, questions, listening]
+  - title: Persuade with facts and proof
+    keywords: [overtuigen, overtuiging, argument, argumenteren, bewijs, bewijzen, feiten, bezwaar, bezwaren, persuade, proof, objection]
+  - title: Ask for the deal
+    keywords: [afsluiten, afsluittechnieken, koopsignalen, deal, commitment, vervolgmoment, close, closing]
+
+beliefs:
+  - {title: Getting agreement is the hard part, text: 'Being right isn’t hard; getting the customer to agree is. (Sales-ABC, translated from Dutch)', phases: [4, 5]}
+  - {title: Solve the customer’s problem, text: 'Not delivering your own products, but solving the customer’s problems or meeting their wishes is the most successful sales method. (Online sales training outline, translated)', phases: [3, 4]}
+  - {title: Prepare or be forgotten, text: 'Whoever forgets to prepare is preparing to be forgotten. (Online sales training outline, translated)', phases: [0, 1]}
+  - {title: People do business with people, text: 'People do business with people: without chemistry between people, in most cases there is no business. (Online sales training outline, translated)', phases: [2, 1]}
+  - {title: No goal, no goals, text: 'Without a goal, no goals! A sales plan with clear targets is the basis of selling with purpose. (Online sales training outline, translated)', phases: [0, 5]}
+  - {title: Train every day, text: 'Why do professional footballers train every day? They can all play. Training is evaluating: what goes well, and above all what can be sharper. (His online training intro video, translated)', phases: [3, 4]}
+
+steps:
+  collect: "We read {linkedin} of his LinkedIn posts, {web} pages from his websites (including his course outline and an excerpt of his book Sales-ABC) and his videos and interviews: <em>{words} words across {lines} lines.</em> Almost all of it is in Dutch. Rob hasn’t published a recorded coaching session, so we follow the worked example in his book, where two salespeople answer the same customer and Rob explains which one wins. English lines on this page are our translations."
+  transcript: ["A book example becomes text", "The example is split into its lines: the usual answer, Rob’s model answer and his verdict. At first, it is simply a record of what was written, in Dutch."]
+  trace: ["One answer becomes a principle", "We can travel from the principle back through its purpose, recurring pattern and situation, all the way to the line where Rob’s model answer replaces the usual one."]
+  speakers: ["Who said what", "We separate the usual answer (Salesperson A) from Rob’s model answer and his verdict, and mark the line he responds to."]
+  layer1: "The usual answer, as he writes it: <em>&ldquo;We have good service, and if something breaks we help you quickly.&rdquo;</em> His model answer backs every word: <em>&ldquo;We have good service, because our helpdesk is open 24/7…&rdquo;</em> (translated from Dutch). These exact lines are the evidence for everything that follows."
+  meaning: "Every competitor says &ldquo;good service&rdquo;. Rob’s salesperson says it too, but proves it: the helpdesk hours, the stock, the engineer within 24 hours, the guarantee, the customer survey. Then he asks the customer to agree."
+  cue: "When the answer is a claim anyone could make, Rob answers, <em>&ldquo;Salesperson B, of course. Why? He comes with facts and proof.&rdquo;</em> (translated from Dutch)"
+  layer2: "He replaces a claim with his five steps: name the customer’s argument in their words, give three proofs, say what’s in it for them, ask for a yes and, if needed, back it with documents. The response stays linked to the exact line."
+  layer3: "A customer is comparing you with competitors who all say &ldquo;good service, fast delivery&rdquo;, and the salesperson’s answer sounds like everyone else’s. In Rob’s material this shows up as <em>standing out from the competition</em>."
+  layer4: "Rob comes back to this in three sources: <em>&ldquo;Do you use the same arguments as your competitor to convince the customer?&rdquo;</em> asks his course outline and his online training page, and the book opens the example with it. The word &ldquo;persuade&rdquo; (overtuigen) appears in 22 of his 111 sources."
+  layer5: "The purpose is that the customer is convinced by proof they can check, not by claims, so they choose you on value instead of the conversation sliding into price."
+  layer6: "<em>Being right isn’t hard; getting the customer to agree is.</em> In his words: &ldquo;Gelijk hebben is niet moeilijk, gelijk krijgen wel&rdquo; (Sales-ABC, translated from Dutch)."
+
+cards:
+  layer1:
+    cue: "We have good service, and if something breaks we help you quickly. (translated from Dutch)"
+    move: "We have good service, because our helpdesk is open 24/7. We have more than thirty thousand items in stock. Our trained service engineer is on your site within 24 hours. You also get a three-year guarantee on our products. If something unexpectedly breaks, you’re helped quickly and expertly. Good service matters to you, doesn’t it? If you like, I’ll send you the guarantee certificate. I can also send our latest customer survey: our customers rate our service a 9. (translated from Dutch)"
+    foot: Rob’s worked example &middot; Sales-ABC (2022) &middot; Dutch
+  layer2:
+    cue: Hears a claim every competitor makes
+    move: Backs it with three proofs, the customer’s gain and a request for a yes
+  layer3:
+    title: A claim that sounds like everyone else
+    text: A customer is comparing suppliers who all promise good service and fast delivery, and the salesperson’s answer is the same claim.
+    foot: Situation in {his} material &middot; standing out from the competition
+  layer4:
+    title: Facts and proof, not claims
+    text: Rob keeps asking whether you use the same arguments as your competitor, and answers with his argumentation method.
+    foot: Recurring pattern &middot; 3 of his sources (book, course outline, online training page)
+  layer5:
+    title: Proof the customer can check
+    text: Name the customer’s argument, prove it three times, say what it brings them, and ask them to agree.
+    starts: '&ldquo;We have good service&rdquo;'
+    moves_to: '&ldquo;Here is why, and here is the proof&rdquo;'
+  layer6:
+    quote: Being right isn’t hard; getting the customer to agree is.
+    text: 'In his words: <em>&ldquo;Gelijk hebben is niet moeilijk, gelijk krijgen wel.&rdquo;</em> (Sales-ABC, translated from Dutch)'
+
+about:
+  sources:
+    - ["LinkedIn", "in/robsnoeijen", "{linkedin} posts · Dutch"]
+    - ["Websites", "salestopics.nl, sales-abc.com, salessnacks.com, course outline and book excerpt", "{web} pages · Dutch"]
+  # Standard from 17 Nov 2026: who you are / who you are not, each side with evidence from his own material.
+  rows:
+    - ["Type of coach", [["Sales trainer and coach", 1], ["Founder of SalesTopics", 1], ["Author of Sales-ABC", 1]], [["Pushy, foot-in-the-door seller", 0], ["Dry management theorist", 0]], "your LinkedIn headline: Sales-Inspirator, Sales Trainer, Sales Coach, Bestseller Auteur · your intro video: sales trainer, coach, entrepreneur and founder of SalesTopics", "“luckily the time of pushy salespeople with their foot in the door is behind us” · “this is not a dry management book” (Sales-ABC)"]
+    - ["Region", [["Eindhoven", 1], ["The Netherlands", 1]], [["Not enough data yet", 0]], "LinkedIn: Eindhoven · sales training pages for Eindhoven, Den Bosch, Breda, Tilburg, Helmond and Nijmegen (salestopics.nl)", "your material doesn’t say where you don’t work"]
+    - ["How you deliver", [["Tailored training (DATE®)", 1], ["Online sales training", 1], ["SalesSnacks microlearnings", 1], ["Coaching on the job", 1]], [["One-size-fits-all courses", 0], ["Training that stops after the session", 0]], "DATE®: Diagnose, Architecture, Training & Coaching, Evaluation (salestopics.nl) · weekly five-minute SalesSnacks on the phone · job coaching: a coach joins the customer visit", "“not standard solutions, but tailored sales training” (salestopics.nl) · “we also thought about how to embed the process after the training” (interview with Douglas Huissen, 2025)"]
+    - ["Your topics", [["Acquisition and cold calling", 1], ["Persuasion and arguments", 1], ["Negotiating price", 1], ["Closing the deal", 1]], [["Product features first", 0], ["Talking without closing", 0]], "Sales-ABC runs A to Z, from acquisition to closing the deal · his trainings include telephone acquisition, price negotiation and raising prices (salestopics.nl)", "“many salespeople talk about their products’ features; very few people are waiting for that” · “they keep talking and repeating themselves” (course outline)"]
+    - ["Named frameworks", [["DATE®", 1], ["7-step sales conversation", 1], ["Sales-ABC (A to Z)", 1], ["5-step argumentation", 1]], [["Brand-new revolutionary methods", 0]], "DATE® (salestopics.nl) · the 7-step plan for a successful sales conversation (course outline) · the five steps in Sales-ABC’s persuasion chapter", "“no completely new sales methods or revolutionary techniques; let’s get the basics right first” (Sales-ABC)"]
+    - ["Your style", [["Sayings and quotes", 1], ["Sports comparisons", 1], ["Practical exercises", 1]], [["Not enough data yet", 0]], "“sayings that make you think: I love them” and Cruijff’s “simple is the hardest” (Sales-ABC) · footballers who train every day (intro video) · “a real do-book” with questions and assignments (Sales-ABC)", "you have little recorded coaching, so start calibration to see more of how you coach"]
+
+dd_lead: Rob's twin would follow these in every answer. They come from his book Sales-ABC, his course outline and his own videos and posts. All are translated from Dutch.
+dos:
+  - ["back every claim with facts and proof", "Sales-ABC · Beïnvloeden"]
+  - ["name the customer’s argument in their own words", "Sales-ABC · step 1"]
+  - ["say what’s in it for the customer (W.I.I.F.M.)", "Sales-ABC · step 3"]
+  - ["ask the customer for a clear yes", "Sales-ABC · step 4"]
+  - ["end every conversation with a concrete next step", "Sales-ABC · introduction"]
+  - ["prepare every sales conversation", "Course outline"]
+  - ["solve the customer’s problem instead of pushing a product", "Course outline"]
+  - ["evaluate yourself after every practice", "Online training intro video"]
+donts:
+  - ["use the same arguments as your competitor", "Course outline · Sales-ABC"]
+  - ["list product features nobody asked for", "Sales-ABC · W.I.I.F.M."]
+  - ["push with your foot in the door", "Sales-ABC · introduction"]
+  - ["keep talking and repeat yourself instead of closing", "Course outline"]
+  - ["work on assumptions", "Course outline"]
+  - ["leave the conversation without a commitment", "Sales-ABC · introduction"]
